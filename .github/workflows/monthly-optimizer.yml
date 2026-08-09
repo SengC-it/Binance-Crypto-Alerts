@@ -1,0 +1,39 @@
+name: Monthly strategy optimizer
+
+on:
+  schedule:
+    - cron: "17 2 1 * *"
+  workflow_dispatch:
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.16.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Download local-only history
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CS_DEFAULT_TIMEZONE: Asia/Shanghai
+          CS_HISTORY_SYMBOLS: ${{ secrets.CS_HISTORY_SYMBOLS }}
+          CS_HISTORY_DAYS: 400
+          CS_HISTORY_TIMEFRAMES: 15m,1h,4h
+          CS_OPTIMIZER_DATA_DIR: data/raw
+        run: pnpm history:download
+      - name: Run optimizer
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CS_DEFAULT_TIMEZONE: Asia/Shanghai
+          CS_OPTIMIZER_DATA_DIR: data/raw
+        run: pnpm optimizer

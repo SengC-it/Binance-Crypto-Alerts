@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+coverage/
+.vercel/
+.env
+.env.local
+.env.*.local
+*.log
+*.tsbuildinfo
+supabase/.temp/
+data/raw/*
+!data/raw/.gitkeep

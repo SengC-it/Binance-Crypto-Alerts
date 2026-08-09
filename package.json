@@ -1,0 +1,41 @@
+{
+  "name": "crypto-signal-scanner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Rule-based Binance USDT-M perpetual opportunity scanner with risk-aware alerts.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "history:download": "tsx scripts/download-history.ts",
+    "optimizer": "tsx scripts/run-optimizer.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.2",
+    "decimal.js": "^10.6.0",
+    "next": "^16.3.0",
+    "nodemailer": "^7.0.13",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/nodemailer": "^7.0.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.3.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@11.16.0"
+}
