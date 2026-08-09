@@ -13,7 +13,7 @@
 - 同一个币种只有一个 `ACTIVE` 信号；新信号评分不高于旧信号时拒绝替换，替换时只按风险增量计入每日预算。
 - 每个 15 分钟扫描组最多预留 6 封邮件，每日最多 10 封；Gmail SMTP 使用 App Password。
 - Supabase 写入或扫描主流程失败时，尝试绕过 Supabase 直接通过 Gmail SMTP 发送严重故障告警。
-- Supabase 只保存 `cs_` 前缀的最新结果、信号事件、扫描状态和优化结果；原始历史行情放在本地 `data/raw/`，不会提交到公开仓库。
+- Supabase 只保存 `bca_` 前缀的最新结果、信号事件、扫描状态和优化结果；原始历史行情放在本地 `data/raw/`，不会提交到公开仓库。
 
 ## 架构
 
@@ -23,7 +23,7 @@ flowchart LR
   S[Supabase pg_cron] --> V
   V --> I[指标与三类规则]
   I --> R[评分与理论风险预算]
-  R --> D[(Supabase cs_* 表)]
+  R --> D[(Supabase bca_* 表)]
   R --> G[Gmail SMTP]
   H[GitHub Actions 每月优化] --> O[本地历史数据 / 回测]
   O --> D
@@ -46,26 +46,26 @@ pnpm dev
 
 ## Supabase
 
-迁移文件：[`supabase/migrations/20260808235907_cs_initial_schema.sql`](./supabase/migrations/20260808235907_cs_initial_schema.sql) 和 [`supabase/migrations/20260809000642_cs_claim_signal_fix.sql`](./supabase/migrations/20260809000642_cs_claim_signal_fix.sql)。已应用到项目 `jfvbikivtpfjgfsnggiz`，只新增以下 `cs_` 对象：
+迁移文件：[`supabase/migrations/20260808235907_cs_initial_schema.sql`](./supabase/migrations/20260808235907_cs_initial_schema.sql)、[`supabase/migrations/20260809000642_cs_claim_signal_fix.sql`](./supabase/migrations/20260809000642_cs_claim_signal_fix.sql) 和 [`supabase/migrations/20260809013349_bca_prefix_migration.sql`](./supabase/migrations/20260809013349_bca_prefix_migration.sql)。前两次迁移保留为历史记录，第三次迁移将本项目对象从 `cs_` 改名为 `bca_`，并保留原有数据、约束和 RLS：
 
-- `cs_instruments`、`cs_scan_runs`、`cs_signals`、`cs_signal_events`
-- `cs_risk_budgets`、`cs_notifications`、`cs_system_events`
-- `cs_strategy_versions`、`cs_backtest_runs`、`cs_app_settings`
-- `cs_claim_signal`、`cs_set_updated_at` 函数及对应索引/触发器
+- `bca_instruments`、`bca_scan_runs`、`bca_signals`、`bca_signal_events`
+- `bca_risk_budgets`、`bca_notifications`、`bca_system_events`
+- `bca_strategy_versions`、`bca_backtest_runs`、`bca_app_settings`
+- `bca_claim_signal`、`bca_set_updated_at` 函数及对应索引/触发器
 
 所有新表已启用 RLS，未给匿名用户创建策略；服务端使用 Supabase service key。不要把 service key、Gmail App Password 或 `CRON_SECRET` 放入公开仓库或 `NEXT_PUBLIC_*` 变量。
 
 部署到 Vercel 后：
 
 1. 在 Vercel 环境变量中设置 `.env.example` 的服务端变量，生产环境将 `CS_DRY_RUN=false`。
-2. 在 Supabase Vault 中保存 `cs_scan_url` 和 `cs_cron_secret`。
-3. 按 [`supabase/scheduler.sql`](./supabase/scheduler.sql) 创建 `cs-scan-batch-0..3`。这不会改动数据库中已有的 Cron。
+2. 在 Supabase Vault 中保存 `bca_scan_url` 和 `bca_cron_secret`。
+3. 按 [`supabase/scheduler.sql`](./supabase/scheduler.sql) 创建 `bca-scan-batch-0..3`。这不会改动数据库中已有的 Cron。
 
 GitHub Actions 月度优化需要配置仓库 Secrets：`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY` 和 `CS_HISTORY_SYMBOLS`。原始行情只存在于该次 Actions runner 的 `data/raw/`，不会写入 Supabase 或提交到公开仓库。
 
 ## 回测与参数优化
 
-先设置 `CS_HISTORY_SYMBOLS`，再运行 `pnpm history:download` 从 Binance 公共接口下载本地历史 K 线和资金费率；建议先从 BTC/ETH 等少量代表币种开始，确认存储空间和运行时间后再扩大到更多币种。`pnpm optimizer` 从 `data/raw/*.json` 读取本地历史数据，生成 54 组参数变体，按 9 个月训练 + 3 个月样本外评估，并以最大回撤 30% 作为资格线。合格的版本写入 `cs_strategy_versions`，运行摘要写入 `cs_backtest_runs`。
+先设置 `CS_HISTORY_SYMBOLS`，再运行 `pnpm history:download` 从 Binance 公共接口下载本地历史 K 线和资金费率；建议先从 BTC/ETH 等少量代表币种开始，确认存储空间和运行时间后再扩大到更多币种。`pnpm optimizer` 从 `data/raw/*.json` 读取本地历史数据，生成 54 组参数变体，按 9 个月训练 + 3 个月样本外评估，并以最大回撤 30% 作为资格线。合格的版本写入 `bca_strategy_versions`，运行摘要写入 `bca_backtest_runs`。
 
 数据文件需要包含一个 symbol、交易所过滤器和至少一年的已收盘 `15m` K 线，可选带 `1h`、`4h` K 线。数据不足一年时不会被标记为合格。原始文件被 `.gitignore` 排除。
 

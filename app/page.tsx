@@ -116,7 +116,7 @@ async function getRecentSignals(): Promise<RecentSignal[]> {
   try {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
-      .from("cs_signals")
+      .from("bca_signals")
       .select("id,symbol,side,strategy_family,primary_timeframe,score,market_regime,entry_price,stop_price,take_profit_price,reward_risk,status,valid_until,created_at")
       .order("created_at", { ascending: false })
       .limit(8);

@@ -30,13 +30,13 @@ export interface ClaimResult {
 }
 
 export async function upsertInstruments(supabase: SupabaseClient, instruments: unknown[]) {
-  const { error } = await supabase.from("cs_instruments").upsert(instruments, { onConflict: "symbol" });
+  const { error } = await supabase.from("bca_instruments").upsert(instruments, { onConflict: "symbol" });
   if (error) throw new Error(`Supabase instrument upsert failed: ${error.message}`);
 }
 
 export async function createScanRun(supabase: SupabaseClient, input: ScanRunInput): Promise<string> {
   const { data: existing, error: existingError } = await supabase
-    .from("cs_scan_runs")
+    .from("bca_scan_runs")
     .select("id")
     .eq("run_key", input.runKey)
     .maybeSingle();
@@ -44,7 +44,7 @@ export async function createScanRun(supabase: SupabaseClient, input: ScanRunInpu
   if (existing?.id) return existing.id as string;
 
   const { data, error } = await supabase
-    .from("cs_scan_runs")
+    .from("bca_scan_runs")
     .insert({
       run_key: input.runKey,
       scan_group_key: input.scanGroupKey,
@@ -71,7 +71,7 @@ export async function completeScanRun(
   },
 ) {
   const { error } = await supabase
-    .from("cs_scan_runs")
+    .from("bca_scan_runs")
     .update({
       scanned_symbols: patch.scannedSymbols,
       candidate_count: patch.candidateCount,
@@ -96,7 +96,7 @@ export async function claimSignal(
     shouldEmail: boolean;
   },
 ): Promise<ClaimResult> {
-  const { data, error } = await supabase.rpc("cs_claim_signal", {
+  const { data, error } = await supabase.rpc("bca_claim_signal", {
     p_signal: {
       scan_run_id: input.scanRunId ?? null,
       signal_key: input.signalKey,
@@ -139,7 +139,7 @@ export async function createNotification(
   input: { signalId: string; idempotencyKey: string; recipient: string; subject: string },
 ): Promise<boolean> {
   const { data, error } = await supabase
-    .from("cs_notifications")
+    .from("bca_notifications")
     .insert({
       signal_id: input.signalId,
       idempotency_key: input.idempotencyKey,
@@ -161,7 +161,7 @@ export async function finishNotification(
   patch: { status: "SENT" | "FAILED" | "SKIPPED"; providerMessageId?: string; error?: string },
 ) {
   const { error } = await supabase
-    .from("cs_notifications")
+    .from("bca_notifications")
     .update({
       status: patch.status,
       provider_message_id: patch.providerMessageId,
@@ -183,7 +183,7 @@ export async function recordSystemEvent(
     details?: unknown;
   },
 ) {
-  const { error } = await supabase.from("cs_system_events").insert({
+  const { error } = await supabase.from("bca_system_events").insert({
     event_type: event.eventType,
     severity: event.severity,
     component: event.component,

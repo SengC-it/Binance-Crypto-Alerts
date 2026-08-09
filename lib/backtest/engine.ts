@@ -1,7 +1,7 @@
 import { buildTradePlan } from "@/lib/core/risk";
 import { rankCandidates } from "@/lib/core/scoring";
 import { generateCandidates, type StrategyParams } from "@/lib/core/strategies";
-import type { Candle, FundingRatePoint, MarketSnapshot, TradePlan } from "@/lib/core/types";
+import type { Candle, FundingRatePoint, MarketSnapshot, Side, StrategyCandidate, TradePlan } from "@/lib/core/types";
 import type { BacktestMetrics, BacktestResult, BacktestTrade, HistoricalDataset } from "./types";
 
 const DEFAULT_TAKER_FEE_RATE = 0.0004;
@@ -18,6 +18,12 @@ export interface BacktestOptions {
   takerFeeRate?: number;
   slippageBps?: number;
   evaluationStartTime?: number;
+  evaluationEndTime?: number;
+  riskPerTradeUsdt?: number;
+  maxPositionNotionalUsdt?: number;
+  sideFilter?: Side;
+  strategyFamilies?: Array<"TREND" | "BREAKOUT" | "MEAN_REVERSION">;
+  requireRegimeAlignment?: boolean;
 }
 
 export function runBacktest(
@@ -36,16 +42,17 @@ export function runBacktest(
   const slippageBps = options.slippageBps ?? DEFAULT_SLIPPAGE_BPS;
   const candles = dataset.candles["15m"];
   const evaluationStartTime = options.evaluationStartTime ?? candlesStart(candles);
+  const evaluationEndTime = options.evaluationEndTime ?? Number.POSITIVE_INFINITY;
   const trades: BacktestTrade[] = [];
   let equity = initialCapitalUsdt;
   let peakEquity = equity;
   let maxDrawdownUsdt = 0;
   let index = Math.max(params.emaSlow + 5, 80, lowerBound(candles, evaluationStartTime));
 
-  while (index < candles.length - 1) {
+  while (index < candles.length - 1 && candles[index].closeTime <= evaluationEndTime) {
     const current = candles[index];
     const snapshot = snapshotAt(dataset, index);
-    const candidate = rankCandidates(generateCandidates(snapshot, params))[0];
+    const candidate = rankCandidates(generateCandidates(snapshot, params).filter((item) => isAllowedCandidate(item, options)))[0];
 
     if (!candidate || candidate.score < minScore) {
       index += 1;
@@ -60,6 +67,8 @@ export function runBacktest(
         singleSignalRiskCapUsdt: riskCap,
         dailyRiskBudgetUsdt: 600,
         maxHoldHours,
+        riskPerTradeUsdt: options.riskPerTradeUsdt,
+        maxPositionNotionalUsdt: options.maxPositionNotionalUsdt,
       }, current.closeTime);
     } catch {
       index += 1;
@@ -86,6 +95,22 @@ export function runBacktest(
     evaluationStartTime,
   });
   return { params, metrics, trades };
+}
+
+function isAllowedCandidate(
+  candidate: StrategyCandidate,
+  options: BacktestOptions,
+): boolean {
+  if (options.sideFilter && candidate.side !== options.sideFilter) return false;
+  if (options.strategyFamilies && !options.strategyFamilies.includes(candidate.strategyFamily)) return false;
+  if (!options.requireRegimeAlignment) return true;
+
+  if (candidate.strategyFamily === "MEAN_REVERSION") {
+    return candidate.marketRegime === "RANGE" || candidate.marketRegime === "UNKNOWN";
+  }
+  return candidate.side === "LONG"
+    ? candidate.marketRegime === "BULL"
+    : candidate.marketRegime === "BEAR";
 }
 
 function snapshotAt(dataset: HistoricalDataset, index: number): MarketSnapshot {

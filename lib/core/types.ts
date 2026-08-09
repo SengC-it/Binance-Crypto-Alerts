@@ -73,6 +73,8 @@ export interface RiskPolicy {
   singleSignalRiskCapUsdt: number;
   dailyRiskBudgetUsdt: number;
   maxHoldHours: number;
+  riskPerTradeUsdt?: number;
+  maxPositionNotionalUsdt?: number;
 }
 
 export interface TradePlan {

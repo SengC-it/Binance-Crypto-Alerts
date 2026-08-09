@@ -23,7 +23,20 @@ export function buildTradePlan(
     throw new Error(`Invalid stop distance or direction for ${instrument.symbol}`);
   }
 
-  const positionNotionalUsdt = new Decimal(policy.marginUsdt).mul(policy.leverage);
+  if (policy.riskPerTradeUsdt !== undefined && policy.riskPerTradeUsdt <= 0) {
+    throw new Error("Risk per trade must be positive");
+  }
+  if (policy.maxPositionNotionalUsdt !== undefined && policy.maxPositionNotionalUsdt <= 0) {
+    throw new Error("Maximum position notional must be positive");
+  }
+
+  let positionNotionalUsdt = policy.riskPerTradeUsdt !== undefined
+    ? new Decimal(policy.riskPerTradeUsdt).div(riskDistance).mul(entryPrice)
+    : new Decimal(policy.marginUsdt).mul(policy.leverage);
+  if (policy.maxPositionNotionalUsdt !== undefined) {
+    positionNotionalUsdt = Decimal.min(positionNotionalUsdt, new Decimal(policy.maxPositionNotionalUsdt));
+  }
+
   const rawQuantity = positionNotionalUsdt.div(entryPrice);
   const quantity = roundQuantity(rawQuantity.toNumber(), instrument.quantityStep);
   if (quantity <= 0) throw new Error(`Quantity rounds to zero for ${instrument.symbol}`);
@@ -31,7 +44,9 @@ export function buildTradePlan(
     throw new Error(`Quantity is below Binance minimum for ${instrument.symbol}`);
   }
 
+  const actualPositionNotionalUsdt = new Decimal(quantity).mul(entryPrice);
   const theoreticalRiskUsdt = new Decimal(quantity).mul(riskDistance).toNumber();
+  const assumedMarginUsdt = actualPositionNotionalUsdt.div(policy.leverage).toNumber();
   const takeProfitUnrounded =
     candidate.side === "LONG"
       ? entryPrice + riskDistance * 2
@@ -53,9 +68,9 @@ export function buildTradePlan(
     stopPrice,
     takeProfitPrice,
     rewardRisk: 2,
-    assumedMarginUsdt: policy.marginUsdt,
+    assumedMarginUsdt,
     assumedLeverage: policy.leverage,
-    positionNotionalUsdt: positionNotionalUsdt.toNumber(),
+    positionNotionalUsdt: actualPositionNotionalUsdt.toNumber(),
     quantity,
     theoreticalRiskUsdt,
     riskOverSingleCap: theoreticalRiskUsdt > policy.singleSignalRiskCapUsdt,

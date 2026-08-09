@@ -20,7 +20,7 @@ async function main() {
 
   const supabase = getSupabaseAdmin();
   const version = `grid-${new Date().toISOString().slice(0, 10)}-${hashParams(best.params)}`;
-  const { error: versionError } = await supabase.from("cs_strategy_versions").upsert({
+  const { error: versionError } = await supabase.from("bca_strategy_versions").upsert({
     version,
     strategy_family: "ENSEMBLE_RULES",
     parameters: best.params,
@@ -36,7 +36,7 @@ async function main() {
   }, { onConflict: "version" });
   if (versionError) throw new Error(`Strategy version write failed: ${versionError.message}`);
 
-  const { error: runError } = await supabase.from("cs_backtest_runs").insert({
+  const { error: runError } = await supabase.from("bca_backtest_runs").insert({
     strategy_version: version,
     universe_definition: { symbols: datasets.map((dataset) => dataset.symbol), source: "local_raw" },
     parameter_set: best.params,

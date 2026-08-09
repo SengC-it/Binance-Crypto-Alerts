@@ -1,4 +1,5 @@
 import type { Candle, FundingRatePoint, Instrument, MarketSnapshot, Timeframe } from "@/lib/core/types";
+import { ProxyAgent, setGlobalDispatcher } from "undici";
 import type {
   BinanceExchangeInfo,
   BinanceExchangeSymbol,
@@ -6,6 +7,8 @@ import type {
   BinanceKline,
   BinanceTicker24h,
 } from "./types";
+
+configureNodeProxy();
 
 const INTERVALS: Record<Timeframe, string> = {
   "15m": "15m",
@@ -254,4 +257,9 @@ function parseKline(raw: unknown[]): BinanceKline {
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function configureNodeProxy(): void {
+  const proxyUrl = process.env.HTTPS_PROXY ?? process.env.HTTP_PROXY;
+  if (proxyUrl) setGlobalDispatcher(new ProxyAgent(proxyUrl));
 }
