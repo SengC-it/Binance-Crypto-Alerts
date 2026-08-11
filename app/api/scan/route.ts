@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BinancePublicClient, mapWithConcurrency, selectDeepUniverse } from "@/lib/binance/public-client";
 import { getServerConfig, type ServerConfig } from "@/lib/config";
+import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
 import { buildTradePlan } from "@/lib/core/risk";
 import { rankCandidates } from "@/lib/core/scoring";
-import { generateCandidates } from "@/lib/core/strategies";
+import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
 import { fifteenMinuteGroupKey, signalKey, zonedDateString } from "@/lib/core/time";
-import type { Instrument, MarketSnapshot, Timeframe } from "@/lib/core/types";
+import type { Instrument, MarketSnapshot, ScoredCandidate, Timeframe, TradePlan } from "@/lib/core/types";
 import { sendSignalEmail, sendSystemAlertEmail } from "@/lib/notifications/email";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -14,14 +15,22 @@ import {
   createNotification,
   createScanRun,
   finishNotification,
+  finishScanGroup,
+  listStagedCandidates,
+  listStagedShadowCandidates,
   recordSystemEvent,
+  stageScanCandidates,
+  stageShadowCandidates,
+  tryStartScanGroupFinalization,
   upsertInstruments,
 } from "@/lib/services/signal-repository";
+import { createPaperTrade, createShadowPaperTrade } from "@/lib/services/paper-trading";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const STRATEGY_VERSION = "rules-mvp-v1";
+const STRATEGY_VERSION = "rules-profit-oriented-v4";
+const SHADOW_STRATEGY_VERSION = "trend-rejection-shadow-v1";
 
 export async function GET(request: NextRequest) {
   return runScan(request);
@@ -35,6 +44,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
   let scanRunId: string | undefined;
   let supabase: ReturnType<typeof getSupabaseAdmin> | undefined;
   let config: ServerConfig | undefined;
+  let scanGroupKey: string | undefined;
 
   try {
     const runtimeConfig = getServerConfig();
@@ -52,17 +62,25 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ ok: false, error: "batch_out_of_range", batchNumber, batchCount }, { status: 400 });
     }
 
-    const scanGroupKey = fifteenMinuteGroupKey(Date.now());
+    scanGroupKey = fifteenMinuteGroupKey(Date.now());
     const runKey = `${scanGroupKey}:batch:${batchNumber}`;
     const batch = deepUniverse.slice(
       batchNumber * runtimeConfig.CS_SCAN_BATCH_SIZE,
       (batchNumber + 1) * runtimeConfig.CS_SCAN_BATCH_SIZE,
     );
+    const strategyParams = {
+      ...DEFAULT_STRATEGY_PARAMS,
+      stopAtrMultiplier: runtimeConfig.CS_STRATEGY_STOP_ATR_MULTIPLIER,
+    };
+    const shadowStrategyParams: StrategyParams = {
+      ...strategyParams,
+      entryMode: "TREND_REJECTION",
+    };
     supabase = getSupabaseAdmin();
     await upsertInstruments(supabase, universe.map(toInstrumentRow));
     scanRunId = await createScanRun(supabase, {
       runKey,
-      scanGroupKey,
+      scanGroupKey: scanGroupKey as string,
       timeframe: "15m",
       batchNumber,
       batchCount,
@@ -84,16 +102,8 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
       .flatMap((snapshot) => {
         try {
-          const top = rankCandidates(generateCandidates(snapshot))[0];
-          if (!top || top.score < runtimeConfig.CS_MIN_SIGNAL_SCORE) return [];
-          const plan = buildTradePlan(top, snapshot.instrument, {
-            marginUsdt: runtimeConfig.CS_MARGIN_USDT,
-            leverage: runtimeConfig.CS_ASSUMED_LEVERAGE,
-            singleSignalRiskCapUsdt: runtimeConfig.CS_PER_SIGNAL_RISK_CAP_USDT,
-            dailyRiskBudgetUsdt: runtimeConfig.CS_DAILY_RISK_BUDGET_USDT,
-            maxHoldHours: runtimeConfig.CS_MAX_HOLD_HOURS,
-          }, snapshot.sourceTimestamp);
-          return [{ snapshot, candidate: top, plan }];
+          const opportunity = buildOpportunity(snapshot, strategyParams, runtimeConfig);
+          return opportunity ? [opportunity] : [];
         } catch (error) {
           errors.push({ symbol: snapshot.instrument.symbol, stage: "risk_plan", message: errorMessage(error) });
           return [];
@@ -101,29 +111,73 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       })
       .sort((left, right) => right.candidate.score - left.candidate.score);
 
+    const shadowCandidates = runtimeConfig.CS_SHADOW_TRADING_ENABLED
+      ? snapshots
+          .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
+          .flatMap((snapshot) => {
+            try {
+              const opportunity = buildOpportunity(snapshot, shadowStrategyParams, runtimeConfig);
+              return opportunity ? [opportunity] : [];
+            } catch (error) {
+              errors.push({ symbol: snapshot.instrument.symbol, stage: "shadow_risk_plan", message: errorMessage(error) });
+              return [];
+            }
+          })
+          .sort((left, right) => right.candidate.score - left.candidate.score)
+      : [];
+
+    await stageScanCandidates(supabase, candidates.map((opportunity) => ({
+      scanRunId: scanRunId as string,
+      scanGroupKey: scanGroupKey as string,
+      symbol: opportunity.snapshot.instrument.symbol,
+      sourceTimestamp: opportunity.snapshot.sourceTimestamp,
+      candidate: opportunity.candidate,
+      plan: opportunity.plan,
+    })));
+    await stageShadowCandidates(supabase, shadowCandidates.map((opportunity) => ({
+      scanRunId: scanRunId as string,
+      scanGroupKey: scanGroupKey as string,
+      symbol: opportunity.snapshot.instrument.symbol,
+      sourceTimestamp: opportunity.snapshot.sourceTimestamp,
+      candidate: opportunity.candidate,
+      plan: opportunity.plan,
+    })));
+    await completeScanRun(supabase, scanRunId, {
+      scannedSymbols: batch.length,
+      candidateCount: candidates.length,
+      emailedCount: 0,
+      status: errors.length === 0 ? "COMPLETED" : "PARTIAL",
+      errorSummary: errors,
+    });
+    const finalizing = await tryStartScanGroupFinalization(supabase, scanGroupKey);
+    const finalCandidates = finalizing ? await listStagedCandidates(supabase, scanGroupKey) : [];
+    const finalShadowCandidates = finalizing && runtimeConfig.CS_SHADOW_TRADING_ENABLED
+      ? await listStagedShadowCandidates(supabase, scanGroupKey)
+      : [];
+
     let emailedCount = 0;
     let claimedCount = 0;
-    for (const opportunity of candidates) {
-      const occurrenceDate = zonedDateString(opportunity.snapshot.sourceTimestamp, runtimeConfig.CS_DEFAULT_TIMEZONE);
+    for (const opportunity of finalCandidates) {
+      const occurrenceDate = zonedDateString(opportunity.sourceTimestamp, runtimeConfig.CS_DEFAULT_TIMEZONE);
       const key = signalKey({
-        symbol: opportunity.snapshot.instrument.symbol,
+        symbol: opportunity.symbol,
         side: opportunity.candidate.side,
         timeframe: opportunity.candidate.primaryTimeframe,
         strategyVersion: STRATEGY_VERSION,
-        sourceTimestamp: opportunity.snapshot.sourceTimestamp,
+        sourceTimestamp: opportunity.sourceTimestamp,
       });
       const hasEmailConfig = Boolean(runtimeConfig.GMAIL_SMTP_USER && runtimeConfig.GMAIL_SMTP_APP_PASSWORD && runtimeConfig.GMAIL_RECIPIENT);
       const claim = await claimSignal(
         supabase,
         {
-          scanRunId,
+          scanRunId: opportunity.scanRunId,
           scanGroupKey,
           signalKey: key,
-          symbol: opportunity.snapshot.instrument.symbol,
+          symbol: opportunity.symbol,
           candidate: opportunity.candidate,
           plan: opportunity.plan,
           strategyVersion: STRATEGY_VERSION,
-          sourceTimestamp: opportunity.snapshot.sourceTimestamp,
+          sourceTimestamp: opportunity.sourceTimestamp,
           occurrenceDate,
         },
         {
@@ -133,13 +187,40 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           dailyEmailCap: runtimeConfig.CS_NEW_EMAIL_DAILY_CAP,
           scanEmailCap: runtimeConfig.CS_MAX_EMAILS_PER_SCAN,
           shouldEmail: hasEmailConfig,
+          maxConcurrentPositions: runtimeConfig.CS_MAX_CONCURRENT_POSITIONS,
+          cooldownHours: runtimeConfig.CS_COOLDOWN_HOURS,
+          takerFeeRate: runtimeConfig.CS_PAPER_TAKER_FEE_RATE,
+          slippageBps: runtimeConfig.CS_PAPER_SLIPPAGE_BPS,
         },
       );
       if (claim.status === "CREATED" || claim.status === "REPLACED") claimedCount += 1;
-      if (!claim.email_allowed || !runtimeConfig.GMAIL_RECIPIENT) continue;
+      if (
+        runtimeConfig.CS_PAPER_TRADING_ENABLED
+        && (claim.status === "CREATED" || claim.status === "REPLACED" || claim.status === "IDEMPOTENT")
+      ) {
+        try {
+          if (!claim.signal_id) throw new Error("Signal claim did not return an id");
+          await createPaperTrade(supabase, {
+            signalId: claim.signal_id,
+            symbol: opportunity.symbol,
+            candidate: opportunity.candidate,
+            plan: opportunity.plan,
+            strategyVersion: STRATEGY_VERSION,
+            sourceTimestamp: opportunity.sourceTimestamp,
+            slippageBps: runtimeConfig.CS_PAPER_SLIPPAGE_BPS,
+          });
+        } catch (error) {
+          errors.push({
+            symbol: opportunity.symbol,
+            stage: "paper_trade",
+            message: errorMessage(error),
+          });
+        }
+      }
+      if (!claim.email_allowed || !runtimeConfig.GMAIL_RECIPIENT || !claim.signal_id) continue;
 
       const idempotencyKey = `${claim.signal_id}:GMAIL_SMTP`;
-      const subject = `[风险警告] ${opportunity.snapshot.instrument.symbol} ${opportunity.candidate.side} · ${opportunity.candidate.score.toFixed(1)} 分`;
+      const subject = `[风险警告] ${opportunity.symbol} ${opportunity.candidate.side} · ${opportunity.candidate.score.toFixed(1)} 分`;
       const created = await createNotification(supabase, {
         signalId: claim.signal_id,
         idempotencyKey,
@@ -150,11 +231,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
 
       try {
         const sent = await sendSignalEmail({
-          symbol: opportunity.snapshot.instrument.symbol,
+          symbol: opportunity.symbol,
           candidate: opportunity.candidate,
           plan: opportunity.plan,
           strategyVersion: STRATEGY_VERSION,
-          sourceTimestamp: opportunity.snapshot.sourceTimestamp,
+          sourceTimestamp: opportunity.sourceTimestamp,
         });
         await finishNotification(supabase, idempotencyKey, {
           status: sent.skipped ? "SKIPPED" : "SENT",
@@ -162,8 +243,29 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         });
         if (!sent.skipped) emailedCount += 1;
       } catch (error) {
-        errors.push({ symbol: opportunity.snapshot.instrument.symbol, stage: "email", message: errorMessage(error) });
+        errors.push({ symbol: opportunity.symbol, stage: "email", message: errorMessage(error) });
         await finishNotification(supabase, idempotencyKey, { status: "FAILED", error: errorMessage(error) });
+      }
+    }
+
+    let shadowPaperTradeCreated = false;
+    const shadowOpportunity = finalShadowCandidates[0];
+    if (shadowOpportunity) {
+      try {
+        shadowPaperTradeCreated = await createShadowPaperTrade(supabase, {
+          symbol: shadowOpportunity.symbol,
+          candidate: shadowOpportunity.candidate,
+          plan: shadowOpportunity.plan,
+          strategyVersion: SHADOW_STRATEGY_VERSION,
+          sourceTimestamp: shadowOpportunity.sourceTimestamp,
+          slippageBps: runtimeConfig.CS_PAPER_SLIPPAGE_BPS,
+        }, runtimeConfig.CS_COOLDOWN_HOURS);
+      } catch (error) {
+        errors.push({
+          symbol: shadowOpportunity.symbol,
+          stage: "shadow_paper_trade",
+          message: errorMessage(error),
+        });
       }
     }
 
@@ -174,6 +276,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       status: errors.length === 0 ? "COMPLETED" : "PARTIAL",
       errorSummary: errors,
     });
+    if (finalizing) await finishScanGroup(supabase, scanGroupKey, "COMPLETED", errors);
 
     return NextResponse.json({
       ok: true,
@@ -184,6 +287,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       deepUniverseSize: deepUniverse.length,
       scannedSymbols: batch.length,
       candidateCount: candidates.length,
+      finalCandidateCount: finalCandidates.length,
+      shadowCandidateCount: shadowCandidates.length,
+      finalShadowCandidateCount: finalShadowCandidates.length,
+      shadowPaperTradeCreated,
+      finalized: finalizing,
       claimedCount,
       emailedCount,
       errors,
@@ -203,6 +311,13 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       } catch {
         // Preserve the original scan error when the error logger is unavailable.
       }
+      if (scanGroupKey) {
+        try {
+          await finishScanGroup(supabase, scanGroupKey, "FAILED", [{ message }]);
+        } catch {
+          // Preserve the original scan error when group state cannot be updated.
+        }
+      }
     }
     if (config) {
       try {
@@ -217,6 +332,36 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.json({ ok: false, error: message, scanRunId }, { status: 500 });
   }
+}
+
+function buildOpportunity(
+  snapshot: MarketSnapshot,
+  strategyParams: StrategyParams,
+  config: ServerConfig,
+): { snapshot: MarketSnapshot; candidate: ScoredCandidate; plan: TradePlan } | undefined {
+  const candidate = rankCandidates(generateCandidates(snapshot, strategyParams), {
+    minimumScore: config.CS_MIN_SIGNAL_SCORE,
+    sideFilter: config.CS_SIGNAL_SIDE_FILTER === "BOTH" ? undefined : config.CS_SIGNAL_SIDE_FILTER,
+    strategyFamily: config.CS_SIGNAL_STRATEGY_FAMILY === "ALL" ? undefined : config.CS_SIGNAL_STRATEGY_FAMILY,
+  }).find((item) => isRegimeAllowed(item, config.CS_REQUIRE_REGIME_ALIGNMENT));
+  if (!candidate || !isEntryIntervalAllowed(snapshot.sourceTimestamp, config.CS_ENTRY_INTERVAL_HOURS)) return undefined;
+  const plan = buildTradePlan(candidate, snapshot.instrument, {
+    marginUsdt: config.CS_MARGIN_USDT,
+    leverage: config.CS_ASSUMED_LEVERAGE,
+    singleSignalRiskCapUsdt: config.CS_PER_SIGNAL_RISK_CAP_USDT,
+    dailyRiskBudgetUsdt: config.CS_DAILY_RISK_BUDGET_USDT,
+    maxHoldHours: config.CS_MAX_HOLD_HOURS,
+    rewardRisk: config.CS_REWARD_RISK,
+    riskPerTradeUsdt: config.CS_RISK_PER_TRADE_USDT,
+    maxPositionNotionalUsdt: config.CS_MAX_POSITION_NOTIONAL_USDT,
+  }, snapshot.sourceTimestamp);
+  if (plan.riskOverSingleCap) return undefined;
+  if (estimatedExecutionCostRiskFraction(
+    plan,
+    config.CS_PAPER_TAKER_FEE_RATE,
+    config.CS_PAPER_SLIPPAGE_BPS,
+  ) > config.CS_MAX_EXECUTION_COST_RISK_FRACTION) return undefined;
+  return { snapshot, candidate, plan };
 }
 
 function isAuthorized(request: NextRequest, expectedSecret?: string): boolean {
@@ -235,6 +380,16 @@ function parseBatchNumber(value: string | null): number {
 function normalizedTimeframes(values: string[]): Timeframe[] {
   const valid = values.filter((value): value is Timeframe => value === "15m" || value === "1h" || value === "4h");
   return valid.includes("15m") ? valid : ["15m", ...valid];
+}
+
+function isRegimeAllowed(candidate: Parameters<typeof rankCandidates>[0][number], required: boolean): boolean {
+  if (!required) return true;
+  if (candidate.strategyFamily === "MEAN_REVERSION") {
+    return candidate.marketRegime === "RANGE" || candidate.marketRegime === "UNKNOWN";
+  }
+  return candidate.side === "LONG"
+    ? candidate.marketRegime === "BULL"
+    : candidate.marketRegime === "BEAR";
 }
 
 function toInstrumentRow(instrument: Instrument) {

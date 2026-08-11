@@ -29,10 +29,18 @@ export function buildTradePlan(
   if (policy.maxPositionNotionalUsdt !== undefined && policy.maxPositionNotionalUsdt <= 0) {
     throw new Error("Maximum position notional must be positive");
   }
+  const rewardRisk = policy.rewardRisk ?? 2;
+  if (!Number.isFinite(rewardRisk) || rewardRisk <= 0) {
+    throw new Error("Reward-risk multiple must be positive");
+  }
 
   let positionNotionalUsdt = policy.riskPerTradeUsdt !== undefined
     ? new Decimal(policy.riskPerTradeUsdt).div(riskDistance).mul(entryPrice)
     : new Decimal(policy.marginUsdt).mul(policy.leverage);
+  positionNotionalUsdt = Decimal.min(
+    positionNotionalUsdt,
+    new Decimal(policy.marginUsdt).mul(policy.leverage),
+  );
   if (policy.maxPositionNotionalUsdt !== undefined) {
     positionNotionalUsdt = Decimal.min(positionNotionalUsdt, new Decimal(policy.maxPositionNotionalUsdt));
   }
@@ -49,8 +57,8 @@ export function buildTradePlan(
   const assumedMarginUsdt = actualPositionNotionalUsdt.div(policy.leverage).toNumber();
   const takeProfitUnrounded =
     candidate.side === "LONG"
-      ? entryPrice + riskDistance * 2
-      : entryPrice - riskDistance * 2;
+      ? entryPrice + riskDistance * rewardRisk
+      : entryPrice - riskDistance * rewardRisk;
   const takeProfitPrice = roundToStep(
     takeProfitUnrounded,
     instrument.priceTick,
@@ -67,7 +75,7 @@ export function buildTradePlan(
     entryPrice,
     stopPrice,
     takeProfitPrice,
-    rewardRisk: 2,
+    rewardRisk,
     assumedMarginUsdt,
     assumedLeverage: policy.leverage,
     positionNotionalUsdt: actualPositionNotionalUsdt.toNumber(),

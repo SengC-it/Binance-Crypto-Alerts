@@ -1,26 +1,15 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { runBacktest } from "@/lib/backtest/engine";
+import { runPortfolioBacktest } from "@/lib/backtest/engine";
 import type { BacktestTrade, HistoricalDataset } from "@/lib/backtest/types";
 import { BinancePublicClient, mapWithConcurrency } from "@/lib/binance/public-client";
 import { DEFAULT_STRATEGY_PARAMS } from "@/lib/core/strategies";
-import type { Instrument } from "@/lib/core/types";
+import type { Instrument, Side } from "@/lib/core/types";
 
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
-const DEFAULT_SYMBOLS = [
-  "BTCUSDT",
-  "ETHUSDT",
-  "BNBUSDT",
-  "SOLUSDT",
-  "XRPUSDT",
-  "DOGEUSDT",
-  "ADAUSDT",
-  "LINKUSDT",
-  "AVAXUSDT",
-  "SUIUSDT",
-];
+const DEFAULT_SYMBOL_COUNT = 50;
 
 const INITIAL_CAPITAL_USDT = 10_000;
 const MARGIN_USDT = 100;
@@ -58,15 +47,21 @@ async function main() {
   const windowEnd = currentBucketOpen - 1;
   const windowStart = currentBucketOpen - 365 * DAY;
   const warmupStart = windowStart - 14 * DAY;
-  const minScore = numberEnv("CS_BACKTEST_MIN_SCORE", 60);
+  const minScore = numberEnv("CS_BACKTEST_MIN_SCORE", 70);
   const takerFeeRate = numberEnv("CS_BACKTEST_FEE_RATE", 0.0004);
   const slippageBps = numberEnv("CS_BACKTEST_SLIPPAGE_BPS", 2);
-  const concurrency = Math.max(1, Math.min(4, Math.floor(numberEnv("CS_BACKTEST_CONCURRENCY", 2))));
+  const concurrency = Math.max(1, Math.min(4, Math.floor(numberEnv("CS_BACKTEST_CONCURRENCY", 1))));
+  const backtestSymbolCount = Math.max(
+    50,
+    Math.min(100, Math.floor(numberEnv("CS_BACKTEST_SYMBOL_COUNT", DEFAULT_SYMBOL_COUNT))),
+  );
   const symbols = parseSymbols(process.env.CS_BACKTEST_SYMBOLS);
+  const sideFilter = parseSide(process.env.CS_BACKTEST_SIDE_FILTER ?? "SHORT");
+  const strategyFamily = parseStrategyFamily(process.env.CS_BACKTEST_STRATEGY_FAMILY ?? "TREND");
 
   const client = new BinancePublicClient(process.env.BINANCE_API_BASE_URL);
   const universe = await client.getUniverse();
-  const instruments = selectInstruments(universe, symbols);
+  const instruments = selectInstruments(universe, symbols, backtestSymbolCount);
 
   console.info(JSON.stringify({
     stage: "fetching_binance_history",
@@ -103,7 +98,7 @@ async function main() {
     } satisfies HistoricalDataset;
   });
 
-  const runs = datasets.map((dataset) => runBacktest(dataset, DEFAULT_STRATEGY_PARAMS, {
+  const portfolio = runPortfolioBacktest(datasets, DEFAULT_STRATEGY_PARAMS, {
     initialCapitalUsdt: INITIAL_CAPITAL_USDT,
     minScore,
     maxHoldHours: MAX_HOLD_HOURS,
@@ -114,12 +109,19 @@ async function main() {
     takerFeeRate,
     slippageBps,
     evaluationStartTime: windowStart,
-  }));
-  const rawTrades = runs.flatMap((run) => run.trades).sort(byEntryTime);
+    evaluationEndTime: windowEnd,
+    maxConcurrentPositions: 3,
+    maxEmailsPerDay: DAILY_EMAIL_CAP,
+    maxEmailsPerScan: SCAN_EMAIL_CAP,
+    dailyLossLimitUsdt: DAILY_RISK_BUDGET_USDT,
+    sideFilter,
+    strategyFamilies: strategyFamily ? [strategyFamily] : undefined,
+  });
+  const rawTrades = portfolio.rawTrades;
   const rawMetrics = summarizeTrades(rawTrades, INITIAL_CAPITAL_USDT);
-  const operational = applyOperationalCaps(rawTrades);
-  const riskAcceptedMetrics = summarizeTrades(operational.riskAccepted, INITIAL_CAPITAL_USDT);
-  const emailedMetrics = summarizeTrades(operational.emailEligible, INITIAL_CAPITAL_USDT);
+  const selectedTrades = portfolio.trades;
+  const selectedMetrics = summarizeTrades(selectedTrades, INITIAL_CAPITAL_USDT);
+  const rejectionCounts = portfolio.rejectionCounts;
 
   const report = {
     generatedAt: new Date().toISOString(),
@@ -131,14 +133,16 @@ async function main() {
       latestClosed15mOnly: true,
     },
     universe: {
-      selection: "fixed liquid symbols for a reproducible MVP validation",
+      selection: `top ${instruments.length} USDT-M perpetuals by 24h quote volume`,
       symbols: instruments.map((instrument) => instrument.symbol),
-      note: "This is not the full production top-100 universe; use CS_BACKTEST_SYMBOLS to repeat with another set.",
+      note: "Set CS_BACKTEST_SYMBOL_COUNT to 100 for the full top-100 run, or CS_BACKTEST_SYMBOLS for an explicit reproducible list.",
     },
     assumptions: {
       primaryTimeframe: "15m",
       confirmationTimeframes: ["1h", "4h"],
       minScore,
+      sideFilter,
+      strategyFamily: strategyFamily ?? "ALL",
       strategyParams: DEFAULT_STRATEGY_PARAMS,
       initialCapitalUsdt: INITIAL_CAPITAL_USDT,
       marginUsdt: MARGIN_USDT,
@@ -154,7 +158,7 @@ async function main() {
       funding: "actual Binance USDⓈ-M fundingRate observations; no fallback rate",
       entryModel: "enter at the just-closed 15m close, then evaluate exits from the next candle",
       intrabarModel: "stop-first when both stop and take-profit are inside one OHLC candle",
-      positionModel: "fixed 100 USDT margin x 20 leverage; one sequential position per symbol",
+      positionModel: "fixed 100 USDT margin x 20 leverage; max 3 concurrent portfolio positions",
       liquidationModel: "not modeled; results are not a live margin or liquidation simulation",
     },
     data: datasets.map((dataset) => ({
@@ -177,20 +181,18 @@ async function main() {
       },
       operational: {
         rawSignals: rawTrades.length,
-        riskAcceptedSignals: operational.riskAccepted.length,
-        emailEligibleSignals: operational.emailEligible.length,
-        riskBudgetBlocked: operational.riskBudgetBlocked,
-        emailCapped: operational.emailCapped,
-        singleSignalRiskOverCap: operational.singleSignalRiskOverCap,
-        riskAcceptedMetrics,
-        emailEligibleMetrics: emailedMetrics,
-        bySymbol: groupMetrics(operational.emailEligible, (trade) => trade.symbol),
-        byStrategy: groupMetrics(operational.emailEligible, (trade) => trade.strategyFamily),
+        riskAcceptedSignals: selectedTrades.length,
+        emailEligibleSignals: selectedTrades.length,
+        riskBudgetBlocked: rejectionCounts.dailyRiskBudget + rejectionCounts.dailyLossLimit,
+        emailCapped: rejectionCounts.emailCap,
+        singleSignalRiskOverCap: rejectionCounts.singleSignalRisk,
+        rejectionCounts,
+        riskAcceptedMetrics: selectedMetrics,
+        emailEligibleMetrics: selectedMetrics,
+        bySymbol: groupMetrics(selectedTrades, (trade) => trade.symbol),
+        byStrategy: groupMetrics(selectedTrades, (trade) => trade.strategyFamily),
       },
-      perSymbolEngineMetrics: runs.map((run) => ({
-        symbol: run.trades[0]?.symbol ?? "unknown",
-        metrics: run.metrics,
-      })),
+      perSymbolEngineMetrics: groupMetrics(rawTrades, (trade) => trade.symbol),
     },
     trades: rawTrades,
     dataSources: {
@@ -208,48 +210,11 @@ async function main() {
     ok: true,
     reportPath,
     rawSignals: rawMetrics.signals,
-    riskAcceptedSignals: operational.riskAccepted.length,
-    emailEligibleSignals: operational.emailEligible.length,
+    riskAcceptedSignals: selectedTrades.length,
+    emailEligibleSignals: selectedTrades.length,
     raw: rawMetrics,
-    emailEligible: emailedMetrics,
+    emailEligible: selectedMetrics,
   }, null, 2));
-}
-
-function applyOperationalCaps(trades: BacktestTrade[]) {
-  const dailyRisk = new Map<string, number>();
-  const dailyEmails = new Map<string, number>();
-  const scanEmails = new Map<number, number>();
-  const riskAccepted: BacktestTrade[] = [];
-  const emailEligible: BacktestTrade[] = [];
-  let riskBudgetBlocked = 0;
-  let emailCapped = 0;
-  let singleSignalRiskOverCap = 0;
-
-  const ordered = [...trades].sort((left, right) => left.entryTime - right.entryTime || right.score - left.score);
-  for (const trade of ordered) {
-    if (trade.theoreticalRiskUsdt > SINGLE_SIGNAL_RISK_CAP_USDT) singleSignalRiskOverCap += 1;
-    const day = new Date(trade.entryTime).toISOString().slice(0, 10);
-    const scanBucket = Math.floor(trade.entryTime / FIFTEEN_MINUTES);
-    const reserved = dailyRisk.get(day) ?? 0;
-    if (reserved + trade.theoreticalRiskUsdt > DAILY_RISK_BUDGET_USDT) {
-      riskBudgetBlocked += 1;
-      continue;
-    }
-
-    dailyRisk.set(day, reserved + trade.theoreticalRiskUsdt);
-    riskAccepted.push(trade);
-    const emailsToday = dailyEmails.get(day) ?? 0;
-    const emailsThisScan = scanEmails.get(scanBucket) ?? 0;
-    if (emailsToday >= DAILY_EMAIL_CAP || emailsThisScan >= SCAN_EMAIL_CAP) {
-      emailCapped += 1;
-      continue;
-    }
-    dailyEmails.set(day, emailsToday + 1);
-    scanEmails.set(scanBucket, emailsThisScan + 1);
-    emailEligible.push(trade);
-  }
-
-  return { riskAccepted, emailEligible, riskBudgetBlocked, emailCapped, singleSignalRiskOverCap };
 }
 
 function summarizeTrades(trades: BacktestTrade[], initialCapitalUsdt: number): PortfolioMetrics {
@@ -301,18 +266,18 @@ function groupMetrics(trades: BacktestTrade[], key: (trade: BacktestTrade) => st
     .map(([name, group]) => [name, summarizeTrades(group, INITIAL_CAPITAL_USDT)]));
 }
 
-function selectInstruments(universe: Instrument[], requestedSymbols: string[]): Instrument[] {
+function selectInstruments(universe: Instrument[], requestedSymbols: string[], symbolCount: number): Instrument[] {
   const bySymbol = new Map(universe.map((instrument) => [instrument.symbol, instrument]));
+  if (requestedSymbols.length === 0) return universe.slice(0, symbolCount);
   const missing = requestedSymbols.filter((symbol) => !bySymbol.has(symbol));
   if (missing.length > 0) throw new Error("Symbols are not currently trading USDT-M perpetuals: " + missing.join(", "));
   return requestedSymbols.map((symbol) => bySymbol.get(symbol) as Instrument);
 }
 
 function parseSymbols(value: string | undefined): string[] {
-  if (!value?.trim()) return DEFAULT_SYMBOLS;
+  if (!value?.trim()) return [];
   const symbols = value.split(",").map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
-  if (symbols.length === 0) return DEFAULT_SYMBOLS;
-  return [...new Set(symbols)];
+  return symbols.length === 0 ? [] : [...new Set(symbols)];
 }
 
 function numberEnv(name: string, fallback: number): number {
@@ -320,8 +285,16 @@ function numberEnv(name: string, fallback: number): number {
   return Number.isFinite(value) ? value : fallback;
 }
 
-function byEntryTime(left: BacktestTrade, right: BacktestTrade): number {
-  return left.entryTime - right.entryTime || right.score - left.score;
+function parseSide(value: string): Side | undefined {
+  if (value === "LONG" || value === "SHORT") return value;
+  if (value === "BOTH" || value === "ALL") return undefined;
+  throw new Error("CS_BACKTEST_SIDE_FILTER must be LONG, SHORT, BOTH, or ALL");
+}
+
+function parseStrategyFamily(value: string): "TREND" | "BREAKOUT" | "MEAN_REVERSION" | undefined {
+  if (value === "TREND" || value === "BREAKOUT" || value === "MEAN_REVERSION") return value;
+  if (value === "ALL") return undefined;
+  throw new Error("CS_BACKTEST_STRATEGY_FAMILY must be TREND, BREAKOUT, MEAN_REVERSION, or ALL");
 }
 
 function round(value: number, digits: number): number {

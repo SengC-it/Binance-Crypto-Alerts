@@ -22,11 +22,16 @@ const INTERVAL_MS: Record<Timeframe, number> = {
   "4h": 4 * 60 * 60 * 1000,
 };
 
+const DEFAULT_REQUEST_DELAY_MS = 0;
+
 export class BinancePublicClient {
   constructor(
     private readonly baseUrl = process.env.BINANCE_API_BASE_URL ?? "https://fapi.binance.com",
     private readonly timeoutMs = 12_000,
+    private readonly requestDelayMs = configuredRequestDelayMs(),
   ) {}
+
+  private nextRequestAt = 0;
 
   async getUniverse(): Promise<Instrument[]> {
     const [exchangeInfo, tickers] = await Promise.all([
@@ -170,6 +175,7 @@ export class BinancePublicClient {
     let lastError: unknown;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
+        await this.waitForRequestSlot();
         const response = await fetch(url, { signal: AbortSignal.timeout(this.timeoutMs) });
         const body = await response.text();
         if (!response.ok) {
@@ -186,6 +192,14 @@ export class BinancePublicClient {
     throw lastError instanceof Error ? lastError : new Error("Binance request failed");
   }
 
+  private async waitForRequestSlot(): Promise<void> {
+    if (this.requestDelayMs <= 0) return;
+    const now = Date.now();
+    const requestAt = Math.max(now, this.nextRequestAt);
+    this.nextRequestAt = requestAt + this.requestDelayMs;
+    if (requestAt > now) await delay(requestAt - now);
+  }
+
   private toInstrument(symbol: BinanceExchangeSymbol, ticker?: BinanceTicker24h): Instrument {
     const priceFilter = symbol.filters.find((filter) => filter.filterType === "PRICE_FILTER");
     const lotSizeFilter = symbol.filters.find((filter) => filter.filterType === "LOT_SIZE");
@@ -200,6 +214,7 @@ export class BinancePublicClient {
       minQuantity: lotSizeFilter?.minQty ? Number(lotSizeFilter.minQty) : undefined,
       maxLeverage: undefined,
       quoteVolume24h: ticker?.quoteVolume ? Number(ticker.quoteVolume) : undefined,
+      onboardDate: Number.isFinite(Number(symbol.onboardDate)) ? Number(symbol.onboardDate) : undefined,
     };
   }
 }
@@ -257,6 +272,11 @@ function parseKline(raw: unknown[]): BinanceKline {
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function configuredRequestDelayMs(): number {
+  const value = Number(process.env.BINANCE_REQUEST_DELAY_MS);
+  return Number.isFinite(value) ? Math.max(0, value) : DEFAULT_REQUEST_DELAY_MS;
 }
 
 function configureNodeProxy(): void {

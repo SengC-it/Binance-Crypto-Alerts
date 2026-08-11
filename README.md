@@ -46,7 +46,7 @@ pnpm dev
 
 ## Supabase
 
-迁移文件：[`supabase/migrations/20260808235907_cs_initial_schema.sql`](./supabase/migrations/20260808235907_cs_initial_schema.sql)、[`supabase/migrations/20260809000642_cs_claim_signal_fix.sql`](./supabase/migrations/20260809000642_cs_claim_signal_fix.sql) 和 [`supabase/migrations/20260809013349_bca_prefix_migration.sql`](./supabase/migrations/20260809013349_bca_prefix_migration.sql)。前两次迁移保留为历史记录，第三次迁移将本项目对象从 `cs_` 改名为 `bca_`，并保留原有数据、约束和 RLS：
+迁移文件：[`supabase/migrations/20260808235907_bca_initial_schema.sql`](./supabase/migrations/20260808235907_bca_initial_schema.sql)、[`supabase/migrations/20260809000642_bca_claim_signal_fix.sql`](./supabase/migrations/20260809000642_bca_claim_signal_fix.sql) 和 [`supabase/migrations/20260809013349_bca_namespace_marker.sql`](./supabase/migrations/20260809013349_bca_namespace_marker.sql)。所有数据库表、函数、索引、触发器和定时任务均直接使用 `bca_` 前缀，不会创建或改名其他项目的对象：
 
 - `bca_instruments`、`bca_scan_runs`、`bca_signals`、`bca_signal_events`
 - `bca_risk_budgets`、`bca_notifications`、`bca_system_events`

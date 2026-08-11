@@ -9,9 +9,29 @@
 -- The four batches cover the default top 100 universe with a batch size of 25.
 -- If either value changes, unschedule only the bca_* jobs and recreate them.
 
+-- Paper settlement runs two minutes before scanning so a closed position is
+-- released before the max-concurrency policy evaluates new opportunities.
+-- Store its URL separately:
+-- select vault.create_secret('https://<your-vercel-domain>/api/paper/settle', 'bca_paper_settle_url');
+
+select cron.schedule(
+  'bca-paper-settle',
+  '0,15,30,45 * * * *',
+  $$
+  select net.http_post(
+    url := (select decrypted_secret from vault.decrypted_secrets where name = 'bca_paper_settle_url'),
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'bca_cron_secret')
+    ),
+    body := '{}'::jsonb
+  );
+  $$
+);
+
 select cron.schedule(
   'bca-scan-batch-0',
-  '*/15 * * * *',
+  '2,17,32,47 * * * *',
   $$
   select net.http_post(
     url := (select decrypted_secret from vault.decrypted_secrets where name = 'bca_scan_url') || '?batch=0',
@@ -26,7 +46,7 @@ select cron.schedule(
 
 select cron.schedule(
   'bca-scan-batch-1',
-  '*/15 * * * *',
+  '2,17,32,47 * * * *',
   $$
   select net.http_post(
     url := (select decrypted_secret from vault.decrypted_secrets where name = 'bca_scan_url') || '?batch=1',
@@ -41,7 +61,7 @@ select cron.schedule(
 
 select cron.schedule(
   'bca-scan-batch-2',
-  '*/15 * * * *',
+  '2,17,32,47 * * * *',
   $$
   select net.http_post(
     url := (select decrypted_secret from vault.decrypted_secrets where name = 'bca_scan_url') || '?batch=2',
@@ -56,7 +76,7 @@ select cron.schedule(
 
 select cron.schedule(
   'bca-scan-batch-3',
-  '*/15 * * * *',
+  '2,17,32,47 * * * *',
   $$
   select net.http_post(
     url := (select decrypted_secret from vault.decrypted_secrets where name = 'bca_scan_url') || '?batch=3',

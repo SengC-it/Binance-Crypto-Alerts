@@ -14,6 +14,7 @@ export interface BinanceExchangeSymbol {
   baseAsset: string;
   quoteAsset: string;
   marginAsset: string;
+  onboardDate?: number;
   filters: BinanceExchangeFilter[];
 }
 

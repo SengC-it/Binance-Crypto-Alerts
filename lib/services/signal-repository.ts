@@ -23,10 +23,19 @@ export interface SignalClaimInput {
 }
 
 export interface ClaimResult {
-  status: "CREATED" | "REPLACED" | "IDEMPOTENT" | "REJECTED_LOWER_SCORE" | "BUDGET_BLOCKED";
-  signal_id: string;
+  status: "CREATED" | "REPLACED" | "IDEMPOTENT" | "REJECTED_LOWER_SCORE" | "BUDGET_BLOCKED" | "PORTFOLIO_BLOCKED" | "COOLDOWN_BLOCKED";
+  signal_id?: string;
   email_allowed: boolean;
   risk_delta_usdt?: number;
+}
+
+export interface StagedOpportunity {
+  scanRunId: string;
+  scanGroupKey: string;
+  symbol: string;
+  sourceTimestamp: number;
+  candidate: ScoredCandidate;
+  plan: TradePlan;
 }
 
 export async function upsertInstruments(supabase: SupabaseClient, instruments: unknown[]) {
@@ -35,6 +44,12 @@ export async function upsertInstruments(supabase: SupabaseClient, instruments: u
 }
 
 export async function createScanRun(supabase: SupabaseClient, input: ScanRunInput): Promise<string> {
+  const { error: groupError } = await supabase.from("bca_scan_groups").upsert({
+    scan_group_key: input.scanGroupKey,
+    batch_count: input.batchCount,
+  }, { onConflict: "scan_group_key", ignoreDuplicates: true });
+  if (groupError) throw new Error(`Supabase scan group creation failed: ${groupError.message}`);
+
   const { data: existing, error: existingError } = await supabase
     .from("bca_scan_runs")
     .select("id")
@@ -57,6 +72,107 @@ export async function createScanRun(supabase: SupabaseClient, input: ScanRunInpu
     .single();
   if (error || !data) throw new Error(`Supabase scan creation failed: ${error?.message ?? "empty response"}`);
   return data.id as string;
+}
+
+export async function stageScanCandidates(
+  supabase: SupabaseClient,
+  opportunities: StagedOpportunity[],
+): Promise<void> {
+  if (opportunities.length === 0) return;
+  const { error } = await supabase.from("bca_scan_candidates").upsert(opportunities.map((item) => ({
+    scan_group_key: item.scanGroupKey,
+    scan_run_id: item.scanRunId,
+    symbol: item.symbol,
+    source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
+    score: item.candidate.score,
+    candidate: item.candidate,
+    trade_plan: item.plan,
+  })), { onConflict: "scan_group_key,symbol" });
+  if (error) throw new Error(`Supabase candidate staging failed: ${error.message}`);
+}
+
+export async function stageShadowCandidates(
+  supabase: SupabaseClient,
+  opportunities: StagedOpportunity[],
+): Promise<void> {
+  if (opportunities.length === 0) return;
+  const { error } = await supabase.from("bca_shadow_candidates").upsert(opportunities.map((item) => ({
+    scan_group_key: item.scanGroupKey,
+    scan_run_id: item.scanRunId,
+    symbol: item.symbol,
+    source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
+    score: item.candidate.score,
+    candidate: item.candidate,
+    trade_plan: item.plan,
+  })), { onConflict: "scan_group_key,symbol" });
+  if (error) throw new Error(`Supabase shadow candidate staging failed: ${error.message}`);
+}
+
+export async function tryStartScanGroupFinalization(
+  supabase: SupabaseClient,
+  scanGroupKey: string,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc("bca_try_finalize_scan_group", {
+    p_scan_group_key: scanGroupKey,
+  });
+  if (error) throw new Error(`Supabase scan finalization claim failed: ${error.message}`);
+  return data === true;
+}
+
+export async function listStagedCandidates(
+  supabase: SupabaseClient,
+  scanGroupKey: string,
+): Promise<StagedOpportunity[]> {
+  const { data, error } = await supabase
+    .from("bca_scan_candidates")
+    .select("scan_run_id, scan_group_key, symbol, source_data_timestamp, candidate, trade_plan")
+    .eq("scan_group_key", scanGroupKey)
+    .order("score", { ascending: false })
+    .order("symbol", { ascending: true });
+  if (error) throw new Error(`Supabase staged candidate lookup failed: ${error.message}`);
+  return (data ?? []).map((row) => ({
+    scanRunId: row.scan_run_id as string,
+    scanGroupKey: row.scan_group_key as string,
+    symbol: row.symbol as string,
+    sourceTimestamp: Date.parse(row.source_data_timestamp as string),
+    candidate: row.candidate as ScoredCandidate,
+    plan: row.trade_plan as TradePlan,
+  }));
+}
+
+export async function listStagedShadowCandidates(
+  supabase: SupabaseClient,
+  scanGroupKey: string,
+): Promise<StagedOpportunity[]> {
+  const { data, error } = await supabase
+    .from("bca_shadow_candidates")
+    .select("scan_run_id, scan_group_key, symbol, source_data_timestamp, candidate, trade_plan")
+    .eq("scan_group_key", scanGroupKey)
+    .order("score", { ascending: false })
+    .order("symbol", { ascending: true });
+  if (error) throw new Error(`Supabase shadow candidate lookup failed: ${error.message}`);
+  return (data ?? []).map((row) => ({
+    scanRunId: row.scan_run_id as string,
+    scanGroupKey: row.scan_group_key as string,
+    symbol: row.symbol as string,
+    sourceTimestamp: Date.parse(row.source_data_timestamp as string),
+    candidate: row.candidate as ScoredCandidate,
+    plan: row.trade_plan as TradePlan,
+  }));
+}
+
+export async function finishScanGroup(
+  supabase: SupabaseClient,
+  scanGroupKey: string,
+  status: "COMPLETED" | "FAILED",
+  errorSummary: unknown[] = [],
+): Promise<void> {
+  const { error } = await supabase.from("bca_scan_groups").update({
+    status,
+    error_summary: errorSummary,
+    finished_at: new Date().toISOString(),
+  }).eq("scan_group_key", scanGroupKey);
+  if (error) throw new Error(`Supabase scan group completion failed: ${error.message}`);
 }
 
 export async function completeScanRun(
@@ -94,6 +210,10 @@ export async function claimSignal(
     dailyEmailCap: number;
     scanEmailCap: number;
     shouldEmail: boolean;
+    maxConcurrentPositions: number;
+    cooldownHours: number;
+    takerFeeRate: number;
+    slippageBps: number;
   },
 ): Promise<ClaimResult> {
   const { data, error } = await supabase.rpc("bca_claim_signal", {
@@ -129,6 +249,10 @@ export async function claimSignal(
       p_should_email: policy.shouldEmail,
       p_scan_group_key: input.scanGroupKey,
       p_scan_email_cap: policy.scanEmailCap,
+      p_max_concurrent_positions: policy.maxConcurrentPositions,
+      p_cooldown_hours: policy.cooldownHours,
+      p_taker_fee_rate: policy.takerFeeRate,
+      p_slippage_bps: policy.slippageBps,
   });
   if (error || !data) throw new Error(`Supabase signal claim failed: ${error?.message ?? "empty response"}`);
   return data as ClaimResult;

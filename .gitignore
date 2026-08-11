@@ -1,4 +1,5 @@
 node_modules/
+.npm-cache/
 .next/
 out/
 coverage/
@@ -11,3 +12,8 @@ coverage/
 supabase/.temp/
 data/raw/*
 !data/raw/.gitkeep
+data/validation-cache/
+reports/
+
+.vercel
+.env*

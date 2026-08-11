@@ -29,6 +29,7 @@ export interface Instrument {
   maxLeverage?: number;
   quoteVolume24h?: number;
   universeRank?: number;
+  onboardDate?: number;
 }
 
 export interface MarketSnapshot {
@@ -73,6 +74,7 @@ export interface RiskPolicy {
   singleSignalRiskCapUsdt: number;
   dailyRiskBudgetUsdt: number;
   maxHoldHours: number;
+  rewardRisk?: number;
   riskPerTradeUsdt?: number;
   maxPositionNotionalUsdt?: number;
 }

@@ -1,4 +1,45 @@
-import type { ScoredCandidate, ScoreComponents, StrategyCandidate } from "./types";
+import type { ScoredCandidate, ScoreComponents, Side, StrategyCandidate } from "./types";
+
+export interface ScoreCalibrationPolicy {
+  minimumScore?: number;
+  sideFilter?: Side;
+  strategyFamily?: StrategyCandidate["strategyFamily"];
+}
+
+export interface ScoreCalibrationSample {
+  score: number;
+  netR: number;
+  strategyFamily?: StrategyCandidate["strategyFamily"];
+}
+
+export interface ScoreCalibrationBin {
+  key: string;
+  strategyFamily?: StrategyCandidate["strategyFamily"];
+  lowerScore: number;
+  upperScore: number;
+  samples: number;
+  rawMeanNetR: number;
+  meanNetR: number;
+  winRate: number;
+}
+
+export interface ScoreCalibrationModel {
+  bucketSize: number;
+  groupByStrategyFamily: boolean;
+  minimumSamples: number;
+  minimumExpectedNetR: number;
+  priorWeight: number;
+  globalMeanNetR: number;
+  bins: ScoreCalibrationBin[];
+}
+
+export interface ScoreCalibrationFitOptions {
+  bucketSize?: number;
+  groupByStrategyFamily?: boolean;
+  minimumSamples?: number;
+  minimumExpectedNetR?: number;
+  priorWeight?: number;
+}
 
 const WEIGHTS: Record<keyof ScoreComponents, number> = {
   trendAlignment: 0.2,
@@ -23,8 +64,105 @@ export function scoreCandidate(candidate: StrategyCandidate): ScoredCandidate {
   };
 }
 
-export function rankCandidates(candidates: StrategyCandidate[]): ScoredCandidate[] {
-  return candidates.map(scoreCandidate).sort((left, right) => right.score - left.score);
+export function rankCandidates(
+  candidates: StrategyCandidate[],
+  calibration?: ScoreCalibrationPolicy,
+): ScoredCandidate[] {
+  return candidates
+    .map(scoreCandidate)
+    .filter((candidate) => passesScoreCalibration(candidate, calibration))
+    .sort((left, right) => right.score - left.score);
+}
+
+export function passesScoreCalibration(
+  candidate: ScoredCandidate,
+  calibration?: ScoreCalibrationPolicy,
+): boolean {
+  if (!calibration) return true;
+  if (calibration.sideFilter && candidate.side !== calibration.sideFilter) return false;
+  if (calibration.strategyFamily && candidate.strategyFamily !== calibration.strategyFamily) return false;
+  return calibration.minimumScore === undefined || candidate.score >= calibration.minimumScore;
+}
+
+/**
+ * Fit a cost-aware empirical mapping from the explainable score to realized
+ * net R. The caller is responsible for fitting this model on a historical
+ * training window only; the backtest engine can then apply it out of sample.
+ */
+export function fitScoreCalibration(
+  samples: ScoreCalibrationSample[],
+  options: ScoreCalibrationFitOptions = {},
+): ScoreCalibrationModel {
+  const bucketSize = clampInteger(options.bucketSize ?? 5, 1, 25);
+  const groupByStrategyFamily = options.groupByStrategyFamily ?? false;
+  const minimumSamples = Math.max(1, Math.floor(options.minimumSamples ?? 40));
+  const minimumExpectedNetR = options.minimumExpectedNetR ?? 0.02;
+  const priorWeight = Math.max(0, options.priorWeight ?? 20);
+  const validSamples = samples.filter((sample) => Number.isFinite(sample.score) && Number.isFinite(sample.netR));
+  const globalMeanNetR = validSamples.length === 0
+    ? 0
+    : validSamples.reduce((total, sample) => total + sample.netR, 0) / validSamples.length;
+  const grouped = new Map<string, { lowerScore: number; strategyFamily?: StrategyCandidate["strategyFamily"]; samples: ScoreCalibrationSample[] }>();
+
+  for (const sample of validSamples) {
+    const lowerScore = scoreBucket(sample.score, bucketSize);
+    const strategyFamily = groupByStrategyFamily ? sample.strategyFamily : undefined;
+    const key = calibrationKey(lowerScore, strategyFamily, groupByStrategyFamily);
+    const bucket = grouped.get(key) ?? { lowerScore, strategyFamily, samples: [] };
+    bucket.samples.push(sample);
+    grouped.set(key, bucket);
+  }
+
+  const bins = [...grouped.entries()]
+    .sort(([, left], [, right]) => left.lowerScore - right.lowerScore || (left.strategyFamily ?? "").localeCompare(right.strategyFamily ?? ""))
+    .map(([key, bucket]) => {
+      const rawMeanNetR = bucket.samples.reduce((total, sample) => total + sample.netR, 0) / bucket.samples.length;
+      const meanNetR = (rawMeanNetR * bucket.samples.length + globalMeanNetR * priorWeight)
+        / (bucket.samples.length + priorWeight);
+      const wins = bucket.samples.filter((sample) => sample.netR > 0).length;
+      return {
+        key,
+        strategyFamily: bucket.strategyFamily,
+        lowerScore: bucket.lowerScore,
+        upperScore: Math.min(100, bucket.lowerScore + bucketSize),
+        samples: bucket.samples.length,
+        rawMeanNetR: round(rawMeanNetR, 6),
+        meanNetR: round(meanNetR, 6),
+        winRate: round(wins / bucket.samples.length, 6),
+      };
+    });
+
+  return {
+    bucketSize,
+    groupByStrategyFamily,
+    minimumSamples,
+    minimumExpectedNetR,
+    priorWeight,
+    globalMeanNetR: round(globalMeanNetR, 6),
+    bins,
+  };
+}
+
+export function expectedNetRForScore(
+  model: ScoreCalibrationModel,
+  score: number,
+  strategyFamily?: StrategyCandidate["strategyFamily"],
+): number | null {
+  const bin = findCalibrationBin(model, score, strategyFamily);
+  return bin?.meanNetR ?? null;
+}
+
+export function passesEmpiricalScoreCalibration(
+  model: ScoreCalibrationModel,
+  score: number,
+  strategyFamily?: StrategyCandidate["strategyFamily"],
+): boolean {
+  const bin = findCalibrationBin(model, score, strategyFamily);
+  return Boolean(
+    bin
+    && bin.samples >= model.minimumSamples
+    && bin.meanNetR >= model.minimumExpectedNetR,
+  );
 }
 
 function normalizeComponents(components: ScoreComponents): ScoreComponents {
@@ -41,6 +179,33 @@ function normalizeComponents(components: ScoreComponents): ScoreComponents {
 
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+}
+
+function clampInteger(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, Math.floor(value)));
+}
+
+function scoreBucket(score: number, bucketSize: number): number {
+  return Math.min(100, Math.max(0, Math.floor(score / bucketSize) * bucketSize));
+}
+
+function findCalibrationBin(
+  model: ScoreCalibrationModel,
+  score: number,
+  strategyFamily?: StrategyCandidate["strategyFamily"],
+): ScoreCalibrationBin | undefined {
+  if (!Number.isFinite(score)) return undefined;
+  const lowerScore = scoreBucket(score, model.bucketSize);
+  const key = calibrationKey(lowerScore, strategyFamily, model.groupByStrategyFamily);
+  return model.bins.find((bin) => bin.key === key);
+}
+
+function calibrationKey(
+  lowerScore: number,
+  strategyFamily: StrategyCandidate["strategyFamily"] | undefined,
+  groupByStrategyFamily: boolean,
+): string {
+  return groupByStrategyFamily ? `${strategyFamily ?? "UNKNOWN"}:${lowerScore}` : String(lowerScore);
 }
 
 function round(value: number, digits: number): number {
