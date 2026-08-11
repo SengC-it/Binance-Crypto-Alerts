@@ -1,0 +1,16 @@
+.git/
+.next/
+.npm-cache/
+.vercel/
+node_modules/
+coverage/
+out/
+reports/
+supabase/.temp/
+data/raw/
+data/validation-cache/
+.env
+.env.local
+.env.*.local
+*.log
+*.tsbuildinfo
