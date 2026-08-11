@@ -57,9 +57,9 @@ pnpm dev
 
 部署到 Vercel 后：
 
-1. 在 Vercel 环境变量中设置 `.env.example` 的服务端变量，生产环境将 `CS_DRY_RUN=false`。
-2. 在 Supabase Vault 中保存 `bca_scan_url` 和 `bca_cron_secret`。
-3. 按 [`supabase/scheduler.sql`](./supabase/scheduler.sql) 创建 `bca-scan-batch-0..3`。这不会改动数据库中已有的 Cron。
+1. 在 Vercel 环境变量中设置 `.env.example` 的服务端变量；Gmail SMTP 验证成功前保持 `CS_DRY_RUN=true`，确认后再改为 `false`。
+2. 在 Supabase Vault 中保存 `bca_scan_url`、`bca_paper_settle_url`、`bca_cron_secret`。若启用 Vercel Deployment Protection，再保存专用的 `bca_vercel_protection_bypass`。
+3. 按 [`supabase/scheduler.sql`](./supabase/scheduler.sql) 创建 `bca-paper-settle` 和 `bca-scan-batch-0..3`。这不会改动数据库中已有的其他 Cron。
 
 GitHub Actions 月度优化需要配置仓库 Secrets：`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY` 和 `CS_HISTORY_SYMBOLS`。原始行情只存在于该次 Actions runner 的 `data/raw/`，不会写入 Supabase 或提交到公开仓库。
 
