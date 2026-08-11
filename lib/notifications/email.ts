@@ -20,6 +20,29 @@ export async function sendSignalEmail(input: SignalEmailInput): Promise<{ messag
   });
 }
 
+export async function sendTestEmail(): Promise<{ messageId?: string; skipped: boolean }> {
+  const config = getServerConfig();
+  const sentAt = new Date().toISOString();
+  return sendWithConfig(config, {
+    subject: "[BCA 测试] Gmail SMTP 已连接",
+    text: [
+      "Binance Crypto Alerts 测试邮件发送成功。",
+      "",
+      `发送时间：${sentAt}`,
+      "用途：验证生产环境 Gmail SMTP 通道。",
+      "",
+      "这不是交易信号，请勿据此进行任何交易。",
+    ].join("\n"),
+    html: `
+      <div style="font-family:Arial,'Microsoft YaHei',sans-serif;max-width:680px;color:#12221d;line-height:1.6">
+        <div style="background:#0f766e;color:#fff;padding:16px 18px;border-radius:8px;font-weight:700">BCA Gmail SMTP 测试成功</div>
+        <p>Binance Crypto Alerts 已通过生产环境的 Gmail SMTP 通道发送此邮件。</p>
+        <p><strong>发送时间：</strong>${escapeHtml(sentAt)}</p>
+        <p style="color:#8b1e1e"><strong>这不是交易信号，请勿据此进行任何交易。</strong></p>
+      </div>`,
+  });
+}
+
 export async function sendSystemAlertEmail(
   config: ServerConfig,
   input: { component: string; message: string; scanRunId?: string },
