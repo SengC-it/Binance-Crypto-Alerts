@@ -58,6 +58,9 @@ const scoreLabels: Record<string, string> = {
   liquidity: "流动性",
   regime: "市场状态",
   expected_edge: "成本后优势",
+  regimeFit: "市场匹配",
+  structure: "结构质量",
+  volatility: "波动质量",
 };
 
 export default async function HomePage() {
@@ -300,7 +303,9 @@ async function withTimeout<T>(promise: Promise<T>, milliseconds: number): Promis
 
 function summarizeScans(runs: ScanRun[]) {
   const scanned = runs.reduce((sum, run) => sum + Number(run.scanned_symbols), 0);
-  const universe = runs.reduce((sum, run) => sum + Number(run.universe_size), 0);
+  const marketUniverse = Math.max(0, ...runs.map((run) => Number(run.universe_size)));
+  const configuredTarget = Number(process.env.CS_TOP_SYMBOLS ?? 100);
+  const universe = marketUniverse > 0 ? Math.min(marketUniverse, configuredTarget) : configuredTarget;
   const candidates = runs.reduce((sum, run) => sum + Number(run.candidate_count), 0);
   const errors = runs.reduce((sum, run) => sum + (Array.isArray(run.error_summary) ? run.error_summary.length : 0), 0);
   const status = runs.some((run) => run.status === "FAILED")
