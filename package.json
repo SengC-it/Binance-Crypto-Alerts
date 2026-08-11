@@ -1,5 +1,5 @@
 {
-  "name": "crypto-signal-scanner",
+  "name": "binance-crypto-alerts",
   "version": "0.1.0",
   "private": true,
   "description": "Rule-based Binance USDT-M perpetual opportunity scanner with risk-aware alerts.",
