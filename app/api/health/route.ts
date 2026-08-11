@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export function GET() {
   return NextResponse.json({
     ok: true,
-    service: "crypto-signal-scanner",
+    service: "binance-crypto-alerts",
     mode: "alert-only",
     configuration: {
       binancePublicApi: Boolean(process.env.BINANCE_API_BASE_URL ?? "https://fapi.binance.com"),
