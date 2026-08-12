@@ -95,7 +95,7 @@ async function sendWithConfig(
   });
 
   const result = await transporter.sendMail({
-    from: user,
+    from: `Binance Crypto Alerts <${user}>`,
     to: recipient,
     subject: message.subject,
     text: message.text,
