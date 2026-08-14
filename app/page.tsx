@@ -44,10 +44,23 @@ interface PaperTrade {
   exit_time: string | null;
 }
 
+interface SignalSummaryRow {
+  score: number;
+  status: string;
+}
+
+interface SettledTradeSummaryRow {
+  assumed_margin_usdt: number | null;
+  net_pnl_usdt: number | null;
+  exit_time: string | null;
+}
+
 interface DashboardData {
   signals: Signal[];
   scanRuns: ScanRun[];
   paperTrades: PaperTrade[];
+  signalSummaryRows: SignalSummaryRow[];
+  settledTradeSummaryRows: SettledTradeSummaryRow[];
   databaseAvailable: boolean;
 }
 
@@ -64,11 +77,13 @@ const scoreLabels: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const { signals, scanRuns, paperTrades, databaseAvailable } = await getDashboardData();
+  const { signals, scanRuns, paperTrades, signalSummaryRows, settledTradeSummaryRows, databaseAvailable } = await getDashboardData();
   const selected = signals[0] ?? null;
   const latestGroup = scanRuns[0]?.scan_group_key;
   const latestRuns = latestGroup ? scanRuns.filter((run) => run.scan_group_key === latestGroup) : [];
   const scanSummary = summarizeScans(latestRuns);
+  const signalSummary = summarizeSignals(signalSummaryRows);
+  const tradeSummary = summarizeTrades(settledTradeSummaryRows);
   const healthy = databaseAvailable && scanSummary.status !== "FAILED";
 
   return (
@@ -90,6 +105,54 @@ export default async function HomePage() {
           <time>{formatFullDate(new Date())}</time>
         </div>
       </header>
+
+      <section className="summary-panel" aria-label="汇总数据">
+        <div className="summary-heading">
+          <div>
+            <p className="section-kicker">PERFORMANCE SUMMARY</p>
+            <h1>策略汇总</h1>
+          </div>
+          <span>提醒统计全量记录 · 收益统计已结算纸上交易</span>
+        </div>
+        <div className="summary-grid">
+          <div className="summary-card">
+            <span>提醒总数</span>
+            <strong>{signalSummary.totalSignals}</strong>
+            <small>当前有效 {signalSummary.activeSignals} 条</small>
+          </div>
+          <div className="summary-card">
+            <span>平均评分</span>
+            <strong>{signalSummary.averageScore.toFixed(1)}</strong>
+            <small>满分 100</small>
+          </div>
+          <div className="summary-card">
+            <span>最大回撤</span>
+            <strong className={tradeSummary.maxDrawdownUsdt > 0 ? "loss" : "profit"}>
+              {formatDrawdown(tradeSummary.maxDrawdownUsdt)} U
+            </strong>
+            <small>{tradeSummary.maxDrawdownPercent.toFixed(2)}% · 按纸上保证金估算</small>
+          </div>
+          <div className="summary-card">
+            <span>胜率</span>
+            <strong>{tradeSummary.winRate.toFixed(1)}%</strong>
+            <small>{tradeSummary.wins} 胜 / {tradeSummary.losses} 负</small>
+          </div>
+          <div className="summary-card">
+            <span>净收益</span>
+            <strong className={tradeSummary.netPnlUsdt >= 0 ? "profit" : "loss"}>
+              {formatSigned(tradeSummary.netPnlUsdt)} U
+            </strong>
+            <small>{tradeSummary.settledTrades} 笔已结算</small>
+          </div>
+          <div className="summary-card">
+            <span>平均每笔</span>
+            <strong className={tradeSummary.averagePnlUsdt >= 0 ? "profit" : "loss"}>
+              {formatSigned(tradeSummary.averagePnlUsdt)} U
+            </strong>
+            <small>盈亏因子 {tradeSummary.profitFactorLabel}</small>
+          </div>
+        </div>
+      </section>
 
       <div className="dashboard-grid">
         <div className="main-column">
@@ -127,7 +190,7 @@ export default async function HomePage() {
                 <p className="section-kicker">TOP OPPORTUNITIES</p>
                 <h2>最高评分机会</h2>
               </div>
-              <span>当前有效 {signals.length} 条</span>
+              <span>当前有效 {signalSummary.activeSignals} 条 · 展示前 {signals.length} 条</span>
             </div>
 
             {signals.length === 0 ? (
@@ -253,7 +316,7 @@ export default async function HomePage() {
 async function getDashboardData(): Promise<DashboardData> {
   try {
     const supabase = getSupabaseAdmin();
-    const [signalsResult, scansResult, tradesResult] = await withTimeout(Promise.all([
+    const [signalsResult, scansResult, tradesResult, signalSummaryResult, settledTradeSummaryResult] = await withTimeout(Promise.all([
       supabase
         .from("bca_signals")
         .select("id,symbol,side,strategy_family,primary_timeframe,score,score_components,market_regime,entry_price,stop_price,take_profit_price,reward_risk,assumed_leverage,theoretical_risk_usdt,risk_over_single_cap,valid_until,created_at")
@@ -271,20 +334,38 @@ async function getDashboardData(): Promise<DashboardData> {
         .neq("status", "OPEN")
         .order("exit_time", { ascending: false })
         .limit(5),
+      supabase
+        .from("bca_signals")
+        .select("score,status"),
+      supabase
+        .from("bca_paper_trades")
+        .select("assumed_margin_usdt,net_pnl_usdt,exit_time")
+        .neq("status", "OPEN")
+        .not("net_pnl_usdt", "is", null)
+        .order("exit_time", { ascending: true }),
     ]), 8_000);
 
-    const error = signalsResult.error ?? scansResult.error ?? tradesResult.error;
+    const error = signalsResult.error ?? scansResult.error ?? tradesResult.error ?? signalSummaryResult.error ?? settledTradeSummaryResult.error;
     if (error) throw error;
 
     return {
       signals: (signalsResult.data ?? []) as Signal[],
       scanRuns: (scansResult.data ?? []) as ScanRun[],
       paperTrades: (tradesResult.data ?? []) as PaperTrade[],
+      signalSummaryRows: (signalSummaryResult.data ?? []) as SignalSummaryRow[],
+      settledTradeSummaryRows: (settledTradeSummaryResult.data ?? []) as SettledTradeSummaryRow[],
       databaseAvailable: true,
     };
   } catch (error) {
     console.warn("Dashboard data is unavailable until Supabase is configured.", error);
-    return { signals: [], scanRuns: [], paperTrades: [], databaseAvailable: false };
+    return {
+      signals: [],
+      scanRuns: [],
+      paperTrades: [],
+      signalSummaryRows: [],
+      settledTradeSummaryRows: [],
+      databaseAvailable: false,
+    };
   }
 }
 
@@ -327,6 +408,58 @@ function summarizeScans(runs: ScanRun[]) {
     progress: universe > 0 ? Math.min(100, Math.round((scanned / universe) * 100)) : 0,
     finishedAt: runs.find((run) => run.finished_at)?.finished_at ?? runs[0]?.started_at ?? null,
   };
+}
+
+function summarizeSignals(rows: SignalSummaryRow[]) {
+  const scores = rows.map((row) => Number(row.score)).filter(Number.isFinite);
+  return {
+    totalSignals: rows.length,
+    activeSignals: rows.filter((row) => row.status === "ACTIVE").length,
+    averageScore: scores.length === 0 ? 0 : scores.reduce((sum, score) => sum + score, 0) / scores.length,
+  };
+}
+
+function summarizeTrades(rows: SettledTradeSummaryRow[]) {
+  const trades = rows
+    .filter((row) => row.net_pnl_usdt !== null)
+    .map((row) => ({
+      assumedMarginUsdt: row.assumed_margin_usdt === null ? 0 : Number(row.assumed_margin_usdt),
+      netPnlUsdt: Number(row.net_pnl_usdt),
+      exitTime: row.exit_time ? new Date(row.exit_time).getTime() : Number.POSITIVE_INFINITY,
+    }))
+    .filter((trade) => Number.isFinite(trade.assumedMarginUsdt) && Number.isFinite(trade.netPnlUsdt))
+    .sort((left, right) => left.exitTime - right.exitTime);
+  const netPnlUsdt = trades.reduce((sum, trade) => sum + trade.netPnlUsdt, 0);
+  const wins = trades.filter((trade) => trade.netPnlUsdt > 0).length;
+  const losses = trades.filter((trade) => trade.netPnlUsdt < 0).length;
+  const grossProfit = trades.reduce((sum, trade) => sum + (trade.netPnlUsdt > 0 ? trade.netPnlUsdt : 0), 0);
+  const grossLoss = Math.abs(trades.reduce((sum, trade) => sum + (trade.netPnlUsdt < 0 ? trade.netPnlUsdt : 0), 0));
+  const initialCapitalUsdt = Math.max(0, ...trades.map((trade) => trade.assumedMarginUsdt));
+  let equity = initialCapitalUsdt;
+  let peakEquity = initialCapitalUsdt;
+  let maxDrawdownUsdt = 0;
+
+  for (const trade of trades) {
+    equity += trade.netPnlUsdt;
+    peakEquity = Math.max(peakEquity, equity);
+    maxDrawdownUsdt = Math.max(maxDrawdownUsdt, peakEquity - equity);
+  }
+
+  return {
+    settledTrades: trades.length,
+    wins,
+    losses,
+    winRate: trades.length === 0 ? 0 : wins / trades.length * 100,
+    netPnlUsdt,
+    averagePnlUsdt: trades.length === 0 ? 0 : netPnlUsdt / trades.length,
+    profitFactorLabel: grossLoss === 0 ? (grossProfit > 0 ? "∞" : "—") : (grossProfit / grossLoss).toFixed(2),
+    maxDrawdownUsdt,
+    maxDrawdownPercent: peakEquity === 0 ? 0 : maxDrawdownUsdt / peakEquity * 100,
+  };
+}
+
+function formatDrawdown(value: number): string {
+  return value > 0 ? formatSigned(-value) : "0.00";
 }
 
 function normalizeFactors(components: Record<string, number> | null, fallback: number) {
