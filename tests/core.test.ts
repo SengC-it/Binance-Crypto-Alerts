@@ -3,6 +3,11 @@ import { BinancePublicClient, mapWithConcurrency } from "../lib/binance/public-c
 import { atr, donchian, ema, rsi } from "../lib/core/indicators";
 import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "../lib/core/execution-policy";
 import {
+  PRODUCTION_ENTRY_MODE,
+  PRODUCTION_STRATEGY_VERSION,
+  SHADOW_ENTRY_MODE,
+} from "../lib/core/production-policy";
+import {
   assessMarketState,
   expectedNetR,
   fitCostAwareScoreModel,
@@ -35,6 +40,14 @@ const instrument: Instrument = {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe("production strategy policy", () => {
+  it("promotes short trend rejection and retains the prior entry as shadow", () => {
+    expect(PRODUCTION_STRATEGY_VERSION).toBe("trend-rejection-short-v1");
+    expect(PRODUCTION_ENTRY_MODE).toBe("TREND_REJECTION");
+    expect(SHADOW_ENTRY_MODE).toBe("DEFAULT");
+  });
 });
 
 describe("indicator primitives", () => {

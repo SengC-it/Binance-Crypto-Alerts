@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { BinancePublicClient, mapWithConcurrency, selectDeepUniverse } from "@/lib/binance/public-client";
 import { getServerConfig, type ServerConfig } from "@/lib/config";
 import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
+import {
+  PRODUCTION_ENTRY_MODE,
+  PRODUCTION_STRATEGY_VERSION,
+  SHADOW_ENTRY_MODE,
+  SHADOW_STRATEGY_VERSION,
+} from "@/lib/core/production-policy";
 import { buildTradePlan } from "@/lib/core/risk";
 import { rankCandidates } from "@/lib/core/scoring";
 import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
@@ -28,9 +34,6 @@ import { createPaperTrade, createShadowPaperTrade } from "@/lib/services/paper-t
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const STRATEGY_VERSION = "rules-profit-oriented-v4";
-const SHADOW_STRATEGY_VERSION = "trend-rejection-shadow-v1";
 
 export async function GET(request: NextRequest) {
   return runScan(request);
@@ -68,13 +71,14 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       batchNumber * runtimeConfig.CS_SCAN_BATCH_SIZE,
       (batchNumber + 1) * runtimeConfig.CS_SCAN_BATCH_SIZE,
     );
-    const strategyParams = {
+    const strategyParams: StrategyParams = {
       ...DEFAULT_STRATEGY_PARAMS,
+      entryMode: PRODUCTION_ENTRY_MODE,
       stopAtrMultiplier: runtimeConfig.CS_STRATEGY_STOP_ATR_MULTIPLIER,
     };
     const shadowStrategyParams: StrategyParams = {
       ...strategyParams,
-      entryMode: "TREND_REJECTION",
+      entryMode: SHADOW_ENTRY_MODE,
     };
     supabase = getSupabaseAdmin();
     await upsertInstruments(supabase, universe.map(toInstrumentRow));
@@ -163,7 +167,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         symbol: opportunity.symbol,
         side: opportunity.candidate.side,
         timeframe: opportunity.candidate.primaryTimeframe,
-        strategyVersion: STRATEGY_VERSION,
+        strategyVersion: PRODUCTION_STRATEGY_VERSION,
         sourceTimestamp: opportunity.sourceTimestamp,
       });
       const hasEmailConfig = Boolean(runtimeConfig.GMAIL_SMTP_USER && runtimeConfig.GMAIL_SMTP_APP_PASSWORD && runtimeConfig.GMAIL_RECIPIENT);
@@ -176,7 +180,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           symbol: opportunity.symbol,
           candidate: opportunity.candidate,
           plan: opportunity.plan,
-          strategyVersion: STRATEGY_VERSION,
+          strategyVersion: PRODUCTION_STRATEGY_VERSION,
           sourceTimestamp: opportunity.sourceTimestamp,
           occurrenceDate,
         },
@@ -205,7 +209,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
             symbol: opportunity.symbol,
             candidate: opportunity.candidate,
             plan: opportunity.plan,
-            strategyVersion: STRATEGY_VERSION,
+            strategyVersion: PRODUCTION_STRATEGY_VERSION,
             sourceTimestamp: opportunity.sourceTimestamp,
             slippageBps: runtimeConfig.CS_PAPER_SLIPPAGE_BPS,
           });
@@ -234,7 +238,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           symbol: opportunity.symbol,
           candidate: opportunity.candidate,
           plan: opportunity.plan,
-          strategyVersion: STRATEGY_VERSION,
+          strategyVersion: PRODUCTION_STRATEGY_VERSION,
           sourceTimestamp: opportunity.sourceTimestamp,
         });
         await finishNotification(supabase, idempotencyKey, {
@@ -296,6 +300,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       emailedCount,
       errors,
       dryRun: runtimeConfig.CS_DRY_RUN,
+      strategy: {
+        version: PRODUCTION_STRATEGY_VERSION,
+        entryMode: PRODUCTION_ENTRY_MODE,
+        sideFilter: runtimeConfig.CS_SIGNAL_SIDE_FILTER,
+      },
     });
   } catch (error) {
     const message = errorMessage(error);
