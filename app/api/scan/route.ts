@@ -31,6 +31,7 @@ import {
   upsertInstruments,
 } from "@/lib/services/signal-repository";
 import { createPaperTrade, createShadowPaperTrade } from "@/lib/services/paper-trading";
+import { loadProspectiveStrategyHealth } from "@/lib/services/strategy-health";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -81,6 +82,21 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       entryMode: SHADOW_ENTRY_MODE,
     };
     supabase = getSupabaseAdmin();
+    const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
+    const productionHealth = await loadProspectiveStrategyHealth(supabase, PRODUCTION_STRATEGY_VERSION);
+    if (productionHealth.status !== "HEALTHY") {
+      try {
+        await recordSystemEvent(supabase, {
+          eventType: "PRODUCTION_STRATEGY_HEALTH",
+          severity: productionHealth.status === "FAIL_CLOSED" ? "CRITICAL" : "WARNING",
+          component: "production_signal_health_gate",
+          message: `Production strategy health is ${productionHealth.status}; Production A email is blocked.`,
+          details: productionHealth,
+        });
+      } catch (error) {
+        errors.push({ stage: "production_health_event", message: errorMessage(error) });
+      }
+    }
     await upsertInstruments(supabase, universe.map(toInstrumentRow));
     scanRunId = await createScanRun(supabase, {
       runKey,
@@ -90,8 +106,6 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       batchCount,
       universeSize: universe.length,
     });
-
-    const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
     const snapshots = await mapWithConcurrency(batch, runtimeConfig.CS_REQUEST_CONCURRENCY, async (instrument) => {
       try {
         const timeframes = normalizedTimeframes(runtimeConfig.scanTimeframes);
@@ -190,7 +204,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           singleRiskCapUsdt: runtimeConfig.CS_PER_SIGNAL_RISK_CAP_USDT,
           dailyEmailCap: runtimeConfig.CS_NEW_EMAIL_DAILY_CAP,
           scanEmailCap: runtimeConfig.CS_MAX_EMAILS_PER_SCAN,
-          shouldEmail: hasEmailConfig,
+          shouldEmail: hasEmailConfig && productionHealth.productionAAllowed,
           maxConcurrentPositions: runtimeConfig.CS_MAX_CONCURRENT_POSITIONS,
           cooldownHours: runtimeConfig.CS_COOLDOWN_HOURS,
           takerFeeRate: runtimeConfig.CS_PAPER_TAKER_FEE_RATE,
@@ -304,6 +318,12 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         version: PRODUCTION_STRATEGY_VERSION,
         entryMode: PRODUCTION_ENTRY_MODE,
         sideFilter: runtimeConfig.CS_SIGNAL_SIDE_FILTER,
+      },
+      strategyHealth: {
+        status: productionHealth.status,
+        productionAAllowed: productionHealth.productionAAllowed,
+        reasons: productionHealth.reasons,
+        metrics: productionHealth.metrics,
       },
     });
   } catch (error) {

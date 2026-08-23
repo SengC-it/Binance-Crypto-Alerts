@@ -1,6 +1,7 @@
 export type Side = "LONG" | "SHORT";
 export type Timeframe = "15m" | "1h" | "4h";
 export type MarketRegime = "BULL" | "BEAR" | "RANGE" | "UNKNOWN";
+export type StrategyHealthStatus = "HEALTHY" | "DEGRADED" | "FAIL_CLOSED" | "UNKNOWN";
 
 export interface Candle {
   openTime: number;
