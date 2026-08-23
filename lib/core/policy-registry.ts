@@ -8,6 +8,7 @@ import type { DirectionalCostAwareScoreModel } from "./opportunity-policy";
 import type { DirectionalScoreCalibrationModel } from "./scoring";
 import { DEFAULT_NO_CHASE_POLICY, type NoChasePolicy } from "./v5-entry-policy";
 import { DEFAULT_STRATEGY_PARAMS, type StrategyParams } from "./strategies";
+import { DEFAULT_UNIVERSE_POLICY, type UniversePolicy } from "./universe-policy";
 
 export const V5_POLICY_VERSION = "v5-signal-edge-1";
 export const CURRENT_PRODUCTION_CONTROL_VERSION = "current-production-control";
@@ -21,6 +22,8 @@ export interface PolicyValidationMetrics {
   trades: number;
   averageNetR: number;
   medianNetR: number;
+  winProbability: number;
+  edgeConfidence: number;
   profitFactor: number;
   maxDrawdownPercent: number;
   cvar95: number;
@@ -51,14 +54,7 @@ export interface V5Policy {
     unknown: "FAIL_CLOSED";
   };
   noChasePolicy: NoChasePolicy;
-  universePolicy: {
-    minimumListingAgeDays: number;
-    minimumHistoryDays: number;
-    minimumCompleteness: number;
-    volumeLookbackDays: number;
-    staleCandleMinutes: number;
-    orderBookAvailability: "UNAVAILABLE" | "PROXY" | "AVAILABLE";
-  };
+  universePolicy: UniversePolicy;
   calibrationModel: DirectionalScoreCalibrationModel | null;
   expectedEdgeModel: DirectionalCostAwareScoreModel | null;
   costModelVersion: string;
@@ -88,12 +84,7 @@ export const DEFAULT_V5_POLICY: V5Policy = {
   },
   noChasePolicy: DEFAULT_NO_CHASE_POLICY,
   universePolicy: {
-    minimumListingAgeDays: 90,
-    minimumHistoryDays: 365,
-    minimumCompleteness: 0.98,
-    volumeLookbackDays: 30,
-    staleCandleMinutes: 45,
-    orderBookAvailability: "UNAVAILABLE",
+    ...DEFAULT_UNIVERSE_POLICY,
   },
   calibrationModel: null,
   expectedEdgeModel: null,

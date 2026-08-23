@@ -1,10 +1,10 @@
 import { closes, ema, latest, rsi } from "./indicators";
 import { classifyRegime } from "./market-regime";
-import type { FundingRatePoint, MarketSnapshot, ScoredCandidate, Side, TradePlan, MarketStateKey as CoreMarketStateKey } from "./types";
+import type { FundingDataStatus, FundingRatePoint, MarketSnapshot, ScoredCandidate, Side, TradePlan, MarketStateKey as CoreMarketStateKey } from "./types";
 
 export type MarketStateFilter = "NONE" | "BTC_4H_BEAR" | "BTC_4H_BEAR_1H_WEAK" | "GLOBAL_BEAR_STRONG" | "GLOBAL_BEAR_REBOUND";
 export type MarketStateKey = CoreMarketStateKey;
-export type FundingCostBucket = "FAVORABLE" | "NEUTRAL" | "COSTLY";
+export type FundingCostBucket = "FAVORABLE" | "NEUTRAL" | "COSTLY" | "UNKNOWN";
 
 export interface MarketStateAssessment {
   key: MarketStateKey;
@@ -18,6 +18,7 @@ export interface OpportunityPolicyFeatures {
   marketState: MarketStateKey;
   projectedFundingCostRiskFraction: number;
   executionCostRiskFraction: number;
+  fundingDataStatus?: FundingDataStatus;
 }
 
 export interface CostAwareSample extends OpportunityPolicyFeatures {
@@ -95,7 +96,7 @@ export function projectedFundingCostRiskFraction(
   const recent = fundingRates
     .filter((point) => point.fundingTime <= sourceTimestamp)
     .slice(-Math.max(1, lookbackPeriods));
-  if (recent.length === 0) return 0;
+  if (recent.length === 0) return Number.POSITIVE_INFINITY;
   const averageRate = recent.reduce((sum, point) => sum + point.fundingRate, 0) / recent.length;
   const direction = side === "LONG" ? 1 : -1;
   const expectedPayments = Math.max(1, expectedHoldHours / 8);
@@ -123,7 +124,7 @@ export function fitCostAwareScoreModel(
   const groups = new Map<string, CostAwareSample[]>();
   for (const sample of valid) {
     const lowerScore = Math.floor(sample.score / bucketSize) * bucketSize;
-    const key = modelBinKey(lowerScore, sample.marketState, fundingBucket(sample.projectedFundingCostRiskFraction));
+    const key = modelBinKey(lowerScore, sample.marketState, fundingBucket(sample.projectedFundingCostRiskFraction, sample.fundingDataStatus));
     const group = groups.get(key) ?? [];
     group.push(sample);
     groups.set(key, group);
@@ -138,7 +139,7 @@ export function fitCostAwareScoreModel(
       key,
       lowerScore,
       marketState: first.marketState,
-      fundingBucket: fundingBucket(first.projectedFundingCostRiskFraction),
+      fundingBucket: fundingBucket(first.projectedFundingCostRiskFraction, first.fundingDataStatus),
       samples: group.length,
       rawMeanNetR: round(rawMeanNetR),
       expectedNetR: round(expectedNetR),
@@ -160,7 +161,7 @@ export function expectedNetR(
   features: OpportunityPolicyFeatures,
 ): number | null {
   const lowerScore = Math.floor(score / model.bucketSize) * model.bucketSize;
-  const key = modelBinKey(lowerScore, features.marketState, fundingBucket(features.projectedFundingCostRiskFraction));
+  const key = modelBinKey(lowerScore, features.marketState, fundingBucket(features.projectedFundingCostRiskFraction, features.fundingDataStatus));
   const bin = model.bins.find((item) => item.key === key);
   return bin && bin.samples >= model.minimumSamples ? bin.expectedNetR : null;
 }
@@ -209,7 +210,8 @@ export function passesDirectionalCostAwareExpectedValue(
   return Boolean(sideModel && passesCostAwareExpectedValue(sideModel, candidate, features));
 }
 
-function fundingBucket(costRiskFraction: number): FundingCostBucket {
+function fundingBucket(costRiskFraction: number, status?: FundingDataStatus): FundingCostBucket {
+  if (status === "UNKNOWN" || !Number.isFinite(costRiskFraction)) return "UNKNOWN";
   if (costRiskFraction <= 0) return "FAVORABLE";
   if (costRiskFraction <= 0.02) return "NEUTRAL";
   return "COSTLY";

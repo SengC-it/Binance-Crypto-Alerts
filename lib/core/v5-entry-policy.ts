@@ -83,6 +83,11 @@ export const NO_CHASE_POLICIES: Record<NoChasePolicyVariant, NoChasePolicy> = {
 
 export const DEFAULT_NO_CHASE_POLICY = NO_CHASE_POLICIES.BALANCED;
 
+export interface V5EntryDiagnostics {
+  candidate: StrategyCandidate | null;
+  rejectionReasons: AdmissionRejectionReason[];
+}
+
 export function evaluateNoChase(
   side: Side,
   features: NoChaseFeatures,
@@ -214,6 +219,24 @@ export function generateV5Candidate(
       noChase.passed ? "No-chase filter passed" : `No-chase filter failed: ${noChase.reasons.join(",")}`,
     ],
   };
+}
+
+export function generateV5CandidateWithDiagnostics(
+  snapshot: MarketSnapshot,
+  params: StrategyParams,
+  noChasePolicy: NoChasePolicy = params.noChasePolicy ?? DEFAULT_NO_CHASE_POLICY,
+): V5EntryDiagnostics {
+  const candidate = generateV5Candidate(snapshot, params, noChasePolicy);
+  if (candidate) {
+    return {
+      candidate,
+      rejectionReasons: candidate.noChase?.passed ? [] : candidate.noChase?.reasons ?? ["CHASE"],
+    };
+  }
+  if (!snapshot.globalMarketState || snapshot.globalMarketState.key === "UNKNOWN") {
+    return { candidate: null, rejectionReasons: ["UNKNOWN_MARKET_STATE"] };
+  }
+  return { candidate: null, rejectionReasons: ["NO_TRIGGER"] };
 }
 
 function closedCandles(snapshot: MarketSnapshot): Candle[] {

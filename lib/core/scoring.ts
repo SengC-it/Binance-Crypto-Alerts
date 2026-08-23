@@ -20,6 +20,10 @@ export interface ScoreCalibrationBin {
   samples: number;
   rawMeanNetR: number;
   meanNetR: number;
+  lowerConfidenceBound: number;
+  edgeConfidence: number;
+  winProbability: number;
+  /** Legacy alias retained for historical reports. */
   winRate: number;
 }
 
@@ -131,6 +135,18 @@ export function fitScoreCalibration(
       const meanNetR = (rawMeanNetR * bucket.samples.length + globalMeanNetR * priorWeight)
         / (bucket.samples.length + priorWeight);
       const wins = bucket.samples.filter((sample) => sample.netR > 0).length;
+      const variance = bucket.samples.reduce((total, sample) => total + (sample.netR - rawMeanNetR) ** 2, 0) / Math.max(1, bucket.samples.length - 1);
+      const standardError = Math.sqrt(variance) / Math.sqrt(bucket.samples.length);
+      const lowerConfidenceBound = meanNetR - 1.645 * standardError;
+      // The admission layer already hard-rejects bins below minimumSamples.
+      // Once that floor is met, edge confidence measures the uncertainty of
+      // the net-R estimate rather than double-counting the same sample gate.
+      const sampleReliability = Math.min(1, bucket.samples.length / minimumSamples);
+      const positiveEdgeReliability = lowerConfidenceBound <= 0
+        ? 0
+        : 0.5 + 0.5 * clamp01(lowerConfidenceBound / (Math.abs(meanNetR) + 0.5));
+      const edgeConfidence = sampleReliability * positiveEdgeReliability;
+      const winProbability = (wins + priorWeight * 0.5) / (bucket.samples.length + priorWeight);
       return {
         key,
         strategyFamily: bucket.strategyFamily,
@@ -139,6 +155,9 @@ export function fitScoreCalibration(
         samples: bucket.samples.length,
         rawMeanNetR: round(rawMeanNetR, 6),
         meanNetR: round(meanNetR, 6),
+        lowerConfidenceBound: round(lowerConfidenceBound, 6),
+        edgeConfidence: round(edgeConfidence, 6),
+        winProbability: round(winProbability, 6),
         winRate: round(wins / bucket.samples.length, 6),
       };
     });

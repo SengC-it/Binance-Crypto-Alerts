@@ -1,5 +1,5 @@
 import { buildTradePlan } from "@/lib/core/risk";
-import { buildGlobalMarketState } from "@/lib/core/market-regime";
+import { buildGlobalMarketStateFromSnapshots } from "@/lib/core/market-regime";
 import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
 import {
   assessMarketState,
@@ -70,6 +70,7 @@ export interface BacktestOptions {
   maxProjectedFundingCostRiskFraction?: number;
   expectedFundingHoldHours?: number;
   fundingLookbackPeriods?: number;
+  requireFundingData?: boolean;
   costAwareScoreModel?: CostAwareScoreModel;
   directionalCostAwareScoreModel?: DirectionalCostAwareScoreModel;
   dynamicExitPolicy?: DynamicExitPolicy;
@@ -77,6 +78,8 @@ export interface BacktestOptions {
 
 export interface BacktestContext {
   benchmarkDataset?: HistoricalDataset;
+  breadthDatasets?: HistoricalDataset[];
+  breadthUniverseId?: string;
   marketStateCache?: Map<number, MarketStateAssessment>;
   globalMarketStateCache?: Map<number, GlobalMarketState | undefined>;
 }
@@ -208,6 +211,11 @@ export function runBacktest(
       options.expectedFundingHoldHours,
       options.fundingLookbackPeriods,
     );
+    const fundingDataStatus = Number.isFinite(fundingCostRiskFraction) ? "AVAILABLE" as const : "UNKNOWN" as const;
+    if (options.requireFundingData && fundingDataStatus === "UNKNOWN") {
+      advanceTo(index + 1);
+      continue;
+    }
     if (
       options.maxProjectedFundingCostRiskFraction !== undefined
       && fundingCostRiskFraction > options.maxProjectedFundingCostRiskFraction
@@ -219,6 +227,7 @@ export function runBacktest(
       marketState: candidate.marketState ?? marketState.key,
       projectedFundingCostRiskFraction: fundingCostRiskFraction,
       executionCostRiskFraction,
+      fundingDataStatus,
     };
     if (
       options.costAwareScoreModel
@@ -458,13 +467,28 @@ function globalMarketStateAt(context: BacktestContext, sourceTimestamp: number):
   context.globalMarketStateCache ??= new Map<number, GlobalMarketState | undefined>();
   const primary = context.benchmarkDataset.candles["15m"];
   const index = lastIndexAtOrBefore(primary, sourceTimestamp);
-  const benchmarkFourHour = context.benchmarkDataset.candles["4h"] ?? [];
-  const fourHourIndex = lastIndexAtOrBefore(benchmarkFourHour, sourceTimestamp);
-  const cacheKey = benchmarkFourHour[fourHourIndex]?.closeTime ?? sourceTimestamp;
+  // Breadth is computed from the latest closed 15m candle for every member of
+  // the fixed universe, so the cache key must preserve the source timestamp.
+  // A 4h-only key would silently reuse an earlier breadth state within the
+  // same 4h candle.
+  const cacheKey = sourceTimestamp;
   if (context.globalMarketStateCache.has(cacheKey)) return context.globalMarketStateCache.get(cacheKey);
-  const state = index < 0
+  const breadthDatasets = context.breadthDatasets?.length
+    ? context.breadthDatasets
+    : [context.benchmarkDataset];
+  const snapshots = breadthDatasets
+    .map((dataset) => {
+      const datasetIndex = lastIndexAtOrBefore(dataset.candles["15m"], sourceTimestamp);
+      return datasetIndex < 0 ? undefined : snapshotAt(dataset, datasetIndex);
+    })
+    .filter((snapshot): snapshot is MarketSnapshot => Boolean(snapshot));
+  const state = index < 0 || snapshots.length === 0
     ? undefined
-    : buildGlobalMarketState({ btc: snapshotAt(context.benchmarkDataset, index), sourceTimestamp });
+    : buildGlobalMarketStateFromSnapshots({
+      snapshots,
+      sourceTimestamp,
+      breadthUniverseId: context.breadthUniverseId,
+    });
   context.globalMarketStateCache.set(cacheKey, state);
   return state;
 }
@@ -659,6 +683,7 @@ function tradeResult(
   rawExitPrice: number,
   exitReason: BacktestTrade["exitReason"],
   options: {
+    maxHoldHours: number;
     takerFeeRate: number;
     slippageBps: number;
     policyFeatures: OpportunityPolicyFeatures;
@@ -700,6 +725,9 @@ function tradeResult(
     exitPrice: exitFillPrice,
     referenceEntryPrice: entry.close,
     referenceExitPrice: rawExitPrice,
+    stopPrice: plan.stopPrice,
+    takeProfitPrice: plan.takeProfitPrice,
+    maxHoldHours: options.maxHoldHours,
     quantity,
     rMultiple,
     pnlUsdt,
@@ -717,6 +745,7 @@ function tradeResult(
       candidate.side,
       entry.close,
       Math.abs(entry.close - plan.stopPrice),
+      options.maxHoldHours,
     ),
     exitReason,
   };
@@ -800,6 +829,9 @@ function summarizeTradeMetrics(
       ? (orderedR[orderedR.length / 2 - 1] + orderedR[orderedR.length / 2]) / 2
       : orderedR[Math.floor(orderedR.length / 2)];
   const paths = trades.map((trade) => trade.path).filter((path): path is TradePathMetrics => Boolean(path));
+  const forwards = trades.map((trade) => trade.forward).filter((forward): forward is NonNullable<BacktestTrade["forward"]> => Boolean(forward));
+  const horizon24 = forwards.map((forward) => forward.horizon24h);
+  const horizon72 = forwards.map((forward) => forward.horizon72h);
 
   return {
     sampleDays: round(sampleDays, 2),
@@ -826,7 +858,33 @@ function summarizeTradeMetrics(
     cvar95: round(cvar95, 4),
     averageMfeR: paths.length === 0 ? 0 : round(paths.reduce((sum, path) => sum + path.maxFavorableR, 0) / paths.length, 4),
     averageMaeR: paths.length === 0 ? 0 : round(paths.reduce((sum, path) => sum + path.maxAdverseR, 0) / paths.length, 4),
+    averageMfe24h: averageForwardMetric(horizon24, "maxFavorableR"),
+    averageMfe72h: averageForwardMetric(horizon72, "maxFavorableR"),
+    averageMae24h: averageForwardMetric(horizon24, "maxAdverseR"),
+    averageMae72h: averageForwardMetric(horizon72, "maxAdverseR"),
+    rFirst24h: summarizeRFirst(horizon24),
+    rFirst72h: summarizeRFirst(horizon72),
     stopFirstRate: trades.length === 0 ? 0 : round(trades.filter((trade) => trade.exitReason === "STOP").length / trades.length, 4),
+  };
+}
+
+function averageForwardMetric(
+  metrics: Array<NonNullable<BacktestTrade["forward"]>["horizon24h"]>,
+  key: "maxFavorableR" | "maxAdverseR",
+): number {
+  return metrics.length === 0 ? 0 : round(metrics.reduce((sum, metric) => sum + metric[key], 0) / metrics.length, 4);
+}
+
+function summarizeRFirst(metrics: Array<NonNullable<BacktestTrade["forward"]>["horizon24h"]>): {
+  halfR: number;
+  oneR: number;
+  twoR: number;
+} {
+  if (metrics.length === 0) return { halfR: 0, oneR: 0, twoR: 0 };
+  return {
+    halfR: round(metrics.filter((metric) => metric.pPositiveHalfRBeforeStop).length / metrics.length, 4),
+    oneR: round(metrics.filter((metric) => metric.pPositiveOneRBeforeStop).length / metrics.length, 4),
+    twoR: round(metrics.filter((metric) => metric.pPositiveTwoRBeforeStop).length / metrics.length, 4),
   };
 }
 

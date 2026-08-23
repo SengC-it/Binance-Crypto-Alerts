@@ -34,20 +34,50 @@ export function buildGlobalMarketState(input: {
   eth?: MarketSnapshot;
   breadth?: number | null;
   sourceTimestamp?: number;
+  breadthUniverseId?: string;
+  breadthUniverseSize?: number;
 }): GlobalMarketState {
   const btcFeatures = trendFeatures(input.btc.candles["4h"] ?? input.btc.candles["1h"] ?? []);
-  const ethRegime = input.eth
-    ? classifyRegime(input.eth.candles["4h"] ?? input.eth.candles["1h"] ?? [])
-    : undefined;
+  const ethFeatures = input.eth
+    ? trendFeatures(input.eth.candles["4h"] ?? input.eth.candles["1h"] ?? [])
+    : null;
   const breadth = input.breadth ?? null;
-  const key = classifyGlobalKey(btcFeatures, breadth);
+  const key = classifyGlobalKey(btcFeatures, ethFeatures, breadth);
   return {
     key,
     btcRegime: btcFeatures?.regime ?? "UNKNOWN",
-    ethRegime,
+    ethRegime: ethFeatures?.regime,
     breadth,
     sourceTimestamp: input.sourceTimestamp ?? input.btc.sourceTimestamp,
+    breadthUniverseId: input.breadthUniverseId,
+    breadthUniverseSize: input.breadthUniverseSize,
   };
+}
+
+export function buildGlobalMarketStateFromSnapshots(input: {
+  snapshots: MarketSnapshot[];
+  sourceTimestamp: number;
+  breadthUniverseId?: string;
+}): GlobalMarketState | undefined {
+  const btc = input.snapshots.find((snapshot) => snapshot.instrument.symbol === "BTCUSDT");
+  if (!btc) return undefined;
+  const eth = input.snapshots.find((snapshot) => snapshot.instrument.symbol === "ETHUSDT");
+  return buildGlobalMarketState({
+    btc,
+    eth,
+    breadth: calculateBreadth(input.snapshots),
+    sourceTimestamp: input.sourceTimestamp,
+    breadthUniverseId: input.breadthUniverseId,
+    breadthUniverseSize: input.snapshots.length,
+  });
+}
+
+export function calculateBreadth(snapshots: MarketSnapshot[]): number | null {
+  const regimes = snapshots
+    .map((snapshot) => classifyRegime(snapshot.candles["4h"] ?? snapshot.candles["1h"] ?? []))
+    .filter((regime) => regime === "BULL" || regime === "BEAR");
+  if (regimes.length === 0) return null;
+  return regimes.filter((regime) => regime === "BULL").length / regimes.length;
 }
 
 export function marketStateForDirection(state: GlobalMarketState | undefined, side: "LONG" | "SHORT"): MarketStateKey {
@@ -79,20 +109,27 @@ function trendFeatures(candles: Candle[]): TrendFeatures | null {
   };
 }
 
-function classifyGlobalKey(features: TrendFeatures | null, breadth: number | null): MarketStateKey {
-  if (!features || features.regime === "UNKNOWN") return "UNKNOWN";
-  if (features.regime === "BULL") {
-    const pullback = features.close <= features.fast && features.close > features.slow;
+function classifyGlobalKey(
+  btc: TrendFeatures | null,
+  eth: TrendFeatures | null,
+  breadth: number | null,
+): MarketStateKey {
+  if (!btc || btc.regime === "UNKNOWN") return "UNKNOWN";
+  const alignedBull = btc.regime === "BULL" && (!eth || eth.regime === "BULL");
+  const alignedBear = btc.regime === "BEAR" && (!eth || eth.regime === "BEAR");
+  if (eth && eth.regime !== btc.regime && eth.regime !== "UNKNOWN") return "OTHER";
+  if (alignedBull) {
+    const pullback = btc.close <= btc.fast && btc.close > btc.slow;
     if (pullback) return "BULL_PULLBACK";
     const weakBreadth = breadth !== null && breadth < 0.4;
-    if (weakBreadth || (features.rsi !== null && features.rsi < 52)) return "BULL_WEAK";
+    if (weakBreadth || (btc.rsi !== null && btc.rsi < 52)) return "BULL_WEAK";
     return "BULL_STRONG";
   }
-  if (features.regime === "BEAR") {
-    const rebound = features.close >= features.fast || (features.rsi !== null && features.rsi > 55);
+  if (alignedBear) {
+    const rebound = btc.close >= btc.fast || (btc.rsi !== null && btc.rsi > 55);
     if (rebound) return "BEAR_REBOUND";
     const strongBreadth = breadth !== null && breadth <= 0.35;
-    if (strongBreadth || (features.rsi !== null && features.rsi < 42)) return "BEAR_STRONG";
+    if (strongBreadth || (btc.rsi !== null && btc.rsi < 42)) return "BEAR_STRONG";
     return "BEAR_WEAK";
   }
   return "OTHER";

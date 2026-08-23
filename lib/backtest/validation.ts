@@ -1,5 +1,7 @@
 import type { BacktestTrade } from "./types";
 import { calculateSlippageStress } from "./execution-stress";
+import { DEFAULT_VALIDATION_COST_ASSUMPTIONS, type ValidationCostAssumptions } from "./cost-assumptions";
+import type { ForwardHorizonMetrics } from "./forward-metrics";
 import type { Side } from "@/lib/core/types";
 import { DEFAULT_PROMOTION_GATE, type PromotionGate } from "@/lib/core/signal-admission";
 
@@ -26,6 +28,8 @@ export interface DirectionalValidationMetrics {
   netR: number;
   averageNetR: number;
   medianNetR: number;
+  winProbability: number;
+  edgeConfidence: number;
   profitFactor: number;
   maxDrawdownR: number;
   maxDrawdownPercent: number;
@@ -41,6 +45,10 @@ export interface DirectionalValidationMetrics {
   profitConcentrationHhi: number;
   averageMFE: number;
   averageMAE: number;
+  averageMFE24h: number;
+  averageMFE72h: number;
+  averageMAE24h: number;
+  averageMAE72h: number;
   stopFirstRate: number;
   grossEdge: number;
   costs: number;
@@ -51,6 +59,8 @@ export interface DirectionalValidationMetrics {
     oneRBeforeStop: number;
     twoRBeforeStop: number;
   };
+  rFirst24h: { halfRBeforeStop: number; oneRBeforeStop: number; twoRBeforeStop: number };
+  rFirst72h: { halfRBeforeStop: number; oneRBeforeStop: number; twoRBeforeStop: number };
 }
 
 export interface PromotionDecision {
@@ -128,6 +138,7 @@ export function summarizeDirectionalTrades(
   trades: BacktestTrade[],
   direction: Side | "COMBINED" = "COMBINED",
   foldMetrics: Array<DirectionalValidationMetrics> = [],
+  costAssumptions: ValidationCostAssumptions = DEFAULT_VALIDATION_COST_ASSUMPTIONS,
 ): DirectionalValidationMetrics {
   const selected = direction === "COMBINED" ? trades : trades.filter((trade) => trade.side === direction);
   const ordered = [...selected].sort((left, right) => left.exitTime - right.exitTime || left.entryTime - right.entryTime);
@@ -165,8 +176,8 @@ export function summarizeDirectionalTrades(
       exit,
       quantity,
       trade.theoreticalRiskUsdt,
-      0.0004,
-      10,
+      costAssumptions.takerFeeRate,
+      costAssumptions.stressSlippageBps.find((bps) => bps === 10) ?? costAssumptions.stressSlippageBps.at(-1) ?? 10,
     ).netR;
   }, 0);
   return {
@@ -177,6 +188,8 @@ export function summarizeDirectionalTrades(
     netR: round(netR),
     averageNetR: selected.length === 0 ? 0 : round(netR / selected.length),
     medianNetR: round(median(rValues)),
+    winProbability: selected.length === 0 ? 0 : round((wins.length + 0.5) / (selected.length + 1)),
+    edgeConfidence: estimateEdgeConfidence(rValues),
     profitFactor: grossLoss === 0 ? (grossProfit > 0 ? 999 : 0) : round(grossProfit / grossLoss),
     maxDrawdownR: round(maxDrawdownR),
     maxDrawdownPercent: round(maxDrawdownPercent),
@@ -190,6 +203,10 @@ export function summarizeDirectionalTrades(
     ...profitConcentration(selected),
     averageMFE: paths.length === 0 ? 0 : round(paths.reduce((sum, path) => sum + path.maxFavorableR, 0) / paths.length),
     averageMAE: paths.length === 0 ? 0 : round(paths.reduce((sum, path) => sum + path.maxAdverseR, 0) / paths.length),
+    averageMFE24h: forwards.length === 0 ? 0 : round(forwards.reduce((sum, forward) => sum + forward.horizon24h.maxFavorableR, 0) / forwards.length),
+    averageMFE72h: forwards.length === 0 ? 0 : round(forwards.reduce((sum, forward) => sum + forward.horizon72h.maxFavorableR, 0) / forwards.length),
+    averageMAE24h: forwards.length === 0 ? 0 : round(forwards.reduce((sum, forward) => sum + forward.horizon24h.maxAdverseR, 0) / forwards.length),
+    averageMAE72h: forwards.length === 0 ? 0 : round(forwards.reduce((sum, forward) => sum + forward.horizon72h.maxAdverseR, 0) / forwards.length),
     stopFirstRate: selected.length === 0 ? 0 : round(selected.filter((trade) => trade.exitReason === "STOP").length / selected.length),
     grossEdge: round(grossR),
     costs: round(selected.reduce((sum, trade) => sum + (trade.feesUsdt + trade.slippageUsdt - trade.fundingUsdt) / Math.max(trade.theoreticalRiskUsdt, 1e-9), 0)),
@@ -200,6 +217,8 @@ export function summarizeDirectionalTrades(
       oneRBeforeStop: forwards.length === 0 ? 0 : round(forwards.filter((metric) => metric.pPositiveOneRBeforeStop).length / forwards.length),
       twoRBeforeStop: forwards.length === 0 ? 0 : round(forwards.filter((metric) => metric.pPositiveTwoRBeforeStop).length / forwards.length),
     },
+    rFirst24h: rFirstForHorizon(forwards.map((forward) => forward.horizon24h)),
+    rFirst72h: rFirstForHorizon(forwards.map((forward) => forward.horizon72h)),
   };
 }
 
@@ -212,10 +231,11 @@ export function evaluatePromotionGate(
   if (gate.requireFrozenHoldout && options.frozenHoldout !== true) reasons.push("holdout_not_frozen");
   if (metrics.trades < gate.minimumTrades) reasons.push("minimum_trades");
   if (metrics.averageNetR <= gate.minimumAverageNetR) reasons.push("average_net_r");
-  if (metrics.medianNetR <= gate.minimumMedianNetR) reasons.push("median_net_r");
+  if (gate.minimumMedianNetR !== undefined && metrics.medianNetR <= gate.minimumMedianNetR) reasons.push("median_net_r");
   if (metrics.profitFactor < gate.minimumProfitFactor) reasons.push("profit_factor");
   if (metrics.maxDrawdownPercent > gate.maximumDrawdownPercent) reasons.push("max_drawdown");
-  if (Math.abs(metrics.cvar95) > gate.maximumCvar95) reasons.push("cvar95");
+  if (metrics.cvar95 < -gate.maximumCvar95) reasons.push("cvar95");
+  if (metrics.edgeConfidence < gate.minimumEdgeConfidence) reasons.push("edge_confidence");
   const foldRatio = metrics.foldsEvaluated === 0 ? 0 : metrics.positiveFolds / metrics.foldsEvaluated;
   const monthRatio = metrics.monthsObserved === 0 ? 0 : metrics.positiveMonths / metrics.monthsObserved;
   if (foldRatio < gate.minimumPositiveFoldsRatio) reasons.push("positive_folds");
@@ -262,6 +282,27 @@ function median(values: number[]): number {
   if (values.length === 0) return 0;
   const middle = Math.floor(values.length / 2);
   return values.length % 2 === 0 ? (values[middle - 1] + values[middle]) / 2 : values[middle];
+}
+
+export function estimateEdgeConfidence(rValues: number[]): number {
+  if (rValues.length === 0) return 0;
+  const mean = rValues.reduce((sum, value) => sum + value, 0) / rValues.length;
+  const variance = rValues.reduce((sum, value) => sum + (value - mean) ** 2, 0) / Math.max(1, rValues.length - 1);
+  const standardError = Math.sqrt(variance) / Math.sqrt(rValues.length);
+  const lowerConfidenceBound = mean - 1.645 * standardError;
+  if (lowerConfidenceBound <= 0) return 0;
+  const sampleReliability = rValues.length / (rValues.length + 100);
+  const positiveEdgeReliability = 0.5 + 0.5 * Math.min(1, lowerConfidenceBound / (Math.abs(mean) + 0.5));
+  return round(sampleReliability * positiveEdgeReliability);
+}
+
+function rFirstForHorizon(metrics: ForwardHorizonMetrics[]) {
+  if (metrics.length === 0) return { halfRBeforeStop: 0, oneRBeforeStop: 0, twoRBeforeStop: 0 };
+  return {
+    halfRBeforeStop: round(metrics.filter((metric) => metric.pPositiveHalfRBeforeStop).length / metrics.length),
+    oneRBeforeStop: round(metrics.filter((metric) => metric.pPositiveOneRBeforeStop).length / metrics.length),
+    twoRBeforeStop: round(metrics.filter((metric) => metric.pPositiveTwoRBeforeStop).length / metrics.length),
+  };
 }
 
 function round(value: number): number {

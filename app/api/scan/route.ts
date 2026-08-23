@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BinancePublicClient, mapWithConcurrency, selectDeepUniverse } from "@/lib/binance/public-client";
+import { BinancePublicClient, mapWithConcurrency, selectDeepUniverse, selectFixedBreadthUniverse } from "@/lib/binance/public-client";
 import { getServerConfig, type ServerConfig } from "@/lib/config";
 import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
-import { buildGlobalMarketState, classifyRegime } from "@/lib/core/market-regime";
-import { expectedDirectionalNetR } from "@/lib/core/opportunity-policy";
+import { buildGlobalMarketStateFromSnapshots } from "@/lib/core/market-regime";
+import { expectedDirectionalNetR, projectedFundingCostRiskFraction } from "@/lib/core/opportunity-policy";
 import {
   PRODUCTION_ENTRY_MODE,
   PRODUCTION_STRATEGY_VERSION,
@@ -17,7 +17,8 @@ import { rankCandidates } from "@/lib/core/scoring";
 import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
 import { fifteenMinuteGroupKey, signalKey, zonedDateString } from "@/lib/core/time";
 import type { Instrument, MarketSnapshot, ScoredCandidate, Timeframe, TradePlan } from "@/lib/core/types";
-import { closedCandleOnly, DEFAULT_UNIVERSE_POLICY, evaluateUniverseQuality } from "@/lib/core/universe-policy";
+import { closedCandleOnly, evaluateUniverseQuality, liveSnapshotUniversePolicy } from "@/lib/core/universe-policy";
+import { generateV5CandidateWithDiagnostics } from "@/lib/core/v5-entry-policy";
 import { sendSignalEmail, sendSystemAlertEmail } from "@/lib/notifications/email";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -30,12 +31,15 @@ import {
   listStagedCandidates,
   listStagedShadowCandidates,
   loadApprovedPolicy,
+  loadScanGroupGlobalMarketState,
+  persistScanGroupGlobalMarketState,
   recordSystemEvent,
   stageScanCandidates,
   stageShadowCandidates,
   tryStartScanGroupFinalization,
   upsertInstruments,
 } from "@/lib/services/signal-repository";
+import type { StagedOpportunity } from "@/lib/services/signal-repository";
 import { createPaperTrade, createShadowPaperTrade } from "@/lib/services/paper-trading";
 
 export const runtime = "nodejs";
@@ -71,7 +75,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ ok: false, error: "batch_out_of_range", batchNumber, batchCount }, { status: 400 });
     }
 
-    scanGroupKey = fifteenMinuteGroupKey(Date.now());
+    const requestedScanGroupKey = request.nextUrl.searchParams.get("scanGroupKey")?.trim();
+    scanGroupKey = requestedScanGroupKey || fifteenMinuteGroupKey(Date.now());
+    const scanGroupStart = Date.parse(scanGroupKey);
+    if (!Number.isFinite(scanGroupStart)) throw new Error("scanGroupKey must be an ISO timestamp bucket");
+    const scanAsOf = scanGroupStart - 1;
     const runKey = `${scanGroupKey}:batch:${batchNumber}`;
     const batch = deepUniverse.slice(
       batchNumber * runtimeConfig.CS_SCAN_BATCH_SIZE,
@@ -114,30 +122,45 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     const snapshots = await mapWithConcurrency(batch, runtimeConfig.CS_REQUEST_CONCURRENCY, async (instrument) => {
       try {
         const timeframes = normalizedTimeframes(runtimeConfig.scanTimeframes);
-        return await client.getSnapshot(instrument, timeframes, 250) as MarketSnapshot;
+        return await client.getSnapshot(instrument, timeframes, 250, scanAsOf) as MarketSnapshot;
       } catch (error) {
         errors.push({ symbol: instrument.symbol, stage: "market_data", message: errorMessage(error) });
         return null;
       }
     });
 
-    const validSnapshots = snapshots
-      .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
-      .map((snapshot) => ({ ...snapshot, globalMarketState: undefined }));
-    let globalMarketState: MarketSnapshot["globalMarketState"];
-    try {
-      globalMarketState = await loadGlobalMarketState(client, universe, validSnapshots, normalizedTimeframes(runtimeConfig.scanTimeframes));
-    } catch (error) {
-      errors.push({ stage: "global_market_state", message: errorMessage(error) });
+    const validSnapshots = snapshots.filter((snapshot): snapshot is MarketSnapshot => snapshot !== null);
+    let globalMarketState = await loadScanGroupGlobalMarketState(supabase, scanGroupKey);
+    if (!globalMarketState) {
+      try {
+        const breadthUniverse = selectFixedBreadthUniverse(
+          universe,
+          approvedPolicy?.universePolicy.breadthUniverseSize ?? DEFAULT_V5_POLICY.universePolicy.breadthUniverseSize,
+        );
+        const calculatedState = await loadGlobalMarketState(client, breadthUniverse, validSnapshots, scanAsOf);
+        if (!calculatedState) throw new Error("Fixed breadth universe could not produce a global market state");
+        globalMarketState = await persistScanGroupGlobalMarketState(supabase, scanGroupKey, calculatedState);
+      } catch (error) {
+        errors.push({ stage: "global_market_state", message: errorMessage(error) });
+      }
     }
     const statefulSnapshots = validSnapshots.map((snapshot) => ({ ...snapshot, globalMarketState }));
-    const v5UniversePolicy = { ...DEFAULT_UNIVERSE_POLICY, minimumHistoryDays: 0 };
-    const v5UniverseSnapshots = statefulSnapshots.filter((snapshot) => evaluateUniverseQuality(
-      snapshot.instrument,
-      closedCandleOnly(snapshot.candles["15m"] ?? [], snapshot.sourceTimestamp),
-      Date.now(),
-      v5UniversePolicy,
-    ).eligible);
+    const v5UniversePolicy = liveSnapshotUniversePolicy(approvedPolicy?.universePolicy ?? DEFAULT_V5_POLICY.universePolicy);
+    const universeRejectionStats: Record<string, number> = {};
+    const v5UniverseSnapshots = statefulSnapshots.filter((snapshot) => {
+      const quality = evaluateUniverseQuality(
+        snapshot.instrument,
+        closedCandleOnly(snapshot.candles["15m"] ?? [], snapshot.sourceTimestamp),
+        scanAsOf,
+        v5UniversePolicy,
+      );
+      if (!quality.eligible) {
+        for (const reason of quality.reasons) universeRejectionStats[reason] = (universeRejectionStats[reason] ?? 0) + 1;
+      }
+      return quality.eligible;
+    });
+    const v5SnapshotsWithFunding = await loadLiveFunding(client, v5UniverseSnapshots, scanAsOf, runtimeConfig.CS_REQUEST_CONCURRENCY);
+    const v5RejectionStats: Record<string, number> = {};
     const controlOpportunities = statefulSnapshots
       .flatMap((snapshot) => {
         try {
@@ -150,9 +173,9 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       })
       .sort((left, right) => right.candidate.score - left.candidate.score);
     const v5Opportunities = runtimeConfig.CS_SHADOW_TRADING_ENABLED
-      ? v5UniverseSnapshots.flatMap((snapshot) => {
+      ? v5SnapshotsWithFunding.flatMap((snapshot) => {
         try {
-          const opportunity = buildOpportunity(snapshot, v5StrategyParams, runtimeConfig, approvedPolicy ?? DEFAULT_V5_POLICY);
+          const opportunity = buildOpportunity(snapshot, v5StrategyParams, runtimeConfig, approvedPolicy ?? DEFAULT_V5_POLICY, v5RejectionStats);
           return opportunity ? [opportunity] : [];
         } catch (error) {
           errors.push({ symbol: snapshot.instrument.symbol, stage: "v5_shadow_risk_plan", message: errorMessage(error) });
@@ -162,7 +185,14 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       : [];
     const candidates = controlOpportunities;
     const shadowCandidates = v5Opportunities;
-    const signalStats = summarizeSignalStats(universe.length, v5UniverseSnapshots.length, candidates, shadowCandidates, statefulSnapshots.length - v5UniverseSnapshots.length);
+    const signalStats = summarizeSignalStats(
+      universe.length,
+      v5UniverseSnapshots.length,
+      candidates,
+      shadowCandidates,
+      statefulSnapshots.length - v5UniverseSnapshots.length,
+      { ...universeRejectionStats, ...v5RejectionStats },
+    );
 
     await stageScanCandidates(supabase, candidates.map((opportunity) => ({
       scanRunId: scanRunId as string,
@@ -290,10 +320,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     }
 
     let shadowPaperTradeCreated = false;
-    const shadowOpportunity = finalShadowCandidates[0];
-    if (shadowOpportunity) {
+    let shadowPaperTradesCreated = 0;
+    const directionalShadowCandidates = selectDirectionalShadowCandidates(finalShadowCandidates);
+    for (const shadowOpportunity of directionalShadowCandidates) {
       try {
-        shadowPaperTradeCreated = await createShadowPaperTrade(supabase, {
+        const created = await createShadowPaperTrade(supabase, {
           symbol: shadowOpportunity.symbol,
           candidate: shadowOpportunity.candidate,
           plan: shadowOpportunity.plan,
@@ -303,6 +334,10 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           admission: shadowOpportunity.admission,
           executionDelayMinutes: runtimeConfig.CS_PAPER_EXECUTION_DELAY_MINUTES,
         }, runtimeConfig.CS_COOLDOWN_HOURS);
+        if (created) {
+          shadowPaperTradeCreated = true;
+          shadowPaperTradesCreated += 1;
+        }
       } catch (error) {
         errors.push({
           symbol: shadowOpportunity.symbol,
@@ -336,6 +371,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       shadowCandidateCount: shadowCandidates.length,
       finalShadowCandidateCount: finalShadowCandidates.length,
       shadowPaperTradeCreated,
+      shadowPaperTradesCreated,
       finalized: finalizing,
       claimedCount,
       emailedCount,
@@ -397,15 +433,28 @@ function buildOpportunity(
   strategyParams: StrategyParams,
   config: ServerConfig,
   policy?: V5Policy,
+  rejectionStats: Record<string, number> = {},
 ): SignalOpportunity | undefined {
   const isV5 = strategyParams.entryMode === V5_ENTRY_MODE;
-  if (isV5 && Date.now() - snapshot.sourceTimestamp > config.CS_STALE_CANDLE_MINUTES * 60_000) return undefined;
-  const candidate = rankCandidates(generateCandidates(snapshot, strategyParams), {
+  if (isV5 && Date.now() - snapshot.sourceTimestamp > config.CS_STALE_CANDLE_MINUTES * 60_000) {
+    incrementRejection(rejectionStats, "STALE_DATA");
+    return undefined;
+  }
+  const generatedV5 = isV5 ? generateV5CandidateWithDiagnostics(snapshot, strategyParams) : undefined;
+  for (const reason of generatedV5?.rejectionReasons ?? []) incrementRejection(rejectionStats, reason);
+  const generatedCandidates = isV5
+    ? generatedV5?.candidate ? [generatedV5.candidate] : []
+    : generateCandidates(snapshot, strategyParams);
+  const candidate = rankCandidates(generatedCandidates, {
     minimumScore: isV5 ? undefined : config.CS_MIN_SIGNAL_SCORE,
     sideFilter: isV5 || config.CS_SIGNAL_SIDE_FILTER === "BOTH" ? undefined : config.CS_SIGNAL_SIDE_FILTER,
     strategyFamily: config.CS_SIGNAL_STRATEGY_FAMILY === "ALL" ? undefined : config.CS_SIGNAL_STRATEGY_FAMILY,
   }).find((item) => isRegimeAllowed(item, config.CS_REQUIRE_REGIME_ALIGNMENT));
-  if (!candidate || !isEntryIntervalAllowed(snapshot.sourceTimestamp, config.CS_ENTRY_INTERVAL_HOURS)) return undefined;
+  if (!candidate) return undefined;
+  if (!isEntryIntervalAllowed(snapshot.sourceTimestamp, config.CS_ENTRY_INTERVAL_HOURS)) {
+    incrementRejection(rejectionStats, "ENTRY_INTERVAL");
+    return undefined;
+  }
   const plan = buildTradePlan(candidate, snapshot.instrument, {
     marginUsdt: config.CS_MARGIN_USDT,
     leverage: config.CS_ASSUMED_LEVERAGE,
@@ -423,16 +472,34 @@ function buildOpportunity(
     config.CS_PAPER_SLIPPAGE_BPS,
   );
   if (executionCostRisk > config.CS_MAX_EXECUTION_COST_RISK_FRACTION) return undefined;
+  const projectedFundingCost = isV5
+    ? projectedFundingCostRiskFraction(
+      candidate.side,
+      plan,
+      snapshot.fundingRates ?? [],
+      snapshot.sourceTimestamp,
+      config.CS_MAX_HOLD_HOURS,
+      3,
+    )
+    : 0;
+  const fundingDataStatus = Number.isFinite(projectedFundingCost) ? "AVAILABLE" as const : "UNKNOWN" as const;
+  const policyFeatures = candidate.marketState
+    ? {
+      marketState: candidate.marketState,
+      projectedFundingCostRiskFraction: projectedFundingCost,
+      executionCostRiskFraction: executionCostRisk,
+      fundingDataStatus,
+    }
+    : undefined;
   const admission = isV5
     ? admitSignal(candidate, policy, {
-      policyFeatures: candidate.marketState
-        ? { marketState: candidate.marketState, projectedFundingCostRiskFraction: 0, executionCostRiskFraction: executionCostRisk }
-        : undefined,
+      policyFeatures,
       expectedNetR: policy?.expectedEdgeModel && candidate.marketState
         ? expectedDirectionalNetR(policy.expectedEdgeModel, candidate.side, candidate.score, {
           marketState: candidate.marketState,
-          projectedFundingCostRiskFraction: 0,
+          projectedFundingCostRiskFraction: projectedFundingCost,
           executionCostRiskFraction: executionCostRisk,
+          fundingDataStatus,
         })
         : undefined,
       stressCostAdjustmentR: Math.max(0, estimatedExecutionCostRiskFraction(
@@ -443,6 +510,10 @@ function buildOpportunity(
     })
     : undefined;
   return { snapshot, candidate, plan, admission };
+}
+
+function incrementRejection(stats: Record<string, number>, reason: string): void {
+  stats[reason] = (stats[reason] ?? 0) + 1;
 }
 
 interface SignalOpportunity {
@@ -458,6 +529,7 @@ function summarizeSignalStats(
   controlCandidates: SignalOpportunity[],
   v5Candidates: SignalOpportunity[],
   universeRejected: number,
+  rejectionStats: Record<string, number> = {},
 ): Record<string, number> {
   const v5ProductionCandidates = v5Candidates.filter((item) => item.admission?.productionEligible);
   const stats: Record<string, number> = {
@@ -482,9 +554,19 @@ function summarizeSignalStats(
     rejectedBySample: 0,
     rejectedByCost: 0,
     rejectedByDirectionApproval: 0,
+    NO_TRIGGER: rejectionStats.NO_TRIGGER ?? 0,
+    UNKNOWN_MARKET_STATE: rejectionStats.UNKNOWN_MARKET_STATE ?? 0,
+    UNIVERSE_REJECTED: universeRejected,
+    CHASE: rejectionStats.CHASE ?? 0,
+    NEGATIVE_EV: rejectionStats.NEGATIVE_EV ?? 0,
+    INSUFFICIENT_SAMPLE: rejectionStats.INSUFFICIENT_SAMPLE ?? 0,
+    DIRECTION_NOT_APPROVED: rejectionStats.DIRECTION_NOT_APPROVED ?? 0,
+    FUNDING_UNAVAILABLE: rejectionStats.FUNDING_UNAVAILABLE ?? 0,
   };
+  const admissionReasonCounts: Record<string, number> = {};
   for (const opportunity of v5Candidates) {
     for (const reason of opportunity.admission?.reasons ?? []) {
+      admissionReasonCounts[reason] = (admissionReasonCounts[reason] ?? 0) + 1;
       const key = reason === "WRONG_REGIME" || reason === "UNKNOWN_MARKET_STATE"
         ? "rejectedByRegime"
         : reason === "CHASE" ? "rejectedByChase"
@@ -496,29 +578,79 @@ function summarizeSignalStats(
       if (key) stats[key] += 1;
     }
   }
+  for (const key of [
+    "NO_TRIGGER",
+    "UNKNOWN_MARKET_STATE",
+    "CHASE",
+    "NEGATIVE_EV",
+    "INSUFFICIENT_SAMPLE",
+    "DIRECTION_NOT_APPROVED",
+    "FUNDING_UNAVAILABLE",
+  ]) {
+    stats[key] = (rejectionStats[key] ?? 0) + (admissionReasonCounts[key] ?? 0);
+  }
   return stats;
 }
 
 async function loadGlobalMarketState(
   client: BinancePublicClient,
-  universe: Instrument[],
+  breadthUniverse: Instrument[],
   snapshots: MarketSnapshot[],
-  timeframes: Timeframe[],
+  asOf: number,
 ): Promise<MarketSnapshot["globalMarketState"]> {
-  const btcInstrument = universe.find((instrument) => instrument.symbol === "BTCUSDT");
-  if (!btcInstrument) return undefined;
-  const ethInstrument = universe.find((instrument) => instrument.symbol === "ETHUSDT");
-  const [btc, eth] = await Promise.all([
-    client.getSnapshot(btcInstrument, timeframes, 250),
-    ethInstrument ? client.getSnapshot(ethInstrument, timeframes, 250) : Promise.resolve(undefined),
-  ]);
-  const trendSymbols = snapshots
-    .map((snapshot) => classifyRegime(snapshot.candles["4h"] ?? snapshot.candles["1h"] ?? []))
-    .filter((regime) => regime === "BULL" || regime === "BEAR");
-  const breadth = trendSymbols.length === 0
-    ? null
-    : trendSymbols.filter((regime) => regime === "BULL").length / trendSymbols.length;
-  return buildGlobalMarketState({ btc, eth, breadth });
+  const existingBySymbol = new Map(snapshots.map((snapshot) => [snapshot.instrument.symbol, snapshot]));
+  const fixedSnapshots = await mapWithConcurrency(breadthUniverse, 8, async (instrument) => {
+    const existing = existingBySymbol.get(instrument.symbol);
+    if (existing?.candles["4h"]?.length) return existing;
+    try {
+      const candles = await client.getCandles(instrument.symbol, "4h", 100, asOf);
+      const last = candles.at(-1);
+      return last
+        ? { instrument, tickerPrice: last.close, candles: { "4h": candles }, sourceTimestamp: last.closeTime }
+        : null;
+    } catch {
+      return null;
+    }
+  });
+  const usableSnapshots = fixedSnapshots.filter((snapshot): snapshot is MarketSnapshot => snapshot !== null);
+  return buildGlobalMarketStateFromSnapshots({
+    snapshots: usableSnapshots,
+    sourceTimestamp: asOf,
+    breadthUniverseId: `top-${breadthUniverse.length}-usdtm-by-universe-rank:${breadthUniverse.map((instrument) => instrument.symbol).join(",")}`,
+  });
+}
+
+async function loadLiveFunding(
+  client: BinancePublicClient,
+  snapshots: MarketSnapshot[],
+  asOf: number,
+  concurrency: number,
+): Promise<MarketSnapshot[]> {
+  return mapWithConcurrency(snapshots, concurrency, async (snapshot) => {
+    try {
+      const fundingRates = await client.getFundingRatesRange(
+        snapshot.instrument.symbol,
+        asOf - 24 * 60 * 60 * 1000,
+        asOf,
+      );
+      return {
+        ...snapshot,
+        fundingRates,
+        fundingDataStatus: fundingRates.length > 0 ? "AVAILABLE" as const : "UNKNOWN" as const,
+      };
+    } catch {
+      return { ...snapshot, fundingRates: [], fundingDataStatus: "UNKNOWN" as const };
+    }
+  });
+}
+
+function selectDirectionalShadowCandidates(opportunities: StagedOpportunity[]): StagedOpportunity[] {
+  return (["LONG", "SHORT"] as const)
+    .flatMap((side) => opportunities
+      .filter((opportunity) => opportunity.candidate.side === side)
+      .sort((left, right) => right.candidate.score - left.candidate.score
+        || left.symbol.localeCompare(right.symbol))
+      .slice(0, 1));
 }
 
 function isAuthorized(request: NextRequest, expectedSecret?: string): boolean {

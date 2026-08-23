@@ -15,6 +15,7 @@ export type PolicyStatus = "DRAFT" | "CANDIDATE" | "SHADOW" | "APPROVED" | "REJE
 export type DirectionApprovalStatus = "DRAFT" | "CANDIDATE" | "SHADOW_ONLY" | "APPROVED" | "REJECTED";
 export type SetupType = "TREND_PULLBACK" | "TREND_REJECTION" | "BREAKOUT_RETEST" | "NO_SETUP";
 export type EntryTrigger = "REJECTION_REBREAK" | "BREAKOUT_RETEST" | "NONE";
+export type FundingDataStatus = "AVAILABLE" | "UNKNOWN";
 export type AdmissionRejectionReason =
   | "CHASE"
   | "WRONG_REGIME"
@@ -27,6 +28,7 @@ export type AdmissionRejectionReason =
   | "UNIVERSE_REJECTED"
   | "MISSING_POLICY"
   | "LOW_CONFIDENCE"
+  | "FUNDING_UNAVAILABLE"
   | "INVALID_STRUCTURE";
 
 export interface NoChaseFeatures {
@@ -54,6 +56,8 @@ export interface GlobalMarketState {
   ethRegime?: MarketRegime;
   breadth: number | null;
   sourceTimestamp: number;
+  breadthUniverseId?: string;
+  breadthUniverseSize?: number;
 }
 
 export interface Candle {
@@ -92,6 +96,8 @@ export interface MarketSnapshot {
   candles: Partial<Record<Timeframe, Candle[]>>;
   sourceTimestamp: number;
   globalMarketState?: GlobalMarketState;
+  fundingRates?: FundingRatePoint[];
+  fundingDataStatus?: FundingDataStatus;
 }
 
 export interface ScoreComponents {

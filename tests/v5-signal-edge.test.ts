@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { calculateForwardEdge } from "../lib/backtest/forward-metrics";
-import { evaluateExecutionDelay } from "../lib/backtest/execution-stress";
-import { createFrozenHoldoutWindow, createPurgedWalkForwardFolds } from "../lib/backtest/validation";
-import { fitDirectionalCostAwareScoreModel } from "../lib/core/opportunity-policy";
+import { evaluateExecutionDelay, simulateDelayedReferenceTrade } from "../lib/backtest/execution-stress";
+import { createFrozenHoldoutWindow, createPurgedWalkForwardFolds, evaluatePromotionGate, type DirectionalValidationMetrics } from "../lib/backtest/validation";
+import { buildGlobalMarketStateFromSnapshots } from "../lib/core/market-regime";
+import { fitDirectionalCostAwareScoreModel, projectedFundingCostRiskFraction } from "../lib/core/opportunity-policy";
 import { fitDirectionalScoreCalibration, scoreCandidate } from "../lib/core/scoring";
 import { DEFAULT_V5_POLICY } from "../lib/core/policy-registry";
+import { buildTradePlan } from "../lib/core/risk";
 import { admitSignal } from "../lib/core/signal-admission";
 import { DEFAULT_STRATEGY_PARAMS, generateCandidates } from "../lib/core/strategies";
 import { DEFAULT_NO_CHASE_POLICY, evaluateNoChase } from "../lib/core/v5-entry-policy";
@@ -166,6 +168,146 @@ describe("purged validation, forward edge and data quality", () => {
   });
 });
 
+describe("validation integrity guards", () => {
+  it("keeps global state deterministic for the same fixed timestamp and lets ETH participate", () => {
+    const sourceTimestamp = 1_700_000_000_000;
+    const fixedUniverse = [
+      globalSnapshot("BTCUSDT", "LONG", sourceTimestamp),
+      globalSnapshot("ETHUSDT", "LONG", sourceTimestamp),
+      globalSnapshot("SOLUSDT", "LONG", sourceTimestamp),
+      globalSnapshot("ADAUSDT", "SHORT", sourceTimestamp),
+    ];
+    const first = buildGlobalMarketStateFromSnapshots({ snapshots: fixedUniverse, sourceTimestamp, breadthUniverseId: "fixed-v1" });
+    const reordered = buildGlobalMarketStateFromSnapshots({ snapshots: [...fixedUniverse].reverse(), sourceTimestamp, breadthUniverseId: "fixed-v1" });
+    expect(first).toEqual(reordered);
+    expect(first?.breadthUniverseId).toBe("fixed-v1");
+    expect(first?.breadthUniverseSize).toBe(4);
+
+    const ethConflict = buildGlobalMarketStateFromSnapshots({
+      snapshots: [
+        globalSnapshot("BTCUSDT", "LONG", sourceTimestamp),
+        globalSnapshot("ETHUSDT", "SHORT", sourceTimestamp),
+      ],
+      sourceTimestamp,
+      breadthUniverseId: "fixed-v1",
+    });
+    expect(ethConflict?.key).toBe("OTHER");
+  });
+
+  it("marks missing funding as unavailable instead of projecting a favorable zero", () => {
+    const scored = scoreCandidate(baseCandidate({
+      side: "LONG",
+      marketState: "BULL_STRONG",
+      setupType: "TREND_PULLBACK",
+      entryTrigger: "REJECTION_REBREAK",
+      noChase: passedNoChase(),
+    }));
+    const plan = buildTradePlan(scored, instrument, {
+      marginUsdt: 100,
+      leverage: 20,
+      singleSignalRiskCapUsdt: 100,
+      dailyRiskBudgetUsdt: 600,
+      maxHoldHours: 72,
+    }, 1_700_000_000_000);
+    expect(projectedFundingCostRiskFraction("LONG", plan, [], 1_700_000_000_000)).toBe(Infinity);
+    const decision = admitSignal({ ...scored, confidence: 0.9 }, {
+      ...DEFAULT_V5_POLICY,
+      status: "APPROVED",
+      directionApproval: { LONG: "APPROVED", SHORT: "SHADOW_ONLY" },
+    }, {
+      expectedGrossR: 0.3,
+      expectedNetR: 0.2,
+      calibrationSamples: 100,
+      edgeConfidence: 0.9,
+      policyFeatures: {
+        marketState: "BULL_STRONG",
+        projectedFundingCostRiskFraction: Infinity,
+        executionCostRiskFraction: 0.01,
+        fundingDataStatus: "UNKNOWN",
+      },
+    });
+    expect(decision.productionEligible).toBe(false);
+    expect(decision.reasons).toContain("FUNDING_UNAVAILABLE");
+  });
+
+  it("caps forward horizons at maxHold and does not borrow a later candle", () => {
+    const candles = trendCandles(20, "LONG", false);
+    candles[10] = { ...candles[10], high: candles[1].close + 100, close: candles[1].close + 50 };
+    const metrics = calculateForwardEdge(candles, 1, "LONG", candles[1].close, 1, 1);
+    expect(metrics.forwardReturn72h).toBeNull();
+    expect(metrics.horizon72h.maxFavorableR).toBeLessThan(100);
+  });
+
+  it("re-simulates delayed entry through the stop/TP path and labels 15m proxies", () => {
+    const sourceTimestamp = 1_700_000_000_000;
+    const candles = [
+      simpleCandle(sourceTimestamp, 100, 100, 99, 100),
+      simpleCandle(sourceTimestamp + 15 * 60_000, 100, 103, 99, 102),
+      simpleCandle(sourceTimestamp + 30 * 60_000, 102, 106, 101, 105),
+    ];
+    const result = simulateDelayedReferenceTrade(candles, {
+      side: "LONG",
+      sourceTimestamp,
+      referenceEntryPrice: 100,
+      stopPrice: 95,
+      takeProfitPrice: 105,
+      quantity: 1,
+      theoreticalRiskUsdt: 5,
+      maxHoldHours: 72,
+      takerFeeRate: 0,
+      slippageBps: 0,
+    }, "T+5m");
+    expect(result.exitReason).toBe("TAKE_PROFIT");
+    expect(result.netR).toBe(0.6);
+    expect(result.proxy).toBe(true);
+    expect(result.note).toContain("true path re-simulation");
+  });
+
+  it("does not make median net R a default promotion hard condition", () => {
+    const metrics: DirectionalValidationMetrics = {
+      direction: "SHORT",
+      trades: 100,
+      winRate: 0.55,
+      grossR: 20,
+      netR: 10,
+      averageNetR: 0.1,
+      medianNetR: -0.5,
+      winProbability: 0.55,
+      edgeConfidence: 0.8,
+      profitFactor: 2,
+      maxDrawdownR: 5,
+      maxDrawdownPercent: 5,
+      cvar95: -1,
+      positiveMonths: 8,
+      positiveFolds: 2,
+      monthsObserved: 10,
+      foldsEvaluated: 2,
+      symbolBreadth: 20,
+      regimeBreadth: 3,
+      topSymbolProfitShare: 0.2,
+      topThreeSymbolProfitShare: 0.5,
+      profitConcentrationHhi: 0.1,
+      averageMFE: 1,
+      averageMAE: 1,
+      averageMFE24h: 1,
+      averageMFE72h: 1.5,
+      averageMAE24h: 1,
+      averageMAE72h: 1.5,
+      stopFirstRate: 0.4,
+      grossEdge: 20,
+      costs: 10,
+      netEdge: 10,
+      stressNetR: 0.1,
+      rFirst: { halfRBeforeStop: 0.6, oneRBeforeStop: 0.5, twoRBeforeStop: 0.3 },
+      rFirst24h: { halfRBeforeStop: 0.6, oneRBeforeStop: 0.5, twoRBeforeStop: 0.3 },
+      rFirst72h: { halfRBeforeStop: 0.6, oneRBeforeStop: 0.5, twoRBeforeStop: 0.3 },
+    };
+    const decision = evaluatePromotionGate(metrics, { frozenHoldout: true });
+    expect(decision.passed).toBe(true);
+    expect(decision.reasons).not.toContain("median_net_r");
+  });
+});
+
 function makeSnapshot(candles: Candle[], marketState: MarketStateKey): MarketSnapshot {
   return {
     instrument,
@@ -174,6 +316,19 @@ function makeSnapshot(candles: Candle[], marketState: MarketStateKey): MarketSna
     sourceTimestamp: candles.at(-1)!.closeTime,
     globalMarketState: { key: marketState, btcRegime: marketState.startsWith("BULL") ? "BULL" : "BEAR", breadth: marketState.startsWith("BULL") ? 0.7 : 0.3, sourceTimestamp: candles.at(-1)!.closeTime },
   };
+}
+
+function globalSnapshot(symbol: string, side: "LONG" | "SHORT", sourceTimestamp: number): MarketSnapshot {
+  return {
+    instrument: { ...instrument, symbol },
+    tickerPrice: 100,
+    candles: { "4h": trendCandles(120, side, false) },
+    sourceTimestamp,
+  };
+}
+
+function simpleCandle(closeTime: number, open: number, high: number, low: number, close: number): Candle {
+  return { openTime: closeTime - 14 * 60_000 - 59_999, open, high, low, close, volume: 1, closeTime };
 }
 
 function trendCandles(count: number, side: "LONG" | "SHORT", trigger: boolean): Candle[] {

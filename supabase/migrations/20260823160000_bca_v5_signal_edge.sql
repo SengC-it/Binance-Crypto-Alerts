@@ -33,6 +33,8 @@ alter table public.bca_signals add column if not exists market_state text;
 alter table public.bca_signals add column if not exists setup_type text;
 alter table public.bca_signals add column if not exists entry_trigger text;
 alter table public.bca_signals add column if not exists expected_net_r numeric;
+alter table public.bca_signals add column if not exists win_probability numeric;
+alter table public.bca_signals add column if not exists edge_confidence numeric;
 alter table public.bca_signals add column if not exists confidence numeric;
 alter table public.bca_signals add column if not exists calibration_samples integer;
 alter table public.bca_signals add column if not exists rejection_reason text;
@@ -41,6 +43,8 @@ alter table public.bca_shadow_candidates add column if not exists policy_version
 alter table public.bca_shadow_candidates add column if not exists signal_tier text
   check (signal_tier is null or signal_tier in ('A', 'B', 'C'));
 alter table public.bca_shadow_candidates add column if not exists expected_net_r numeric;
+alter table public.bca_shadow_candidates add column if not exists win_probability numeric;
+alter table public.bca_shadow_candidates add column if not exists edge_confidence numeric;
 alter table public.bca_shadow_candidates add column if not exists rejection_reason text;
 
 alter table public.bca_paper_trades add column if not exists policy_version text;
@@ -50,6 +54,8 @@ alter table public.bca_paper_trades add column if not exists market_state text;
 alter table public.bca_paper_trades add column if not exists setup_type text;
 alter table public.bca_paper_trades add column if not exists entry_trigger text;
 alter table public.bca_paper_trades add column if not exists expected_net_r numeric;
+alter table public.bca_paper_trades add column if not exists win_probability numeric;
+alter table public.bca_paper_trades add column if not exists edge_confidence numeric;
 alter table public.bca_paper_trades add column if not exists confidence numeric;
 alter table public.bca_paper_trades add column if not exists calibration_samples integer;
 alter table public.bca_paper_trades add column if not exists rejection_reason text;
@@ -61,11 +67,14 @@ alter table public.bca_shadow_paper_trades add column if not exists market_state
 alter table public.bca_shadow_paper_trades add column if not exists setup_type text;
 alter table public.bca_shadow_paper_trades add column if not exists entry_trigger text;
 alter table public.bca_shadow_paper_trades add column if not exists expected_net_r numeric;
+alter table public.bca_shadow_paper_trades add column if not exists win_probability numeric;
+alter table public.bca_shadow_paper_trades add column if not exists edge_confidence numeric;
 alter table public.bca_shadow_paper_trades add column if not exists confidence numeric;
 alter table public.bca_shadow_paper_trades add column if not exists calibration_samples integer;
 alter table public.bca_shadow_paper_trades add column if not exists rejection_reason text;
 
 alter table public.bca_scan_runs add column if not exists signal_stats jsonb not null default '{}'::jsonb;
+alter table public.bca_scan_groups add column if not exists global_market_state jsonb;
 alter table public.bca_backtest_runs add column if not exists policy_version text;
 alter table public.bca_backtest_runs add column if not exists holdout_frozen boolean not null default false;
 

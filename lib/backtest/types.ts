@@ -47,6 +47,9 @@ export interface BacktestTrade {
   exitPrice: number;
   referenceEntryPrice?: number;
   referenceExitPrice?: number;
+  stopPrice: number;
+  takeProfitPrice: number;
+  maxHoldHours: number;
   quantity?: number;
   rMultiple: number;
   pnlUsdt: number;
@@ -87,6 +90,12 @@ export interface BacktestMetrics {
   cvar95?: number;
   averageMfeR?: number;
   averageMaeR?: number;
+  averageMfe24h?: number;
+  averageMfe72h?: number;
+  averageMae24h?: number;
+  averageMae72h?: number;
+  rFirst24h?: { halfR: number; oneR: number; twoR: number };
+  rFirst72h?: { halfR: number; oneR: number; twoR: number };
   stopFirstRate?: number;
 }
 

@@ -74,7 +74,8 @@ export async function createShadowPaperTrade(
   const { count, error: countError } = await supabase
     .from(SHADOW_PAPER_TABLE)
     .select("id", { count: "exact", head: true })
-    .eq("status", "OPEN");
+    .eq("status", "OPEN")
+    .eq("side", input.candidate.side);
   if (countError) throw new Error(`Shadow position lookup failed: ${countError.message}`);
   if ((count ?? 0) >= 1) return false;
 
@@ -82,6 +83,7 @@ export async function createShadowPaperTrade(
     .from(SHADOW_PAPER_TABLE)
     .select("exit_time")
     .eq("symbol", input.symbol)
+    .eq("side", input.candidate.side)
     .not("exit_time", "is", null)
     .order("exit_time", { ascending: false })
     .limit(1)
@@ -117,6 +119,8 @@ async function insertPaperTrade(
       setup_type: input.candidate.setupType ?? "NO_SETUP",
       entry_trigger: input.candidate.entryTrigger ?? "NONE",
       expected_net_r: input.admission?.expectedNetR ?? null,
+      win_probability: input.admission?.winProbability ?? null,
+      edge_confidence: input.admission?.edgeConfidence ?? null,
       confidence: input.admission?.confidence ?? null,
       calibration_samples: input.admission?.calibrationSamples ?? 0,
       rejection_reason: input.admission?.reasons[0] ?? null,
@@ -144,6 +148,8 @@ async function insertPaperTrade(
         setup_type: input.candidate.setupType ?? "NO_SETUP",
         entry_trigger: input.candidate.entryTrigger ?? "NONE",
         expected_net_r: input.admission?.expectedNetR ?? null,
+        win_probability: input.admission?.winProbability ?? null,
+        edge_confidence: input.admission?.edgeConfidence ?? null,
         confidence: input.admission?.confidence ?? null,
         calibration_samples: input.admission?.calibrationSamples ?? 0,
         rejection_reason: input.admission?.reasons[0] ?? null,

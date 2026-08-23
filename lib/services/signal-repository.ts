@@ -1,6 +1,7 @@
-import type { ScoredCandidate, TradePlan } from "@/lib/core/types";
+import type { GlobalMarketState, ScoredCandidate, TradePlan } from "@/lib/core/types";
 import type { SignalAdmissionDecision } from "@/lib/core/signal-admission";
 import type { V5Policy } from "@/lib/core/policy-registry";
+import { normalizeUniversePolicy } from "@/lib/core/universe-policy";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface ScanRunInput {
@@ -64,7 +65,7 @@ export async function loadApprovedPolicy(
     entryPolicy: data.entry_policy,
     regimePolicy: data.regime_policy,
     noChasePolicy: data.no_chase_policy,
-    universePolicy: data.universe_policy,
+    universePolicy: normalizeUniversePolicy(data.universe_policy),
     calibrationModel: data.calibration_model,
     expectedEdgeModel: data.expected_edge_model,
     costModelVersion: data.cost_model_version as string,
@@ -114,6 +115,33 @@ export async function createScanRun(supabase: SupabaseClient, input: ScanRunInpu
   return data.id as string;
 }
 
+export async function loadScanGroupGlobalMarketState(
+  supabase: SupabaseClient,
+  scanGroupKey: string,
+): Promise<GlobalMarketState | undefined> {
+  const { data, error } = await supabase
+    .from("bca_scan_groups")
+    .select("global_market_state")
+    .eq("scan_group_key", scanGroupKey)
+    .maybeSingle();
+  if (error) throw new Error(`Supabase scan group market state lookup failed: ${error.message}`);
+  return data?.global_market_state as GlobalMarketState | undefined;
+}
+
+export async function persistScanGroupGlobalMarketState(
+  supabase: SupabaseClient,
+  scanGroupKey: string,
+  state: GlobalMarketState,
+): Promise<GlobalMarketState> {
+  const { error } = await supabase
+    .from("bca_scan_groups")
+    .update({ global_market_state: state })
+    .eq("scan_group_key", scanGroupKey)
+    .is("global_market_state", null);
+  if (error) throw new Error(`Supabase scan group market state persist failed: ${error.message}`);
+  return (await loadScanGroupGlobalMarketState(supabase, scanGroupKey)) ?? state;
+}
+
 export async function stageScanCandidates(
   supabase: SupabaseClient,
   opportunities: StagedOpportunity[],
@@ -145,6 +173,8 @@ export async function stageShadowCandidates(
     policy_version: item.admission?.policyVersion ?? null,
     signal_tier: item.admission?.tier ?? null,
     expected_net_r: item.admission?.expectedNetR ?? null,
+    win_probability: item.admission?.winProbability ?? null,
+    edge_confidence: item.admission?.edgeConfidence ?? null,
     rejection_reason: item.admission?.reasons[0] ?? null,
     candidate: { ...item.candidate, admission: item.admission },
     trade_plan: item.plan,
@@ -292,6 +322,8 @@ export async function claimSignal(
       signal_tier: input.admission?.tier ?? null,
       policy_version: input.admission?.policyVersion ?? input.strategyVersion,
       expected_net_r: input.admission?.expectedNetR ?? null,
+      win_probability: input.admission?.winProbability ?? null,
+      edge_confidence: input.admission?.edgeConfidence ?? null,
       confidence: input.admission?.confidence ?? null,
       calibration_samples: input.admission?.calibrationSamples ?? null,
       rejection_reason: input.admission?.reasons[0] ?? null,
@@ -323,6 +355,8 @@ export async function claimSignal(
         setup_type: input.candidate.setupType ?? "NO_SETUP",
         entry_trigger: input.candidate.entryTrigger ?? "NONE",
         expected_net_r: input.admission.expectedNetR,
+        win_probability: input.admission.winProbability,
+        edge_confidence: input.admission.edgeConfidence,
         confidence: input.admission.confidence,
         calibration_samples: input.admission.calibrationSamples,
         rejection_reason: input.admission.reasons[0] ?? null,
