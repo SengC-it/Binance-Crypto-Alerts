@@ -11,6 +11,7 @@ import {
 import { buildTradePlan } from "@/lib/core/risk";
 import { rankCandidates } from "@/lib/core/scoring";
 import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
+import { buildStrategyHealthEvent } from "@/lib/core/strategy-health";
 import { fifteenMinuteGroupKey, signalKey, zonedDateString } from "@/lib/core/time";
 import type { Instrument, MarketSnapshot, ScoredCandidate, Timeframe, TradePlan } from "@/lib/core/types";
 import { sendSignalEmail, sendSystemAlertEmail } from "@/lib/notifications/email";
@@ -84,15 +85,10 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     supabase = getSupabaseAdmin();
     const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
     const productionHealth = await loadProspectiveStrategyHealth(supabase, PRODUCTION_STRATEGY_VERSION);
-    if (productionHealth.status !== "HEALTHY") {
+    const productionHealthEvent = buildStrategyHealthEvent(productionHealth, batchNumber);
+    if (productionHealthEvent) {
       try {
-        await recordSystemEvent(supabase, {
-          eventType: "PRODUCTION_STRATEGY_HEALTH",
-          severity: productionHealth.status === "FAIL_CLOSED" ? "CRITICAL" : "WARNING",
-          component: "production_signal_health_gate",
-          message: `Production strategy health is ${productionHealth.status}; Production A email is blocked.`,
-          details: productionHealth,
-        });
+        await recordSystemEvent(supabase, productionHealthEvent);
       } catch (error) {
         errors.push({ stage: "production_health_event", message: errorMessage(error) });
       }
