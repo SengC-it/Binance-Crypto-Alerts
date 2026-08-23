@@ -43,7 +43,7 @@ async function loadSettledTrades(
 ): Promise<{ rows: StrategyHealthTrade[]; error?: string }> {
   const { data, error } = await supabase
     .from("bca_paper_trades")
-    .select("entry_time,r_multiple,net_pnl_usdt,theoretical_risk_usdt,exit_reason,status")
+    .select("strategy_version,entry_time,exit_time,exit_reason,r_multiple,net_pnl_usdt,theoretical_risk_usdt")
     .eq("strategy_version", strategyVersion)
     .not("exit_time", "is", null)
     .order("entry_time", { ascending: false })
