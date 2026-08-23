@@ -52,16 +52,17 @@ export class BinancePublicClient {
       .map((instrument, index) => ({ ...instrument, universeRank: index + 1 }));
   }
 
-  async getCandles(symbol: string, timeframe: Timeframe, limit = 250): Promise<Candle[]> {
+  async getCandles(symbol: string, timeframe: Timeframe, limit = 250, asOf = Date.now()): Promise<Candle[]> {
     const raw = await this.get<unknown[][]>("/fapi/v1/klines", {
       symbol,
       interval: INTERVALS[timeframe],
       limit: String(limit),
+      ...(Number.isFinite(asOf) ? { endTime: String(asOf) } : {}),
     });
 
     return raw
       .map(parseKline)
-      .filter((candle) => candle.closeTime <= Date.now());
+      .filter((candle) => candle.closeTime <= asOf);
   }
 
   async getCandlesRange(
@@ -147,10 +148,11 @@ export class BinancePublicClient {
     instrument: Instrument,
     timeframes: Timeframe[],
     limit = 250,
+    asOf = Date.now(),
   ): Promise<MarketSnapshot> {
     const requestedTimeframes = Array.from(new Set(["15m" as Timeframe, ...timeframes]));
     const candleEntries = await Promise.all(
-      requestedTimeframes.map(async (timeframe) => [timeframe, await this.getCandles(instrument.symbol, timeframe, limit)] as const),
+      requestedTimeframes.map(async (timeframe) => [timeframe, await this.getCandles(instrument.symbol, timeframe, limit, asOf)] as const),
     );
     const primaryCandles = candleEntries.find(([timeframe]) => timeframe === "15m")?.[1] ?? [];
     const tickerPrice = primaryCandles.at(-1)?.close
@@ -165,6 +167,7 @@ export class BinancePublicClient {
       // Signal identity follows the primary 15m candle. A higher timeframe can stay
       // unchanged for hours and must not suppress new 15m opportunities.
       sourceTimestamp,
+      fundingDataStatus: "UNKNOWN",
     };
   }
 
@@ -228,6 +231,24 @@ export class BinanceApiError extends Error {
 
 export function selectDeepUniverse(universe: Instrument[], limit: number): Instrument[] {
   return universe.slice(0, Math.max(1, limit));
+}
+
+/**
+ * Select a reproducible breadth universe. BTC and ETH are mandatory anchors
+ * whenever Binance exposes them; the remaining slots follow the exchange
+ * universe rank with a symbol tie-breaker.
+ */
+export function selectFixedBreadthUniverse(universe: Instrument[], limit: number): Instrument[] {
+  const size = Math.max(2, Math.floor(limit));
+  const bySymbol = new Map(universe.map((instrument) => [instrument.symbol, instrument]));
+  const anchors = ["BTCUSDT", "ETHUSDT"]
+    .map((symbol) => bySymbol.get(symbol))
+    .filter((instrument): instrument is Instrument => Boolean(instrument));
+  const ranked = [...universe]
+    .filter((instrument) => !anchors.some((anchor) => anchor.symbol === instrument.symbol))
+    .sort((left, right) => (left.universeRank ?? Number.MAX_SAFE_INTEGER) - (right.universeRank ?? Number.MAX_SAFE_INTEGER)
+      || left.symbol.localeCompare(right.symbol));
+  return [...anchors, ...ranked].slice(0, Math.min(size, universe.length));
 }
 
 export async function mapWithConcurrency<T, R>(

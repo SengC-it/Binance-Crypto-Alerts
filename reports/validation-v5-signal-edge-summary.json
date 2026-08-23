@@ -1,0 +1,2283 @@
+{
+  "schemaVersion": "v5.1-signal-edge-validation-summary.v3",
+  "generatedAt": "2026-08-23T11:33:58.991Z",
+  "command": "pnpm validate:v5",
+  "dataFingerprint": "726e438ceeb1dce55af95061d50117b98678099405468781dba15a899ac7eab5",
+  "baseline": {
+    "productionBaseSha": "1a6f0663e4dfe71869373cb41863856581713a7c",
+    "v5BaseSha": "1a6f0663e4dfe71869373cb41863856581713a7c",
+    "note": "PR parent is the current Production baseline; main is older and is not the comparison baseline"
+  },
+  "history": {
+    "years": 1,
+    "symbolCount": 50,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "TUTUSDT",
+      "SOLUSDT",
+      "BICOUSDT",
+      "BNBUSDT",
+      "XRPUSDT",
+      "ZECUSDT",
+      "ACEUSDT",
+      "KAITOUSDT",
+      "DOGEUSDT",
+      "HYPEUSDT",
+      "SUIUSDT",
+      "SKYAIUSDT",
+      "1000CATUSDT",
+      "HEIUSDT",
+      "ADAUSDT",
+      "TAOUSDT",
+      "IOTXUSDT",
+      "ARCUSDT",
+      "PUMPUSDT",
+      "TSTUSDT",
+      "1000PEPEUSDT",
+      "NEARUSDT",
+      "BANKUSDT",
+      "WLDUSDT",
+      "LINKUSDT",
+      "ENAUSDT",
+      "DODOXUSDT",
+      "EPICUSDT",
+      "FILUSDT",
+      "COOKIEUSDT",
+      "HOMEUSDT",
+      "AAVEUSDT",
+      "PENGUUSDT",
+      "ONDOUSDT",
+      "XMRUSDT",
+      "AVAXUSDT",
+      "UNIUSDT",
+      "SYNUSDT",
+      "SAGAUSDT",
+      "ICPUSDT",
+      "DEXEUSDT",
+      "XLMUSDT",
+      "LTCUSDT",
+      "1000BONKUSDT",
+      "INJUSDT",
+      "COTIUSDT",
+      "PAXGUSDT",
+      "SIRENUSDT"
+    ],
+    "windowStart": "2025-08-09T01:59:59.999Z",
+    "windowEnd": "2026-08-09T01:59:59.999Z",
+    "purgeHours": 72,
+    "folds": [
+      {
+        "id": "fold-1",
+        "trainStart": "2025-08-09T01:59:59.999Z",
+        "trainEnd": "2026-02-06T01:59:59.998Z",
+        "purgeStart": "2026-02-06T01:59:59.999Z",
+        "purgeEnd": "2026-02-12T01:59:59.998Z",
+        "validationStart": "2026-02-12T01:59:59.999Z",
+        "validationEnd": "2026-05-12T01:59:59.998Z",
+        "purgeHours": 72
+      }
+    ],
+    "holdout": {
+      "start": "2026-05-15T01:59:59.999Z",
+      "end": "2026-08-09T01:59:59.999Z"
+    },
+    "holdoutUsedForSelection": false,
+    "universeStatus": "PROXY",
+    "universeMethodology": "CURRENT_SURVIVOR_UNIVERSE_PROXY",
+    "universeId": "CURRENT_SURVIVOR_UNIVERSE_PROXY:50:1000BONKUSDT,1000CATUSDT,1000PEPEUSDT,AAVEUSDT,ACEUSDT,ADAUSDT,ARCUSDT,AVAXUSDT,BANKUSDT,BICOUSDT,BNBUSDT,BTCUSDT,COOKIEUSDT,COTIUSDT,DEXEUSDT,DODOXUSDT,DOGEUSDT,ENAUSDT,EPICUSDT,ETHUSDT,FILUSDT,HEIUSDT,HOMEUSDT,HYPEUSDT,ICPUSDT,INJUSDT,IOTXUSDT,KAITOUSDT,LINKUSDT,LTCUSDT,NEARUSDT,ONDOUSDT,PAXGUSDT,PENGUUSDT,PUMPUSDT,SAGAUSDT,SIRENUSDT,SKYAIUSDT,SOLUSDT,SUIUSDT,SYNUSDT,TAOUSDT,TSTUSDT,TUTUSDT,UNIUSDT,WLDUSDT,XLMUSDT,XMRUSDT,XRPUSDT,ZECUSDT"
+  },
+  "coreValidation": {
+    "status": "FAIL",
+    "years": 3,
+    "symbolCount": 24,
+    "symbols": [
+      "1000PEPEUSDT",
+      "AAVEUSDT",
+      "ADAUSDT",
+      "AVAXUSDT",
+      "BNBUSDT",
+      "BTCUSDT",
+      "COTIUSDT",
+      "DOGEUSDT",
+      "ETHUSDT",
+      "FILUSDT",
+      "ICPUSDT",
+      "INJUSDT",
+      "IOTXUSDT",
+      "LINKUSDT",
+      "LTCUSDT",
+      "NEARUSDT",
+      "SOLUSDT",
+      "SUIUSDT",
+      "UNIUSDT",
+      "WLDUSDT",
+      "XLMUSDT",
+      "XMRUSDT",
+      "XRPUSDT",
+      "ZECUSDT"
+    ],
+    "windowStart": "2023-08-10T02:14:59.999Z",
+    "windowEnd": "2026-08-09T02:14:59.999Z",
+    "folds": [
+      {
+        "id": "fold-1",
+        "trainStart": "2023-08-10T02:14:59.999Z",
+        "trainEnd": "2024-08-07T02:14:59.998Z",
+        "purgeStart": "2024-08-07T02:14:59.999Z",
+        "purgeEnd": "2024-08-13T02:14:59.998Z",
+        "validationStart": "2024-08-13T02:14:59.999Z",
+        "validationEnd": "2024-11-13T02:14:59.998Z",
+        "purgeHours": 72
+      },
+      {
+        "id": "fold-2",
+        "trainStart": "2023-08-10T02:14:59.999Z",
+        "trainEnd": "2024-11-10T02:14:59.998Z",
+        "purgeStart": "2024-11-10T02:14:59.999Z",
+        "purgeEnd": "2024-11-16T02:14:59.998Z",
+        "validationStart": "2024-11-16T02:14:59.999Z",
+        "validationEnd": "2025-02-16T02:14:59.998Z",
+        "purgeHours": 72
+      },
+      {
+        "id": "fold-3",
+        "trainStart": "2023-08-10T02:14:59.999Z",
+        "trainEnd": "2025-02-13T02:14:59.998Z",
+        "purgeStart": "2025-02-13T02:14:59.999Z",
+        "purgeEnd": "2025-02-19T02:14:59.998Z",
+        "validationStart": "2025-02-19T02:14:59.999Z",
+        "validationEnd": "2025-05-19T02:14:59.998Z",
+        "purgeHours": 72
+      },
+      {
+        "id": "fold-4",
+        "trainStart": "2023-08-10T02:14:59.999Z",
+        "trainEnd": "2025-05-16T02:14:59.998Z",
+        "purgeStart": "2025-05-16T02:14:59.999Z",
+        "purgeEnd": "2025-05-22T02:14:59.998Z",
+        "validationStart": "2025-05-22T02:14:59.999Z",
+        "validationEnd": "2025-08-22T02:14:59.998Z",
+        "purgeHours": 72
+      },
+      {
+        "id": "fold-5",
+        "trainStart": "2023-08-10T02:14:59.999Z",
+        "trainEnd": "2025-08-19T02:14:59.998Z",
+        "purgeStart": "2025-08-19T02:14:59.999Z",
+        "purgeEnd": "2025-08-25T02:14:59.998Z",
+        "validationStart": "2025-08-25T02:14:59.999Z",
+        "validationEnd": "2025-11-25T02:14:59.998Z",
+        "purgeHours": 72
+      },
+      {
+        "id": "fold-6",
+        "trainStart": "2023-08-10T02:14:59.999Z",
+        "trainEnd": "2025-11-22T02:14:59.998Z",
+        "purgeStart": "2025-11-22T02:14:59.999Z",
+        "purgeEnd": "2025-11-28T02:14:59.998Z",
+        "validationStart": "2025-11-28T02:14:59.999Z",
+        "validationEnd": "2026-02-28T02:14:59.998Z",
+        "purgeHours": 72
+      }
+    ],
+    "holdout": {
+      "start": "2026-03-03T02:14:59.999Z",
+      "end": "2026-08-09T02:14:59.999Z"
+    },
+    "universeStatus": "PROXY",
+    "universeMethodology": "CURRENT_SURVIVOR_UNIVERSE_PROXY",
+    "universeId": "CURRENT_SURVIVOR_UNIVERSE_PROXY:24:1000PEPEUSDT,AAVEUSDT,ADAUSDT,AVAXUSDT,BNBUSDT,BTCUSDT,COTIUSDT,DOGEUSDT,ETHUSDT,FILUSDT,ICPUSDT,INJUSDT,IOTXUSDT,LINKUSDT,LTCUSDT,NEARUSDT,SOLUSDT,SUIUSDT,UNIUSDT,WLDUSDT,XLMUSDT,XMRUSDT,XRPUSDT,ZECUSDT",
+    "dataFingerprint": "7010f03d4f68dcbd9a7e344c9252c8b9b5328de5f92183bf076c06362a7d3fe5",
+    "strategies": [
+      {
+        "id": "V51_SHORT",
+        "side": "SHORT",
+        "params": {
+          "entryMode": "V5_1_SIGNAL_EDGE",
+          "emaFast": 20,
+          "emaSlow": 50,
+          "rsiPeriod": 14,
+          "atrPeriod": 14,
+          "stopAtrMultiplier": 0.5,
+          "breakoutPeriod": 20,
+          "breakoutVolumeRatio": 1.15,
+          "meanReversionRsiLow": 35,
+          "meanReversionRsiHigh": 65,
+          "bollingerPeriod": 20,
+          "bollingerDeviation": 2
+        },
+        "validation": {
+          "direction": "SHORT",
+          "trades": 0,
+          "winRate": 0,
+          "grossR": 0,
+          "netR": 0,
+          "averageNetR": 0,
+          "medianNetR": 0,
+          "winProbability": 0,
+          "edgeConfidence": 0,
+          "profitFactor": 0,
+          "maxDrawdownR": 0,
+          "maxDrawdownPercent": 0,
+          "cvar95": 0,
+          "positiveMonths": 0,
+          "positiveFolds": 0,
+          "monthsObserved": 0,
+          "foldsEvaluated": 6,
+          "symbolBreadth": 0,
+          "regimeBreadth": 0,
+          "topSymbolProfitShare": 0,
+          "topThreeSymbolProfitShare": 0,
+          "profitConcentrationHhi": 0,
+          "averageMFE": 0,
+          "averageMAE": 0,
+          "averageMFE24h": 0,
+          "averageMFE72h": 0,
+          "averageMAE24h": 0,
+          "averageMAE72h": 0,
+          "stopFirstRate": 0,
+          "grossEdge": 0,
+          "costs": 0,
+          "netEdge": 0,
+          "stressNetR": 0,
+          "rFirst": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          },
+          "rFirst24h": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          },
+          "rFirst72h": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          }
+        },
+        "validationFolds": [
+          {
+            "id": "fold-1",
+            "metrics": {
+              "direction": "SHORT",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-08-07T02:14:59.998Z"
+            },
+            "trainingTrades": 623
+          },
+          {
+            "id": "fold-2",
+            "metrics": {
+              "direction": "SHORT",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-11-10T02:14:59.998Z"
+            },
+            "trainingTrades": 788
+          },
+          {
+            "id": "fold-3",
+            "metrics": {
+              "direction": "SHORT",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-02-13T02:14:59.998Z"
+            },
+            "trainingTrades": 1021
+          },
+          {
+            "id": "fold-4",
+            "metrics": {
+              "direction": "SHORT",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-05-16T02:14:59.998Z"
+            },
+            "trainingTrades": 1247
+          },
+          {
+            "id": "fold-5",
+            "metrics": {
+              "direction": "SHORT",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-08-19T02:14:59.998Z"
+            },
+            "trainingTrades": 1414
+          },
+          {
+            "id": "fold-6",
+            "metrics": {
+              "direction": "SHORT",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-11-22T02:14:59.998Z"
+            },
+            "trainingTrades": 1596
+          }
+        ],
+        "frozenHoldout": {
+          "direction": "SHORT",
+          "trades": 0,
+          "winRate": 0,
+          "grossR": 0,
+          "netR": 0,
+          "averageNetR": 0,
+          "medianNetR": 0,
+          "winProbability": 0,
+          "edgeConfidence": 0,
+          "profitFactor": 0,
+          "maxDrawdownR": 0,
+          "maxDrawdownPercent": 0,
+          "cvar95": 0,
+          "positiveMonths": 0,
+          "positiveFolds": 0,
+          "monthsObserved": 0,
+          "foldsEvaluated": 0,
+          "symbolBreadth": 0,
+          "regimeBreadth": 0,
+          "topSymbolProfitShare": 0,
+          "topThreeSymbolProfitShare": 0,
+          "profitConcentrationHhi": 0,
+          "averageMFE": 0,
+          "averageMAE": 0,
+          "averageMFE24h": 0,
+          "averageMFE72h": 0,
+          "averageMAE24h": 0,
+          "averageMAE72h": 0,
+          "stopFirstRate": 0,
+          "grossEdge": 0,
+          "costs": 0,
+          "netEdge": 0,
+          "stressNetR": 0,
+          "rFirst": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          },
+          "rFirst24h": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          },
+          "rFirst72h": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          }
+        },
+        "stress": {
+          "5bps": 0,
+          "10bps": 0,
+          "20bps": 0
+        },
+        "executionDelay": {
+          "T0": {
+            "netR": 0,
+            "trades": 0,
+            "proxyTrades": 0,
+            "stopTrades": 0,
+            "takeProfitTrades": 0,
+            "timeLimitTrades": 0
+          },
+          "T+5m": {
+            "netR": 0,
+            "trades": 0,
+            "proxyTrades": 0,
+            "stopTrades": 0,
+            "takeProfitTrades": 0,
+            "timeLimitTrades": 0
+          },
+          "T+15m": {
+            "netR": 0,
+            "trades": 0,
+            "proxyTrades": 0,
+            "stopTrades": 0,
+            "takeProfitTrades": 0,
+            "timeLimitTrades": 0
+          }
+        },
+        "promotion": {
+          "status": "REJECTED",
+          "passed": false,
+          "reasons": [
+            "validation:minimum_trades",
+            "validation:average_net_r",
+            "validation:profit_factor",
+            "validation:edge_confidence",
+            "validation:positive_folds",
+            "validation:positive_months",
+            "validation:symbol_breadth",
+            "validation:regime_breadth",
+            "validation:stress_net_r",
+            "holdout:minimum_trades",
+            "holdout:average_net_r",
+            "holdout:profit_factor",
+            "holdout:edge_confidence",
+            "holdout:symbol_breadth",
+            "holdout:regime_breadth",
+            "holdout:stress_net_r",
+            "prospective_health:UNKNOWN"
+          ]
+        },
+        "holdoutPromotion": {
+          "status": "REJECTED",
+          "passed": false,
+          "reasons": [
+            "minimum_trades",
+            "average_net_r",
+            "profit_factor",
+            "edge_confidence",
+            "symbol_breadth",
+            "regime_breadth",
+            "stress_net_r"
+          ]
+        },
+        "portfolio": {
+          "trades": 0,
+          "rawTrades": 0,
+          "rejectionCounts": {
+            "maxConcurrentPositions": 0,
+            "singleSignalRisk": 0,
+            "dailyRiskBudget": 0,
+            "dailyLossLimit": 0,
+            "emailCap": 0,
+            "capitalFloor": 0
+          }
+        },
+        "modelTraining": {
+          "final": {
+            "start": "2023-08-10T02:14:59.999Z",
+            "end": "2026-02-28T02:14:59.998Z",
+            "rawTrades": 1746
+          },
+          "folds": [
+            {
+              "id": "fold-1",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-08-07T02:14:59.998Z",
+              "rawTrades": 623
+            },
+            {
+              "id": "fold-2",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-11-10T02:14:59.998Z",
+              "rawTrades": 788
+            },
+            {
+              "id": "fold-3",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-02-13T02:14:59.998Z",
+              "rawTrades": 1021
+            },
+            {
+              "id": "fold-4",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-05-16T02:14:59.998Z",
+              "rawTrades": 1247
+            },
+            {
+              "id": "fold-5",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-08-19T02:14:59.998Z",
+              "rawTrades": 1414
+            },
+            {
+              "id": "fold-6",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-11-22T02:14:59.998Z",
+              "rawTrades": 1596
+            }
+          ]
+        },
+        "prospectiveHealth": {
+          "status": "UNKNOWN",
+          "productionAAllowed": false,
+          "source": "v5.1 prospective evidence unavailable"
+        }
+      },
+      {
+        "id": "V51_LONG",
+        "side": "LONG",
+        "params": {
+          "entryMode": "V5_1_SIGNAL_EDGE",
+          "emaFast": 20,
+          "emaSlow": 50,
+          "rsiPeriod": 14,
+          "atrPeriod": 14,
+          "stopAtrMultiplier": 0.5,
+          "breakoutPeriod": 20,
+          "breakoutVolumeRatio": 1.15,
+          "meanReversionRsiLow": 35,
+          "meanReversionRsiHigh": 65,
+          "bollingerPeriod": 20,
+          "bollingerDeviation": 2
+        },
+        "validation": {
+          "direction": "LONG",
+          "trades": 129,
+          "winRate": 0.3488372093023256,
+          "grossR": 3.8547,
+          "netR": -1.4646,
+          "averageNetR": -0.0114,
+          "medianNetR": -1.0435,
+          "winProbability": 0.35,
+          "edgeConfidence": 0,
+          "profitFactor": 0.9834,
+          "maxDrawdownR": 13.5599,
+          "maxDrawdownPercent": 10.5116,
+          "cvar95": -1.0932,
+          "positiveMonths": 4,
+          "positiveFolds": 1,
+          "monthsObserved": 9,
+          "foldsEvaluated": 6,
+          "symbolBreadth": 21,
+          "regimeBreadth": 1,
+          "topSymbolProfitShare": 0.134,
+          "topThreeSymbolProfitShare": 0.3565,
+          "profitConcentrationHhi": 0.0759,
+          "averageMFE": 1.1364,
+          "averageMAE": 0.8002,
+          "averageMFE24h": 2.5281,
+          "averageMFE72h": 4.5266,
+          "averageMAE24h": 1.6257,
+          "averageMAE72h": 2.7338,
+          "stopFirstRate": 0.6434,
+          "grossEdge": 3.8547,
+          "costs": 7.5787,
+          "netEdge": -1.4646,
+          "stressNetR": -9.7013,
+          "rFirst": {
+            "halfRBeforeStop": 0.6822,
+            "oneRBeforeStop": 0.5504,
+            "twoRBeforeStop": 0.3411
+          },
+          "rFirst24h": {
+            "halfRBeforeStop": 0.6822,
+            "oneRBeforeStop": 0.4961,
+            "twoRBeforeStop": 0.2636
+          },
+          "rFirst72h": {
+            "halfRBeforeStop": 0.6822,
+            "oneRBeforeStop": 0.5504,
+            "twoRBeforeStop": 0.3411
+          }
+        },
+        "validationFolds": [
+          {
+            "id": "fold-1",
+            "metrics": {
+              "direction": "LONG",
+              "trades": 50,
+              "winRate": 0.34,
+              "grossR": 0.8074,
+              "netR": -1.2885,
+              "averageNetR": -0.0258,
+              "medianNetR": -1.0441,
+              "winProbability": 0.3431,
+              "edgeConfidence": 0,
+              "profitFactor": 0.9624,
+              "maxDrawdownR": 11.034,
+              "maxDrawdownPercent": 22.0681,
+              "cvar95": -1.0903,
+              "positiveMonths": 2,
+              "positiveFolds": 0,
+              "monthsObserved": 4,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 20,
+              "regimeBreadth": 1,
+              "topSymbolProfitShare": 0.1775,
+              "topThreeSymbolProfitShare": 0.471,
+              "profitConcentrationHhi": 0.1143,
+              "averageMFE": 1.1646,
+              "averageMAE": 0.7794,
+              "averageMFE24h": 2.363,
+              "averageMFE72h": 4.4802,
+              "averageMAE24h": 1.4842,
+              "averageMAE72h": 2.2689,
+              "stopFirstRate": 0.64,
+              "grossEdge": 0.8074,
+              "costs": 2.9574,
+              "netEdge": -1.2885,
+              "stressNetR": -4.3618,
+              "rFirst": {
+                "halfRBeforeStop": 0.7,
+                "oneRBeforeStop": 0.56,
+                "twoRBeforeStop": 0.34
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0.7,
+                "oneRBeforeStop": 0.48,
+                "twoRBeforeStop": 0.22
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0.7,
+                "oneRBeforeStop": 0.56,
+                "twoRBeforeStop": 0.34
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-08-07T02:14:59.998Z"
+            },
+            "trainingTrades": 623
+          },
+          {
+            "id": "fold-2",
+            "metrics": {
+              "direction": "LONG",
+              "trades": 26,
+              "winRate": 0.4230769230769231,
+              "grossR": 6.5621,
+              "netR": 5.5136,
+              "averageNetR": 0.2121,
+              "medianNetR": -1.0391,
+              "winProbability": 0.4259,
+              "edgeConfidence": 0,
+              "profitFactor": 1.3481,
+              "maxDrawdownR": 5.2491,
+              "maxDrawdownPercent": 20.1888,
+              "cvar95": -1.0853,
+              "positiveMonths": 2,
+              "positiveFolds": 0,
+              "monthsObserved": 3,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 15,
+              "regimeBreadth": 1,
+              "topSymbolProfitShare": 0.1832,
+              "topThreeSymbolProfitShare": 0.5477,
+              "profitConcentrationHhi": 0.157,
+              "averageMFE": 1.2602,
+              "averageMAE": 0.7749,
+              "averageMFE24h": 3.3538,
+              "averageMFE72h": 5.8635,
+              "averageMAE24h": 1.6017,
+              "averageMAE72h": 3.3211,
+              "stopFirstRate": 0.5769,
+              "grossEdge": 6.5621,
+              "costs": 1.4731,
+              "netEdge": 5.5136,
+              "stressNetR": 4.0141,
+              "rFirst": {
+                "halfRBeforeStop": 0.7308,
+                "oneRBeforeStop": 0.6538,
+                "twoRBeforeStop": 0.4231
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0.7308,
+                "oneRBeforeStop": 0.6538,
+                "twoRBeforeStop": 0.3846
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0.7308,
+                "oneRBeforeStop": 0.6538,
+                "twoRBeforeStop": 0.4231
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-11-10T02:14:59.998Z"
+            },
+            "trainingTrades": 788
+          },
+          {
+            "id": "fold-3",
+            "metrics": {
+              "direction": "LONG",
+              "trades": 53,
+              "winRate": 0.32075471698113206,
+              "grossR": -3.5147,
+              "netR": -5.6897,
+              "averageNetR": -0.1074,
+              "medianNetR": -1.0435,
+              "winProbability": 0.3241,
+              "edgeConfidence": 0,
+              "profitFactor": 0.8509,
+              "maxDrawdownR": 13.5599,
+              "maxDrawdownPercent": 25.5848,
+              "cvar95": -1.092,
+              "positiveMonths": 1,
+              "positiveFolds": 0,
+              "monthsObserved": 3,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 18,
+              "regimeBreadth": 1,
+              "topSymbolProfitShare": 0.2385,
+              "topThreeSymbolProfitShare": 0.4791,
+              "profitConcentrationHhi": 0.1215,
+              "averageMFE": 1.049,
+              "averageMAE": 0.8323,
+              "averageMFE24h": 2.2787,
+              "averageMFE72h": 3.9145,
+              "averageMAE24h": 1.7709,
+              "averageMAE72h": 2.8843,
+              "stopFirstRate": 0.6792,
+              "grossEdge": -3.5147,
+              "costs": 3.1482,
+              "netEdge": -5.6897,
+              "stressNetR": -9.3536,
+              "rFirst": {
+                "halfRBeforeStop": 0.6415,
+                "oneRBeforeStop": 0.4906,
+                "twoRBeforeStop": 0.3019
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0.6415,
+                "oneRBeforeStop": 0.434,
+                "twoRBeforeStop": 0.2453
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0.6415,
+                "oneRBeforeStop": 0.4906,
+                "twoRBeforeStop": 0.3019
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-02-13T02:14:59.998Z"
+            },
+            "trainingTrades": 1021
+          },
+          {
+            "id": "fold-4",
+            "metrics": {
+              "direction": "LONG",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-05-16T02:14:59.998Z"
+            },
+            "trainingTrades": 1247
+          },
+          {
+            "id": "fold-5",
+            "metrics": {
+              "direction": "LONG",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-08-19T02:14:59.998Z"
+            },
+            "trainingTrades": 1414
+          },
+          {
+            "id": "fold-6",
+            "metrics": {
+              "direction": "LONG",
+              "trades": 0,
+              "winRate": 0,
+              "grossR": 0,
+              "netR": 0,
+              "averageNetR": 0,
+              "medianNetR": 0,
+              "winProbability": 0,
+              "edgeConfidence": 0,
+              "profitFactor": 0,
+              "maxDrawdownR": 0,
+              "maxDrawdownPercent": 0,
+              "cvar95": 0,
+              "positiveMonths": 0,
+              "positiveFolds": 0,
+              "monthsObserved": 0,
+              "foldsEvaluated": 0,
+              "symbolBreadth": 0,
+              "regimeBreadth": 0,
+              "topSymbolProfitShare": 0,
+              "topThreeSymbolProfitShare": 0,
+              "profitConcentrationHhi": 0,
+              "averageMFE": 0,
+              "averageMAE": 0,
+              "averageMFE24h": 0,
+              "averageMFE72h": 0,
+              "averageMAE24h": 0,
+              "averageMAE72h": 0,
+              "stopFirstRate": 0,
+              "grossEdge": 0,
+              "costs": 0,
+              "netEdge": 0,
+              "stressNetR": 0,
+              "rFirst": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst24h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              },
+              "rFirst72h": {
+                "halfRBeforeStop": 0,
+                "oneRBeforeStop": 0,
+                "twoRBeforeStop": 0
+              }
+            },
+            "trainingWindow": {
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-11-22T02:14:59.998Z"
+            },
+            "trainingTrades": 1596
+          }
+        ],
+        "frozenHoldout": {
+          "direction": "LONG",
+          "trades": 0,
+          "winRate": 0,
+          "grossR": 0,
+          "netR": 0,
+          "averageNetR": 0,
+          "medianNetR": 0,
+          "winProbability": 0,
+          "edgeConfidence": 0,
+          "profitFactor": 0,
+          "maxDrawdownR": 0,
+          "maxDrawdownPercent": 0,
+          "cvar95": 0,
+          "positiveMonths": 0,
+          "positiveFolds": 0,
+          "monthsObserved": 0,
+          "foldsEvaluated": 0,
+          "symbolBreadth": 0,
+          "regimeBreadth": 0,
+          "topSymbolProfitShare": 0,
+          "topThreeSymbolProfitShare": 0,
+          "profitConcentrationHhi": 0,
+          "averageMFE": 0,
+          "averageMAE": 0,
+          "averageMFE24h": 0,
+          "averageMFE72h": 0,
+          "averageMAE24h": 0,
+          "averageMAE72h": 0,
+          "stopFirstRate": 0,
+          "grossEdge": 0,
+          "costs": 0,
+          "netEdge": 0,
+          "stressNetR": 0,
+          "rFirst": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          },
+          "rFirst24h": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          },
+          "rFirst72h": {
+            "halfRBeforeStop": 0,
+            "oneRBeforeStop": 0,
+            "twoRBeforeStop": 0
+          }
+        },
+        "stress": {
+          "5bps": 0,
+          "10bps": 0,
+          "20bps": 0
+        },
+        "executionDelay": {
+          "T0": {
+            "netR": 0,
+            "trades": 0,
+            "proxyTrades": 0,
+            "stopTrades": 0,
+            "takeProfitTrades": 0,
+            "timeLimitTrades": 0
+          },
+          "T+5m": {
+            "netR": 0,
+            "trades": 0,
+            "proxyTrades": 0,
+            "stopTrades": 0,
+            "takeProfitTrades": 0,
+            "timeLimitTrades": 0
+          },
+          "T+15m": {
+            "netR": 0,
+            "trades": 0,
+            "proxyTrades": 0,
+            "stopTrades": 0,
+            "takeProfitTrades": 0,
+            "timeLimitTrades": 0
+          }
+        },
+        "promotion": {
+          "status": "REJECTED",
+          "passed": false,
+          "reasons": [
+            "validation:average_net_r",
+            "validation:profit_factor",
+            "validation:edge_confidence",
+            "validation:positive_folds",
+            "validation:positive_months",
+            "validation:regime_breadth",
+            "validation:stress_net_r",
+            "holdout:minimum_trades",
+            "holdout:average_net_r",
+            "holdout:profit_factor",
+            "holdout:edge_confidence",
+            "holdout:symbol_breadth",
+            "holdout:regime_breadth",
+            "holdout:stress_net_r",
+            "prospective_health:UNKNOWN"
+          ]
+        },
+        "holdoutPromotion": {
+          "status": "REJECTED",
+          "passed": false,
+          "reasons": [
+            "minimum_trades",
+            "average_net_r",
+            "profit_factor",
+            "edge_confidence",
+            "symbol_breadth",
+            "regime_breadth",
+            "stress_net_r"
+          ]
+        },
+        "portfolio": {
+          "trades": 0,
+          "rawTrades": 0,
+          "rejectionCounts": {
+            "maxConcurrentPositions": 0,
+            "singleSignalRisk": 0,
+            "dailyRiskBudget": 0,
+            "dailyLossLimit": 0,
+            "emailCap": 0,
+            "capitalFloor": 0
+          }
+        },
+        "modelTraining": {
+          "final": {
+            "start": "2023-08-10T02:14:59.999Z",
+            "end": "2026-02-28T02:14:59.998Z",
+            "rawTrades": 1746
+          },
+          "folds": [
+            {
+              "id": "fold-1",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-08-07T02:14:59.998Z",
+              "rawTrades": 623
+            },
+            {
+              "id": "fold-2",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2024-11-10T02:14:59.998Z",
+              "rawTrades": 788
+            },
+            {
+              "id": "fold-3",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-02-13T02:14:59.998Z",
+              "rawTrades": 1021
+            },
+            {
+              "id": "fold-4",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-05-16T02:14:59.998Z",
+              "rawTrades": 1247
+            },
+            {
+              "id": "fold-5",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-08-19T02:14:59.998Z",
+              "rawTrades": 1414
+            },
+            {
+              "id": "fold-6",
+              "start": "2023-08-10T02:14:59.999Z",
+              "end": "2025-11-22T02:14:59.998Z",
+              "rawTrades": 1596
+            }
+          ]
+        },
+        "prospectiveHealth": {
+          "status": "UNKNOWN",
+          "productionAAllowed": false,
+          "source": "v5.1 prospective evidence unavailable"
+        }
+      }
+    ],
+    "stabilityRule": "PASS requires both V5.1 directions to have data and no severe negative validation instability; holdout and prospective health remain separate promotion gates."
+  },
+  "sensitivity": {
+    "broadOneYear": {
+      "status": "PASS",
+      "universe": "CURRENT_SURVIVOR_UNIVERSE_PROXY",
+      "symbolCount": 50,
+      "years": 1
+    },
+    "coreLongHistory": {
+      "status": "FAIL",
+      "universe": "CURRENT_SURVIVOR_UNIVERSE_PROXY",
+      "symbolCount": 24,
+      "years": 3
+    }
+  },
+  "costs": {
+    "takerFeeRate": 0.0004,
+    "baseSlippageBps": 2,
+    "stressSlippageBps": [
+      5,
+      10,
+      20
+    ],
+    "delayScenarios": [
+      "T0",
+      "T+5m",
+      "T+15m"
+    ],
+    "maxHoldHours": 72,
+    "maximumCvar95LossR": 1.25,
+    "cvarDefinition": "95% lower-tail mean R; threshold includes reference taker fee and configured slippage",
+    "delayDefinition": "true path re-simulation from delayed entry through stop/TP/stop-first/funding/max-hold"
+  },
+  "validationProfiles": {
+    "CONTROL_OPTIONS": {
+      "minScore": 70,
+      "sideFilter": "SHORT",
+      "strategyFamilies": [
+        "TREND"
+      ],
+      "requireRegimeAlignment": true,
+      "maxHoldHours": 72,
+      "maxConcurrentPositions": 1,
+      "cooldownHours": 8,
+      "entryIntervalHours": 1,
+      "maxEmailsPerDay": 10,
+      "maxEmailsPerScan": 6,
+      "initialCapitalUsdt": 10000,
+      "singleSignalRiskCapUsdt": 100,
+      "dailyRiskBudgetUsdt": 600,
+      "dailyLossLimitUsdt": 600,
+      "marginUsdt": 100,
+      "leverage": 20,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 10000,
+      "rewardRisk": 2,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2,
+      "maxExecutionCostRiskFraction": 0.1,
+      "requireFundingData": false
+    },
+    "V5_RESEARCH_OPTIONS": {
+      "minScore": 0,
+      "sideFilter": "BOTH",
+      "strategyFamilies": [
+        "TREND"
+      ],
+      "requireRegimeAlignment": true,
+      "maxHoldHours": 72,
+      "maxConcurrentPositions": 6,
+      "cooldownHours": 0,
+      "entryIntervalHours": 1,
+      "maxEmailsPerDay": 10,
+      "maxEmailsPerScan": 6,
+      "initialCapitalUsdt": 10000,
+      "singleSignalRiskCapUsdt": 100,
+      "dailyRiskBudgetUsdt": 600,
+      "dailyLossLimitUsdt": 600,
+      "marginUsdt": 100,
+      "leverage": 20,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 10000,
+      "rewardRisk": 2,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2,
+      "maxExecutionCostRiskFraction": 0.1,
+      "requireFundingData": true
+    },
+    "V51_RESEARCH_OPTIONS": {
+      "minScore": 0,
+      "sideFilter": "BOTH",
+      "strategyFamilies": [
+        "TREND"
+      ],
+      "requireRegimeAlignment": true,
+      "maxHoldHours": 72,
+      "maxConcurrentPositions": 6,
+      "cooldownHours": 0,
+      "entryIntervalHours": 1,
+      "maxEmailsPerDay": 10,
+      "maxEmailsPerScan": 6,
+      "initialCapitalUsdt": 10000,
+      "singleSignalRiskCapUsdt": 100,
+      "dailyRiskBudgetUsdt": 600,
+      "dailyLossLimitUsdt": 600,
+      "marginUsdt": 100,
+      "leverage": 20,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 10000,
+      "rewardRisk": 2,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2,
+      "maxExecutionCostRiskFraction": 0.1,
+      "requireFundingData": true
+    }
+  },
+  "prospectiveHealth": {
+    "control": {
+      "status": "UNKNOWN",
+      "productionAAllowed": false,
+      "source": "degradation-analysis:NONE"
+    },
+    "v51": {
+      "status": "UNKNOWN",
+      "productionAAllowed": false,
+      "source": "v5.1 prospective evidence unavailable"
+    }
+  },
+  "dualHorizonPromotion": {
+    "SHORT": {
+      "status": "SHADOW_ONLY",
+      "passed": false,
+      "reasons": [
+        "broad:validation:minimum_trades",
+        "broad:validation:average_net_r",
+        "broad:validation:profit_factor",
+        "broad:validation:max_drawdown",
+        "broad:validation:edge_confidence",
+        "broad:validation:positive_folds",
+        "broad:validation:positive_months",
+        "broad:validation:regime_breadth",
+        "broad:validation:profit_concentration",
+        "broad:validation:stress_net_r",
+        "broad:holdout:minimum_trades",
+        "broad:holdout:average_net_r",
+        "broad:holdout:profit_factor",
+        "broad:holdout:max_drawdown",
+        "broad:holdout:edge_confidence",
+        "broad:holdout:regime_breadth",
+        "broad:holdout:stress_net_r",
+        "broad:prospective_health:UNKNOWN",
+        "core:validation:minimum_trades",
+        "core:validation:average_net_r",
+        "core:validation:profit_factor",
+        "core:validation:edge_confidence",
+        "core:validation:positive_folds",
+        "core:validation:positive_months",
+        "core:validation:symbol_breadth",
+        "core:validation:regime_breadth",
+        "core:validation:stress_net_r",
+        "core:holdout:minimum_trades",
+        "core:holdout:average_net_r",
+        "core:holdout:profit_factor",
+        "core:holdout:edge_confidence",
+        "core:holdout:symbol_breadth",
+        "core:holdout:regime_breadth",
+        "core:holdout:stress_net_r",
+        "core:prospective_health:UNKNOWN",
+        "core_status:fail"
+      ]
+    },
+    "LONG": {
+      "status": "REJECTED",
+      "passed": false,
+      "reasons": [
+        "broad:validation:minimum_trades",
+        "broad:validation:average_net_r",
+        "broad:validation:profit_factor",
+        "broad:validation:edge_confidence",
+        "broad:validation:positive_folds",
+        "broad:validation:positive_months",
+        "broad:validation:symbol_breadth",
+        "broad:validation:regime_breadth",
+        "broad:validation:stress_net_r",
+        "broad:holdout:minimum_trades",
+        "broad:holdout:average_net_r",
+        "broad:holdout:profit_factor",
+        "broad:holdout:edge_confidence",
+        "broad:holdout:symbol_breadth",
+        "broad:holdout:regime_breadth",
+        "broad:holdout:stress_net_r",
+        "broad:prospective_health:UNKNOWN",
+        "core:validation:average_net_r",
+        "core:validation:profit_factor",
+        "core:validation:edge_confidence",
+        "core:validation:positive_folds",
+        "core:validation:positive_months",
+        "core:validation:regime_breadth",
+        "core:validation:stress_net_r",
+        "core:holdout:minimum_trades",
+        "core:holdout:average_net_r",
+        "core:holdout:profit_factor",
+        "core:holdout:edge_confidence",
+        "core:holdout:symbol_breadth",
+        "core:holdout:regime_breadth",
+        "core:holdout:stress_net_r",
+        "core:prospective_health:UNKNOWN",
+        "core_status:fail"
+      ]
+    }
+  },
+  "strategies": [
+    {
+      "id": "CURRENT_PRODUCTION",
+      "side": "SHORT",
+      "validation": {
+        "direction": "SHORT",
+        "trades": 42,
+        "winRate": 0.3333333333333333,
+        "grossR": -2.2947,
+        "netR": -4.8545,
+        "averageNetR": -0.1156,
+        "medianNetR": -1.0524,
+        "winProbability": 0.3372,
+        "edgeConfidence": 0,
+        "profitFactor": 0.8363,
+        "maxDrawdownR": 14.9554,
+        "maxDrawdownPercent": 35.6081,
+        "cvar95": -1.1006,
+        "positiveMonths": 3,
+        "positiveFolds": 0,
+        "monthsObserved": 4,
+        "foldsEvaluated": 1,
+        "symbolBreadth": 25,
+        "regimeBreadth": 3,
+        "topSymbolProfitShare": 0.1528,
+        "topThreeSymbolProfitShare": 0.3087,
+        "profitConcentrationHhi": 0.087,
+        "averageMFE": 1.0292,
+        "averageMAE": 0.7658,
+        "averageMFE24h": 1.7331,
+        "averageMFE72h": 2.7429,
+        "averageMAE24h": 2.8817,
+        "averageMAE72h": 5.5868,
+        "stopFirstRate": 0.6429,
+        "grossEdge": -2.2947,
+        "costs": 3.5465,
+        "netEdge": -4.8545,
+        "stressNetR": -8.2149,
+        "rFirst": {
+          "halfRBeforeStop": 0.5952,
+          "oneRBeforeStop": 0.4762,
+          "twoRBeforeStop": 0.3095
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0.5714,
+          "oneRBeforeStop": 0.4286,
+          "twoRBeforeStop": 0.2857
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0.5952,
+          "oneRBeforeStop": 0.4762,
+          "twoRBeforeStop": 0.3095
+        }
+      },
+      "frozenHoldout": {
+        "direction": "SHORT",
+        "trades": 86,
+        "winRate": 0.4186046511627907,
+        "grossR": 19.6343,
+        "netR": 13.9007,
+        "averageNetR": 0.1616,
+        "medianNetR": -1.0299,
+        "winProbability": 0.4195,
+        "edgeConfidence": 0,
+        "profitFactor": 1.2594,
+        "maxDrawdownR": 14.7943,
+        "maxDrawdownPercent": 17.2027,
+        "cvar95": -1.2192,
+        "positiveMonths": 3,
+        "positiveFolds": 0,
+        "monthsObserved": 4,
+        "foldsEvaluated": 0,
+        "symbolBreadth": 37,
+        "regimeBreadth": 3,
+        "topSymbolProfitShare": 0.127,
+        "topThreeSymbolProfitShare": 0.3016,
+        "profitConcentrationHhi": 0.0576,
+        "averageMFE": 1.2266,
+        "averageMAE": 0.7239,
+        "averageMFE24h": 2.7787,
+        "averageMFE72h": 4.2497,
+        "averageMAE24h": 2.8004,
+        "averageMAE72h": 6.5158,
+        "stopFirstRate": 0.5814,
+        "grossEdge": 19.6343,
+        "costs": 7.399,
+        "netEdge": 13.9007,
+        "stressNetR": 9.6418,
+        "rFirst": {
+          "halfRBeforeStop": 0.686,
+          "oneRBeforeStop": 0.593,
+          "twoRBeforeStop": 0.3953
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0.686,
+          "oneRBeforeStop": 0.593,
+          "twoRBeforeStop": 0.3488
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0.686,
+          "oneRBeforeStop": 0.593,
+          "twoRBeforeStop": 0.3953
+        }
+      },
+      "stress": {
+        "5bps": 11.4025,
+        "10bps": 7.239,
+        "20bps": -1.088
+      },
+      "executionDelay": {
+        "T0": {
+          "netR": 13.9007,
+          "trades": 86,
+          "proxyTrades": 0,
+          "stopTrades": 50,
+          "takeProfitTrades": 35,
+          "timeLimitTrades": 1
+        },
+        "T+5m": {
+          "netR": 11.3682,
+          "trades": 86,
+          "proxyTrades": 86,
+          "stopTrades": 50,
+          "takeProfitTrades": 35,
+          "timeLimitTrades": 1
+        },
+        "T+15m": {
+          "netR": 11.3682,
+          "trades": 86,
+          "proxyTrades": 0,
+          "stopTrades": 50,
+          "takeProfitTrades": 35,
+          "timeLimitTrades": 1
+        }
+      },
+      "promotion": {
+        "status": "SHADOW_ONLY",
+        "passed": false,
+        "reasons": [
+          "validation:minimum_trades",
+          "validation:average_net_r",
+          "validation:profit_factor",
+          "validation:max_drawdown",
+          "validation:edge_confidence",
+          "validation:positive_folds",
+          "validation:stress_net_r",
+          "holdout:minimum_trades",
+          "holdout:edge_confidence"
+        ]
+      },
+      "holdoutPromotion": {
+        "status": "SHADOW_ONLY",
+        "passed": false,
+        "reasons": [
+          "minimum_trades",
+          "edge_confidence"
+        ]
+      },
+      "prospectiveHealth": {
+        "status": "UNKNOWN",
+        "productionAAllowed": false,
+        "source": "degradation-analysis:NONE"
+      }
+    },
+    {
+      "id": "TREND_REJECTION_RESEARCH",
+      "side": "SHORT",
+      "validation": {
+        "direction": "SHORT",
+        "trades": 80,
+        "winRate": 0.2625,
+        "grossR": -19.8736,
+        "netR": -24.0483,
+        "averageNetR": -0.3006,
+        "medianNetR": -1.0601,
+        "winProbability": 0.2654,
+        "edgeConfidence": 0,
+        "profitFactor": 0.6167,
+        "maxDrawdownR": 31.9724,
+        "maxDrawdownPercent": 39.9655,
+        "cvar95": -1.1135,
+        "positiveMonths": 2,
+        "positiveFolds": 0,
+        "monthsObserved": 4,
+        "foldsEvaluated": 1,
+        "symbolBreadth": 32,
+        "regimeBreadth": 3,
+        "topSymbolProfitShare": 0.1001,
+        "topThreeSymbolProfitShare": 0.2977,
+        "profitConcentrationHhi": 0.0648,
+        "averageMFE": 0.9915,
+        "averageMAE": 0.8442,
+        "averageMFE24h": 1.7162,
+        "averageMFE72h": 2.917,
+        "averageMAE24h": 2.7513,
+        "averageMAE72h": 5.5796,
+        "stopFirstRate": 0.725,
+        "grossEdge": -19.8736,
+        "costs": 6.0087,
+        "netEdge": -24.0483,
+        "stressNetR": -30.8779,
+        "rFirst": {
+          "halfRBeforeStop": 0.625,
+          "oneRBeforeStop": 0.4375,
+          "twoRBeforeStop": 0.25
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0.6,
+          "oneRBeforeStop": 0.4,
+          "twoRBeforeStop": 0.25
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0.625,
+          "oneRBeforeStop": 0.4375,
+          "twoRBeforeStop": 0.25
+        }
+      },
+      "frozenHoldout": {
+        "direction": "SHORT",
+        "trades": 113,
+        "winRate": 0.39823008849557523,
+        "grossR": 19.5995,
+        "netR": 13.2525,
+        "averageNetR": 0.1173,
+        "medianNetR": -1.0377,
+        "winProbability": 0.3991,
+        "edgeConfidence": 0,
+        "profitFactor": 1.1868,
+        "maxDrawdownR": 8.4979,
+        "maxDrawdownPercent": 7.5203,
+        "cvar95": -1.1979,
+        "positiveMonths": 2,
+        "positiveFolds": 0,
+        "monthsObserved": 4,
+        "foldsEvaluated": 0,
+        "symbolBreadth": 41,
+        "regimeBreadth": 3,
+        "topSymbolProfitShare": 0.0935,
+        "topThreeSymbolProfitShare": 0.2319,
+        "profitConcentrationHhi": 0.046,
+        "averageMFE": 1.1913,
+        "averageMAE": 0.762,
+        "averageMFE24h": 2.4316,
+        "averageMFE72h": 3.9683,
+        "averageMAE24h": 2.2105,
+        "averageMAE72h": 5.2879,
+        "stopFirstRate": 0.5752,
+        "grossEdge": 19.5995,
+        "costs": 8.6111,
+        "netEdge": 13.2525,
+        "stressNetR": 6.0146,
+        "rFirst": {
+          "halfRBeforeStop": 0.708,
+          "oneRBeforeStop": 0.5487,
+          "twoRBeforeStop": 0.3717
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0.708,
+          "oneRBeforeStop": 0.5487,
+          "twoRBeforeStop": 0.3097
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0.708,
+          "oneRBeforeStop": 0.5487,
+          "twoRBeforeStop": 0.3717
+        }
+      },
+      "stress": {
+        "5bps": 9.8562,
+        "10bps": 4.1959,
+        "20bps": -7.1248
+      },
+      "executionDelay": {
+        "T0": {
+          "netR": 13.2525,
+          "trades": 113,
+          "proxyTrades": 0,
+          "stopTrades": 65,
+          "takeProfitTrades": 43,
+          "timeLimitTrades": 4
+        },
+        "T+5m": {
+          "netR": 7.2009,
+          "trades": 113,
+          "proxyTrades": 113,
+          "stopTrades": 65,
+          "takeProfitTrades": 43,
+          "timeLimitTrades": 4
+        },
+        "T+15m": {
+          "netR": 7.2009,
+          "trades": 113,
+          "proxyTrades": 0,
+          "stopTrades": 65,
+          "takeProfitTrades": 43,
+          "timeLimitTrades": 4
+        }
+      },
+      "promotion": {
+        "status": "SHADOW_ONLY",
+        "passed": false,
+        "reasons": [
+          "validation:minimum_trades",
+          "validation:average_net_r",
+          "validation:profit_factor",
+          "validation:max_drawdown",
+          "validation:edge_confidence",
+          "validation:positive_folds",
+          "validation:positive_months",
+          "validation:stress_net_r",
+          "holdout:profit_factor",
+          "holdout:edge_confidence"
+        ]
+      },
+      "holdoutPromotion": {
+        "status": "SHADOW_ONLY",
+        "passed": false,
+        "reasons": [
+          "profit_factor",
+          "edge_confidence"
+        ]
+      }
+    },
+    {
+      "id": "V51_SHORT",
+      "side": "SHORT",
+      "validation": {
+        "direction": "SHORT",
+        "trades": 13,
+        "winRate": 0.23076923076923078,
+        "grossR": -4.255,
+        "netR": -4.7303,
+        "averageNetR": -0.3639,
+        "medianNetR": -1.0533,
+        "winProbability": 0.25,
+        "edgeConfidence": 0,
+        "profitFactor": 0.5521,
+        "maxDrawdownR": 7.3792,
+        "maxDrawdownPercent": 56.763,
+        "cvar95": -1.0723,
+        "positiveMonths": 1,
+        "positiveFolds": 0,
+        "monthsObserved": 3,
+        "foldsEvaluated": 1,
+        "symbolBreadth": 10,
+        "regimeBreadth": 1,
+        "topSymbolProfitShare": 0.3404,
+        "topThreeSymbolProfitShare": 1,
+        "profitConcentrationHhi": 0.3334,
+        "averageMFE": 1.0471,
+        "averageMAE": 0.8831,
+        "averageMFE24h": 1.4839,
+        "averageMFE72h": 1.9962,
+        "averageMAE24h": 2.355,
+        "averageMAE72h": 8.1253,
+        "stopFirstRate": 0.7692,
+        "grossEdge": -4.255,
+        "costs": 0.7303,
+        "netEdge": -4.7303,
+        "stressNetR": -5.7848,
+        "rFirst": {
+          "halfRBeforeStop": 0.6923,
+          "oneRBeforeStop": 0.4615,
+          "twoRBeforeStop": 0.2308
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0.6923,
+          "oneRBeforeStop": 0.4615,
+          "twoRBeforeStop": 0.2308
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0.6923,
+          "oneRBeforeStop": 0.4615,
+          "twoRBeforeStop": 0.2308
+        }
+      },
+      "frozenHoldout": {
+        "direction": "SHORT",
+        "trades": 75,
+        "winRate": 0.29333333333333333,
+        "grossR": -10.6948,
+        "netR": -13.5531,
+        "averageNetR": -0.1807,
+        "medianNetR": -1.0495,
+        "winProbability": 0.2961,
+        "edgeConfidence": 0,
+        "profitFactor": 0.7591,
+        "maxDrawdownR": 22.6288,
+        "maxDrawdownPercent": 30.1718,
+        "cvar95": -1.1013,
+        "positiveMonths": 1,
+        "positiveFolds": 0,
+        "monthsObserved": 2,
+        "foldsEvaluated": 0,
+        "symbolBreadth": 33,
+        "regimeBreadth": 1,
+        "topSymbolProfitShare": 0.0916,
+        "topThreeSymbolProfitShare": 0.274,
+        "profitConcentrationHhi": 0.058,
+        "averageMFE": 1.0751,
+        "averageMAE": 0.8684,
+        "averageMFE24h": 2.2265,
+        "averageMFE72h": 3.4692,
+        "averageMAE24h": 2.646,
+        "averageMAE72h": 4.6328,
+        "stopFirstRate": 0.7067,
+        "grossEdge": -10.6948,
+        "costs": 4.4484,
+        "netEdge": -13.5531,
+        "stressNetR": -20.2358,
+        "rFirst": {
+          "halfRBeforeStop": 0.6933,
+          "oneRBeforeStop": 0.5067,
+          "twoRBeforeStop": 0.2933
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0.6933,
+          "oneRBeforeStop": 0.5067,
+          "twoRBeforeStop": 0.2667
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0.6933,
+          "oneRBeforeStop": 0.5067,
+          "twoRBeforeStop": 0.2933
+        }
+      },
+      "stress": {
+        "5bps": -15.9383,
+        "10bps": -19.9137,
+        "20bps": -27.8645
+      },
+      "executionDelay": {
+        "T0": {
+          "netR": -13.5531,
+          "trades": 75,
+          "proxyTrades": 0,
+          "stopTrades": 53,
+          "takeProfitTrades": 22,
+          "timeLimitTrades": 0
+        },
+        "T+5m": {
+          "netR": -6.252,
+          "trades": 75,
+          "proxyTrades": 75,
+          "stopTrades": 53,
+          "takeProfitTrades": 22,
+          "timeLimitTrades": 0
+        },
+        "T+15m": {
+          "netR": -6.252,
+          "trades": 75,
+          "proxyTrades": 0,
+          "stopTrades": 53,
+          "takeProfitTrades": 22,
+          "timeLimitTrades": 0
+        }
+      },
+      "promotion": {
+        "status": "SHADOW_ONLY",
+        "passed": false,
+        "reasons": [
+          "validation:minimum_trades",
+          "validation:average_net_r",
+          "validation:profit_factor",
+          "validation:max_drawdown",
+          "validation:edge_confidence",
+          "validation:positive_folds",
+          "validation:positive_months",
+          "validation:regime_breadth",
+          "validation:profit_concentration",
+          "validation:stress_net_r",
+          "holdout:minimum_trades",
+          "holdout:average_net_r",
+          "holdout:profit_factor",
+          "holdout:max_drawdown",
+          "holdout:edge_confidence",
+          "holdout:regime_breadth",
+          "holdout:stress_net_r",
+          "prospective_health:UNKNOWN"
+        ]
+      },
+      "holdoutPromotion": {
+        "status": "SHADOW_ONLY",
+        "passed": false,
+        "reasons": [
+          "minimum_trades",
+          "average_net_r",
+          "profit_factor",
+          "max_drawdown",
+          "edge_confidence",
+          "regime_breadth",
+          "stress_net_r"
+        ]
+      },
+      "prospectiveHealth": {
+        "status": "UNKNOWN",
+        "productionAAllowed": false,
+        "source": "v5.1 prospective evidence unavailable"
+      }
+    },
+    {
+      "id": "V51_LONG",
+      "side": "LONG",
+      "validation": {
+        "direction": "LONG",
+        "trades": 0,
+        "winRate": 0,
+        "grossR": 0,
+        "netR": 0,
+        "averageNetR": 0,
+        "medianNetR": 0,
+        "winProbability": 0,
+        "edgeConfidence": 0,
+        "profitFactor": 0,
+        "maxDrawdownR": 0,
+        "maxDrawdownPercent": 0,
+        "cvar95": 0,
+        "positiveMonths": 0,
+        "positiveFolds": 0,
+        "monthsObserved": 0,
+        "foldsEvaluated": 1,
+        "symbolBreadth": 0,
+        "regimeBreadth": 0,
+        "topSymbolProfitShare": 0,
+        "topThreeSymbolProfitShare": 0,
+        "profitConcentrationHhi": 0,
+        "averageMFE": 0,
+        "averageMAE": 0,
+        "averageMFE24h": 0,
+        "averageMFE72h": 0,
+        "averageMAE24h": 0,
+        "averageMAE72h": 0,
+        "stopFirstRate": 0,
+        "grossEdge": 0,
+        "costs": 0,
+        "netEdge": 0,
+        "stressNetR": 0,
+        "rFirst": {
+          "halfRBeforeStop": 0,
+          "oneRBeforeStop": 0,
+          "twoRBeforeStop": 0
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0,
+          "oneRBeforeStop": 0,
+          "twoRBeforeStop": 0
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0,
+          "oneRBeforeStop": 0,
+          "twoRBeforeStop": 0
+        }
+      },
+      "frozenHoldout": {
+        "direction": "LONG",
+        "trades": 0,
+        "winRate": 0,
+        "grossR": 0,
+        "netR": 0,
+        "averageNetR": 0,
+        "medianNetR": 0,
+        "winProbability": 0,
+        "edgeConfidence": 0,
+        "profitFactor": 0,
+        "maxDrawdownR": 0,
+        "maxDrawdownPercent": 0,
+        "cvar95": 0,
+        "positiveMonths": 0,
+        "positiveFolds": 0,
+        "monthsObserved": 0,
+        "foldsEvaluated": 0,
+        "symbolBreadth": 0,
+        "regimeBreadth": 0,
+        "topSymbolProfitShare": 0,
+        "topThreeSymbolProfitShare": 0,
+        "profitConcentrationHhi": 0,
+        "averageMFE": 0,
+        "averageMAE": 0,
+        "averageMFE24h": 0,
+        "averageMFE72h": 0,
+        "averageMAE24h": 0,
+        "averageMAE72h": 0,
+        "stopFirstRate": 0,
+        "grossEdge": 0,
+        "costs": 0,
+        "netEdge": 0,
+        "stressNetR": 0,
+        "rFirst": {
+          "halfRBeforeStop": 0,
+          "oneRBeforeStop": 0,
+          "twoRBeforeStop": 0
+        },
+        "rFirst24h": {
+          "halfRBeforeStop": 0,
+          "oneRBeforeStop": 0,
+          "twoRBeforeStop": 0
+        },
+        "rFirst72h": {
+          "halfRBeforeStop": 0,
+          "oneRBeforeStop": 0,
+          "twoRBeforeStop": 0
+        }
+      },
+      "stress": {
+        "5bps": 0,
+        "10bps": 0,
+        "20bps": 0
+      },
+      "executionDelay": {
+        "T0": {
+          "netR": 0,
+          "trades": 0,
+          "proxyTrades": 0,
+          "stopTrades": 0,
+          "takeProfitTrades": 0,
+          "timeLimitTrades": 0
+        },
+        "T+5m": {
+          "netR": 0,
+          "trades": 0,
+          "proxyTrades": 0,
+          "stopTrades": 0,
+          "takeProfitTrades": 0,
+          "timeLimitTrades": 0
+        },
+        "T+15m": {
+          "netR": 0,
+          "trades": 0,
+          "proxyTrades": 0,
+          "stopTrades": 0,
+          "takeProfitTrades": 0,
+          "timeLimitTrades": 0
+        }
+      },
+      "promotion": {
+        "status": "REJECTED",
+        "passed": false,
+        "reasons": [
+          "validation:minimum_trades",
+          "validation:average_net_r",
+          "validation:profit_factor",
+          "validation:edge_confidence",
+          "validation:positive_folds",
+          "validation:positive_months",
+          "validation:symbol_breadth",
+          "validation:regime_breadth",
+          "validation:stress_net_r",
+          "holdout:minimum_trades",
+          "holdout:average_net_r",
+          "holdout:profit_factor",
+          "holdout:edge_confidence",
+          "holdout:symbol_breadth",
+          "holdout:regime_breadth",
+          "holdout:stress_net_r",
+          "prospective_health:UNKNOWN"
+        ]
+      },
+      "holdoutPromotion": {
+        "status": "REJECTED",
+        "passed": false,
+        "reasons": [
+          "minimum_trades",
+          "average_net_r",
+          "profit_factor",
+          "edge_confidence",
+          "symbol_breadth",
+          "regime_breadth",
+          "stress_net_r"
+        ]
+      },
+      "prospectiveHealth": {
+        "status": "UNKNOWN",
+        "productionAAllowed": false,
+        "source": "v5.1 prospective evidence unavailable"
+      }
+    }
+  ],
+  "productionDecision": {
+    "LONG": "NOT APPROVED",
+    "SHORT": "NOT APPROVED",
+    "productionAEmailDirections": [],
+    "signalOnly": true,
+    "automaticStrategySwitch": false,
+    "humanApprovalRequired": true
+  }
+}

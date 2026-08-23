@@ -1,19 +1,25 @@
 import { buildTradePlan } from "@/lib/core/risk";
+import { buildGlobalMarketStateFromSnapshots } from "@/lib/core/market-regime";
 import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
 import {
   assessMarketState,
+  expectedDirectionalNetR,
   expectedNetR,
   passesCostAwareExpectedValue,
+  passesDirectionalCostAwareExpectedValue,
   passesMarketStateFilter,
   projectedFundingCostRiskFraction,
   type CostAwareScoreModel,
+  type DirectionalCostAwareScoreModel,
   type MarketStateAssessment,
   type MarketStateFilter,
   type OpportunityPolicyFeatures,
 } from "@/lib/core/opportunity-policy";
-import { passesEmpiricalScoreCalibration, rankCandidates, type ScoreCalibrationModel } from "@/lib/core/scoring";
+import { passesDirectionalEmpiricalScoreCalibration, passesEmpiricalScoreCalibration, rankCandidates, type DirectionalScoreCalibrationModel, type ScoreCalibrationModel } from "@/lib/core/scoring";
 import { generateCandidates, type StrategyParams } from "@/lib/core/strategies";
 import type { Candle, FundingRatePoint, MarketSnapshot, ScoredCandidate, Side, StrategyCandidate, TradePlan } from "@/lib/core/types";
+import type { GlobalMarketState } from "@/lib/core/types";
+import { calculateForwardEdge } from "./forward-metrics";
 import type {
   BacktestMetrics,
   BacktestResult,
@@ -55,6 +61,7 @@ export interface BacktestOptions {
   candidateCache?: Map<number, ScoredCandidate[]>;
   candidateCaches?: Array<Map<number, ScoredCandidate[]>>;
   scoreCalibration?: ScoreCalibrationModel;
+  directionalScoreCalibration?: DirectionalScoreCalibrationModel;
   sideFilter?: Side;
   strategyFamilies?: Array<"TREND" | "BREAKOUT" | "MEAN_REVERSION">;
   excludedSymbols?: string[];
@@ -63,13 +70,19 @@ export interface BacktestOptions {
   maxProjectedFundingCostRiskFraction?: number;
   expectedFundingHoldHours?: number;
   fundingLookbackPeriods?: number;
+  requireFundingData?: boolean;
   costAwareScoreModel?: CostAwareScoreModel;
+  directionalCostAwareScoreModel?: DirectionalCostAwareScoreModel;
   dynamicExitPolicy?: DynamicExitPolicy;
 }
 
 export interface BacktestContext {
   benchmarkDataset?: HistoricalDataset;
+  breadthDatasets?: HistoricalDataset[];
+  breadthUniverseId?: string;
+  pointInTimeUniverse?: (dataset: HistoricalDataset, sourceTimestamp: number) => boolean;
   marketStateCache?: Map<number, MarketStateAssessment>;
+  globalMarketStateCache?: Map<number, GlobalMarketState | undefined>;
 }
 
 export function runBacktest(
@@ -122,22 +135,42 @@ export function runBacktest(
       advanceTo(index + 1);
       continue;
     }
+    if (context.pointInTimeUniverse && !context.pointInTimeUniverse(dataset, current.closeTime)) {
+      advanceTo(index + 1);
+      continue;
+    }
     if (entryIntervalMs && !isEntryIntervalAllowed(current.closeTime, entryIntervalMs / (60 * 60 * 1000))) {
       advanceTo(index + 1);
       continue;
     }
     const rankedCandidates = options.candidateCache
       ? options.candidateCache.get(index) ?? []
-      : rankCandidates(generateCandidates(snapshotAt(dataset, index), params));
+      : (() => {
+        const snapshot = snapshotAt(dataset, index);
+        snapshot.globalMarketState = globalMarketStateAt(context, current.closeTime);
+        return rankCandidates(generateCandidates(snapshot, params));
+      })();
     const candidate = rankedCandidates.filter((item) => isAllowedCandidate(item, options))[0];
 
     if (!candidate || candidate.score < minScore) {
       advanceTo(index + 1);
       continue;
     }
+    if ((params.entryMode === "V5_SIGNAL_EDGE" || params.entryMode === "V5_1_SIGNAL_EDGE")
+      && !candidate.noChase?.passed) {
+      advanceTo(index + 1);
+      continue;
+    }
     if (
       options.scoreCalibration
       && !passesEmpiricalScoreCalibration(options.scoreCalibration, candidate.score, candidate.strategyFamily)
+    ) {
+      advanceTo(index + 1);
+      continue;
+    }
+    if (
+      options.directionalScoreCalibration
+      && !passesDirectionalEmpiricalScoreCalibration(options.directionalScoreCalibration, candidate.side, candidate.score, candidate.strategyFamily)
     ) {
       advanceTo(index + 1);
       continue;
@@ -184,6 +217,11 @@ export function runBacktest(
       options.expectedFundingHoldHours,
       options.fundingLookbackPeriods,
     );
+    const fundingDataStatus = Number.isFinite(fundingCostRiskFraction) ? "AVAILABLE" as const : "UNKNOWN" as const;
+    if (options.requireFundingData && fundingDataStatus === "UNKNOWN") {
+      advanceTo(index + 1);
+      continue;
+    }
     if (
       options.maxProjectedFundingCostRiskFraction !== undefined
       && fundingCostRiskFraction > options.maxProjectedFundingCostRiskFraction
@@ -192,13 +230,21 @@ export function runBacktest(
       continue;
     }
     const policyFeatures: OpportunityPolicyFeatures = {
-      marketState: marketState.key,
+      marketState: candidate.marketState ?? marketState.key,
       projectedFundingCostRiskFraction: fundingCostRiskFraction,
       executionCostRiskFraction,
+      fundingDataStatus,
     };
     if (
       options.costAwareScoreModel
       && !passesCostAwareExpectedValue(options.costAwareScoreModel, candidate, policyFeatures)
+    ) {
+      advanceTo(index + 1);
+      continue;
+    }
+    if (
+      options.directionalCostAwareScoreModel
+      && !passesDirectionalCostAwareExpectedValue(options.directionalCostAwareScoreModel, candidate, policyFeatures)
     ) {
       advanceTo(index + 1);
       continue;
@@ -212,6 +258,8 @@ export function runBacktest(
       policyFeatures,
       expectedNetR: options.costAwareScoreModel
         ? expectedNetR(options.costAwareScoreModel, candidate.score, policyFeatures)
+        : options.directionalCostAwareScoreModel
+          ? expectedDirectionalNetR(options.directionalCostAwareScoreModel, candidate.side, candidate.score, policyFeatures)
         : null,
       dynamicExitPolicy: options.dynamicExitPolicy,
     });
@@ -240,13 +288,16 @@ export function buildCandidateCache(
   params: StrategyParams,
   evaluationEndTime = Number.POSITIVE_INFINITY,
   entryIntervalHours?: number,
+  context: BacktestContext = {},
+  evaluationStartTime = dataset.candles["15m"][0]?.openTime ?? 0,
 ): Map<number, ScoredCandidate[]> {
   const candles = dataset.candles["15m"];
   const cache = new Map<number, ScoredCandidate[]>();
-  const startIndex = Math.max(params.emaSlow + 5, 80);
+  const startIndex = Math.max(params.emaSlow + 5, 80, lowerBound(candles, evaluationStartTime));
   for (let index = startIndex; index < candles.length - 1 && candles[index].closeTime <= evaluationEndTime; index += 1) {
     if (entryIntervalHours && !isEntryIntervalAllowed(candles[index].closeTime, entryIntervalHours)) continue;
     const snapshot = snapshotAt(dataset, index);
+    snapshot.globalMarketState = globalMarketStateAt(context, candles[index].closeTime);
     const rankedCandidates = rankCandidates(generateCandidates(snapshot, params));
     if (rankedCandidates.length > 0) cache.set(index, rankedCandidates);
   }
@@ -417,6 +468,39 @@ function snapshotAt(dataset: HistoricalDataset, index: number): MarketSnapshot {
   };
 }
 
+function globalMarketStateAt(context: BacktestContext, sourceTimestamp: number): GlobalMarketState | undefined {
+  if (!context.benchmarkDataset) return undefined;
+  context.globalMarketStateCache ??= new Map<number, GlobalMarketState | undefined>();
+  const primary = context.benchmarkDataset.candles["15m"];
+  const index = lastIndexAtOrBefore(primary, sourceTimestamp);
+  // Breadth is computed from the latest closed 15m candle for every member of
+  // the fixed universe, so the cache key must preserve the source timestamp.
+  // A 4h-only key would silently reuse an earlier breadth state within the
+  // same 4h candle.
+  const cacheKey = sourceTimestamp;
+  if (context.globalMarketStateCache.has(cacheKey)) return context.globalMarketStateCache.get(cacheKey);
+  const breadthDatasets = context.breadthDatasets?.length
+    ? context.breadthDatasets
+    : [context.benchmarkDataset];
+  const snapshots = breadthDatasets
+    .filter((dataset): dataset is HistoricalDataset => Boolean(dataset))
+    .filter((dataset) => !context.pointInTimeUniverse || context.pointInTimeUniverse(dataset, sourceTimestamp))
+    .map((dataset) => {
+      const datasetIndex = lastIndexAtOrBefore(dataset.candles["15m"], sourceTimestamp);
+      return datasetIndex < 0 ? undefined : snapshotAt(dataset, datasetIndex);
+    })
+    .filter((snapshot): snapshot is MarketSnapshot => Boolean(snapshot));
+  const state = index < 0 || snapshots.length === 0
+    ? undefined
+    : buildGlobalMarketStateFromSnapshots({
+      snapshots,
+      sourceTimestamp,
+      breadthUniverseId: context.breadthUniverseId,
+    });
+  context.globalMarketStateCache.set(cacheKey, state);
+  return state;
+}
+
 function marketStateAt(context: BacktestContext, sourceTimestamp: number): MarketStateAssessment {
   if (!context.benchmarkDataset) {
     return {
@@ -502,12 +586,14 @@ function evaluateTrade(
       return tradeResult(dataset, candidate, plan, entry, candle, activeStopPrice, reason, {
         ...options,
         path: pathAt(candle, activeStopPrice),
+        entryIndex,
       });
     }
     if (takeProfitHit) {
       return tradeResult(dataset, candidate, plan, entry, candle, plan.takeProfitPrice, "TAKE_PROFIT", {
         ...options,
         path: pathAt(candle, plan.takeProfitPrice),
+        entryIndex,
       });
     }
 
@@ -532,6 +618,7 @@ function evaluateTrade(
       return tradeResult(dataset, candidate, plan, entry, candle, candle.close, "TIME_STOP", {
         ...options,
         path: pathAt(candle, candle.close),
+        entryIndex,
       });
     }
 
@@ -555,6 +642,7 @@ function evaluateTrade(
   return tradeResult(dataset, candidate, plan, entry, exit, exit.close, reason, {
     ...options,
     path: pathAt(exit, exit.close),
+    entryIndex,
   });
 }
 
@@ -603,11 +691,14 @@ function tradeResult(
   rawExitPrice: number,
   exitReason: BacktestTrade["exitReason"],
   options: {
+    maxHoldHours: number;
     takerFeeRate: number;
     slippageBps: number;
     policyFeatures: OpportunityPolicyFeatures;
     expectedNetR: number | null;
     path: TradePathMetrics;
+    entryIndex: number;
+    evaluationEndTime: number;
   },
 ): BacktestTrade {
   const direction = candidate.side === "LONG" ? 1 : -1;
@@ -634,11 +725,18 @@ function tradeResult(
     side: candidate.side,
     strategyFamily: candidate.strategyFamily,
     marketRegime: candidate.marketRegime,
+    marketState: candidate.marketState,
     entryTime: entry.closeTime,
     exitTime: exit.closeTime,
     score: candidate.score,
     entryPrice: entryFillPrice,
     exitPrice: exitFillPrice,
+    referenceEntryPrice: entry.close,
+    referenceExitPrice: rawExitPrice,
+    stopPrice: plan.stopPrice,
+    takeProfitPrice: plan.takeProfitPrice,
+    maxHoldHours: options.maxHoldHours,
+    quantity,
     rMultiple,
     pnlUsdt,
     grossPnlUsdt,
@@ -647,8 +745,19 @@ function tradeResult(
     slippageUsdt,
     theoreticalRiskUsdt: plan.theoreticalRiskUsdt,
     policyFeatures: options.policyFeatures,
+    entryEdgeFeatures: candidate.entryEdgeFeatures,
+    reversalRisk: candidate.reversalRisk,
+    momentumPhase: candidate.momentumPhase,
     expectedNetR: options.expectedNetR,
     path: options.path,
+    forward: calculateForwardEdge(
+      dataset.candles["15m"].filter((candle) => candle.closeTime <= options.evaluationEndTime),
+      options.entryIndex,
+      candidate.side,
+      entry.close,
+      Math.abs(entry.close - plan.stopPrice),
+      options.maxHoldHours,
+    ),
     exitReason,
   };
 }
@@ -722,6 +831,18 @@ function summarizeTradeMetrics(
   const grossLossUsdt = Math.abs(trades.filter((trade) => trade.pnlUsdt < 0).reduce((total, trade) => total + trade.pnlUsdt, 0));
   const netPnlUsdt = trades.reduce((total, trade) => total + trade.pnlUsdt, 0);
   const maxDrawdownPercent = input.initialCapitalUsdt === 0 ? 0 : maxDrawdownUsdt / input.initialCapitalUsdt * 100;
+  const orderedR = trades.map((trade) => trade.rMultiple).sort((left, right) => left - right);
+  const cvarCount = Math.max(1, Math.ceil(orderedR.length * 0.05));
+  const cvar95 = orderedR.length === 0 ? 0 : orderedR.slice(0, cvarCount).reduce((sum, value) => sum + value, 0) / cvarCount;
+  const medianNetR = orderedR.length === 0
+    ? 0
+    : orderedR.length % 2 === 0
+      ? (orderedR[orderedR.length / 2 - 1] + orderedR[orderedR.length / 2]) / 2
+      : orderedR[Math.floor(orderedR.length / 2)];
+  const paths = trades.map((trade) => trade.path).filter((path): path is TradePathMetrics => Boolean(path));
+  const forwards = trades.map((trade) => trade.forward).filter((forward): forward is NonNullable<BacktestTrade["forward"]> => Boolean(forward));
+  const horizon24 = forwards.map((forward) => forward.horizon24h);
+  const horizon72 = forwards.map((forward) => forward.horizon72h);
 
   return {
     sampleDays: round(sampleDays, 2),
@@ -743,6 +864,38 @@ function summarizeTradeMetrics(
     finalEquityUsdt: round(equity, 4),
     initialCapitalUsdt: input.initialCapitalUsdt,
     eligible: sampleDays >= input.minimumSampleDays && maxDrawdownPercent <= 30,
+    averageNetR: trades.length === 0 ? 0 : round(trades.reduce((sum, trade) => sum + trade.rMultiple, 0) / trades.length, 4),
+    medianNetR: round(medianNetR, 4),
+    cvar95: round(cvar95, 4),
+    averageMfeR: paths.length === 0 ? 0 : round(paths.reduce((sum, path) => sum + path.maxFavorableR, 0) / paths.length, 4),
+    averageMaeR: paths.length === 0 ? 0 : round(paths.reduce((sum, path) => sum + path.maxAdverseR, 0) / paths.length, 4),
+    averageMfe24h: averageForwardMetric(horizon24, "maxFavorableR"),
+    averageMfe72h: averageForwardMetric(horizon72, "maxFavorableR"),
+    averageMae24h: averageForwardMetric(horizon24, "maxAdverseR"),
+    averageMae72h: averageForwardMetric(horizon72, "maxAdverseR"),
+    rFirst24h: summarizeRFirst(horizon24),
+    rFirst72h: summarizeRFirst(horizon72),
+    stopFirstRate: trades.length === 0 ? 0 : round(trades.filter((trade) => trade.exitReason === "STOP").length / trades.length, 4),
+  };
+}
+
+function averageForwardMetric(
+  metrics: Array<NonNullable<BacktestTrade["forward"]>["horizon24h"]>,
+  key: "maxFavorableR" | "maxAdverseR",
+): number {
+  return metrics.length === 0 ? 0 : round(metrics.reduce((sum, metric) => sum + metric[key], 0) / metrics.length, 4);
+}
+
+function summarizeRFirst(metrics: Array<NonNullable<BacktestTrade["forward"]>["horizon24h"]>): {
+  halfR: number;
+  oneR: number;
+  twoR: number;
+} {
+  if (metrics.length === 0) return { halfR: 0, oneR: 0, twoR: 0 };
+  return {
+    halfR: round(metrics.filter((metric) => metric.pPositiveHalfRBeforeStop).length / metrics.length, 4),
+    oneR: round(metrics.filter((metric) => metric.pPositiveOneRBeforeStop).length / metrics.length, 4),
+    twoR: round(metrics.filter((metric) => metric.pPositiveTwoRBeforeStop).length / metrics.length, 4),
   };
 }
 

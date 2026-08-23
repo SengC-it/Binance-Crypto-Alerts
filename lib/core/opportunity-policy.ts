@@ -1,27 +1,30 @@
 import { closes, ema, latest, rsi } from "./indicators";
 import { classifyRegime } from "./market-regime";
-import type { FundingRatePoint, MarketSnapshot, ScoredCandidate, Side, TradePlan } from "./types";
+import type { FundingDataStatus, FundingRatePoint, MarketSnapshot, ScoredCandidate, Side, TradePlan, MarketStateKey as CoreMarketStateKey } from "./types";
 
-export type MarketStateFilter = "NONE" | "BTC_4H_BEAR" | "BTC_4H_BEAR_1H_WEAK";
-export type MarketStateKey = "BEAR_WEAK" | "BEAR_REBOUND" | "OTHER" | "UNKNOWN";
-export type FundingCostBucket = "FAVORABLE" | "NEUTRAL" | "COSTLY";
+export type MarketStateFilter = "NONE" | "BTC_4H_BEAR" | "BTC_4H_BEAR_1H_WEAK" | "GLOBAL_BEAR_STRONG" | "GLOBAL_BEAR_REBOUND";
+export type MarketStateKey = CoreMarketStateKey;
+export type FundingCostBucket = "FAVORABLE" | "NEUTRAL" | "COSTLY" | "UNKNOWN";
 
 export interface MarketStateAssessment {
   key: MarketStateKey;
   fourHourRegime: ReturnType<typeof classifyRegime>;
   oneHourBelowEma50: boolean | null;
   oneHourRsi: number | null;
+  sourceTimestamp?: number;
 }
 
 export interface OpportunityPolicyFeatures {
   marketState: MarketStateKey;
   projectedFundingCostRiskFraction: number;
   executionCostRiskFraction: number;
+  fundingDataStatus?: FundingDataStatus;
 }
 
 export interface CostAwareSample extends OpportunityPolicyFeatures {
   score: number;
   netR: number;
+  side?: Side;
 }
 
 export interface CostAwareScoreBin {
@@ -41,6 +44,12 @@ export interface CostAwareScoreModel {
   priorWeight: number;
   globalMeanNetR: number;
   bins: CostAwareScoreBin[];
+}
+
+export interface DirectionalCostAwareScoreModel {
+  byDirection: Record<Side, CostAwareScoreModel | null>;
+  minimumSamples: number;
+  minimumExpectedNetR: number;
 }
 
 export function assessMarketState(snapshot: MarketSnapshot): MarketStateAssessment {
@@ -70,6 +79,8 @@ export function passesMarketStateFilter(
 ): boolean {
   if (filter === "NONE") return true;
   if (filter === "BTC_4H_BEAR") return state.fourHourRegime === "BEAR";
+  if (filter === "GLOBAL_BEAR_STRONG") return state.key === "BEAR_STRONG";
+  if (filter === "GLOBAL_BEAR_REBOUND") return state.key === "BEAR_REBOUND";
   return state.key === "BEAR_WEAK";
 }
 
@@ -85,7 +96,7 @@ export function projectedFundingCostRiskFraction(
   const recent = fundingRates
     .filter((point) => point.fundingTime <= sourceTimestamp)
     .slice(-Math.max(1, lookbackPeriods));
-  if (recent.length === 0) return 0;
+  if (recent.length === 0) return Number.POSITIVE_INFINITY;
   const averageRate = recent.reduce((sum, point) => sum + point.fundingRate, 0) / recent.length;
   const direction = side === "LONG" ? 1 : -1;
   const expectedPayments = Math.max(1, expectedHoldHours / 8);
@@ -113,7 +124,7 @@ export function fitCostAwareScoreModel(
   const groups = new Map<string, CostAwareSample[]>();
   for (const sample of valid) {
     const lowerScore = Math.floor(sample.score / bucketSize) * bucketSize;
-    const key = modelBinKey(lowerScore, sample.marketState, fundingBucket(sample.projectedFundingCostRiskFraction));
+    const key = modelBinKey(lowerScore, sample.marketState, fundingBucket(sample.projectedFundingCostRiskFraction, sample.fundingDataStatus));
     const group = groups.get(key) ?? [];
     group.push(sample);
     groups.set(key, group);
@@ -128,7 +139,7 @@ export function fitCostAwareScoreModel(
       key,
       lowerScore,
       marketState: first.marketState,
-      fundingBucket: fundingBucket(first.projectedFundingCostRiskFraction),
+      fundingBucket: fundingBucket(first.projectedFundingCostRiskFraction, first.fundingDataStatus),
       samples: group.length,
       rawMeanNetR: round(rawMeanNetR),
       expectedNetR: round(expectedNetR),
@@ -150,7 +161,7 @@ export function expectedNetR(
   features: OpportunityPolicyFeatures,
 ): number | null {
   const lowerScore = Math.floor(score / model.bucketSize) * model.bucketSize;
-  const key = modelBinKey(lowerScore, features.marketState, fundingBucket(features.projectedFundingCostRiskFraction));
+  const key = modelBinKey(lowerScore, features.marketState, fundingBucket(features.projectedFundingCostRiskFraction, features.fundingDataStatus));
   const bin = model.bins.find((item) => item.key === key);
   return bin && bin.samples >= model.minimumSamples ? bin.expectedNetR : null;
 }
@@ -164,7 +175,43 @@ export function passesCostAwareExpectedValue(
   return prediction !== null && prediction >= model.minimumExpectedNetR;
 }
 
-function fundingBucket(costRiskFraction: number): FundingCostBucket {
+export function fitDirectionalCostAwareScoreModel(
+  samples: Array<CostAwareSample & { side: Side }>,
+  options: Parameters<typeof fitCostAwareScoreModel>[1] = {},
+): DirectionalCostAwareScoreModel {
+  const byDirection: Record<Side, CostAwareScoreModel | null> = { LONG: null, SHORT: null };
+  for (const side of ["LONG", "SHORT"] as const) {
+    const sideSamples = samples.filter((sample) => sample.side === side);
+    byDirection[side] = sideSamples.length === 0 ? null : fitCostAwareScoreModel(sideSamples, options);
+  }
+  return {
+    byDirection,
+    minimumSamples: Math.max(1, Math.floor(options.minimumSamples ?? 80)),
+    minimumExpectedNetR: options.minimumExpectedNetR ?? 0.01,
+  };
+}
+
+export function expectedDirectionalNetR(
+  model: DirectionalCostAwareScoreModel,
+  side: Side,
+  score: number,
+  features: OpportunityPolicyFeatures,
+): number | null {
+  const sideModel = model.byDirection[side];
+  return sideModel ? expectedNetR(sideModel, score, features) : null;
+}
+
+export function passesDirectionalCostAwareExpectedValue(
+  model: DirectionalCostAwareScoreModel,
+  candidate: ScoredCandidate,
+  features: OpportunityPolicyFeatures,
+): boolean {
+  const sideModel = model.byDirection[candidate.side];
+  return Boolean(sideModel && passesCostAwareExpectedValue(sideModel, candidate, features));
+}
+
+function fundingBucket(costRiskFraction: number, status?: FundingDataStatus): FundingCostBucket {
+  if (status === "UNKNOWN" || !Number.isFinite(costRiskFraction)) return "UNKNOWN";
   if (costRiskFraction <= 0) return "FAVORABLE";
   if (costRiskFraction <= 0.02) return "NEUTRAL";
   return "COSTLY";

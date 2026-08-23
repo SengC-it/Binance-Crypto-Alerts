@@ -94,8 +94,19 @@ async function main() {
   const manifestSymbols = await loadUniverseSymbols(process.env.CS_VALIDATION_UNIVERSE_FILE);
   const requestedSymbols = directSymbols.length > 0 ? directSymbols : manifestSymbols;
   const targetSymbolCount = requestedSymbols.length > 0 ? requestedSymbols.length : validationSymbolCount;
+  const cacheDir = resolve("data/validation-cache");
   const client = new BinancePublicClient(process.env.BINANCE_API_BASE_URL);
-  const universe = await client.getUniverse();
+  let universe: Instrument[];
+  try {
+    universe = await client.getUniverse();
+  } catch (error) {
+    if (requestedSymbols.length === 0) throw error;
+    console.warn(JSON.stringify({
+      stage: "using_cached_universe_metadata",
+      reason: error instanceof Error ? error.message : String(error),
+    }));
+    universe = await loadCachedUniverse(cacheDir, requestedSymbols, windowEnd);
+  }
   const selectedInstruments = selectInstruments(universe, requestedSymbols, validationSymbolCount);
   const candidateInstruments = focus === "multi-year-quarterly-walk-forward-regime"
     ? selectedInstruments.filter((instrument) => instrument.onboardDate === undefined || instrument.onboardDate <= warmupStart)
@@ -115,7 +126,6 @@ async function main() {
     validationYears,
   }));
 
-  const cacheDir = resolve("data/validation-cache");
   await mkdir(cacheDir, { recursive: true });
   const datasets: HistoricalDataset[] = [];
   for (const instrument of candidateInstruments) {
@@ -179,6 +189,22 @@ async function main() {
     throw new Error(`Only ${datasets.length} of ${requiredDatasetCount} eligible symbols have at least ${validationYears} year(s) of complete history`);
   }
   const instruments = datasets.map((dataset) => dataset.instrument);
+
+  if (focus === "directional-entry-validation") {
+    await writeDirectionalEntryValidationReport({
+      datasets,
+      windowStart,
+      windowEnd,
+      oosStart,
+      warmupStart,
+      feeRate,
+      slippageBps,
+      concurrency,
+      interSymbolDelayMs,
+      symbols: instruments.map((instrument) => instrument.symbol),
+    });
+    return;
+  }
 
   if (focus === "entry-edge-redesign") {
     await writeEntryEdgeRedesignReport({
@@ -408,6 +434,9 @@ async function main() {
     };
   });
 
+  // Legacy reports must not use the out-of-sample window to select a winner.
+  // V5 policy selection is handled by scripts/run-v5-validation.ts with an
+  // explicit purged validation window and frozen holdout.
   results.sort((left, right) => rankResult(right) - rankResult(left));
   const report = {
     generatedAt: new Date().toISOString(),
@@ -1407,6 +1436,209 @@ async function writeEntryEdgeRedesignReport(input: {
     results: report.results,
     attribution: report.attribution,
   }, null, 2));
+}
+
+async function writeDirectionalEntryValidationReport(input: {
+  datasets: HistoricalDataset[];
+  windowStart: number;
+  windowEnd: number;
+  oosStart: number;
+  warmupStart: number;
+  feeRate: number;
+  slippageBps: number;
+  concurrency: number;
+  interSymbolDelayMs: number;
+  symbols: string[];
+}) {
+  const baseVariant = createVariants(70, input.feeRate, input.slippageBps, "production-aligned-selected")[0];
+  const params = { ...baseVariant.params, entryMode: "TREND_REJECTION" as const };
+  const shortOptions = { ...baseVariant.options, sideFilter: "SHORT" as const };
+  const longOptions = { ...baseVariant.options, sideFilter: "LONG" as const };
+  const combinedOptions = { ...baseVariant.options };
+  delete combinedOptions.sideFilter;
+  const benchmarkDataset = input.datasets.find((dataset) => dataset.symbol === "BTCUSDT");
+  if (!benchmarkDataset) throw new Error("BTCUSDT is required for directional entry validation");
+  const context = { benchmarkDataset, marketStateCache: new Map() };
+  const candidateCaches = input.datasets.map((dataset) => buildCandidateCache(
+    dataset,
+    params,
+    input.windowEnd,
+    baseVariant.options.entryIntervalHours,
+  ));
+  const run = (options: BacktestOptions) => runPortfolioBacktest(input.datasets, params, {
+    ...options,
+    candidateCaches,
+    evaluationStartTime: input.windowStart,
+    evaluationEndTime: input.windowEnd,
+  }, context);
+  const shortRun = run(shortOptions);
+  const longRun = run(longOptions);
+  const combinedRun = run(combinedOptions);
+  const trainEnd = input.oosStart - (MAX_HOLD_HOURS + 8) * HOUR;
+  const trainMidpoint = input.windowStart + Math.floor((trainEnd - input.windowStart) / 2);
+  const scenarioProfitFactorFloor = input.feeRate >= 0.0006 || input.slippageBps >= 4 ? 1.05 : 1.15;
+
+  const evaluateDirection = (trades: BacktestTrade[]) => {
+    const trainTrades = tradesInWindow(trades, input.windowStart, trainEnd);
+    const oosTrades = tradesInWindow(trades, input.oosStart, input.windowEnd);
+    const firstHalf = summarize(tradesInWindow(trainTrades, input.windowStart, trainMidpoint - (MAX_HOLD_HOURS + 8) * HOUR));
+    const secondHalf = summarize(tradesInWindow(trainTrades, trainMidpoint, trainEnd));
+    const train = summarize(trainTrades);
+    const outOfSample = summarize(oosTrades);
+    const outOfSampleByMonth = summarizeAttribution(oosTrades, (trade) => new Date(trade.entryTime).toISOString().slice(0, 7));
+    const positiveMonths = outOfSampleByMonth.filter((month) => month.netPnlUsdt > 0).length;
+    const positiveMonthRatio = outOfSampleByMonth.length === 0 ? 0 : positiveMonths / outOfSampleByMonth.length;
+    const trainGate = train.signals >= 60
+      && train.netPnlUsdt > 0
+      && train.profitFactor >= 1.05
+      && train.maxDrawdownPercent <= 10
+      && firstHalf.netPnlUsdt > 0
+      && secondHalf.netPnlUsdt > 0;
+    const outOfSampleGate = outOfSample.signals >= 20
+      && outOfSample.netPnlUsdt > 0
+      && outOfSample.profitFactor >= scenarioProfitFactorFloor
+      && outOfSample.maxDrawdownPercent <= 10
+      && positiveMonthRatio >= 0.6;
+    return {
+      full: summarize(trades),
+      train,
+      outOfSample,
+      stability: { firstHalf, secondHalf },
+      attribution: {
+        outOfSampleByMonth,
+        outOfSampleByMarketStage: summarizeAttribution(oosTrades, (trade) => trade.policyFeatures?.marketState ?? "UNKNOWN"),
+      },
+      gate: {
+        train: trainGate,
+        outOfSample: outOfSampleGate,
+        provisional: trainGate && outOfSampleGate,
+        positiveMonths,
+        observedMonths: outOfSampleByMonth.length,
+        positiveMonthRatio: round(positiveMonthRatio, 4),
+        productionEvidence: outOfSample.signals >= 300 && outOfSampleByMonth.length >= 12,
+      },
+    };
+  };
+
+  const short = evaluateDirection(shortRun.trades);
+  const long = evaluateDirection(longRun.trades);
+  const combined = evaluateDirection(combinedRun.trades);
+  const combinedOosTrades = tradesInWindow(combinedRun.trades, input.oosStart, input.windowEnd);
+  const shortOosTrades = tradesInWindow(shortRun.trades, input.oosStart, input.windowEnd);
+  const longOosTrades = tradesInWindow(longRun.trades, input.oosStart, input.windowEnd);
+  const combinedBySide = summarizeAttribution(combinedOosTrades, (trade) => trade.side);
+  const combinedLong = combinedBySide.find((row) => row.key === "LONG");
+  const combinedShort = combinedBySide.find((row) => row.key === "SHORT");
+  const combinationGate = short.gate.provisional
+    && long.gate.provisional
+    && combined.gate.provisional
+    && combined.outOfSample.netPnlUsdt > short.outOfSample.netPnlUsdt
+    && (combinedLong?.netPnlUsdt ?? 0) > 0
+    && (combinedShort?.netPnlUsdt ?? 0) > 0;
+  const report = {
+    generatedAt: new Date().toISOString(),
+    purpose: "Independent SHORT/LONG TREND_REJECTION validation followed by a shared-capital combined diagnostic",
+    window: {
+      start: new Date(input.windowStart).toISOString(),
+      end: new Date(input.windowEnd).toISOString(),
+      warmupStart: new Date(input.warmupStart).toISOString(),
+      trainEnd: new Date(trainEnd).toISOString(),
+      outOfSampleStart: new Date(input.oosStart).toISOString(),
+      embargoHours: MAX_HOLD_HOURS + 8,
+    },
+    assumptions: {
+      feeRate: input.feeRate,
+      slippageBps: input.slippageBps,
+      entryMode: params.entryMode,
+      frozenRiskAndExit: "100U margin ceiling, 20x leverage ceiling, 50U risk target, 0.5 ATR stop padding, 2R take profit, 72h maximum hold",
+      portfolioConstraints: "shared 10,000U capital, one concurrent position, eight-hour per-symbol cooldown",
+      provisionalDirectionGate: `train: >=60 trades, positive, PF >= 1.05, DD <= 10%, positive halves; OOS: >=20 trades, positive, PF >= ${scenarioProfitFactorFloor}, DD <= 10%, >=60% positive observed month buckets`,
+      productionEvidenceGate: ">=300 OOS trades and >=12 observed month buckets; reported separately from the provisional gate",
+      combinationRule: "LONG and SHORT must pass independently before the combined policy can be promoted; both accepted sides must remain profitable",
+    },
+    directions: { short, long },
+    combined: {
+      ...combined,
+      attribution: {
+        ...combined.attribution,
+        outOfSampleBySide: combinedBySide,
+      },
+      eligibleForPromotion: combinationGate,
+    },
+    competition: {
+      isolatedAcceptedOutOfSample: {
+        short: shortOosTrades.length,
+        long: longOosTrades.length,
+        total: shortOosTrades.length + longOosTrades.length,
+      },
+      combinedAcceptedOutOfSample: {
+        short: combinedShort?.signals ?? 0,
+        long: combinedLong?.signals ?? 0,
+        total: combinedOosTrades.length,
+      },
+      displacedAcceptedTrades: shortOosTrades.length + longOosTrades.length - combinedOosTrades.length,
+      fullWindowPortfolioRejections: combinedRun.rejectionCounts,
+      crossSideOverlappingIsolatedTrades: countCrossSideOverlaps(shortOosTrades, longOosTrades),
+    },
+    correlation: {
+      isolatedDailyPnlPearsonOutOfSample: dailyPnlCorrelation(shortOosTrades, longOosTrades),
+      note: "Daily isolated-strategy PnL correlation; with one combined concurrent position, live simultaneous exposure is prohibited by construction.",
+    },
+    recommendation: combinationGate ? "ELIGIBLE_FOR_EXTENDED_ROLLING_VALIDATION" : "KEEP_DIRECTIONS_SEPARATE",
+    universe: { symbols: input.symbols, selection: "explicit frozen 50-symbol manifest" },
+    runSettings: { concurrency: input.concurrency, interSymbolDelayMs: input.interSymbolDelayMs },
+  };
+  const reportPath = resolve("reports", validationReportFileName("directional-entry-validation", input.feeRate, input.slippageBps));
+  await mkdir(resolve("reports"), { recursive: true });
+  await writeFile(reportPath, JSON.stringify(report, null, 2) + "\n", "utf8");
+  console.info(JSON.stringify({
+    ok: true,
+    reportPath,
+    directions: report.directions,
+    combined: report.combined,
+    competition: report.competition,
+    correlation: report.correlation,
+    recommendation: report.recommendation,
+  }, null, 2));
+}
+
+function countCrossSideOverlaps(shortTrades: BacktestTrade[], longTrades: BacktestTrade[]): number {
+  return shortTrades.filter((shortTrade) => longTrades.some((longTrade) => (
+    shortTrade.entryTime < longTrade.exitTime && longTrade.entryTime < shortTrade.exitTime
+  ))).length + longTrades.filter((longTrade) => shortTrades.some((shortTrade) => (
+    longTrade.entryTime < shortTrade.exitTime && shortTrade.entryTime < longTrade.exitTime
+  ))).length;
+}
+
+function dailyPnlCorrelation(shortTrades: BacktestTrade[], longTrades: BacktestTrade[]): number | null {
+  const dailyPnl = (trades: BacktestTrade[]) => {
+    const values = new Map<string, number>();
+    for (const trade of trades) {
+      const day = new Date(trade.exitTime).toISOString().slice(0, 10);
+      values.set(day, (values.get(day) ?? 0) + trade.pnlUsdt);
+    }
+    return values;
+  };
+  const shortByDay = dailyPnl(shortTrades);
+  const longByDay = dailyPnl(longTrades);
+  const days = [...new Set([...shortByDay.keys(), ...longByDay.keys()])].sort();
+  if (days.length < 2) return null;
+  const shortValues = days.map((day) => shortByDay.get(day) ?? 0);
+  const longValues = days.map((day) => longByDay.get(day) ?? 0);
+  const shortMean = shortValues.reduce((sum, value) => sum + value, 0) / days.length;
+  const longMean = longValues.reduce((sum, value) => sum + value, 0) / days.length;
+  let covariance = 0;
+  let shortVariance = 0;
+  let longVariance = 0;
+  for (let index = 0; index < days.length; index += 1) {
+    const shortDelta = shortValues[index] - shortMean;
+    const longDelta = longValues[index] - longMean;
+    covariance += shortDelta * longDelta;
+    shortVariance += shortDelta ** 2;
+    longVariance += longDelta ** 2;
+  }
+  const denominator = Math.sqrt(shortVariance * longVariance);
+  return denominator === 0 ? null : round(covariance / denominator, 4);
 }
 
 interface DynamicExitCandidate {
@@ -2603,12 +2835,9 @@ function passesSuggestedGate(metrics: Metrics): boolean {
 }
 
 function rankResult(result: {
-  outOfSample: Metrics;
-  passesSuggestedGate: boolean;
+  train: Metrics;
 }): number {
-  return (result.passesSuggestedGate ? 1_000_000 : 0)
-    + result.outOfSample.netPnlUsdt
-    - result.outOfSample.maxDrawdownUsdt;
+  return result.train.netPnlUsdt - result.train.maxDrawdownUsdt;
 }
 
 function selectInstruments(universe: Instrument[], symbols: string[], symbolCount: number): Instrument[] {
@@ -2692,6 +2921,24 @@ function timestampEnv(name: string): number | undefined {
 function round(value: number, digits: number): number {
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
+}
+
+async function loadCachedUniverse(
+  cacheDir: string,
+  symbols: string[],
+  requestedEndTime: number,
+): Promise<Instrument[]> {
+  const instruments: Instrument[] = [];
+  const missing: string[] = [];
+  for (const symbol of symbols) {
+    const dataset = await loadLatestPriorCache(cacheDir, symbol, requestedEndTime);
+    if (dataset) instruments.push(dataset.instrument);
+    else missing.push(symbol);
+  }
+  if (missing.length > 0) {
+    throw new Error("No cached validation metadata for: " + missing.join(", "));
+  }
+  return instruments;
 }
 
 async function loadLatestPriorCache(

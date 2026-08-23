@@ -15,6 +15,14 @@
 - Supabase 写入或扫描主流程失败时，尝试绕过 Supabase 直接通过 Gmail SMTP 发送严重故障告警。
 - Supabase 只保存 `bca_` 前缀的最新结果、信号事件、扫描状态和优化结果；原始历史行情放在本地 `data/raw/`，不会提交到公开仓库。
 
+### V5 Signal Edge 状态
+
+当前线上 Production 保持为 Control：`trend-rejection-short-v1`、SHORT 默认方向、原有评分/风控/限流均不自动切换。V5 使用独立的 `V5_SIGNAL_EDGE` shadow 通道，只有在注册表存在 `APPROVED` policy、方向批准、校准样本、成本后 Expected Net R、stress 和门禁证据齐全时，才会被标为 A；扫描路由仍不会因为 A 自动替换 Control。
+
+V5 的候选必须同时满足：已收盘 `15m` setup、`1h/4h` 趋势确认、全局 BTC/ETH/市场 breadth 状态已知、pullback → rejection/re-break 触发，以及距离 EMA/结构、动量、波动和成交量的 no-chase 约束。LONG/SHORT 独立校准、独立 admission、独立 walk-forward 与 promotion；未知状态、缺模型或缺 policy 一律不进入生产。
+
+Dashboard 会分别展示 Control 信号与 V5 的 A / Watch(B) / Reject(C)、market state、setup、entry trigger、policy version 和拒绝原因。V5 只写 shadow candidate / shadow paper ledger，不连接私有 API、不自动开仓或平仓。
+
 ## 架构
 
 ```mermaid
@@ -46,11 +54,12 @@ pnpm dev
 
 ## Supabase
 
-迁移文件：[`supabase/migrations/20260808235907_bca_initial_schema.sql`](./supabase/migrations/20260808235907_bca_initial_schema.sql)、[`supabase/migrations/20260809000642_bca_claim_signal_fix.sql`](./supabase/migrations/20260809000642_bca_claim_signal_fix.sql) 和 [`supabase/migrations/20260809013349_bca_namespace_marker.sql`](./supabase/migrations/20260809013349_bca_namespace_marker.sql)。所有数据库表、函数、索引、触发器和定时任务均直接使用 `bca_` 前缀，不会创建或改名其他项目的对象：
+迁移文件：[`supabase/migrations/20260808235907_bca_initial_schema.sql`](./supabase/migrations/20260808235907_bca_initial_schema.sql)、[`supabase/migrations/20260809000642_bca_claim_signal_fix.sql`](./supabase/migrations/20260809000642_bca_claim_signal_fix.sql)、[`supabase/migrations/20260809013349_bca_namespace_marker.sql`](./supabase/migrations/20260809013349_bca_namespace_marker.sql) 和 [`supabase/migrations/20260823160000_bca_v5_signal_edge.sql`](./supabase/migrations/20260823160000_bca_v5_signal_edge.sql)。V5 migration 只做 additive schema 变更，不 seed `APPROVED` policy；所有数据库表、函数、索引、触发器和定时任务均直接使用 `bca_` 前缀，不会创建或改名其他项目的对象：
 
 - `bca_instruments`、`bca_scan_runs`、`bca_signals`、`bca_signal_events`
 - `bca_risk_budgets`、`bca_notifications`、`bca_system_events`
 - `bca_strategy_versions`、`bca_backtest_runs`、`bca_app_settings`
+- `bca_policy_registry`、`bca_shadow_candidates`、`bca_shadow_paper_trades`
 - `bca_claim_signal`、`bca_set_updated_at` 函数及对应索引/触发器
 
 所有新表已启用 RLS，未给匿名用户创建策略；服务端使用 Supabase service key。不要把 service key、Gmail App Password 或 `CRON_SECRET` 放入公开仓库或 `NEXT_PUBLIC_*` 变量。
@@ -65,7 +74,7 @@ GitHub Actions 月度优化需要配置仓库 Secrets：`SUPABASE_URL`、`SUPABA
 
 ## 回测与参数优化
 
-先设置 `CS_HISTORY_SYMBOLS`，再运行 `pnpm history:download` 从 Binance 公共接口下载本地历史 K 线和资金费率；建议先从 BTC/ETH 等少量代表币种开始，确认存储空间和运行时间后再扩大到更多币种。`pnpm optimizer` 从 `data/raw/*.json` 读取本地历史数据，生成 54 组参数变体，按 9 个月训练 + 3 个月样本外评估，并以最大回撤 30% 作为资格线。合格的版本写入 `bca_strategy_versions`，运行摘要写入 `bca_backtest_runs`。
+先设置 `CS_HISTORY_SYMBOLS`，再运行 `pnpm history:download` 从 Binance 公共接口下载本地历史 K 线和资金费率；建议先从 BTC/ETH 等少量代表币种开始，确认存储空间和运行时间后再扩大到更多币种。`pnpm validate` 是 V5 主验证入口：按固定 train → purged validation → frozen holdout 顺序运行，校准和参数选择只使用 train/validation，holdout 只在选择完成后评估，并输出 forward edge、MFE/MAE、R-first、T+1m/T+5m/T+15m 与 5/10/20bps stress。`pnpm validate:legacy` 保留旧报告脚本，仅用于历史对照。`pnpm optimizer` 从 `data/raw/*.json` 读取本地历史数据，按 6 个月训练 + 72 小时 purge + 3 个月 validation + 冻结 holdout 排序，不使用 holdout 选参；结果写入 `bca_strategy_versions`（兼容历史）及 `bca_policy_registry`（策略状态）。
 
 数据文件需要包含一个 symbol、交易所过滤器和至少一年的已收盘 `15m` K 线，可选带 `1h`、`4h` K 线。数据不足一年时不会被标记为合格。原始文件被 `.gitignore` 排除。
 

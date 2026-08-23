@@ -20,6 +20,10 @@ export interface ScoreCalibrationBin {
   samples: number;
   rawMeanNetR: number;
   meanNetR: number;
+  lowerConfidenceBound: number;
+  edgeConfidence: number;
+  winProbability: number;
+  /** Legacy alias retained for historical reports. */
   winRate: number;
 }
 
@@ -41,6 +45,16 @@ export interface ScoreCalibrationFitOptions {
   priorWeight?: number;
 }
 
+export interface DirectionalScoreCalibrationSample extends ScoreCalibrationSample {
+  side: Side;
+}
+
+export interface DirectionalScoreCalibrationModel {
+  byDirection: Record<Side, ScoreCalibrationModel | null>;
+  minimumSamples: number;
+  minimumExpectedNetR: number;
+}
+
 const WEIGHTS: Record<keyof ScoreComponents, number> = {
   trendAlignment: 0.2,
   momentum: 0.16,
@@ -60,6 +74,7 @@ export function scoreCandidate(candidate: StrategyCandidate): ScoredCandidate {
   return {
     ...candidate,
     score: round(weightedScore * 100, 3),
+    structuralScore: round(weightedScore * 100, 3),
     scoreComponents: normalizeComponents(candidate.scoreComponents),
   };
 }
@@ -120,6 +135,18 @@ export function fitScoreCalibration(
       const meanNetR = (rawMeanNetR * bucket.samples.length + globalMeanNetR * priorWeight)
         / (bucket.samples.length + priorWeight);
       const wins = bucket.samples.filter((sample) => sample.netR > 0).length;
+      const variance = bucket.samples.reduce((total, sample) => total + (sample.netR - rawMeanNetR) ** 2, 0) / Math.max(1, bucket.samples.length - 1);
+      const standardError = Math.sqrt(variance) / Math.sqrt(bucket.samples.length);
+      const lowerConfidenceBound = meanNetR - 1.645 * standardError;
+      // The admission layer already hard-rejects bins below minimumSamples.
+      // Once that floor is met, edge confidence measures the uncertainty of
+      // the net-R estimate rather than double-counting the same sample gate.
+      const sampleReliability = Math.min(1, bucket.samples.length / minimumSamples);
+      const positiveEdgeReliability = lowerConfidenceBound <= 0
+        ? 0
+        : 0.5 + 0.5 * clamp01(lowerConfidenceBound / (Math.abs(meanNetR) + 0.5));
+      const edgeConfidence = sampleReliability * positiveEdgeReliability;
+      const winProbability = (wins + priorWeight * 0.5) / (bucket.samples.length + priorWeight);
       return {
         key,
         strategyFamily: bucket.strategyFamily,
@@ -128,6 +155,9 @@ export function fitScoreCalibration(
         samples: bucket.samples.length,
         rawMeanNetR: round(rawMeanNetR, 6),
         meanNetR: round(meanNetR, 6),
+        lowerConfidenceBound: round(lowerConfidenceBound, 6),
+        edgeConfidence: round(edgeConfidence, 6),
+        winProbability: round(winProbability, 6),
         winRate: round(wins / bucket.samples.length, 6),
       };
     });
@@ -163,6 +193,45 @@ export function passesEmpiricalScoreCalibration(
     && bin.samples >= model.minimumSamples
     && bin.meanNetR >= model.minimumExpectedNetR,
   );
+}
+
+export function fitDirectionalScoreCalibration(
+  samples: DirectionalScoreCalibrationSample[],
+  options: ScoreCalibrationFitOptions = {},
+): DirectionalScoreCalibrationModel {
+  const byDirection: Record<Side, ScoreCalibrationModel | null> = {
+    LONG: null,
+    SHORT: null,
+  };
+  for (const side of ["LONG", "SHORT"] as const) {
+    const sideSamples = samples.filter((sample) => sample.side === side);
+    byDirection[side] = sideSamples.length === 0 ? null : fitScoreCalibration(sideSamples, options);
+  }
+  return {
+    byDirection,
+    minimumSamples: Math.max(1, Math.floor(options.minimumSamples ?? 40)),
+    minimumExpectedNetR: options.minimumExpectedNetR ?? 0.02,
+  };
+}
+
+export function expectedDirectionalNetR(
+  model: DirectionalScoreCalibrationModel,
+  side: Side,
+  score: number,
+  strategyFamily?: StrategyCandidate["strategyFamily"],
+): number | null {
+  const sideModel = model.byDirection[side];
+  return sideModel ? expectedNetRForScore(sideModel, score, strategyFamily) : null;
+}
+
+export function passesDirectionalEmpiricalScoreCalibration(
+  model: DirectionalScoreCalibrationModel,
+  side: Side,
+  score: number,
+  strategyFamily?: StrategyCandidate["strategyFamily"],
+): boolean {
+  const sideModel = model.byDirection[side];
+  return Boolean(sideModel && passesEmpiricalScoreCalibration(sideModel, score, strategyFamily));
 }
 
 function normalizeComponents(components: ScoreComponents): ScoreComponents {

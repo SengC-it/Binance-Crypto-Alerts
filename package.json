@@ -13,8 +13,12 @@
     "test:watch": "vitest",
     "history:download": "tsx scripts/download-history.ts",
     "optimizer": "tsx scripts/run-optimizer.ts",
-    "validate": "tsx scripts/run-validation.ts",
-    "backtest": "tsx scripts/run-backtest.ts"
+    "validate": "tsx scripts/run-v5-validation.ts",
+    "validate:legacy": "tsx scripts/run-validation.ts",
+    "validate:v5": "tsx scripts/run-v5-validation.ts",
+    "backtest": "tsx scripts/run-backtest.ts",
+    "analyze:degradation": "tsx scripts/analyze-degradation.ts",
+    "validate:integrity": "tsx scripts/check-v5-validation-integrity.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
