@@ -13,8 +13,7 @@ supabase/.temp/
 data/raw/*
 !data/raw/.gitkeep
 data/validation-cache/
-reports/*
-!reports/degradation-analysis-summary.json
+reports/
 
 .vercel
 .env*
