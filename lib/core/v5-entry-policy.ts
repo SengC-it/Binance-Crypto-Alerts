@@ -9,9 +9,12 @@ import {
 import type {
   AdmissionRejectionReason,
   Candle,
+  EntryEdgeFeatures,
   MarketSnapshot,
+  MomentumPhase,
   NoChaseAssessment,
   NoChaseFeatures,
+  ReversalRisk,
   ScoredCandidate,
   SetupType,
   Side,
@@ -82,6 +85,22 @@ export const NO_CHASE_POLICIES: Record<NoChasePolicyVariant, NoChasePolicy> = {
 };
 
 export const DEFAULT_NO_CHASE_POLICY = NO_CHASE_POLICIES.BALANCED;
+
+export interface V51EntryEdgePolicy {
+  maxReversalRisk: ReversalRisk;
+  maxSetupAgeBars: number;
+  maxPullbackRecencyBars: number;
+  maxBreakoutExtensionAtr: number;
+  requireBtcEthBreadthConfirmation: boolean;
+}
+
+export const DEFAULT_V51_ENTRY_EDGE_POLICY: V51EntryEdgePolicy = {
+  maxReversalRisk: "MEDIUM",
+  maxSetupAgeBars: 16,
+  maxPullbackRecencyBars: 6,
+  maxBreakoutExtensionAtr: 0.75,
+  requireBtcEthBreadthConfirmation: true,
+};
 
 export interface V5EntryDiagnostics {
   candidate: StrategyCandidate | null;
@@ -219,6 +238,60 @@ export function generateV5Candidate(
       noChase.passed ? "No-chase filter passed" : `No-chase filter failed: ${noChase.reasons.join(",")}`,
     ],
   };
+}
+
+export function generateV51Candidate(
+  snapshot: MarketSnapshot,
+  params: StrategyParams,
+  noChasePolicy: NoChasePolicy = params.noChasePolicy ?? DEFAULT_NO_CHASE_POLICY,
+  edgePolicy: V51EntryEdgePolicy = DEFAULT_V51_ENTRY_EDGE_POLICY,
+): StrategyCandidate | null {
+  const base = generateV5Candidate(snapshot, params, noChasePolicy);
+  if (!base) return null;
+  const edgeFeatures = buildEntryEdgeFeatures(snapshot, base);
+  if (!passesV51EntryEdge(edgeFeatures, edgePolicy)) return null;
+  const entryQuality = v51EntryQuality(base.side, edgeFeatures);
+  const momentum = momentumScore(base.side, edgeFeatures);
+  return {
+    ...base,
+    entryQuality,
+    entryEdgeFeatures: edgeFeatures,
+    reversalRisk: edgeFeatures.reversalRisk,
+    momentumPhase: edgeFeatures.momentumPhase,
+    scoreComponents: {
+      ...base.scoreComponents,
+      momentum,
+      structure: entryQuality,
+      regimeFit: edgeFeatures.marketConfirmation.btcAligned
+        && edgeFeatures.marketConfirmation.ethAligned
+        && edgeFeatures.marketConfirmation.breadthAligned
+        ? 1
+        : 0.55,
+    },
+    rationale: [
+      ...base.rationale,
+      "V5.1 location-quality filter passed",
+      "BTC + ETH + breadth confirmation passed",
+      "Momentum phase: " + edgeFeatures.momentumPhase,
+      "Reversal risk: " + edgeFeatures.reversalRisk,
+    ],
+  };
+}
+
+export function generateV51CandidateWithDiagnostics(
+  snapshot: MarketSnapshot,
+  params: StrategyParams,
+  noChasePolicy: NoChasePolicy = params.noChasePolicy ?? DEFAULT_NO_CHASE_POLICY,
+  edgePolicy: V51EntryEdgePolicy = DEFAULT_V51_ENTRY_EDGE_POLICY,
+): V5EntryDiagnostics {
+  const candidate = generateV51Candidate(snapshot, params, noChasePolicy, edgePolicy);
+  if (candidate) return { candidate, rejectionReasons: [] };
+  const base = generateV5Candidate(snapshot, params, noChasePolicy);
+  if (base) return { candidate: null, rejectionReasons: ["ENTRY_EDGE_REJECTED"] };
+  if (!snapshot.globalMarketState || snapshot.globalMarketState.key === "UNKNOWN") {
+    return { candidate: null, rejectionReasons: ["UNKNOWN_MARKET_STATE"] };
+  }
+  return { candidate: null, rejectionReasons: ["NO_TRIGGER"] };
 }
 
 export function generateV5CandidateWithDiagnostics(
@@ -360,6 +433,173 @@ function entryQualityScore(side: Side, features: NoChaseFeatures, noChase: NoCha
     ? clamp01(1 - Math.max(0, features.rsi - 55) / 25)
     : clamp01(1 - Math.max(0, 45 - features.rsi) / 25);
   return clamp01((distanceScore * 0.4) + (extensionScore * 0.35) + (momentumScore * 0.25) - (noChase.passed ? 0 : 0.35));
+}
+
+function buildEntryEdgeFeatures(snapshot: MarketSnapshot, candidate: StrategyCandidate): EntryEdgeFeatures {
+  const candles = closedCandles(snapshot);
+  const current = candles.at(-1);
+  const atrValues = atr(candles, 14);
+  const currentAtr = latest(atrValues) ?? 0;
+  const values = closes(candles);
+  const fast = latest(ema(values, 20)) ?? current?.close ?? 0;
+  const slow = latest(ema(values, 50)) ?? current?.close ?? 0;
+  const noChase = candidate.noChase?.features;
+  const pullbackIndex = findLatestPullbackIndex(candles, fast, slow, currentAtr, candidate.side);
+  const pullbackRecencyBars = pullbackIndex < 0 ? Number.POSITIVE_INFINITY : candles.length - 1 - pullbackIndex;
+  const recentReference = candles.at(-9)?.close ?? current?.close ?? 0;
+  const recentDirectionalMoveAtr = current && currentAtr > 0
+    ? Math.abs(current.close - recentReference) / currentAtr
+    : Number.POSITIVE_INFINITY;
+  const body = current && currentAtr > 0 ? Math.abs(current.close - current.open) / currentAtr : Number.POSITIVE_INFINITY;
+  const upperWick = current && currentAtr > 0
+    ? (current.high - Math.max(current.open, current.close)) / currentAtr
+    : Number.POSITIVE_INFINITY;
+  const lowerWick = current && currentAtr > 0
+    ? (Math.min(current.open, current.close) - current.low) / currentAtr
+    : Number.POSITIVE_INFINITY;
+  const distanceFromFast = noChase?.distanceToFastEmaAtr ?? Number.POSITIVE_INFINITY;
+  const distanceFromSlow = noChase?.distanceToSlowEmaAtr ?? Number.POSITIVE_INFINITY;
+  const distanceFromStructure = noChase?.distanceToStructureAtr ?? Number.POSITIVE_INFINITY;
+  const breakoutExtension = noChase?.breakoutExtensionAtr ?? Number.POSITIVE_INFINITY;
+  const marketState = snapshot.globalMarketState;
+  const btcAligned = candidate.side === "LONG"
+    ? marketState?.btcRegime === "BULL"
+    : marketState?.btcRegime === "BEAR";
+  const ethAligned = candidate.side === "LONG"
+    ? (marketState?.ethRegime === undefined || marketState.ethRegime === "BULL")
+    : (marketState?.ethRegime === undefined || marketState.ethRegime === "BEAR");
+  const breadthAligned = marketState?.breadth !== null && marketState?.breadth !== undefined
+    && (candidate.side === "LONG" ? marketState.breadth >= 0.35 : marketState.breadth <= 0.65);
+  const rsiValue = noChase?.rsi ?? Number.NaN;
+  const momentumPhase = classifyMomentumPhase(candidate.side, rsiValue, recentDirectionalMoveAtr, distanceFromSlow, breakoutExtension);
+  const reversalRisk = classifyReversalRisk(
+    candidate.side,
+    candidate.marketState,
+    rsiValue,
+    recentDirectionalMoveAtr,
+    distanceFromSlow,
+    momentumPhase,
+  );
+  return {
+    distanceFromFastEmaAtr: distanceFromFast,
+    distanceFromSlowEmaAtr: distanceFromSlow,
+    distanceFromStructureAtr: distanceFromStructure,
+    recentDirectionalMoveAtr,
+    setupAgeBars: pullbackIndex < 0 ? Number.POSITIVE_INFINITY : candles.length - 1 - pullbackIndex,
+    pullbackRecencyBars,
+    breakoutExtensionAtr: breakoutExtension,
+    candleBodyAtr: body,
+    upperWickAtr: upperWick,
+    lowerWickAtr: lowerWick,
+    rsi: rsiValue,
+    reversalRisk,
+    momentumPhase,
+    marketConfirmation: {
+      btcAligned: Boolean(btcAligned),
+      ethAligned: Boolean(ethAligned),
+      breadthAligned: Boolean(breadthAligned),
+    },
+  };
+}
+
+function passesV51EntryEdge(features: EntryEdgeFeatures, policy: V51EntryEdgePolicy): boolean {
+  const values = [
+    features.distanceFromFastEmaAtr,
+    features.distanceFromSlowEmaAtr,
+    features.distanceFromStructureAtr,
+    features.recentDirectionalMoveAtr,
+    features.setupAgeBars,
+    features.pullbackRecencyBars,
+    features.breakoutExtensionAtr,
+    features.candleBodyAtr,
+    features.upperWickAtr,
+    features.lowerWickAtr,
+  ];
+  if (values.some((value) => !Number.isFinite(value))) return false;
+  if (riskRank(features.reversalRisk) > riskRank(policy.maxReversalRisk)) return false;
+  if (features.momentumPhase === "EXHAUSTION") return false;
+  if (features.setupAgeBars > policy.maxSetupAgeBars) return false;
+  if (features.pullbackRecencyBars > policy.maxPullbackRecencyBars) return false;
+  if (features.breakoutExtensionAtr > policy.maxBreakoutExtensionAtr) return false;
+  if (policy.requireBtcEthBreadthConfirmation
+    && (!features.marketConfirmation.btcAligned
+      || !features.marketConfirmation.ethAligned
+      || !features.marketConfirmation.breadthAligned)) return false;
+  return true;
+}
+
+function v51EntryQuality(side: Side, features: EntryEdgeFeatures): number {
+  const location = clamp01(1 - (
+    features.distanceFromFastEmaAtr * 0.35
+    + features.distanceFromSlowEmaAtr * 0.2
+    + features.distanceFromStructureAtr * 0.2
+  ) / 3);
+  const freshness = clamp01(1 - (features.setupAgeBars + features.pullbackRecencyBars) / 24);
+  const extension = clamp01(1 - features.breakoutExtensionAtr / 1.2);
+  const wickQuality = side === "LONG"
+    ? clamp01(features.lowerWickAtr / 1.25)
+    : clamp01(features.upperWickAtr / 1.25);
+  const phase = features.momentumPhase === "HEALTHY" ? 1 : 0.55;
+  const risk = features.reversalRisk === "LOW" ? 1 : 0.65;
+  return clamp01(location * 0.3 + freshness * 0.2 + extension * 0.2 + wickQuality * 0.15 + phase * 0.1 + risk * 0.05);
+}
+
+function momentumScore(side: Side, features: EntryEdgeFeatures): number {
+  const healthy = features.momentumPhase === "HEALTHY" ? 1 : features.momentumPhase === "LATE" ? 0.55 : 0.1;
+  const rsi = side === "LONG"
+    ? clamp01(1 - Math.max(0, 45 - features.rsi) / 30)
+    : clamp01(1 - Math.max(0, features.rsi - 55) / 30);
+  return clamp01(healthy * 0.75 + rsi * 0.25);
+}
+
+function classifyMomentumPhase(
+  side: Side,
+  rsiValue: number,
+  recentMoveAtr: number,
+  distanceFromSlow: number,
+  breakoutExtension: number,
+): MomentumPhase {
+  const rsiExtreme = side === "SHORT" ? rsiValue < 34 : rsiValue > 66;
+  if (rsiExtreme && (recentMoveAtr >= 2.5 || distanceFromSlow >= 2.25 || breakoutExtension >= 0.75)) return "EXHAUSTION";
+  if (recentMoveAtr >= 1.75 || distanceFromSlow >= 1.6 || breakoutExtension >= 0.55) return "LATE";
+  return "HEALTHY";
+}
+
+function classifyReversalRisk(
+  side: Side,
+  marketState: string | undefined,
+  rsiValue: number,
+  recentMoveAtr: number,
+  distanceFromSlow: number,
+  momentumPhase: MomentumPhase,
+): ReversalRisk {
+  const reboundState = side === "SHORT" ? marketState === "BEAR_REBOUND" : marketState === "BULL_PULLBACK";
+  const rsiExtreme = side === "SHORT" ? rsiValue < 34 : rsiValue > 66;
+  if (momentumPhase === "EXHAUSTION" || (reboundState && rsiExtreme) || distanceFromSlow >= 2.75) return "HIGH";
+  if (reboundState || momentumPhase === "LATE" || recentMoveAtr >= 2) return "MEDIUM";
+  return "LOW";
+}
+
+function riskRank(value: ReversalRisk): number {
+  return value === "LOW" ? 0 : value === "MEDIUM" ? 1 : 2;
+}
+
+function findLatestPullbackIndex(
+  candles: Candle[],
+  fast: number,
+  slow: number,
+  currentAtr: number,
+  side: Side,
+): number {
+  if (currentAtr <= 0) return -1;
+  for (let index = candles.length - 2; index >= Math.max(0, candles.length - 32); index -= 1) {
+    const candle = candles[index];
+    const touched = side === "LONG"
+      ? candle.low <= fast + currentAtr * 0.45 && candle.low >= slow - currentAtr * 1.1
+      : candle.high >= fast - currentAtr * 0.45 && candle.high <= slow + currentAtr * 1.1;
+    if (touched) return index;
+  }
+  return -1;
 }
 
 function isLongState(value: string): boolean {

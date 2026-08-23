@@ -16,6 +16,9 @@ export type DirectionApprovalStatus = "DRAFT" | "CANDIDATE" | "SHADOW_ONLY" | "A
 export type SetupType = "TREND_PULLBACK" | "TREND_REJECTION" | "BREAKOUT_RETEST" | "NO_SETUP";
 export type EntryTrigger = "REJECTION_REBREAK" | "BREAKOUT_RETEST" | "NONE";
 export type FundingDataStatus = "AVAILABLE" | "UNKNOWN";
+export type StrategyHealthStatus = "HEALTHY" | "DEGRADED" | "FAIL_CLOSED" | "UNKNOWN";
+export type ReversalRisk = "LOW" | "MEDIUM" | "HIGH";
+export type MomentumPhase = "HEALTHY" | "LATE" | "EXHAUSTION";
 export type AdmissionRejectionReason =
   | "CHASE"
   | "WRONG_REGIME"
@@ -29,7 +32,11 @@ export type AdmissionRejectionReason =
   | "MISSING_POLICY"
   | "LOW_CONFIDENCE"
   | "FUNDING_UNAVAILABLE"
-  | "INVALID_STRUCTURE";
+  | "INVALID_STRUCTURE"
+  | "ENTRY_EDGE_REJECTED"
+  | "STRATEGY_HEALTH_UNKNOWN"
+  | "STRATEGY_HEALTH_DEGRADED"
+  | "STRATEGY_HEALTH_FAIL_CLOSED";
 
 export interface NoChaseFeatures {
   distanceToFastEmaAtr: number;
@@ -48,6 +55,27 @@ export interface NoChaseAssessment {
   passed: boolean;
   reasons: AdmissionRejectionReason[];
   features: NoChaseFeatures;
+}
+
+export interface EntryEdgeFeatures {
+  distanceFromFastEmaAtr: number;
+  distanceFromSlowEmaAtr: number;
+  distanceFromStructureAtr: number;
+  recentDirectionalMoveAtr: number;
+  setupAgeBars: number;
+  pullbackRecencyBars: number;
+  breakoutExtensionAtr: number;
+  candleBodyAtr: number;
+  upperWickAtr: number;
+  lowerWickAtr: number;
+  rsi: number;
+  reversalRisk: ReversalRisk;
+  momentumPhase: MomentumPhase;
+  marketConfirmation: {
+    btcAligned: boolean;
+    ethAligned: boolean;
+    breadthAligned: boolean;
+  };
 }
 
 export interface GlobalMarketState {
@@ -127,6 +155,9 @@ export interface StrategyCandidate {
   entryTrigger?: EntryTrigger;
   entryQuality?: number;
   noChase?: NoChaseAssessment;
+  entryEdgeFeatures?: EntryEdgeFeatures;
+  reversalRisk?: ReversalRisk;
+  momentumPhase?: MomentumPhase;
   expectedGrossR?: number | null;
   expectedNetR?: number | null;
   confidence?: number;

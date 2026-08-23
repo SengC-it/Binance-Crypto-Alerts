@@ -9,7 +9,7 @@ import {
   volumeRatio,
 } from "./indicators";
 import { classifyRegime } from "./market-regime";
-import { generateV5Candidate, type NoChasePolicy } from "./v5-entry-policy";
+import { generateV5Candidate, generateV51Candidate, type NoChasePolicy } from "./v5-entry-policy";
 import type {
   Candle,
   MarketSnapshot,
@@ -20,7 +20,7 @@ import type {
   Timeframe,
 } from "./types";
 
-export type EntryMode = "DEFAULT" | "TREND_PULLBACK" | "TREND_REJECTION" | "BREAKOUT_RETEST" | "COMPRESSION_BREAKOUT" | "RANGE_RECLAIM" | "V5_SIGNAL_EDGE";
+export type EntryMode = "DEFAULT" | "TREND_PULLBACK" | "TREND_REJECTION" | "BREAKOUT_RETEST" | "COMPRESSION_BREAKOUT" | "RANGE_RECLAIM" | "V5_SIGNAL_EDGE" | "V5_1_SIGNAL_EDGE";
 
 export interface StrategyParams {
   entryMode?: EntryMode;
@@ -83,6 +83,10 @@ export function generateCandidates(
   }
   if (params.entryMode === "V5_SIGNAL_EDGE") {
     const candidate = generateV5Candidate(snapshot, params);
+    return candidate ? [candidate] : [];
+  }
+  if (params.entryMode === "V5_1_SIGNAL_EDGE") {
+    const candidate = generateV51Candidate(snapshot, params);
     return candidate ? [candidate] : [];
   }
 

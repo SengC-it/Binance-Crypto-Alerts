@@ -1,5 +1,5 @@
 import type { DirectionalCostAwareScoreModel, OpportunityPolicyFeatures } from "@/lib/core/opportunity-policy";
-import type { Candle, FundingRatePoint, Instrument, MarketRegime, MarketStateKey } from "@/lib/core/types";
+import type { Candle, EntryEdgeFeatures, FundingRatePoint, Instrument, MarketRegime, MarketStateKey, MomentumPhase, ReversalRisk } from "@/lib/core/types";
 import type { DirectionalScoreCalibrationModel } from "@/lib/core/scoring";
 import type { StrategyParams } from "@/lib/core/strategies";
 import type { ForwardEdgeMetrics } from "./forward-metrics";
@@ -59,6 +59,9 @@ export interface BacktestTrade {
   slippageUsdt: number;
   theoreticalRiskUsdt: number;
   policyFeatures?: OpportunityPolicyFeatures;
+  entryEdgeFeatures?: EntryEdgeFeatures;
+  reversalRisk?: ReversalRisk;
+  momentumPhase?: MomentumPhase;
   expectedNetR?: number | null;
   path?: TradePathMetrics;
   forward?: ForwardEdgeMetrics;

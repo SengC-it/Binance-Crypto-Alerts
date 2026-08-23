@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "production-degradation-analysis.v1",
+  "generatedAt": "2026-08-23T11:39:56.105Z",
+  "strategyVersion": "trend-rejection-short-v1",
+  "source": {
+    "kind": "NONE",
+    "rows": 0,
+    "reason": "No usable Supabase service key and no immutable export was supplied."
+  },
+  "overall": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "winRate": 0,
+    "avgNetR": 0,
+    "profitFactor": 0,
+    "mfe24h": null,
+    "mae24h": null,
+    "mfe72h": null,
+    "mae72h": null,
+    "pHalfRBeforeStop": null,
+    "pOneRBeforeStop": null,
+    "stopRate": 0
+  },
+  "sampleCaveat": "The current sample is too small for permanent symbol or feature blacklists.",
+  "sourceStatus": "DATA_UNAVAILABLE",
+  "breakdowns": {
+    "marketState": [],
+    "btcRegime": [],
+    "ethRegime": [],
+    "breadthBucket": [],
+    "scoreBucket": [],
+    "symbol": [],
+    "entryExtensionAtr": [],
+    "distanceToEma": [],
+    "pullbackDepth": [],
+    "rsi": [],
+    "volumeRatio": [],
+    "fundingCost": [],
+    "stopDistance": [],
+    "hourUtc": [],
+    "setupAge": []
+  },
+  "strategyHealth": {
+    "status": "UNKNOWN",
+    "productionAAllowed": false,
+    "reasons": [
+      "insufficient_rolling_sample"
+    ],
+    "metrics": {
+      "rollingTrades": 0,
+      "rollingAverageNetR": 0,
+      "rollingProfitFactor": 0,
+      "rollingStopRate": 0,
+      "rollingMaxDrawdownR": 0,
+      "rollingLowerConfidenceBound": 0,
+      "historicalTrades": 0,
+      "historicalAverageNetR": null,
+      "recentVsHistoricalDrift": null
+    },
+    "policy": {
+      "rollingWindowTrades": 50,
+      "minimumRollingTrades": 10,
+      "historicalWindowTrades": 200,
+      "degradedAverageNetR": -0.15,
+      "failClosedAverageNetR": -0.4,
+      "degradedProfitFactor": 0.85,
+      "failClosedProfitFactor": 0.6,
+      "degradedStopRate": 0.75,
+      "failClosedStopRate": 0.9,
+      "degradedMaxDrawdownR": 6,
+      "failClosedMaxDrawdownR": 10,
+      "degradedLowerConfidenceBound": -0.1,
+      "failClosedLowerConfidenceBound": -0.3,
+      "degradedRecentDrift": -0.25,
+      "failClosedRecentDrift": -0.5
+    }
+  },
+  "rootCauseAssessment": {
+    "confidence": "LOW",
+    "findings": [
+      "Prospective sample is below 30 settled trades; findings are diagnostic, not a permanent rule."
+    ],
+    "topLossBuckets": [],
+    "symbolBlacklistRecommendation": "NONE"
+  },
+  "acceptanceSafety": {
+    "signalOnly": true,
+    "automaticTrading": false,
+    "automaticStrategySwitch": false,
+    "permanentSymbolBlacklist": false,
+    "productionAEmailAllowed": false
+  }
+}

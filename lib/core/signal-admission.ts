@@ -12,6 +12,7 @@ import type {
   ScoredCandidate,
   SignalTier,
   Side,
+  StrategyHealthStatus,
 } from "./types";
 
 export interface PromotionGate {
@@ -60,6 +61,7 @@ export interface SignalAdmissionEvidence {
   /** Legacy input alias; it is interpreted as edgeConfidence, never winProbability. */
   confidence?: number | null;
   calibrationSamples?: number | null;
+  strategyHealth?: StrategyHealthStatus;
   policyFeatures?: OpportunityPolicyFeatures;
 }
 
@@ -76,6 +78,7 @@ export interface SignalAdmissionDecision {
   /** Legacy output alias for edgeConfidence. */
   confidence: number | null;
   calibrationSamples: number;
+  strategyHealth?: StrategyHealthStatus;
 }
 
 export function admitSignal(
@@ -115,6 +118,10 @@ export function admitSignal(
   const winProbability = evidence.winProbability
     ?? calibrationWinProbabilityFor(policy?.calibrationModel, candidate.side, candidate.score, candidate.strategyFamily);
 
+  if (evidence.strategyHealth === "UNKNOWN") reasons.push("STRATEGY_HEALTH_UNKNOWN");
+  if (evidence.strategyHealth === "DEGRADED") reasons.push("STRATEGY_HEALTH_DEGRADED");
+  if (evidence.strategyHealth === "FAIL_CLOSED") reasons.push("STRATEGY_HEALTH_FAIL_CLOSED");
+
   if (!marketState || marketState === "UNKNOWN") reasons.push("UNKNOWN_MARKET_STATE");
   if (marketState && !directionRegimeAligned(candidate.side, marketState)) reasons.push("WRONG_REGIME");
   if (!candidate.setupType || candidate.setupType === "NO_SETUP") reasons.push("INVALID_STRUCTURE");
@@ -142,6 +149,9 @@ export function admitSignal(
     "COST_STRESS_FAIL",
     "UNKNOWN_MARKET_STATE",
     "INVALID_STRUCTURE",
+    "ENTRY_EDGE_REJECTED",
+    "STRATEGY_HEALTH_DEGRADED",
+    "STRATEGY_HEALTH_FAIL_CLOSED",
   ].includes(reason));
   const tier: SignalTier = uniqueReasons.length === 0 ? "A" : hardReject ? "C" : "B";
   return {
@@ -156,6 +166,7 @@ export function admitSignal(
     edgeConfidence,
     confidence: edgeConfidence,
     calibrationSamples,
+    strategyHealth: evidence.strategyHealth,
   };
 }
 

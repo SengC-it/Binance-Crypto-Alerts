@@ -17,6 +17,7 @@
     "validate:legacy": "tsx scripts/run-validation.ts",
     "validate:v5": "tsx scripts/run-v5-validation.ts",
     "backtest": "tsx scripts/run-backtest.ts",
+    "analyze:degradation": "tsx scripts/analyze-degradation.ts",
     "validate:integrity": "tsx scripts/check-v5-validation-integrity.ts"
   },
   "dependencies": {

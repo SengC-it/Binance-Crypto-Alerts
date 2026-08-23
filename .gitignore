@@ -15,6 +15,7 @@ data/raw/*
 data/validation-cache/
 reports/*
 !reports/validation-v5-signal-edge-summary.json
+!reports/degradation-analysis-summary.json
 
 .vercel
 .env*

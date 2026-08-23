@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildCandidateCache, runPortfolioBacktest, type BacktestContext, type BacktestOptions } from "@/lib/backtest/engine";
+import { createPointInTimeUniverse, CURRENT_SURVIVOR_UNIVERSE_PROXY } from "@/lib/backtest/point-in-time-universe";
 import {
   simulateDelayedReferenceTrade,
   calculateSlippageStress,
@@ -20,10 +21,12 @@ import type { HistoricalDataset, PortfolioBacktestResult } from "@/lib/backtest/
 import { fitDirectionalCostAwareScoreModel, type DirectionalCostAwareScoreModel } from "@/lib/core/opportunity-policy";
 import { fitDirectionalScoreCalibration, type DirectionalScoreCalibrationModel } from "@/lib/core/scoring";
 import { DEFAULT_STRATEGY_PARAMS, type StrategyParams } from "@/lib/core/strategies";
-import type { Side } from "@/lib/core/types";
+import type { Side, StrategyHealthStatus } from "@/lib/core/types";
 
 const DAY = 86_400_000;
 const DEFAULT_SYMBOL_COUNT = 50;
+const CORE_SYMBOL_COUNT = 24;
+const CORE_VALIDATION_YEARS = 3;
 const PURGE_HOURS = 72;
 
 /**
@@ -87,6 +90,10 @@ export const V5_RESEARCH_OPTIONS: BacktestOptions = {
   requireFundingData: true,
 };
 
+export const V51_RESEARCH_OPTIONS: BacktestOptions = {
+  ...V5_RESEARCH_OPTIONS,
+};
+
 interface FittedV5Models {
   calibrationModel: DirectionalScoreCalibrationModel;
   costModel: DirectionalCostAwareScoreModel;
@@ -122,120 +129,127 @@ interface StrategyRun {
   }>;
   promotion: ReturnType<typeof evaluatePromotionGate>;
   holdoutPromotion: ReturnType<typeof evaluatePromotionGate>;
+  prospectiveHealth?: {
+    status: StrategyHealthStatus;
+    productionAAllowed: boolean;
+    source: string;
+  };
+}
+
+interface ValidationSetResult {
+  label: string;
+  years: number;
+  datasets: HistoricalDataset[];
+  windowStart: number;
+  windowEnd: number;
+  folds: PurgedWalkForwardFold[];
+  holdout: { start: number; end: number };
+  pointInTimeUniverse: ReturnType<typeof createPointInTimeUniverse>;
+  strategies: StrategyRun[];
+  dataFingerprint: string;
 }
 
 async function main() {
-  const years = Math.max(1, Math.floor(numberEnv("CS_V5_VALIDATION_YEARS", 1)));
-  const symbolCount = Math.max(50, Math.floor(numberEnv("CS_V5_VALIDATION_SYMBOL_COUNT", DEFAULT_SYMBOL_COUNT)));
-  const datasets = await loadDatasets(symbolCount, years);
-  if (datasets.length < 50) throw new Error(`V5 validation requires at least 50 complete symbols; found ${datasets.length}`);
+  const broadYears = Math.max(1, Math.floor(numberEnv("CS_V5_VALIDATION_YEARS", 1)));
+  const coreYears = Math.max(CORE_VALIDATION_YEARS, Math.floor(numberEnv("CS_V5_CORE_VALIDATION_YEARS", CORE_VALIDATION_YEARS)));
+  const symbolCount = Math.max(DEFAULT_SYMBOL_COUNT, Math.floor(numberEnv("CS_V5_VALIDATION_SYMBOL_COUNT", DEFAULT_SYMBOL_COUNT)));
+  const broadDatasets = await loadDatasets(symbolCount, broadYears);
+  if (broadDatasets.length < DEFAULT_SYMBOL_COUNT) {
+    throw new Error(`V5.1 broad validation requires at least 50 complete symbols; found ${broadDatasets.length}`);
+  }
+  const manifest = JSON.parse(await readFile(resolve("data/validation-universe-50.json"), "utf8")) as { symbols: string[] };
+  const coreCandidates = await loadDatasetsForSymbols(manifest.symbols, coreYears);
+  const coreDatasets = coreCandidates
+    .sort((left, right) => left.symbol.localeCompare(right.symbol))
+    .slice(0, CORE_SYMBOL_COUNT);
 
   const costs = validationCostAssumptions({
     takerFeeRate: numberEnv("CS_V5_VALIDATION_FEE_RATE", DEFAULT_VALIDATION_COST_ASSUMPTIONS.takerFeeRate),
     baseSlippageBps: numberEnv("CS_V5_VALIDATION_SLIPPAGE_BPS", DEFAULT_VALIDATION_COST_ASSUMPTIONS.baseSlippageBps),
   });
-  const windowEnd = Math.min(...datasets.map((dataset) => dataset.candles["15m"].at(-1)?.closeTime ?? 0));
-  const windowStart = windowEnd - years * 365 * DAY;
-  const folds = createPurgedWalkForwardFolds({
-    start: windowStart,
-    end: windowEnd,
+  const prospectiveHealth = await loadProspectiveHealthStatus();
+  const broad = await runValidationSet({
+    label: "BROAD_1Y",
+    years: broadYears,
+    datasets: broadDatasets,
+    costs,
+    includeControl: true,
     initialTrainMonths: 6,
     validationMonths: 3,
-    foldCount: years === 1 ? 1 : years * 4,
-    purgeHours: PURGE_HOURS,
+    foldCount: broadYears === 1 ? 1 : broadYears * 4,
+    prospectiveHealth,
   });
-  const holdout = createFrozenHoldoutWindow(windowStart, windowEnd, folds, PURGE_HOURS);
-  if (!holdout) throw new Error("No frozen holdout window remains after purged walk-forward folds");
-  if (folds.length === 0) throw new Error("No purged validation fold could be created");
+  const core = coreDatasets.length >= CORE_SYMBOL_COUNT
+    ? await runValidationSet({
+      label: "CORE_3Y",
+      years: coreYears,
+      datasets: coreDatasets,
+      costs,
+      includeControl: false,
+      initialTrainMonths: 12,
+      validationMonths: 3,
+      foldCount: Math.max(4, coreYears * 2),
+      prospectiveHealth,
+    })
+    : undefined;
 
-  const benchmarkDataset = datasets.find((dataset) => dataset.symbol === "BTCUSDT") ?? datasets[0];
-  const context: BacktestContext = {
-    benchmarkDataset,
-    breadthDatasets: datasets,
-    breadthUniverseId: `validation-universe-${datasets.length}:${datasets.map((dataset) => dataset.symbol).join(",")}`,
+  const broadStrategies = broad.strategies;
+  const v51Short = broadStrategies.find((result) => result.id === "V51_SHORT");
+  const v51Long = broadStrategies.find((result) => result.id === "V51_LONG");
+  if (!v51Short || !v51Long) throw new Error("V5.1 broad strategies were not produced");
+  const coreStatus = core ? evaluateCoreStatus(core) : "DATA_INSUFFICIENT";
+  const coreShort = core?.strategies.find((result) => result.id === "V51_SHORT");
+  const coreLong = core?.strategies.find((result) => result.id === "V51_LONG");
+  const dualHorizonPromotion = {
+    SHORT: combinePromotion(v51Short, coreShort, coreStatus),
+    LONG: combinePromotion(v51Long, coreLong, coreStatus),
   };
-  const currentParams = { ...DEFAULT_STRATEGY_PARAMS, entryMode: "TREND_REJECTION" as const, stopAtrMultiplier: 0.5 };
-  const v5Params = { ...DEFAULT_STRATEGY_PARAMS, entryMode: "V5_SIGNAL_EDGE" as const, stopAtrMultiplier: 0.5 };
-  const controlCaches = buildCaches(datasets, currentParams, windowEnd, context, windowStart - 14 * DAY);
-  const v5Caches = buildCaches(datasets, v5Params, windowEnd, context, windowStart - 14 * DAY);
-
-  const current = await runStrategy({
-    id: "CURRENT_PRODUCTION",
-    params: currentParams,
-    side: "SHORT",
-    options: CONTROL_OPTIONS,
-    context,
-    datasets,
-    folds,
-    holdout,
-    candidateCaches: controlCaches,
-    costs,
-    modelled: false,
-  });
-  const researchBaseline = await runStrategy({
-    id: "TREND_REJECTION_RESEARCH",
-    params: currentParams,
-    side: "SHORT",
-    options: { ...CONTROL_OPTIONS, minScore: 0 },
-    context,
-    datasets,
-    folds,
-    holdout,
-    candidateCaches: controlCaches,
-    costs,
-    modelled: false,
-  });
-  const v5Short = await runStrategy({
-    id: "V5_SHORT",
-    params: v5Params,
-    side: "SHORT",
-    options: V5_RESEARCH_OPTIONS,
-    context,
-    datasets,
-    folds,
-    holdout,
-    candidateCaches: v5Caches,
-    costs,
-    modelled: true,
-  });
-  const v5Long = await runStrategy({
-    id: "V5_LONG",
-    params: v5Params,
-    side: "LONG",
-    options: V5_RESEARCH_OPTIONS,
-    context,
-    datasets,
-    folds,
-    holdout,
-    candidateCaches: v5Caches,
-    costs,
-    modelled: true,
-  });
-
-  const strategies = [current, researchBaseline, v5Short, v5Long];
-  const dataFingerprint = fingerprintDatasets(datasets);
+  const dataFingerprint = fingerprintDatasets(broadDatasets);
   const holdoutUsedForSelection = false;
   const report = {
-    schemaVersion: "v5-signal-edge-validation-summary.v2",
+    schemaVersion: "v5.1-signal-edge-validation-summary.v3",
     generatedAt: new Date().toISOString(),
     command: "pnpm validate:v5",
     dataFingerprint,
-    purpose: "V5 Signal Edge directional research; frozen holdout is evaluated once after policy selection and is never used for tuning",
+    purpose: "V5.1 Signal Edge directional research with point-in-time survivor-universe proxy, broad 1y and core 3y horizons; frozen holdouts are evaluated after policy selection and never used for tuning",
     baseline: {
       productionBaseSha: "1a6f0663e4dfe71869373cb41863856581713a7c",
       v5BaseSha: "1a6f0663e4dfe71869373cb41863856581713a7c",
       note: "PR parent is the current Production baseline; main is older and is not the comparison baseline",
     },
     history: {
-      years,
-      symbolCount: datasets.length,
-      symbols: datasets.map((dataset) => dataset.symbol),
-      windowStart: new Date(windowStart).toISOString(),
-      windowEnd: new Date(windowEnd).toISOString(),
+      years: broad.years,
+      symbolCount: broad.datasets.length,
+      symbols: broad.datasets.map((dataset) => dataset.symbol),
+      windowStart: new Date(broad.windowStart).toISOString(),
+      windowEnd: new Date(broad.windowEnd).toISOString(),
       purgeHours: PURGE_HOURS,
-      folds: folds.map(serializeFold),
-      holdout: { start: new Date(holdout.start).toISOString(), end: new Date(holdout.end).toISOString() },
+      folds: broad.folds.map(serializeFold),
+      holdout: { start: new Date(broad.holdout.start).toISOString(), end: new Date(broad.holdout.end).toISOString() },
       holdoutUsedForSelection,
+      universeStatus: broad.pointInTimeUniverse.status,
+      universeMethodology: broad.pointInTimeUniverse.methodology,
+      universeId: broad.pointInTimeUniverse.universeId,
+    },
+    coreValidation: {
+      status: coreStatus,
+      years: core?.years ?? coreYears,
+      symbolCount: core?.datasets.length ?? coreDatasets.length,
+      symbols: core?.datasets.map((dataset) => dataset.symbol) ?? coreDatasets.map((dataset) => dataset.symbol),
+      windowStart: core ? new Date(core.windowStart).toISOString() : null,
+      windowEnd: core ? new Date(core.windowEnd).toISOString() : null,
+      folds: core?.folds.map(serializeFold) ?? [],
+      holdout: core ? { start: new Date(core.holdout.start).toISOString(), end: new Date(core.holdout.end).toISOString() } : null,
+      universeStatus: core?.pointInTimeUniverse.status ?? "PROXY",
+      universeMethodology: CURRENT_SURVIVOR_UNIVERSE_PROXY,
+      universeId: core?.pointInTimeUniverse.universeId ?? null,
+      dataFingerprint: core?.dataFingerprint ?? null,
+      strategies: core?.strategies.map((result) => toReportStrategy(result)) ?? [],
+      stabilityRule: "PASS requires both V5.1 directions to have data and no severe negative validation instability; holdout and prospective health remain separate promotion gates.",
+    },
+    sensitivity: {
+      broadOneYear: { status: "PASS", universe: CURRENT_SURVIVOR_UNIVERSE_PROXY, symbolCount: broad.datasets.length, years: broad.years },
+      coreLongHistory: { status: coreStatus, universe: CURRENT_SURVIVOR_UNIVERSE_PROXY, symbolCount: core?.datasets.length ?? coreDatasets.length, years: core?.years ?? coreYears },
     },
     costs: {
       ...costs,
@@ -245,26 +259,32 @@ async function main() {
     validationProfiles: {
       CONTROL_OPTIONS: serializeOptions(CONTROL_OPTIONS),
       V5_RESEARCH_OPTIONS: serializeOptions(V5_RESEARCH_OPTIONS),
+      V51_RESEARCH_OPTIONS: serializeOptions(V51_RESEARCH_OPTIONS),
     },
-    models: strategies.filter((result) => result.modelTraining).map((result) => ({ id: result.id, ...result.modelTraining })),
-    strategies: strategies.map((result) => toReportStrategy(result)),
+    models: broadStrategies.concat(core?.strategies ?? []).filter((result) => result.modelTraining).map((result) => ({ id: result.id, ...result.modelTraining })),
+    strategies: broadStrategies.map((result) => toReportStrategy(result)),
+    prospectiveHealth,
+    dualHorizonPromotion,
     productionDecision: {
-      LONG: v5Long.promotion.status === "APPROVED" ? "APPROVED" : "NOT APPROVED",
-      SHORT: v5Short.promotion.status === "APPROVED" ? "APPROVED" : "NOT APPROVED",
-      productionAEmailDirections: strategies
-        .filter((result) => (result.id === "V5_LONG" || result.id === "V5_SHORT") && result.promotion.status === "APPROVED")
-        .map((result) => result.id),
+      LONG: dualHorizonPromotion.LONG.status === "APPROVED" ? "APPROVED" : "NOT APPROVED",
+      SHORT: dualHorizonPromotion.SHORT.status === "APPROVED" ? "APPROVED" : "NOT APPROVED",
+      productionAEmailDirections: [],
+      signalOnly: true,
+      automaticStrategySwitch: false,
+      humanApprovalRequired: true,
     },
     limitations: [
       "Reference execution uses closed candles and stop-first intrabar handling.",
       "T+5m is labelled as a 15m candle proxy when 1m data is unavailable; T+15m uses the next closed 15m candle.",
-      "Historical funding is included only when the public funding cache has a rate at or before the entry timestamp; missing data rejects V5 research trades.",
+      "Historical funding is included only when the public funding cache has a rate at or before the entry timestamp; missing data rejects V5.1 research trades.",
       "Historical order-book depth and spread are unavailable.",
+      "Point-in-time ranks use CURRENT_SURVIVOR_UNIVERSE_PROXY because full historical listing/ranking snapshots are unavailable; this is explicitly not a delisting-complete PIT universe.",
+      "Prospective health is UNKNOWN without a valid immutable production export or read-only Supabase service key; no Production A email is permitted.",
     ],
   };
 
   await mkdir(resolve("reports"), { recursive: true });
-  const fullReportPath = resolve("reports", `validation-v5-signal-edge-${years}y.json`);
+  const fullReportPath = resolve("reports", "validation-v5.1-signal-edge-dual-horizon.json");
   const summaryPath = resolve("reports", "validation-v5-signal-edge-summary.json");
   const summary = toCompactSummary(report);
   await writeFile(fullReportPath, JSON.stringify(report, null, 2) + "\n", "utf8");
@@ -275,6 +295,7 @@ async function main() {
     summaryPath,
     dataFingerprint,
     holdoutUsedForSelection,
+    coreStatus,
     productionDecision: report.productionDecision,
     strategies: report.strategies.map((result) => ({
       id: result.id,
@@ -283,6 +304,177 @@ async function main() {
       promotion: result.promotion.status,
     })),
   }, null, 2));
+}
+
+async function runValidationSet(input: {
+  label: string;
+  years: number;
+  datasets: HistoricalDataset[];
+  costs: ValidationCostAssumptions;
+  includeControl: boolean;
+  initialTrainMonths: number;
+  validationMonths: number;
+  foldCount: number;
+  prospectiveHealth: { control: StrategyRun["prospectiveHealth"]; v51: StrategyRun["prospectiveHealth"] };
+}): Promise<ValidationSetResult> {
+  const windowEnd = Math.min(...input.datasets.map((dataset) => dataset.candles["15m"].at(-1)?.closeTime ?? 0));
+  const windowStart = windowEnd - input.years * 365 * DAY;
+  const folds = createPurgedWalkForwardFolds({
+    start: windowStart,
+    end: windowEnd,
+    initialTrainMonths: input.initialTrainMonths,
+    validationMonths: input.validationMonths,
+    foldCount: input.foldCount,
+    purgeHours: PURGE_HOURS,
+  });
+  const holdout = createFrozenHoldoutWindow(windowStart, windowEnd, folds, PURGE_HOURS);
+  if (!holdout) throw new Error(`No frozen holdout window remains for ${input.label}`);
+  if (folds.length === 0) throw new Error(`No purged validation fold could be created for ${input.label}`);
+
+  const pointInTimeUniverse = createPointInTimeUniverse(input.datasets, {
+    targetSize: input.label === "BROAD_1Y" ? DEFAULT_SYMBOL_COUNT : input.datasets.length,
+  });
+  const benchmarkDataset = input.datasets.find((dataset) => dataset.symbol === "BTCUSDT") ?? input.datasets[0];
+  const context: BacktestContext = {
+    benchmarkDataset,
+    breadthDatasets: input.datasets,
+    breadthUniverseId: pointInTimeUniverse.universeId,
+    pointInTimeUniverse: pointInTimeUniverse.membershipAt,
+  };
+  const currentParams = { ...DEFAULT_STRATEGY_PARAMS, entryMode: "TREND_REJECTION" as const, stopAtrMultiplier: 0.5 };
+  const v51Params = { ...DEFAULT_STRATEGY_PARAMS, entryMode: "V5_1_SIGNAL_EDGE" as const, stopAtrMultiplier: 0.5 };
+  const controlCaches = buildCaches(input.datasets, currentParams, windowEnd, context, windowStart - 14 * DAY);
+  const v51Caches = buildCaches(input.datasets, v51Params, windowEnd, context, windowStart - 14 * DAY);
+  const strategies: StrategyRun[] = [];
+  if (input.includeControl) {
+    strategies.push(await runStrategy({
+      id: "CURRENT_PRODUCTION",
+      params: currentParams,
+      side: "SHORT",
+      options: CONTROL_OPTIONS,
+      context,
+      datasets: input.datasets,
+      folds,
+      holdout,
+      candidateCaches: controlCaches,
+      costs: input.costs,
+      modelled: false,
+      prospectiveHealth: input.prospectiveHealth.control,
+    }));
+    strategies.push(await runStrategy({
+      id: "TREND_REJECTION_RESEARCH",
+      params: currentParams,
+      side: "SHORT",
+      options: { ...CONTROL_OPTIONS, minScore: 0 },
+      context,
+      datasets: input.datasets,
+      folds,
+      holdout,
+      candidateCaches: controlCaches,
+      costs: input.costs,
+      modelled: false,
+    }));
+  }
+  for (const side of ["SHORT", "LONG"] as const) {
+    strategies.push(await runStrategy({
+      id: side === "SHORT" ? "V51_SHORT" : "V51_LONG",
+      params: v51Params,
+      side,
+      options: V51_RESEARCH_OPTIONS,
+      context,
+      datasets: input.datasets,
+      folds,
+      holdout,
+      candidateCaches: v51Caches,
+      costs: input.costs,
+      modelled: true,
+      prospectiveHealth: input.prospectiveHealth.v51,
+      requireHealthyProspective: true,
+    }));
+  }
+  return {
+    label: input.label,
+    years: input.years,
+    datasets: input.datasets,
+    windowStart,
+    windowEnd,
+    folds,
+    holdout,
+    pointInTimeUniverse,
+    strategies,
+    dataFingerprint: fingerprintDatasets(input.datasets),
+  };
+}
+
+function evaluateCoreStatus(result: ValidationSetResult): "PASS" | "FAIL" | "DATA_INSUFFICIENT" {
+  const v51Strategies = result.strategies.filter((strategy) => strategy.id === "V51_SHORT" || strategy.id === "V51_LONG");
+  if (result.datasets.length < CORE_SYMBOL_COUNT || result.years < CORE_VALIDATION_YEARS || result.folds.length < 2 || v51Strategies.length !== 2) {
+    return "DATA_INSUFFICIENT";
+  }
+  if (v51Strategies.some((strategy) => !strategy.validation || strategy.validation.trades < 10 || strategy.metrics.trades < 1)) {
+    return "FAIL";
+  }
+  const severelyUnstable = v51Strategies.some((strategy) => (
+    (strategy.validation?.averageNetR ?? 0) < -0.25
+    || (strategy.validation?.profitFactor ?? 0) < 0.6
+    || (strategy.validation?.maxDrawdownR ?? 0) > 10
+    || strategy.metrics.averageNetR < -0.4
+  ));
+  return severelyUnstable ? "FAIL" : "PASS";
+}
+
+function combinePromotion(
+  broad: StrategyRun,
+  core: StrategyRun | undefined,
+  coreStatus: "PASS" | "FAIL" | "DATA_INSUFFICIENT",
+): ReturnType<typeof evaluatePromotionGate> {
+  const reasons = [...broad.promotion.reasons.map((reason) => `broad:${reason}`)];
+  if (!core) {
+    reasons.push("core:data_insufficient");
+  } else {
+    reasons.push(...core.promotion.reasons.map((reason) => `core:${reason}`));
+  }
+  if (coreStatus !== "PASS") reasons.push(`core_status:${coreStatus.toLowerCase()}`);
+  return {
+    status: reasons.length === 0 ? "APPROVED" : broad.metrics.trades > 0 ? "SHADOW_ONLY" : "REJECTED",
+    passed: reasons.length === 0,
+    reasons,
+  };
+}
+
+async function loadProspectiveHealthStatus(): Promise<{
+  control: NonNullable<StrategyRun["prospectiveHealth"]>;
+  v51: NonNullable<StrategyRun["prospectiveHealth"]>;
+}> {
+  let controlStatus: StrategyHealthStatus = "UNKNOWN";
+  let source = "unavailable";
+  try {
+    const parsed = JSON.parse(await readFile(resolve("reports", "degradation-analysis-summary.json"), "utf8")) as {
+      strategyHealth?: { status?: string };
+      source?: { kind?: string };
+    };
+    if (parsed.strategyHealth?.status && isStrategyHealthStatus(parsed.strategyHealth.status)) {
+      controlStatus = parsed.strategyHealth.status;
+      source = parsed.source?.kind ? `degradation-analysis:${parsed.source.kind}` : "degradation-analysis-summary";
+    }
+  } catch {
+    // Missing prospective evidence remains UNKNOWN and therefore cannot open Production A.
+  }
+  const control = {
+    status: controlStatus,
+    productionAAllowed: controlStatus === "HEALTHY",
+    source,
+  };
+  const v51 = {
+    status: "UNKNOWN" as const,
+    productionAAllowed: false,
+    source: "v5.1 prospective evidence unavailable",
+  };
+  return { control, v51 };
+}
+
+function isStrategyHealthStatus(value: string): value is StrategyHealthStatus {
+  return value === "HEALTHY" || value === "DEGRADED" || value === "FAIL_CLOSED" || value === "UNKNOWN";
 }
 
 function toCompactSummary(report: {
@@ -294,6 +486,10 @@ function toCompactSummary(report: {
   history: unknown;
   costs: unknown;
   validationProfiles: unknown;
+  coreValidation: unknown;
+  sensitivity: unknown;
+  prospectiveHealth: unknown;
+  dualHorizonPromotion: unknown;
   strategies: Array<ReturnType<typeof toReportStrategy>>;
   productionDecision: unknown;
 }) {
@@ -304,8 +500,12 @@ function toCompactSummary(report: {
     dataFingerprint: report.dataFingerprint,
     baseline: report.baseline,
     history: report.history,
+    coreValidation: report.coreValidation,
+    sensitivity: report.sensitivity,
     costs: report.costs,
     validationProfiles: report.validationProfiles,
+    prospectiveHealth: report.prospectiveHealth,
+    dualHorizonPromotion: report.dualHorizonPromotion,
     strategies: report.strategies.map((result) => ({
       id: result.id,
       side: result.side,
@@ -315,6 +515,7 @@ function toCompactSummary(report: {
       executionDelay: result.executionDelay,
       promotion: result.promotion,
       holdoutPromotion: result.holdoutPromotion,
+      prospectiveHealth: result.prospectiveHealth,
     })),
     productionDecision: report.productionDecision,
   };
@@ -332,6 +533,8 @@ async function runStrategy(input: {
   candidateCaches: Array<Map<number, import("@/lib/core/types").ScoredCandidate[]>>;
   costs: ValidationCostAssumptions;
   modelled: boolean;
+  prospectiveHealth?: StrategyRun["prospectiveHealth"];
+  requireHealthyProspective?: boolean;
 }): Promise<StrategyRun> {
   const validationTrades: PortfolioBacktestResult["trades"] = [];
   const validationFolds: StrategyRun["validationFolds"] = [];
@@ -417,6 +620,9 @@ async function runStrategy(input: {
     ...validationPromotion.reasons.map((reason) => `validation:${reason}`),
     ...holdoutPromotion.reasons.map((reason) => `holdout:${reason}`),
   ];
+  if (input.requireHealthyProspective && input.prospectiveHealth?.status !== "HEALTHY") {
+    promotionReasons.push(`prospective_health:${input.prospectiveHealth?.status ?? "UNKNOWN"}`);
+  }
   return {
     id: input.id,
     params: input.params,
@@ -434,6 +640,7 @@ async function runStrategy(input: {
       reasons: promotionReasons,
     },
     holdoutPromotion,
+    prospectiveHealth: input.prospectiveHealth,
   };
 }
 
@@ -498,6 +705,7 @@ function toReportStrategy(result: StrategyRun) {
       rejectionCounts: result.run.rejectionCounts,
     },
     modelTraining: result.modelTraining,
+    prospectiveHealth: result.prospectiveHealth,
   };
 }
 
@@ -595,9 +803,13 @@ function executionDelayByTrade(
 async function loadDatasets(symbolCount: number, years: number): Promise<HistoricalDataset[]> {
   const manifest = JSON.parse(await readFile(resolve("data/validation-universe-50.json"), "utf8")) as { symbols: string[] };
   const requested = manifest.symbols.slice(0, Math.max(50, symbolCount));
+  return loadDatasetsForSymbols(requested, years);
+}
+
+async function loadDatasetsForSymbols(symbols: string[], years: number): Promise<HistoricalDataset[]> {
   const files = await readdir(resolve("data/validation-cache"));
   const datasets: HistoricalDataset[] = [];
-  for (const symbol of requested) {
+  for (const symbol of symbols) {
     const candidates = files.filter((file) => file.startsWith(`${symbol}-`) && file.endsWith(".json"));
     const loaded: HistoricalDataset[] = [];
     for (const file of candidates) {

@@ -80,6 +80,7 @@ export interface BacktestContext {
   benchmarkDataset?: HistoricalDataset;
   breadthDatasets?: HistoricalDataset[];
   breadthUniverseId?: string;
+  pointInTimeUniverse?: (dataset: HistoricalDataset, sourceTimestamp: number) => boolean;
   marketStateCache?: Map<number, MarketStateAssessment>;
   globalMarketStateCache?: Map<number, GlobalMarketState | undefined>;
 }
@@ -134,6 +135,10 @@ export function runBacktest(
       advanceTo(index + 1);
       continue;
     }
+    if (context.pointInTimeUniverse && !context.pointInTimeUniverse(dataset, current.closeTime)) {
+      advanceTo(index + 1);
+      continue;
+    }
     if (entryIntervalMs && !isEntryIntervalAllowed(current.closeTime, entryIntervalMs / (60 * 60 * 1000))) {
       advanceTo(index + 1);
       continue;
@@ -151,7 +156,8 @@ export function runBacktest(
       advanceTo(index + 1);
       continue;
     }
-    if (params.entryMode === "V5_SIGNAL_EDGE" && !candidate.noChase?.passed) {
+    if ((params.entryMode === "V5_SIGNAL_EDGE" || params.entryMode === "V5_1_SIGNAL_EDGE")
+      && !candidate.noChase?.passed) {
       advanceTo(index + 1);
       continue;
     }
@@ -477,6 +483,8 @@ function globalMarketStateAt(context: BacktestContext, sourceTimestamp: number):
     ? context.breadthDatasets
     : [context.benchmarkDataset];
   const snapshots = breadthDatasets
+    .filter((dataset): dataset is HistoricalDataset => Boolean(dataset))
+    .filter((dataset) => !context.pointInTimeUniverse || context.pointInTimeUniverse(dataset, sourceTimestamp))
     .map((dataset) => {
       const datasetIndex = lastIndexAtOrBefore(dataset.candles["15m"], sourceTimestamp);
       return datasetIndex < 0 ? undefined : snapshotAt(dataset, datasetIndex);
@@ -737,6 +745,9 @@ function tradeResult(
     slippageUsdt,
     theoreticalRiskUsdt: plan.theoreticalRiskUsdt,
     policyFeatures: options.policyFeatures,
+    entryEdgeFeatures: candidate.entryEdgeFeatures,
+    reversalRisk: candidate.reversalRisk,
+    momentumPhase: candidate.momentumPhase,
     expectedNetR: options.expectedNetR,
     path: options.path,
     forward: calculateForwardEdge(

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { calculateForwardEdge } from "../lib/backtest/forward-metrics";
 import { evaluateExecutionDelay, simulateDelayedReferenceTrade } from "../lib/backtest/execution-stress";
 import { createFrozenHoldoutWindow, createPurgedWalkForwardFolds, evaluatePromotionGate, type DirectionalValidationMetrics } from "../lib/backtest/validation";
+import { evaluateStrategyHealth } from "../lib/core/strategy-health";
 import { buildGlobalMarketStateFromSnapshots } from "../lib/core/market-regime";
 import { fitDirectionalCostAwareScoreModel, projectedFundingCostRiskFraction } from "../lib/core/opportunity-policy";
 import { fitDirectionalScoreCalibration, scoreCandidate } from "../lib/core/scoring";
@@ -9,7 +10,7 @@ import { DEFAULT_V5_POLICY } from "../lib/core/policy-registry";
 import { buildTradePlan } from "../lib/core/risk";
 import { admitSignal } from "../lib/core/signal-admission";
 import { DEFAULT_STRATEGY_PARAMS, generateCandidates } from "../lib/core/strategies";
-import { DEFAULT_NO_CHASE_POLICY, evaluateNoChase } from "../lib/core/v5-entry-policy";
+import { DEFAULT_NO_CHASE_POLICY, DEFAULT_V51_ENTRY_EDGE_POLICY, evaluateNoChase, generateV51CandidateWithDiagnostics } from "../lib/core/v5-entry-policy";
 import { evaluateUniverseQuality } from "../lib/core/universe-policy";
 import type { Candle, Instrument, MarketSnapshot, MarketStateKey, NoChaseFeatures, StrategyCandidate } from "../lib/core/types";
 
@@ -70,6 +71,17 @@ describe("V5 entry separation and symmetric no-chase", () => {
     };
     expect(evaluateNoChase("LONG", features, DEFAULT_NO_CHASE_POLICY).passed).toBe(false);
     expect(evaluateNoChase("SHORT", { ...features, rsi: 38 }, DEFAULT_NO_CHASE_POLICY).passed).toBe(false);
+  });
+
+  it("keeps V5.1 entry-edge rejection observable and policy-controlled", () => {
+    const diagnostics = generateV51CandidateWithDiagnostics(
+      makeSnapshot(trendCandles(140, "LONG", true), "BULL_PULLBACK"),
+      { ...DEFAULT_STRATEGY_PARAMS, entryMode: "V5_1_SIGNAL_EDGE" },
+      undefined,
+      { ...DEFAULT_V51_ENTRY_EDGE_POLICY, maxReversalRisk: "LOW" },
+    );
+    expect(diagnostics.candidate).toBeNull();
+    expect(diagnostics.rejectionReasons).toContain("ENTRY_EDGE_REJECTED");
   });
 });
 
@@ -305,6 +317,34 @@ describe("validation integrity guards", () => {
     const decision = evaluatePromotionGate(metrics, { frozenHoldout: true });
     expect(decision.passed).toBe(true);
     expect(decision.reasons).not.toContain("median_net_r");
+  });
+});
+
+describe("prospective strategy health gate", () => {
+  it("does not fail closed on only two or three settled losses", () => {
+    const decision = evaluateStrategyHealth([
+      { rMultiple: -1, exitReason: "STOP_LOSS" },
+      { rMultiple: -1, exitReason: "STOP_LOSS" },
+      { rMultiple: -1, exitReason: "STOP_LOSS" },
+    ]);
+
+    expect(decision.status).toBe("UNKNOWN");
+    expect(decision.productionAAllowed).toBe(false);
+  });
+
+  it("fails closed on a sustained prospective stop-heavy degradation", () => {
+    const decision = evaluateStrategyHealth([
+      ...Array.from({ length: 10 }, (_, index) => ({
+        rMultiple: index === 0 ? 0.8 : -0.8,
+        exitReason: index === 0 ? "TAKE_PROFIT" : "STOP_LOSS",
+        entryTime: index,
+      })),
+      { rMultiple: -0.8, exitReason: "STOP_LOSS", entryTime: 11 },
+    ]);
+
+    expect(decision.status).toBe("FAIL_CLOSED");
+    expect(decision.productionAAllowed).toBe(false);
+    expect(decision.reasons).toContain("rolling_stop_rate");
   });
 });
 

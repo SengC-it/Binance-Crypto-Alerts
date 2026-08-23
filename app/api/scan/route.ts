@@ -8,7 +8,8 @@ import {
   PRODUCTION_ENTRY_MODE,
   PRODUCTION_STRATEGY_VERSION,
   V5_ENTRY_MODE,
-  V5_STRATEGY_VERSION,
+  V51_ENTRY_MODE,
+  V51_STRATEGY_VERSION,
 } from "@/lib/core/production-policy";
 import { admitSignal, type SignalAdmissionDecision } from "@/lib/core/signal-admission";
 import { DEFAULT_V5_POLICY, type V5Policy } from "@/lib/core/policy-registry";
@@ -16,9 +17,9 @@ import { buildTradePlan } from "@/lib/core/risk";
 import { rankCandidates } from "@/lib/core/scoring";
 import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
 import { fifteenMinuteGroupKey, signalKey, zonedDateString } from "@/lib/core/time";
-import type { Instrument, MarketSnapshot, ScoredCandidate, Timeframe, TradePlan } from "@/lib/core/types";
+import type { Instrument, MarketSnapshot, ScoredCandidate, StrategyHealthStatus, Timeframe, TradePlan } from "@/lib/core/types";
 import { closedCandleOnly, evaluateUniverseQuality, liveSnapshotUniversePolicy } from "@/lib/core/universe-policy";
-import { generateV5CandidateWithDiagnostics } from "@/lib/core/v5-entry-policy";
+import { generateV5CandidateWithDiagnostics, generateV51CandidateWithDiagnostics } from "@/lib/core/v5-entry-policy";
 import { sendSignalEmail, sendSystemAlertEmail } from "@/lib/notifications/email";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -41,6 +42,7 @@ import {
 } from "@/lib/services/signal-repository";
 import type { StagedOpportunity } from "@/lib/services/signal-repository";
 import { createPaperTrade, createShadowPaperTrade } from "@/lib/services/paper-trading";
+import { loadProspectiveStrategyHealth } from "@/lib/services/strategy-health";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -92,7 +94,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     };
     const v5StrategyParams: StrategyParams = {
       ...DEFAULT_STRATEGY_PARAMS,
-      entryMode: V5_ENTRY_MODE,
+      entryMode: V51_ENTRY_MODE,
       stopAtrMultiplier: runtimeConfig.CS_STRATEGY_STOP_ATR_MULTIPLIER,
     };
     supabase = getSupabaseAdmin();
@@ -105,7 +107,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     }
     if (approvedPolicy) {
       Object.assign(v5StrategyParams, approvedPolicy.strategyParams, {
-        entryMode: V5_ENTRY_MODE,
+        entryMode: V51_ENTRY_MODE,
         noChasePolicy: approvedPolicy.noChasePolicy,
       });
     }
@@ -146,6 +148,10 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     }
     const statefulSnapshots = validSnapshots.map((snapshot) => ({ ...snapshot, globalMarketState }));
     const v5UniversePolicy = liveSnapshotUniversePolicy(approvedPolicy?.universePolicy ?? DEFAULT_V5_POLICY.universePolicy);
+    const controlHealth = await loadProspectiveStrategyHealth(supabase, PRODUCTION_STRATEGY_VERSION);
+    const v51Health = await loadProspectiveStrategyHealth(supabase, V51_STRATEGY_VERSION, {
+      table: "bca_shadow_paper_trades",
+    });
     const universeRejectionStats: Record<string, number> = {};
     const v5UniverseSnapshots = statefulSnapshots.filter((snapshot) => {
       const quality = evaluateUniverseQuality(
@@ -175,7 +181,14 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     const v5Opportunities = runtimeConfig.CS_SHADOW_TRADING_ENABLED
       ? v5SnapshotsWithFunding.flatMap((snapshot) => {
         try {
-          const opportunity = buildOpportunity(snapshot, v5StrategyParams, runtimeConfig, approvedPolicy ?? DEFAULT_V5_POLICY, v5RejectionStats);
+          const opportunity = buildOpportunity(
+            snapshot,
+            v5StrategyParams,
+            runtimeConfig,
+            approvedPolicy ?? DEFAULT_V5_POLICY,
+            v5RejectionStats,
+            v51Health.status,
+          );
           return opportunity ? [opportunity] : [];
         } catch (error) {
           errors.push({ symbol: snapshot.instrument.symbol, stage: "v5_shadow_risk_plan", message: errorMessage(error) });
@@ -185,14 +198,24 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       : [];
     const candidates = controlOpportunities;
     const shadowCandidates = v5Opportunities;
-    const signalStats = summarizeSignalStats(
+    const signalStats = {
+      ...summarizeSignalStats(
       universe.length,
       v5UniverseSnapshots.length,
       candidates,
       shadowCandidates,
       statefulSnapshots.length - v5UniverseSnapshots.length,
       { ...universeRejectionStats, ...v5RejectionStats },
-    );
+      ),
+      CONTROL_HEALTH_HEALTHY: controlHealth.status === "HEALTHY" ? 1 : 0,
+      CONTROL_HEALTH_DEGRADED: controlHealth.status === "DEGRADED" ? 1 : 0,
+      CONTROL_HEALTH_FAIL_CLOSED: controlHealth.status === "FAIL_CLOSED" ? 1 : 0,
+      CONTROL_HEALTH_UNKNOWN: controlHealth.status === "UNKNOWN" ? 1 : 0,
+      V51_HEALTH_HEALTHY: v51Health.status === "HEALTHY" ? 1 : 0,
+      V51_HEALTH_DEGRADED: v51Health.status === "DEGRADED" ? 1 : 0,
+      V51_HEALTH_FAIL_CLOSED: v51Health.status === "FAIL_CLOSED" ? 1 : 0,
+      V51_HEALTH_UNKNOWN: v51Health.status === "UNKNOWN" ? 1 : 0,
+    };
 
     await stageScanCandidates(supabase, candidates.map((opportunity) => ({
       scanRunId: scanRunId as string,
@@ -257,7 +280,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           singleRiskCapUsdt: runtimeConfig.CS_PER_SIGNAL_RISK_CAP_USDT,
           dailyEmailCap: runtimeConfig.CS_NEW_EMAIL_DAILY_CAP,
           scanEmailCap: runtimeConfig.CS_MAX_EMAILS_PER_SCAN,
-          shouldEmail: hasEmailConfig,
+          shouldEmail: hasEmailConfig && controlHealth.productionAAllowed,
           maxConcurrentPositions: runtimeConfig.CS_MAX_CONCURRENT_POSITIONS,
           cooldownHours: runtimeConfig.CS_COOLDOWN_HOURS,
           takerFeeRate: runtimeConfig.CS_PAPER_TAKER_FEE_RATE,
@@ -328,7 +351,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           symbol: shadowOpportunity.symbol,
           candidate: shadowOpportunity.candidate,
           plan: shadowOpportunity.plan,
-          strategyVersion: V5_STRATEGY_VERSION,
+          strategyVersion: V51_STRATEGY_VERSION,
           sourceTimestamp: shadowOpportunity.sourceTimestamp,
           slippageBps: runtimeConfig.CS_PAPER_SLIPPAGE_BPS,
           admission: shadowOpportunity.admission,
@@ -383,11 +406,15 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         sideFilter: runtimeConfig.CS_SIGNAL_SIDE_FILTER,
         control: true,
         v5Shadow: {
-          version: V5_STRATEGY_VERSION,
-          entryMode: V5_ENTRY_MODE,
-          policyVersion: approvedPolicy?.policyVersion ?? V5_STRATEGY_VERSION,
+          version: V51_STRATEGY_VERSION,
+          entryMode: V51_ENTRY_MODE,
+          policyVersion: approvedPolicy?.policyVersion ?? V51_STRATEGY_VERSION,
           directionApproval: approvedPolicy?.directionApproval ?? DEFAULT_V5_POLICY.directionApproval,
         },
+      },
+      strategyHealth: {
+        control: controlHealth,
+        v51: v51Health,
       },
       signalStats,
     });
@@ -434,13 +461,19 @@ function buildOpportunity(
   config: ServerConfig,
   policy?: V5Policy,
   rejectionStats: Record<string, number> = {},
+  strategyHealth?: StrategyHealthStatus,
 ): SignalOpportunity | undefined {
-  const isV5 = strategyParams.entryMode === V5_ENTRY_MODE;
+  const isV5 = strategyParams.entryMode === V5_ENTRY_MODE || strategyParams.entryMode === V51_ENTRY_MODE;
+  const isV51 = strategyParams.entryMode === V51_ENTRY_MODE;
   if (isV5 && Date.now() - snapshot.sourceTimestamp > config.CS_STALE_CANDLE_MINUTES * 60_000) {
     incrementRejection(rejectionStats, "STALE_DATA");
     return undefined;
   }
-  const generatedV5 = isV5 ? generateV5CandidateWithDiagnostics(snapshot, strategyParams) : undefined;
+  const generatedV5 = isV51
+    ? generateV51CandidateWithDiagnostics(snapshot, strategyParams)
+    : isV5
+      ? generateV5CandidateWithDiagnostics(snapshot, strategyParams)
+      : undefined;
   for (const reason of generatedV5?.rejectionReasons ?? []) incrementRejection(rejectionStats, reason);
   const generatedCandidates = isV5
     ? generatedV5?.candidate ? [generatedV5.candidate] : []
@@ -494,6 +527,7 @@ function buildOpportunity(
   const admission = isV5
     ? admitSignal(candidate, policy, {
       policyFeatures,
+      strategyHealth,
       expectedNetR: policy?.expectedEdgeModel && candidate.marketState
         ? expectedDirectionalNetR(policy.expectedEdgeModel, candidate.side, candidate.score, {
           marketState: candidate.marketState,
@@ -562,6 +596,10 @@ function summarizeSignalStats(
     INSUFFICIENT_SAMPLE: rejectionStats.INSUFFICIENT_SAMPLE ?? 0,
     DIRECTION_NOT_APPROVED: rejectionStats.DIRECTION_NOT_APPROVED ?? 0,
     FUNDING_UNAVAILABLE: rejectionStats.FUNDING_UNAVAILABLE ?? 0,
+    ENTRY_EDGE_REJECTED: rejectionStats.ENTRY_EDGE_REJECTED ?? 0,
+    STRATEGY_HEALTH_UNKNOWN: rejectionStats.STRATEGY_HEALTH_UNKNOWN ?? 0,
+    STRATEGY_HEALTH_DEGRADED: rejectionStats.STRATEGY_HEALTH_DEGRADED ?? 0,
+    STRATEGY_HEALTH_FAIL_CLOSED: rejectionStats.STRATEGY_HEALTH_FAIL_CLOSED ?? 0,
   };
   const admissionReasonCounts: Record<string, number> = {};
   for (const opportunity of v5Candidates) {
@@ -586,6 +624,10 @@ function summarizeSignalStats(
     "INSUFFICIENT_SAMPLE",
     "DIRECTION_NOT_APPROVED",
     "FUNDING_UNAVAILABLE",
+    "ENTRY_EDGE_REJECTED",
+    "STRATEGY_HEALTH_UNKNOWN",
+    "STRATEGY_HEALTH_DEGRADED",
+    "STRATEGY_HEALTH_FAIL_CLOSED",
   ]) {
     stats[key] = (rejectionStats[key] ?? 0) + (admissionReasonCounts[key] ?? 0);
   }

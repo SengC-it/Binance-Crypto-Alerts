@@ -153,6 +153,10 @@ async function insertPaperTrade(
         confidence: input.admission?.confidence ?? null,
         calibration_samples: input.admission?.calibrationSamples ?? 0,
         rejection_reason: input.admission?.reasons[0] ?? null,
+        entry_edge_features: input.candidate.entryEdgeFeatures ?? null,
+        reversal_risk: input.candidate.reversalRisk ?? null,
+        momentum_phase: input.candidate.momentumPhase ?? null,
+        no_chase_features: input.candidate.noChase?.features ?? null,
       },
     })
     .select("id")
