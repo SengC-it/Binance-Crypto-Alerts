@@ -62,6 +62,29 @@ export interface StrategyHealthDecision {
   policy: StrategyHealthPolicy;
 }
 
+export interface StrategyHealthEvent {
+  eventType: "WARNING";
+  severity: "CRITICAL" | "WARNING";
+  component: "production_signal_health_gate";
+  message: string;
+  details: StrategyHealthDecision;
+}
+
+export function buildStrategyHealthEvent(
+  decision: StrategyHealthDecision,
+  batchNumber: number,
+): StrategyHealthEvent | null {
+  if (decision.status === "HEALTHY" || batchNumber !== 0) return null;
+
+  return {
+    eventType: "WARNING",
+    severity: decision.status === "FAIL_CLOSED" ? "CRITICAL" : "WARNING",
+    component: "production_signal_health_gate",
+    message: `Production strategy health is ${decision.status}; Production A email is blocked.`,
+    details: decision,
+  };
+}
+
 export function evaluateStrategyHealth(
   rollingTrades: StrategyHealthTrade[],
   historicalTrades: StrategyHealthTrade[] = [],

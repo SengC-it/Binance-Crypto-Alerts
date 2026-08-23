@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { PRODUCTION_STRATEGY_VERSION, SHADOW_STRATEGY_VERSION } from "../lib/core/production-policy";
 import {
   DEFAULT_STRATEGY_HEALTH_POLICY,
+  buildStrategyHealthEvent,
   evaluateStrategyHealth,
 } from "../lib/core/strategy-health";
 import { loadProspectiveStrategyHealth } from "../lib/services/strategy-health";
@@ -85,6 +86,49 @@ describe("Production Strategy Health Gate", () => {
     expect(decision.status).toBe("UNKNOWN");
     expect(decision.productionAAllowed).toBe(false);
     expect(decision.reasons[0]).toContain("health_query_failed");
+  });
+
+  it("uses WARNING events with status-specific severity", () => {
+    const failClosed = evaluateStrategyHealth(productionHealth11Trades);
+    const degraded = evaluateStrategyHealth([
+      ...Array.from({ length: 5 }, (_, index) => ({
+        entryTime: index,
+        rMultiple: 0.2,
+        exitReason: "TAKE_PROFIT",
+      })),
+      ...Array.from({ length: 5 }, (_, index) => ({
+        entryTime: index + 5,
+        rMultiple: -0.3,
+        exitReason: "TIME_LIMIT",
+      })),
+    ]);
+    const unknown = evaluateStrategyHealth([]);
+
+    expect(failClosed.status).toBe("FAIL_CLOSED");
+    expect(degraded.status).toBe("DEGRADED");
+    expect(unknown.status).toBe("UNKNOWN");
+    expect(buildStrategyHealthEvent(failClosed, 0)).toMatchObject({
+      eventType: "WARNING",
+      severity: "CRITICAL",
+    });
+    expect(buildStrategyHealthEvent(degraded, 0)).toMatchObject({
+      eventType: "WARNING",
+      severity: "WARNING",
+    });
+    expect(buildStrategyHealthEvent(unknown, 0)).toMatchObject({
+      eventType: "WARNING",
+      severity: "WARNING",
+    });
+    expect(failClosed.productionAAllowed).toBe(false);
+    expect(degraded.productionAAllowed).toBe(false);
+    expect(unknown.productionAAllowed).toBe(false);
+  });
+
+  it("records the health event only for batch zero", () => {
+    const failed = evaluateStrategyHealth(productionHealth11Trades);
+
+    expect(buildStrategyHealthEvent(failed, 0)).not.toBeNull();
+    expect(buildStrategyHealthEvent(failed, 1)).toBeNull();
   });
 
   it("does not change paper tracking or strategy selection boundaries", () => {
