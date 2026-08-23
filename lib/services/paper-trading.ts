@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { mapWithConcurrency, BinancePublicClient } from "@/lib/binance/public-client";
 import type { Candle, FundingRatePoint, ScoredCandidate, TradePlan } from "@/lib/core/types";
+import type { SignalAdmissionDecision } from "@/lib/core/signal-admission";
 
 const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
 const PRODUCTION_PAPER_TABLE = "bca_paper_trades";
@@ -15,6 +16,8 @@ export interface PaperTradeCreateInput {
   strategyVersion: string;
   sourceTimestamp: number;
   slippageBps: number;
+  admission?: SignalAdmissionDecision;
+  executionDelayMinutes?: number;
 }
 
 interface PaperTradeRecord {
@@ -108,7 +111,16 @@ async function insertPaperTrade(
       side: input.candidate.side,
       strategy_family: input.candidate.strategyFamily,
       strategy_version: input.strategyVersion,
-      entry_time: new Date(input.sourceTimestamp).toISOString(),
+      policy_version: input.admission?.policyVersion ?? input.strategyVersion,
+      signal_tier: input.admission?.tier ?? null,
+      market_state: input.candidate.marketState ?? "UNKNOWN",
+      setup_type: input.candidate.setupType ?? "NO_SETUP",
+      entry_trigger: input.candidate.entryTrigger ?? "NONE",
+      expected_net_r: input.admission?.expectedNetR ?? null,
+      confidence: input.admission?.confidence ?? null,
+      calibration_samples: input.admission?.calibrationSamples ?? 0,
+      rejection_reason: input.admission?.reasons[0] ?? null,
+      entry_time: new Date(input.sourceTimestamp + (input.executionDelayMinutes ?? 0) * 60_000).toISOString(),
       entry_price: input.plan.entryPrice,
       entry_fill_price: entryFillPrice,
       stop_price: input.plan.stopPrice,
@@ -122,8 +134,19 @@ async function insertPaperTrade(
       last_price: entryFillPrice,
       metadata: {
         source_data_timestamp: new Date(input.sourceTimestamp).toISOString(),
-        entry_model: "just_closed_15m_reference",
+        entry_model: input.executionDelayMinutes ? "manual_execution_delay_proxy" : "T0_reference",
+        execution_delay_minutes: input.executionDelayMinutes ?? 0,
+        execution_delay_proxy: Boolean(input.executionDelayMinutes),
         slippage_bps: input.slippageBps,
+        signal_tier: input.admission?.tier ?? null,
+        policy_version: input.admission?.policyVersion ?? input.strategyVersion,
+        market_state: input.candidate.marketState ?? "UNKNOWN",
+        setup_type: input.candidate.setupType ?? "NO_SETUP",
+        entry_trigger: input.candidate.entryTrigger ?? "NONE",
+        expected_net_r: input.admission?.expectedNetR ?? null,
+        confidence: input.admission?.confidence ?? null,
+        calibration_samples: input.admission?.calibrationSamples ?? 0,
+        rejection_reason: input.admission?.reasons[0] ?? null,
       },
     })
     .select("id")

@@ -1,6 +1,8 @@
-import type { OpportunityPolicyFeatures } from "@/lib/core/opportunity-policy";
-import type { Candle, FundingRatePoint, Instrument, MarketRegime } from "@/lib/core/types";
+import type { DirectionalCostAwareScoreModel, OpportunityPolicyFeatures } from "@/lib/core/opportunity-policy";
+import type { Candle, FundingRatePoint, Instrument, MarketRegime, MarketStateKey } from "@/lib/core/types";
+import type { DirectionalScoreCalibrationModel } from "@/lib/core/scoring";
 import type { StrategyParams } from "@/lib/core/strategies";
+import type { ForwardEdgeMetrics } from "./forward-metrics";
 
 export interface HistoricalDataset {
   symbol: string;
@@ -37,11 +39,15 @@ export interface BacktestTrade {
   side: "LONG" | "SHORT";
   strategyFamily: string;
   marketRegime: MarketRegime;
+  marketState?: MarketStateKey;
   entryTime: number;
   exitTime: number;
   score: number;
   entryPrice: number;
   exitPrice: number;
+  referenceEntryPrice?: number;
+  referenceExitPrice?: number;
+  quantity?: number;
   rMultiple: number;
   pnlUsdt: number;
   grossPnlUsdt: number;
@@ -52,6 +58,7 @@ export interface BacktestTrade {
   policyFeatures?: OpportunityPolicyFeatures;
   expectedNetR?: number | null;
   path?: TradePathMetrics;
+  forward?: ForwardEdgeMetrics;
   exitReason: "STOP" | "TAKE_PROFIT" | "BREAKEVEN" | "PROFIT_LOCK" | "TRAILING_STOP" | "TIME_STOP" | "TIME_LIMIT" | "DATA_END";
 }
 
@@ -75,6 +82,12 @@ export interface BacktestMetrics {
   finalEquityUsdt: number;
   initialCapitalUsdt: number;
   eligible: boolean;
+  averageNetR?: number;
+  medianNetR?: number;
+  cvar95?: number;
+  averageMfeR?: number;
+  averageMaeR?: number;
+  stopFirstRate?: number;
 }
 
 export interface BacktestResult {
@@ -104,6 +117,7 @@ export interface PortfolioBacktestResult {
 export interface OptimizerResult {
   params: StrategyParams;
   train: BacktestMetrics;
+  validation: BacktestMetrics;
   outOfSample: BacktestMetrics;
   datasetCount: number;
   eligible: boolean;

@@ -41,6 +41,16 @@ export interface ScoreCalibrationFitOptions {
   priorWeight?: number;
 }
 
+export interface DirectionalScoreCalibrationSample extends ScoreCalibrationSample {
+  side: Side;
+}
+
+export interface DirectionalScoreCalibrationModel {
+  byDirection: Record<Side, ScoreCalibrationModel | null>;
+  minimumSamples: number;
+  minimumExpectedNetR: number;
+}
+
 const WEIGHTS: Record<keyof ScoreComponents, number> = {
   trendAlignment: 0.2,
   momentum: 0.16,
@@ -60,6 +70,7 @@ export function scoreCandidate(candidate: StrategyCandidate): ScoredCandidate {
   return {
     ...candidate,
     score: round(weightedScore * 100, 3),
+    structuralScore: round(weightedScore * 100, 3),
     scoreComponents: normalizeComponents(candidate.scoreComponents),
   };
 }
@@ -163,6 +174,45 @@ export function passesEmpiricalScoreCalibration(
     && bin.samples >= model.minimumSamples
     && bin.meanNetR >= model.minimumExpectedNetR,
   );
+}
+
+export function fitDirectionalScoreCalibration(
+  samples: DirectionalScoreCalibrationSample[],
+  options: ScoreCalibrationFitOptions = {},
+): DirectionalScoreCalibrationModel {
+  const byDirection: Record<Side, ScoreCalibrationModel | null> = {
+    LONG: null,
+    SHORT: null,
+  };
+  for (const side of ["LONG", "SHORT"] as const) {
+    const sideSamples = samples.filter((sample) => sample.side === side);
+    byDirection[side] = sideSamples.length === 0 ? null : fitScoreCalibration(sideSamples, options);
+  }
+  return {
+    byDirection,
+    minimumSamples: Math.max(1, Math.floor(options.minimumSamples ?? 40)),
+    minimumExpectedNetR: options.minimumExpectedNetR ?? 0.02,
+  };
+}
+
+export function expectedDirectionalNetR(
+  model: DirectionalScoreCalibrationModel,
+  side: Side,
+  score: number,
+  strategyFamily?: StrategyCandidate["strategyFamily"],
+): number | null {
+  const sideModel = model.byDirection[side];
+  return sideModel ? expectedNetRForScore(sideModel, score, strategyFamily) : null;
+}
+
+export function passesDirectionalEmpiricalScoreCalibration(
+  model: DirectionalScoreCalibrationModel,
+  side: Side,
+  score: number,
+  strategyFamily?: StrategyCandidate["strategyFamily"],
+): boolean {
+  const sideModel = model.byDirection[side];
+  return Boolean(sideModel && passesEmpiricalScoreCalibration(sideModel, score, strategyFamily));
 }
 
 function normalizeComponents(components: ScoreComponents): ScoreComponents {

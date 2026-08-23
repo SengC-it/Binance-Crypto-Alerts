@@ -2,17 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { BinancePublicClient, mapWithConcurrency, selectDeepUniverse } from "@/lib/binance/public-client";
 import { getServerConfig, type ServerConfig } from "@/lib/config";
 import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
+import { buildGlobalMarketState, classifyRegime } from "@/lib/core/market-regime";
+import { expectedDirectionalNetR } from "@/lib/core/opportunity-policy";
 import {
   PRODUCTION_ENTRY_MODE,
   PRODUCTION_STRATEGY_VERSION,
-  SHADOW_ENTRY_MODE,
-  SHADOW_STRATEGY_VERSION,
+  V5_ENTRY_MODE,
+  V5_STRATEGY_VERSION,
 } from "@/lib/core/production-policy";
+import { admitSignal, type SignalAdmissionDecision } from "@/lib/core/signal-admission";
+import { DEFAULT_V5_POLICY, type V5Policy } from "@/lib/core/policy-registry";
 import { buildTradePlan } from "@/lib/core/risk";
 import { rankCandidates } from "@/lib/core/scoring";
 import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
 import { fifteenMinuteGroupKey, signalKey, zonedDateString } from "@/lib/core/time";
 import type { Instrument, MarketSnapshot, ScoredCandidate, Timeframe, TradePlan } from "@/lib/core/types";
+import { closedCandleOnly, DEFAULT_UNIVERSE_POLICY, evaluateUniverseQuality } from "@/lib/core/universe-policy";
 import { sendSignalEmail, sendSystemAlertEmail } from "@/lib/notifications/email";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -24,6 +29,7 @@ import {
   finishScanGroup,
   listStagedCandidates,
   listStagedShadowCandidates,
+  loadApprovedPolicy,
   recordSystemEvent,
   stageScanCandidates,
   stageShadowCandidates,
@@ -76,11 +82,25 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       entryMode: PRODUCTION_ENTRY_MODE,
       stopAtrMultiplier: runtimeConfig.CS_STRATEGY_STOP_ATR_MULTIPLIER,
     };
-    const shadowStrategyParams: StrategyParams = {
-      ...strategyParams,
-      entryMode: SHADOW_ENTRY_MODE,
+    const v5StrategyParams: StrategyParams = {
+      ...DEFAULT_STRATEGY_PARAMS,
+      entryMode: V5_ENTRY_MODE,
+      stopAtrMultiplier: runtimeConfig.CS_STRATEGY_STOP_ATR_MULTIPLIER,
     };
     supabase = getSupabaseAdmin();
+    const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
+    let approvedPolicy: V5Policy | undefined;
+    try {
+      approvedPolicy = await loadApprovedPolicy(supabase, runtimeConfig.CS_V5_POLICY_VERSION);
+    } catch (error) {
+      errors.push({ stage: "policy_lookup", message: errorMessage(error) });
+    }
+    if (approvedPolicy) {
+      Object.assign(v5StrategyParams, approvedPolicy.strategyParams, {
+        entryMode: V5_ENTRY_MODE,
+        noChasePolicy: approvedPolicy.noChasePolicy,
+      });
+    }
     await upsertInstruments(supabase, universe.map(toInstrumentRow));
     scanRunId = await createScanRun(supabase, {
       runKey,
@@ -91,7 +111,6 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       universeSize: universe.length,
     });
 
-    const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
     const snapshots = await mapWithConcurrency(batch, runtimeConfig.CS_REQUEST_CONCURRENCY, async (instrument) => {
       try {
         const timeframes = normalizedTimeframes(runtimeConfig.scanTimeframes);
@@ -102,8 +121,24 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       }
     });
 
-    const candidates = snapshots
+    const validSnapshots = snapshots
       .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
+      .map((snapshot) => ({ ...snapshot, globalMarketState: undefined }));
+    let globalMarketState: MarketSnapshot["globalMarketState"];
+    try {
+      globalMarketState = await loadGlobalMarketState(client, universe, validSnapshots, normalizedTimeframes(runtimeConfig.scanTimeframes));
+    } catch (error) {
+      errors.push({ stage: "global_market_state", message: errorMessage(error) });
+    }
+    const statefulSnapshots = validSnapshots.map((snapshot) => ({ ...snapshot, globalMarketState }));
+    const v5UniversePolicy = { ...DEFAULT_UNIVERSE_POLICY, minimumHistoryDays: 0 };
+    const v5UniverseSnapshots = statefulSnapshots.filter((snapshot) => evaluateUniverseQuality(
+      snapshot.instrument,
+      closedCandleOnly(snapshot.candles["15m"] ?? [], snapshot.sourceTimestamp),
+      Date.now(),
+      v5UniversePolicy,
+    ).eligible);
+    const controlOpportunities = statefulSnapshots
       .flatMap((snapshot) => {
         try {
           const opportunity = buildOpportunity(snapshot, strategyParams, runtimeConfig);
@@ -114,21 +149,20 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         }
       })
       .sort((left, right) => right.candidate.score - left.candidate.score);
-
-    const shadowCandidates = runtimeConfig.CS_SHADOW_TRADING_ENABLED
-      ? snapshots
-          .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
-          .flatMap((snapshot) => {
-            try {
-              const opportunity = buildOpportunity(snapshot, shadowStrategyParams, runtimeConfig);
-              return opportunity ? [opportunity] : [];
-            } catch (error) {
-              errors.push({ symbol: snapshot.instrument.symbol, stage: "shadow_risk_plan", message: errorMessage(error) });
-              return [];
-            }
-          })
-          .sort((left, right) => right.candidate.score - left.candidate.score)
+    const v5Opportunities = runtimeConfig.CS_SHADOW_TRADING_ENABLED
+      ? v5UniverseSnapshots.flatMap((snapshot) => {
+        try {
+          const opportunity = buildOpportunity(snapshot, v5StrategyParams, runtimeConfig, approvedPolicy ?? DEFAULT_V5_POLICY);
+          return opportunity ? [opportunity] : [];
+        } catch (error) {
+          errors.push({ symbol: snapshot.instrument.symbol, stage: "v5_shadow_risk_plan", message: errorMessage(error) });
+          return [];
+        }
+      }).sort((left, right) => right.candidate.score - left.candidate.score)
       : [];
+    const candidates = controlOpportunities;
+    const shadowCandidates = v5Opportunities;
+    const signalStats = summarizeSignalStats(universe.length, v5UniverseSnapshots.length, candidates, shadowCandidates, statefulSnapshots.length - v5UniverseSnapshots.length);
 
     await stageScanCandidates(supabase, candidates.map((opportunity) => ({
       scanRunId: scanRunId as string,
@@ -137,6 +171,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       sourceTimestamp: opportunity.snapshot.sourceTimestamp,
       candidate: opportunity.candidate,
       plan: opportunity.plan,
+      admission: opportunity.admission,
     })));
     await stageShadowCandidates(supabase, shadowCandidates.map((opportunity) => ({
       scanRunId: scanRunId as string,
@@ -145,6 +180,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       sourceTimestamp: opportunity.snapshot.sourceTimestamp,
       candidate: opportunity.candidate,
       plan: opportunity.plan,
+      admission: opportunity.admission,
     })));
     await completeScanRun(supabase, scanRunId, {
       scannedSymbols: batch.length,
@@ -152,6 +188,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       emailedCount: 0,
       status: errors.length === 0 ? "COMPLETED" : "PARTIAL",
       errorSummary: errors,
+      signalStats,
     });
     const finalizing = await tryStartScanGroupFinalization(supabase, scanGroupKey);
     const finalCandidates = finalizing ? await listStagedCandidates(supabase, scanGroupKey) : [];
@@ -260,9 +297,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           symbol: shadowOpportunity.symbol,
           candidate: shadowOpportunity.candidate,
           plan: shadowOpportunity.plan,
-          strategyVersion: SHADOW_STRATEGY_VERSION,
+          strategyVersion: V5_STRATEGY_VERSION,
           sourceTimestamp: shadowOpportunity.sourceTimestamp,
           slippageBps: runtimeConfig.CS_PAPER_SLIPPAGE_BPS,
+          admission: shadowOpportunity.admission,
+          executionDelayMinutes: runtimeConfig.CS_PAPER_EXECUTION_DELAY_MINUTES,
         }, runtimeConfig.CS_COOLDOWN_HOURS);
       } catch (error) {
         errors.push({
@@ -279,6 +318,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       emailedCount,
       status: errors.length === 0 ? "COMPLETED" : "PARTIAL",
       errorSummary: errors,
+      signalStats,
     });
     if (finalizing) await finishScanGroup(supabase, scanGroupKey, "COMPLETED", errors);
 
@@ -291,6 +331,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       deepUniverseSize: deepUniverse.length,
       scannedSymbols: batch.length,
       candidateCount: candidates.length,
+      v5CandidateCount: shadowCandidates.length,
       finalCandidateCount: finalCandidates.length,
       shadowCandidateCount: shadowCandidates.length,
       finalShadowCandidateCount: finalShadowCandidates.length,
@@ -304,7 +345,15 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         version: PRODUCTION_STRATEGY_VERSION,
         entryMode: PRODUCTION_ENTRY_MODE,
         sideFilter: runtimeConfig.CS_SIGNAL_SIDE_FILTER,
+        control: true,
+        v5Shadow: {
+          version: V5_STRATEGY_VERSION,
+          entryMode: V5_ENTRY_MODE,
+          policyVersion: approvedPolicy?.policyVersion ?? V5_STRATEGY_VERSION,
+          directionApproval: approvedPolicy?.directionApproval ?? DEFAULT_V5_POLICY.directionApproval,
+        },
       },
+      signalStats,
     });
   } catch (error) {
     const message = errorMessage(error);
@@ -347,10 +396,13 @@ function buildOpportunity(
   snapshot: MarketSnapshot,
   strategyParams: StrategyParams,
   config: ServerConfig,
-): { snapshot: MarketSnapshot; candidate: ScoredCandidate; plan: TradePlan } | undefined {
+  policy?: V5Policy,
+): SignalOpportunity | undefined {
+  const isV5 = strategyParams.entryMode === V5_ENTRY_MODE;
+  if (isV5 && Date.now() - snapshot.sourceTimestamp > config.CS_STALE_CANDLE_MINUTES * 60_000) return undefined;
   const candidate = rankCandidates(generateCandidates(snapshot, strategyParams), {
-    minimumScore: config.CS_MIN_SIGNAL_SCORE,
-    sideFilter: config.CS_SIGNAL_SIDE_FILTER === "BOTH" ? undefined : config.CS_SIGNAL_SIDE_FILTER,
+    minimumScore: isV5 ? undefined : config.CS_MIN_SIGNAL_SCORE,
+    sideFilter: isV5 || config.CS_SIGNAL_SIDE_FILTER === "BOTH" ? undefined : config.CS_SIGNAL_SIDE_FILTER,
     strategyFamily: config.CS_SIGNAL_STRATEGY_FAMILY === "ALL" ? undefined : config.CS_SIGNAL_STRATEGY_FAMILY,
   }).find((item) => isRegimeAllowed(item, config.CS_REQUIRE_REGIME_ALIGNMENT));
   if (!candidate || !isEntryIntervalAllowed(snapshot.sourceTimestamp, config.CS_ENTRY_INTERVAL_HOURS)) return undefined;
@@ -365,12 +417,108 @@ function buildOpportunity(
     maxPositionNotionalUsdt: config.CS_MAX_POSITION_NOTIONAL_USDT,
   }, snapshot.sourceTimestamp);
   if (plan.riskOverSingleCap) return undefined;
-  if (estimatedExecutionCostRiskFraction(
+  const executionCostRisk = estimatedExecutionCostRiskFraction(
     plan,
     config.CS_PAPER_TAKER_FEE_RATE,
     config.CS_PAPER_SLIPPAGE_BPS,
-  ) > config.CS_MAX_EXECUTION_COST_RISK_FRACTION) return undefined;
-  return { snapshot, candidate, plan };
+  );
+  if (executionCostRisk > config.CS_MAX_EXECUTION_COST_RISK_FRACTION) return undefined;
+  const admission = isV5
+    ? admitSignal(candidate, policy, {
+      policyFeatures: candidate.marketState
+        ? { marketState: candidate.marketState, projectedFundingCostRiskFraction: 0, executionCostRiskFraction: executionCostRisk }
+        : undefined,
+      expectedNetR: policy?.expectedEdgeModel && candidate.marketState
+        ? expectedDirectionalNetR(policy.expectedEdgeModel, candidate.side, candidate.score, {
+          marketState: candidate.marketState,
+          projectedFundingCostRiskFraction: 0,
+          executionCostRiskFraction: executionCostRisk,
+        })
+        : undefined,
+      stressCostAdjustmentR: Math.max(0, estimatedExecutionCostRiskFraction(
+        plan,
+        config.CS_PAPER_TAKER_FEE_RATE,
+        config.CS_PAPER_SLIPPAGE_BPS + 10,
+      ) - executionCostRisk),
+    })
+    : undefined;
+  return { snapshot, candidate, plan, admission };
+}
+
+interface SignalOpportunity {
+  snapshot: MarketSnapshot;
+  candidate: ScoredCandidate;
+  plan: TradePlan;
+  admission?: SignalAdmissionDecision;
+}
+
+function summarizeSignalStats(
+  totalUniverse: number,
+  eligibleUniverse: number,
+  controlCandidates: SignalOpportunity[],
+  v5Candidates: SignalOpportunity[],
+  universeRejected: number,
+): Record<string, number> {
+  const v5ProductionCandidates = v5Candidates.filter((item) => item.admission?.productionEligible);
+  const stats: Record<string, number> = {
+    totalUniverse,
+    eligibleUniverse,
+    universeRejected,
+    candidates: controlCandidates.length,
+    controlCandidates: controlCandidates.length,
+    v5Candidates: v5Candidates.length,
+    longCandidates: controlCandidates.filter((item) => item.candidate.side === "LONG").length,
+    shortCandidates: controlCandidates.filter((item) => item.candidate.side === "SHORT").length,
+    v5LongCandidates: v5Candidates.filter((item) => item.candidate.side === "LONG").length,
+    v5ShortCandidates: v5Candidates.filter((item) => item.candidate.side === "SHORT").length,
+    A: v5ProductionCandidates.length,
+    B: v5Candidates.filter((item) => item.admission?.tier === "B").length,
+    C: v5Candidates.filter((item) => item.admission?.tier === "C").length,
+    noSignal: controlCandidates.length === 0 && v5Candidates.length === 0 ? 1 : 0,
+    rejectedByRegime: 0,
+    rejectedByChase: 0,
+    rejectedByTrigger: 0,
+    rejectedByEV: 0,
+    rejectedBySample: 0,
+    rejectedByCost: 0,
+    rejectedByDirectionApproval: 0,
+  };
+  for (const opportunity of v5Candidates) {
+    for (const reason of opportunity.admission?.reasons ?? []) {
+      const key = reason === "WRONG_REGIME" || reason === "UNKNOWN_MARKET_STATE"
+        ? "rejectedByRegime"
+        : reason === "CHASE" ? "rejectedByChase"
+          : reason === "NO_TRIGGER" ? "rejectedByTrigger"
+            : reason === "NEGATIVE_EV" ? "rejectedByEV"
+              : reason === "INSUFFICIENT_SAMPLE" ? "rejectedBySample"
+                : reason === "COST_STRESS_FAIL" ? "rejectedByCost"
+                  : reason === "DIRECTION_NOT_APPROVED" ? "rejectedByDirectionApproval" : undefined;
+      if (key) stats[key] += 1;
+    }
+  }
+  return stats;
+}
+
+async function loadGlobalMarketState(
+  client: BinancePublicClient,
+  universe: Instrument[],
+  snapshots: MarketSnapshot[],
+  timeframes: Timeframe[],
+): Promise<MarketSnapshot["globalMarketState"]> {
+  const btcInstrument = universe.find((instrument) => instrument.symbol === "BTCUSDT");
+  if (!btcInstrument) return undefined;
+  const ethInstrument = universe.find((instrument) => instrument.symbol === "ETHUSDT");
+  const [btc, eth] = await Promise.all([
+    client.getSnapshot(btcInstrument, timeframes, 250),
+    ethInstrument ? client.getSnapshot(ethInstrument, timeframes, 250) : Promise.resolve(undefined),
+  ]);
+  const trendSymbols = snapshots
+    .map((snapshot) => classifyRegime(snapshot.candles["4h"] ?? snapshot.candles["1h"] ?? []))
+    .filter((regime) => regime === "BULL" || regime === "BEAR");
+  const breadth = trendSymbols.length === 0
+    ? null
+    : trendSymbols.filter((regime) => regime === "BULL").length / trendSymbols.length;
+  return buildGlobalMarketState({ btc, eth, breadth });
 }
 
 function isAuthorized(request: NextRequest, expectedSecret?: string): boolean {
@@ -414,6 +562,7 @@ function toInstrumentRow(instrument: Instrument) {
     max_leverage: instrument.maxLeverage,
     quote_volume_24h: instrument.quoteVolume24h,
     universe_rank: instrument.universeRank,
+    onboard_date: instrument.onboardDate,
     last_seen_at: new Date().toISOString(),
   };
 }

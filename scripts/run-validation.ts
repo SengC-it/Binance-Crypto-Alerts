@@ -434,6 +434,9 @@ async function main() {
     };
   });
 
+  // Legacy reports must not use the out-of-sample window to select a winner.
+  // V5 policy selection is handled by scripts/run-v5-validation.ts with an
+  // explicit purged validation window and frozen holdout.
   results.sort((left, right) => rankResult(right) - rankResult(left));
   const report = {
     generatedAt: new Date().toISOString(),
@@ -2832,12 +2835,9 @@ function passesSuggestedGate(metrics: Metrics): boolean {
 }
 
 function rankResult(result: {
-  outOfSample: Metrics;
-  passesSuggestedGate: boolean;
+  train: Metrics;
 }): number {
-  return (result.passesSuggestedGate ? 1_000_000 : 0)
-    + result.outOfSample.netPnlUsdt
-    - result.outOfSample.maxDrawdownUsdt;
+  return result.train.netPnlUsdt - result.train.maxDrawdownUsdt;
 }
 
 function selectInstruments(universe: Instrument[], symbols: string[], symbolCount: number): Instrument[] {

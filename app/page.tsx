@@ -20,6 +20,15 @@ interface Signal {
   risk_over_single_cap: boolean;
   valid_until: string;
   created_at: string;
+  signal_tier?: string | null;
+  policy_version?: string | null;
+  market_state?: string | null;
+  setup_type?: string | null;
+  entry_trigger?: string | null;
+  expected_net_r?: number | null;
+  confidence?: number | null;
+  calibration_samples?: number | null;
+  rejection_reason?: string | null;
 }
 
 interface ScanRun {
@@ -47,6 +56,26 @@ interface PaperTrade {
 interface SignalSummaryRow {
   score: number;
   status: string;
+  signal_tier?: string | null;
+  policy_version?: string | null;
+  rejection_reason?: string | null;
+}
+
+interface ShadowCandidateRow {
+  symbol: string;
+  score: number;
+  candidate: {
+    side?: string;
+    marketState?: string;
+    setupType?: string;
+    entryTrigger?: string;
+    admission?: {
+      tier?: string;
+      reasons?: string[];
+      policyVersion?: string;
+      expectedNetR?: number | null;
+    };
+  };
 }
 
 interface SettledTradeSummaryRow {
@@ -60,6 +89,7 @@ interface DashboardData {
   scanRuns: ScanRun[];
   paperTrades: PaperTrade[];
   signalSummaryRows: SignalSummaryRow[];
+  shadowCandidates: ShadowCandidateRow[];
   settledTradeSummaryRows: SettledTradeSummaryRow[];
   databaseAvailable: boolean;
 }
@@ -77,12 +107,12 @@ const scoreLabels: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const { signals, scanRuns, paperTrades, signalSummaryRows, settledTradeSummaryRows, databaseAvailable } = await getDashboardData();
+  const { signals, scanRuns, paperTrades, signalSummaryRows, shadowCandidates, settledTradeSummaryRows, databaseAvailable } = await getDashboardData();
   const selected = signals[0] ?? null;
   const latestGroup = scanRuns[0]?.scan_group_key;
   const latestRuns = latestGroup ? scanRuns.filter((run) => run.scan_group_key === latestGroup) : [];
   const scanSummary = summarizeScans(latestRuns);
-  const signalSummary = summarizeSignals(signalSummaryRows);
+  const signalSummary = summarizeSignals(signalSummaryRows, shadowCandidates);
   const tradeSummary = summarizeTrades(settledTradeSummaryRows);
   const healthy = databaseAvailable && scanSummary.status !== "FAILED";
 
@@ -151,6 +181,11 @@ export default async function HomePage() {
             </strong>
             <small>盈亏因子 {tradeSummary.profitFactorLabel}</small>
           </div>
+          <div className="summary-card">
+            <span>V5 分层</span>
+            <strong>A {signalSummary.tierA}</strong>
+            <small>Watch B {signalSummary.tierB} · Reject C {signalSummary.tierC}</small>
+          </div>
         </div>
       </section>
 
@@ -215,6 +250,32 @@ export default async function HomePage() {
                 ))}
               </div>
             )}
+
+            <div className="opportunity-header">
+              <div>
+                <p className="section-kicker">V5 SHADOW / WATCH</p>
+                <h2>V5 观察与拒绝原因</h2>
+              </div>
+              <span>不产生生产告警 · 仅用于校准与人工复核</span>
+            </div>
+            {shadowCandidates.length === 0 ? (
+              <p className="inline-empty">本轮暂无 V5 影子候选。</p>
+            ) : (
+              <div className="opportunity-table">
+                <div className="table-row table-head">
+                  <span>合约 / 方向</span><span>层级</span><span>状态</span><span>触发</span><span>拒绝原因</span>
+                </div>
+                {shadowCandidates.slice(0, 8).map((item, index) => (
+                  <div className="table-row" key={`${item.symbol}-${item.candidate.admission?.policyVersion ?? "v5"}-${index}`}>
+                    <span className="symbol-cell"><strong>{item.symbol}</strong><em className={(item.candidate.side ?? "").toLowerCase()}>{item.candidate.side ?? "—"}</em></span>
+                    <span>{item.candidate.admission?.tier ?? "—"}</span>
+                    <span>{item.candidate.marketState ?? "UNKNOWN"}</span>
+                    <span>{item.candidate.entryTrigger ?? item.candidate.setupType ?? "—"}</span>
+                    <span>{item.candidate.admission?.reasons?.join(", ") ?? "—"}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="panel history-panel">
@@ -257,7 +318,7 @@ export default async function HomePage() {
             {selected ? (
               <div className="signal-detail">
                 <div className="detail-title">
-                  <div><strong>{selected.symbol}</strong><span>{selected.strategy_family}</span></div>
+                  <div><strong>{selected.symbol}</strong><span>{selected.strategy_family} · {selected.policy_version ?? "CONTROL"}</span></div>
                   <div className="score-orb"><strong>{Number(selected.score).toFixed(0)}</strong><span>评分</span></div>
                 </div>
                 <dl className="price-grid">
@@ -277,6 +338,8 @@ export default async function HomePage() {
                   ))}
                 </div>
                 <dl className="risk-metrics">
+                  <div><dt>市场状态 / 结构</dt><dd>{selected.market_state ?? selected.market_regime} · {selected.setup_type ?? "—"}</dd></div>
+                  <div><dt>入场触发</dt><dd>{selected.entry_trigger ?? "—"}</dd></div>
                   <div><dt>假设杠杆</dt><dd>{Number(selected.assumed_leverage).toFixed(0)}×</dd></div>
                   <div><dt>理论最大亏损</dt><dd className={selected.risk_over_single_cap ? "loss" : ""}>{formatPrice(selected.theoretical_risk_usdt)} U</dd></div>
                   <div><dt>信号有效至</dt><dd>{formatDateTime(selected.valid_until)}</dd></div>
@@ -316,10 +379,10 @@ export default async function HomePage() {
 async function getDashboardData(): Promise<DashboardData> {
   try {
     const supabase = getSupabaseAdmin();
-    const [signalsResult, scansResult, tradesResult, signalSummaryResult, settledTradeSummaryResult] = await withTimeout(Promise.all([
+    const [signalsResult, scansResult, tradesResult, signalSummaryResult, shadowCandidatesResult, settledTradeSummaryResult] = await withTimeout(Promise.all([
       supabase
         .from("bca_signals")
-        .select("id,symbol,side,strategy_family,primary_timeframe,score,score_components,market_regime,entry_price,stop_price,take_profit_price,reward_risk,assumed_leverage,theoretical_risk_usdt,risk_over_single_cap,valid_until,created_at")
+        .select("id,symbol,side,strategy_family,primary_timeframe,score,score_components,market_regime,entry_price,stop_price,take_profit_price,reward_risk,assumed_leverage,theoretical_risk_usdt,risk_over_single_cap,valid_until,created_at,signal_tier,policy_version,market_state,setup_type,entry_trigger,expected_net_r,confidence,calibration_samples,rejection_reason")
         .eq("status", "ACTIVE")
         .order("score", { ascending: false })
         .limit(6),
@@ -336,7 +399,12 @@ async function getDashboardData(): Promise<DashboardData> {
         .limit(5),
       supabase
         .from("bca_signals")
-        .select("score,status"),
+        .select("score,status,signal_tier,policy_version,rejection_reason"),
+      supabase
+        .from("bca_shadow_candidates")
+        .select("symbol,score,candidate")
+        .order("created_at", { ascending: false })
+        .limit(24),
       supabase
         .from("bca_paper_trades")
         .select("assumed_margin_usdt,net_pnl_usdt,exit_time")
@@ -345,7 +413,7 @@ async function getDashboardData(): Promise<DashboardData> {
         .order("exit_time", { ascending: true }),
     ]), 8_000);
 
-    const error = signalsResult.error ?? scansResult.error ?? tradesResult.error ?? signalSummaryResult.error ?? settledTradeSummaryResult.error;
+    const error = signalsResult.error ?? scansResult.error ?? tradesResult.error ?? signalSummaryResult.error ?? shadowCandidatesResult.error ?? settledTradeSummaryResult.error;
     if (error) throw error;
 
     return {
@@ -353,6 +421,7 @@ async function getDashboardData(): Promise<DashboardData> {
       scanRuns: (scansResult.data ?? []) as ScanRun[],
       paperTrades: (tradesResult.data ?? []) as PaperTrade[],
       signalSummaryRows: (signalSummaryResult.data ?? []) as SignalSummaryRow[],
+      shadowCandidates: (shadowCandidatesResult.data ?? []) as ShadowCandidateRow[],
       settledTradeSummaryRows: (settledTradeSummaryResult.data ?? []) as SettledTradeSummaryRow[],
       databaseAvailable: true,
     };
@@ -363,6 +432,7 @@ async function getDashboardData(): Promise<DashboardData> {
       scanRuns: [],
       paperTrades: [],
       signalSummaryRows: [],
+      shadowCandidates: [],
       settledTradeSummaryRows: [],
       databaseAvailable: false,
     };
@@ -410,12 +480,16 @@ function summarizeScans(runs: ScanRun[]) {
   };
 }
 
-function summarizeSignals(rows: SignalSummaryRow[]) {
+function summarizeSignals(rows: SignalSummaryRow[], shadowCandidates: ShadowCandidateRow[]) {
   const scores = rows.map((row) => Number(row.score)).filter(Number.isFinite);
+  const shadowTiers = shadowCandidates.map((row) => row.candidate.admission?.tier);
   return {
     totalSignals: rows.length,
     activeSignals: rows.filter((row) => row.status === "ACTIVE").length,
     averageScore: scores.length === 0 ? 0 : scores.reduce((sum, score) => sum + score, 0) / scores.length,
+    tierA: rows.filter((row) => row.signal_tier === "A").length + shadowTiers.filter((tier) => tier === "A").length,
+    tierB: rows.filter((row) => row.signal_tier === "B").length + shadowTiers.filter((tier) => tier === "B").length,
+    tierC: rows.filter((row) => row.signal_tier === "C").length + shadowTiers.filter((tier) => tier === "C").length,
   };
 }
 

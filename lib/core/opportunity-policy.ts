@@ -1,9 +1,9 @@
 import { closes, ema, latest, rsi } from "./indicators";
 import { classifyRegime } from "./market-regime";
-import type { FundingRatePoint, MarketSnapshot, ScoredCandidate, Side, TradePlan } from "./types";
+import type { FundingRatePoint, MarketSnapshot, ScoredCandidate, Side, TradePlan, MarketStateKey as CoreMarketStateKey } from "./types";
 
-export type MarketStateFilter = "NONE" | "BTC_4H_BEAR" | "BTC_4H_BEAR_1H_WEAK";
-export type MarketStateKey = "BEAR_WEAK" | "BEAR_REBOUND" | "OTHER" | "UNKNOWN";
+export type MarketStateFilter = "NONE" | "BTC_4H_BEAR" | "BTC_4H_BEAR_1H_WEAK" | "GLOBAL_BEAR_STRONG" | "GLOBAL_BEAR_REBOUND";
+export type MarketStateKey = CoreMarketStateKey;
 export type FundingCostBucket = "FAVORABLE" | "NEUTRAL" | "COSTLY";
 
 export interface MarketStateAssessment {
@@ -11,6 +11,7 @@ export interface MarketStateAssessment {
   fourHourRegime: ReturnType<typeof classifyRegime>;
   oneHourBelowEma50: boolean | null;
   oneHourRsi: number | null;
+  sourceTimestamp?: number;
 }
 
 export interface OpportunityPolicyFeatures {
@@ -22,6 +23,7 @@ export interface OpportunityPolicyFeatures {
 export interface CostAwareSample extends OpportunityPolicyFeatures {
   score: number;
   netR: number;
+  side?: Side;
 }
 
 export interface CostAwareScoreBin {
@@ -41,6 +43,12 @@ export interface CostAwareScoreModel {
   priorWeight: number;
   globalMeanNetR: number;
   bins: CostAwareScoreBin[];
+}
+
+export interface DirectionalCostAwareScoreModel {
+  byDirection: Record<Side, CostAwareScoreModel | null>;
+  minimumSamples: number;
+  minimumExpectedNetR: number;
 }
 
 export function assessMarketState(snapshot: MarketSnapshot): MarketStateAssessment {
@@ -70,6 +78,8 @@ export function passesMarketStateFilter(
 ): boolean {
   if (filter === "NONE") return true;
   if (filter === "BTC_4H_BEAR") return state.fourHourRegime === "BEAR";
+  if (filter === "GLOBAL_BEAR_STRONG") return state.key === "BEAR_STRONG";
+  if (filter === "GLOBAL_BEAR_REBOUND") return state.key === "BEAR_REBOUND";
   return state.key === "BEAR_WEAK";
 }
 
@@ -162,6 +172,41 @@ export function passesCostAwareExpectedValue(
 ): boolean {
   const prediction = expectedNetR(model, candidate.score, features);
   return prediction !== null && prediction >= model.minimumExpectedNetR;
+}
+
+export function fitDirectionalCostAwareScoreModel(
+  samples: Array<CostAwareSample & { side: Side }>,
+  options: Parameters<typeof fitCostAwareScoreModel>[1] = {},
+): DirectionalCostAwareScoreModel {
+  const byDirection: Record<Side, CostAwareScoreModel | null> = { LONG: null, SHORT: null };
+  for (const side of ["LONG", "SHORT"] as const) {
+    const sideSamples = samples.filter((sample) => sample.side === side);
+    byDirection[side] = sideSamples.length === 0 ? null : fitCostAwareScoreModel(sideSamples, options);
+  }
+  return {
+    byDirection,
+    minimumSamples: Math.max(1, Math.floor(options.minimumSamples ?? 80)),
+    minimumExpectedNetR: options.minimumExpectedNetR ?? 0.01,
+  };
+}
+
+export function expectedDirectionalNetR(
+  model: DirectionalCostAwareScoreModel,
+  side: Side,
+  score: number,
+  features: OpportunityPolicyFeatures,
+): number | null {
+  const sideModel = model.byDirection[side];
+  return sideModel ? expectedNetR(sideModel, score, features) : null;
+}
+
+export function passesDirectionalCostAwareExpectedValue(
+  model: DirectionalCostAwareScoreModel,
+  candidate: ScoredCandidate,
+  features: OpportunityPolicyFeatures,
+): boolean {
+  const sideModel = model.byDirection[candidate.side];
+  return Boolean(sideModel && passesCostAwareExpectedValue(sideModel, candidate, features));
 }
 
 function fundingBucket(costRiskFraction: number): FundingCostBucket {

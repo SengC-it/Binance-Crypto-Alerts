@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { getServerConfig, type ServerConfig } from "@/lib/config";
 import { sideLabel } from "@/lib/core/risk";
+import type { SignalAdmissionDecision } from "@/lib/core/signal-admission";
 import type { ScoredCandidate, TradePlan } from "@/lib/core/types";
 
 export interface SignalEmailInput {
@@ -9,6 +10,9 @@ export interface SignalEmailInput {
   plan: TradePlan;
   strategyVersion: string;
   sourceTimestamp: number;
+  admission?: SignalAdmissionDecision;
+  fundingRisk?: number | null;
+  executionCostRisk?: number | null;
 }
 
 export async function sendSignalEmail(input: SignalEmailInput): Promise<{ messageId?: string; skipped: boolean }> {
@@ -115,25 +119,37 @@ function buildText(input: SignalEmailInput): string {
     "",
     `币种：${input.symbol}`,
     `方向：${sideLabel(input.candidate.side)} (${input.candidate.side})`,
+    `信号等级：${input.admission?.tier ?? "A"}`,
+    `Policy Version：${input.admission?.policyVersion ?? input.strategyVersion}`,
     `主周期：${input.candidate.primaryTimeframe}`,
     `策略：${input.candidate.strategyFamily}`,
     `评分：${input.candidate.score.toFixed(2)} / 100`,
-    `市场状态：${input.candidate.marketRegime}；状态依赖：${input.candidate.regimeDependency}`,
-    `入场参考价：${input.plan.entryPrice}`,
-    `止损价：${input.plan.stopPrice}`,
-    `止盈价：${input.plan.takeProfitPrice}（${input.plan.rewardRisk}R）`,
+    `市场状态：${input.candidate.marketState ?? input.candidate.marketRegime}；状态依赖：${input.candidate.regimeDependency}`,
+    `Setup：${input.candidate.setupType ?? "NO_SETUP"}`,
+    `Entry Trigger：${input.candidate.entryTrigger ?? "NONE"}`,
+    `Reference Price：${input.plan.entryPrice}`,
+    `Valid Entry Zone：${formatEntryZone(input)}`,
+    `Invalidation Condition：${input.candidate.side === "LONG" ? `收盘跌破参考止损 ${input.plan.stopPrice}` : `收盘突破参考止损 ${input.plan.stopPrice}`}`,
+    `Reference Stop：${input.plan.stopPrice}`,
+    `Reference TP：${input.plan.takeProfitPrice}`,
+    `Reference R/R：${input.plan.rewardRisk}R`,
+    `Expected Net R：${formatNullable(input.admission?.expectedNetR)}`,
+    `Confidence：${formatNullable(input.admission?.confidence)}`,
+    `Calibration Samples：${input.admission?.calibrationSamples ?? 0}`,
+    `Entry Extension ATR：${formatNullable(input.candidate.noChase?.features.breakoutExtensionAtr)}`,
+    `Funding Risk：${formatNullable(input.fundingRisk)}`,
+    `Execution Cost Risk：${formatNullable(input.executionCostRisk)}`,
     `假设保证金：${input.plan.assumedMarginUsdt}U`,
     `假设杠杆：${input.plan.assumedLeverage}倍`,
     `理论亏损：${input.plan.theoreticalRiskUsdt.toFixed(4)}U`,
     `评分拆解：${formatScoreComponents(input.candidate)}`,
-    `信号有效截止：${new Date(input.plan.validUntil).toLocaleString("zh-CN", { timeZone: configTimeZone() })}`,
-    `数据时间：${new Date(input.sourceTimestamp).toLocaleString("zh-CN", { timeZone: configTimeZone() })}`,
-    `策略版本：${input.strategyVersion}`,
+    `Signal Time：${new Date(input.sourceTimestamp).toLocaleString("zh-CN", { timeZone: configTimeZone() })}`,
+    `Valid Until：${new Date(input.plan.validUntil).toLocaleString("zh-CN", { timeZone: configTimeZone() })}`,
     "",
     "触发依据：",
     ...input.candidate.rationale.map((reason) => `- ${reason}`),
     "",
-    "本系统只发送信号，不自动下单、不跟踪真实账户。请人工核对盘口、滑点、手续费、资金费率、标记价格、强平距离和仓位风险。",
+    "本系统仅提供市场信号参考，不会自动开仓、平仓或执行交易。请人工核对盘口、滑点、手续费、资金费率、标记价格、强平距离和仓位风险。",
   ].join("\n");
 }
 
@@ -143,14 +159,21 @@ function buildHtml(input: SignalEmailInput): string {
     : "background:#fff0d6;color:#7b3f00;";
   const rows = [
     ["币种 / 方向", `${input.symbol} · ${sideLabel(input.candidate.side)}`],
+    ["信号等级 / Policy", `${input.admission?.tier ?? "A"} / ${input.admission?.policyVersion ?? input.strategyVersion}`],
     ["评分", `${input.candidate.score.toFixed(2)} / 100`],
-    ["入场参考价", String(input.plan.entryPrice)],
-    ["止损价", String(input.plan.stopPrice)],
-    ["止盈价", `${input.plan.takeProfitPrice}（${input.plan.rewardRisk}R）`],
+    ["Market State / Setup", `${input.candidate.marketState ?? input.candidate.marketRegime} / ${input.candidate.setupType ?? "NO_SETUP"}`],
+    ["Entry Trigger", input.candidate.entryTrigger ?? "NONE"],
+    ["Reference Price / Zone", `${input.plan.entryPrice} / ${formatEntryZone(input)}`],
+    ["Reference Stop", String(input.plan.stopPrice)],
+    ["Reference TP / R/R", `${input.plan.takeProfitPrice} / ${input.plan.rewardRisk}R`],
+    ["Expected Net R / Confidence", `${formatNullable(input.admission?.expectedNetR)} / ${formatNullable(input.admission?.confidence)}`],
+    ["Calibration Samples", String(input.admission?.calibrationSamples ?? 0)],
+    ["Extension ATR", formatNullable(input.candidate.noChase?.features.breakoutExtensionAtr)],
+    ["Funding / Execution Cost Risk", `${formatNullable(input.fundingRisk)} / ${formatNullable(input.executionCostRisk)}`],
     ["理论亏损", `${input.plan.theoreticalRiskUsdt.toFixed(4)}U`],
     ["有效截止", new Date(input.plan.validUntil).toLocaleString("zh-CN", { timeZone: configTimeZone() })],
     ["策略 / 周期", `${input.candidate.strategyFamily} / ${input.candidate.primaryTimeframe}`],
-    ["市场状态", `${input.candidate.marketRegime}（依赖 ${input.candidate.regimeDependency}）`],
+    ["Signal Time / Valid Until", `${new Date(input.sourceTimestamp).toISOString()} / ${new Date(input.plan.validUntil).toISOString()}`],
   ];
 
   return `
@@ -165,7 +188,7 @@ function buildHtml(input: SignalEmailInput): string {
       <h3>触发依据</h3>
       <ul>${input.candidate.rationale.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")}</ul>
       <p><strong>评分拆解：</strong>${escapeHtml(formatScoreComponents(input.candidate))}</p>
-      <p style="color:#7b3f00"><strong>本系统只发送信号，不自动下单、不跟踪真实账户。</strong>请人工核对盘口、滑点、手续费、资金费率、标记价格、强平距离和仓位风险。</p>
+      <p style="color:#7b3f00"><strong>本系统仅提供市场信号参考，不会自动开仓、平仓或执行交易。</strong>请人工核对盘口、滑点、手续费、资金费率、标记价格、强平距离和仓位风险。</p>
       <p style="color:#61716b;font-size:12px">策略版本：${escapeHtml(input.strategyVersion)}；数据时间：${escapeHtml(new Date(input.sourceTimestamp).toISOString())}</p>
     </div>`;
 }
@@ -178,6 +201,17 @@ function formatScoreComponents(candidate: ScoredCandidate): string {
   return Object.entries(candidate.scoreComponents)
     .map(([key, value]) => `${key}=${(value * 100).toFixed(0)}`)
     .join(" · ");
+}
+
+function formatEntryZone(input: SignalEmailInput): string {
+  const width = input.candidate.atr * 0.35;
+  return input.candidate.side === "LONG"
+    ? `${input.plan.entryPrice - width}–${input.plan.entryPrice + width}`
+    : `${input.plan.entryPrice - width}–${input.plan.entryPrice + width}`;
+}
+
+function formatNullable(value: number | null | undefined): string {
+  return value === null || value === undefined || !Number.isFinite(value) ? "UNAVAILABLE" : value.toFixed(4);
 }
 
 function escapeHtml(value: string): string {

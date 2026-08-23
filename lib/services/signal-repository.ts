@@ -1,4 +1,6 @@
 import type { ScoredCandidate, TradePlan } from "@/lib/core/types";
+import type { SignalAdmissionDecision } from "@/lib/core/signal-admission";
+import type { V5Policy } from "@/lib/core/policy-registry";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface ScanRunInput {
@@ -20,6 +22,7 @@ export interface SignalClaimInput {
   strategyVersion: string;
   sourceTimestamp: number;
   occurrenceDate: string;
+  admission?: SignalAdmissionDecision;
 }
 
 export interface ClaimResult {
@@ -36,6 +39,43 @@ export interface StagedOpportunity {
   sourceTimestamp: number;
   candidate: ScoredCandidate;
   plan: TradePlan;
+  admission?: SignalAdmissionDecision;
+}
+
+export async function loadApprovedPolicy(
+  supabase: SupabaseClient,
+  requestedVersion?: string,
+): Promise<V5Policy | undefined> {
+  let query = supabase
+    .from("bca_policy_registry")
+    .select("*")
+    .eq("status", "APPROVED")
+    .order("approved_at", { ascending: false })
+    .limit(1);
+  if (requestedVersion) query = query.eq("policy_version", requestedVersion);
+  const { data, error } = await query.maybeSingle();
+  if (error) throw new Error(`Supabase approved policy lookup failed: ${error.message}`);
+  if (!data) return undefined;
+  return {
+    policyVersion: data.policy_version as string,
+    strategyParams: data.strategy_params,
+    supportedDirections: data.supported_directions,
+    directionApproval: data.direction_approval,
+    entryPolicy: data.entry_policy,
+    regimePolicy: data.regime_policy,
+    noChasePolicy: data.no_chase_policy,
+    universePolicy: data.universe_policy,
+    calibrationModel: data.calibration_model,
+    expectedEdgeModel: data.expected_edge_model,
+    costModelVersion: data.cost_model_version as string,
+    trainWindow: data.train_window,
+    validationWindow: data.validation_window,
+    holdoutWindow: data.holdout_window,
+    validationMetrics: data.validation_metrics,
+    createdAt: data.created_at as string,
+    approvedAt: data.approved_at as string | undefined,
+    status: data.status,
+  };
 }
 
 export async function upsertInstruments(supabase: SupabaseClient, instruments: unknown[]) {
@@ -85,7 +125,7 @@ export async function stageScanCandidates(
     symbol: item.symbol,
     source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
     score: item.candidate.score,
-    candidate: item.candidate,
+    candidate: { ...item.candidate, admission: item.admission },
     trade_plan: item.plan,
   })), { onConflict: "scan_group_key,symbol" });
   if (error) throw new Error(`Supabase candidate staging failed: ${error.message}`);
@@ -102,7 +142,11 @@ export async function stageShadowCandidates(
     symbol: item.symbol,
     source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
     score: item.candidate.score,
-    candidate: item.candidate,
+    policy_version: item.admission?.policyVersion ?? null,
+    signal_tier: item.admission?.tier ?? null,
+    expected_net_r: item.admission?.expectedNetR ?? null,
+    rejection_reason: item.admission?.reasons[0] ?? null,
+    candidate: { ...item.candidate, admission: item.admission },
     trade_plan: item.plan,
   })), { onConflict: "scan_group_key,symbol" });
   if (error) throw new Error(`Supabase shadow candidate staging failed: ${error.message}`);
@@ -137,6 +181,7 @@ export async function listStagedCandidates(
     sourceTimestamp: Date.parse(row.source_data_timestamp as string),
     candidate: row.candidate as ScoredCandidate,
     plan: row.trade_plan as TradePlan,
+    admission: (row.candidate as { admission?: SignalAdmissionDecision }).admission,
   }));
 }
 
@@ -158,6 +203,7 @@ export async function listStagedShadowCandidates(
     sourceTimestamp: Date.parse(row.source_data_timestamp as string),
     candidate: row.candidate as ScoredCandidate,
     plan: row.trade_plan as TradePlan,
+    admission: (row.candidate as { admission?: SignalAdmissionDecision }).admission,
   }));
 }
 
@@ -184,6 +230,7 @@ export async function completeScanRun(
     emailedCount: number;
     status: "COMPLETED" | "PARTIAL" | "FAILED";
     errorSummary: unknown[];
+    signalStats?: Record<string, number>;
   },
 ) {
   const { error } = await supabase
@@ -194,6 +241,7 @@ export async function completeScanRun(
       emailed_count: patch.emailedCount,
       status: patch.status,
       error_summary: patch.errorSummary,
+      signal_stats: patch.signalStats ?? {},
       finished_at: new Date().toISOString(),
     })
     .eq("id", scanRunId);
@@ -241,6 +289,15 @@ export async function claimSignal(
       valid_until: new Date(input.plan.validUntil).toISOString(),
       source_data_timestamp: new Date(input.sourceTimestamp).toISOString(),
       occurrence_date: input.occurrenceDate,
+      signal_tier: input.admission?.tier ?? null,
+      policy_version: input.admission?.policyVersion ?? input.strategyVersion,
+      expected_net_r: input.admission?.expectedNetR ?? null,
+      confidence: input.admission?.confidence ?? null,
+      calibration_samples: input.admission?.calibrationSamples ?? null,
+      rejection_reason: input.admission?.reasons[0] ?? null,
+      entry_trigger: input.candidate.entryTrigger ?? "NONE",
+      setup_type: input.candidate.setupType ?? "NO_SETUP",
+      market_state: input.candidate.marketState ?? "UNKNOWN",
     },
     p_budget_date: policy.dailyDate,
     p_daily_limit_usdt: policy.dailyLimitUsdt,
@@ -255,7 +312,25 @@ export async function claimSignal(
       p_slippage_bps: policy.slippageBps,
   });
   if (error || !data) throw new Error(`Supabase signal claim failed: ${error?.message ?? "empty response"}`);
-  return data as ClaimResult;
+  const result = data as ClaimResult;
+  if (result.signal_id && input.admission) {
+    const { error: metadataError } = await supabase
+      .from("bca_signals")
+      .update({
+        signal_tier: input.admission.tier,
+        policy_version: input.admission.policyVersion ?? input.strategyVersion,
+        market_state: input.candidate.marketState ?? "UNKNOWN",
+        setup_type: input.candidate.setupType ?? "NO_SETUP",
+        entry_trigger: input.candidate.entryTrigger ?? "NONE",
+        expected_net_r: input.admission.expectedNetR,
+        confidence: input.admission.confidence,
+        calibration_samples: input.admission.calibrationSamples,
+        rejection_reason: input.admission.reasons[0] ?? null,
+      })
+      .eq("id", result.signal_id);
+    if (metadataError) throw new Error(`Supabase signal metadata update failed: ${metadataError.message}`);
+  }
+  return result;
 }
 
 export async function createNotification(

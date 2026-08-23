@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "history:download": "tsx scripts/download-history.ts",
     "optimizer": "tsx scripts/run-optimizer.ts",
-    "validate": "tsx scripts/run-validation.ts",
+    "validate": "tsx scripts/run-v5-validation.ts",
+    "validate:legacy": "tsx scripts/run-validation.ts",
+    "validate:v5": "tsx scripts/run-v5-validation.ts",
     "backtest": "tsx scripts/run-backtest.ts"
   },
   "dependencies": {

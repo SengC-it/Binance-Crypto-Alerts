@@ -1,4 +1,4 @@
-import { runBacktest } from "./engine";
+import { runBacktest, type BacktestContext } from "./engine";
 import type { BacktestMetrics, HistoricalDataset, OptimizerResult } from "./types";
 import { DEFAULT_STRATEGY_PARAMS, type StrategyParams } from "@/lib/core/strategies";
 
@@ -10,6 +10,7 @@ export function createParameterGrid(): StrategyParams[] {
         for (const breakoutVolumeRatio of [1.1, 1.25]) {
           variants.push({
             ...DEFAULT_STRATEGY_PARAMS,
+            entryMode: "V5_SIGNAL_EDGE",
             emaFast,
             emaSlow,
             stopAtrMultiplier,
@@ -25,39 +26,51 @@ export function createParameterGrid(): StrategyParams[] {
 export function optimizeDatasets(
   datasets: HistoricalDataset[],
   variants = createParameterGrid(),
+  context: BacktestContext = { benchmarkDataset: datasets.find((dataset) => dataset.symbol === "BTCUSDT") ?? datasets[0] },
 ): OptimizerResult[] {
   if (datasets.length === 0) return [];
-  const split = splitAtNineMonths(datasets);
+  const split = splitAtPurgedWindows(datasets);
   return variants
     .map((params) => {
-      const trainRuns = split.train.map((dataset) => runBacktest(dataset, params, { minimumSampleDays: 0 }));
-      const oosRuns = split.outOfSample.map((dataset) => runBacktest(dataset, params, { minimumSampleDays: 0 }));
+      const backtestOptions = { minimumSampleDays: 0, entryIntervalHours: 1 };
+      const trainRuns = split.train.map((dataset) => runBacktest(dataset, params, backtestOptions, context));
+      const validationRuns = split.validation.map((dataset) => runBacktest(dataset, params, backtestOptions, context));
+      const holdoutRuns = split.holdout.map((dataset) => runBacktest(dataset, params, backtestOptions, context));
       const train = aggregateMetrics(trainRuns.map((run) => run.metrics));
-      const outOfSample = aggregateMetrics(oosRuns.map((run) => run.metrics));
+      const validation = aggregateMetrics(validationRuns.map((run) => run.metrics));
+      const outOfSample = aggregateMetrics(holdoutRuns.map((run) => run.metrics));
       return {
         params,
         train,
+        validation,
         outOfSample,
         datasetCount: datasets.length,
-        eligible: datasets.every((dataset) => hasAtLeastOneYear(dataset)) && outOfSample.maxDrawdownPercent <= 30,
+        eligible: datasets.every((dataset) => hasAtLeastOneYear(dataset)) && validation.maxDrawdownPercent <= 30,
       };
     })
     .sort((left, right) => rankOptimizerResult(right) - rankOptimizerResult(left));
 }
 
-function splitAtNineMonths(datasets: HistoricalDataset[]) {
+function splitAtPurgedWindows(datasets: HistoricalDataset[]) {
   return {
     train: datasets.map((dataset) => sliceDataset(dataset, "train")),
-    outOfSample: datasets.map((dataset) => sliceDataset(dataset, "oos")),
+    validation: datasets.map((dataset) => sliceDataset(dataset, "validation")),
+    holdout: datasets.map((dataset) => sliceDataset(dataset, "holdout")),
   };
 }
 
-function sliceDataset(dataset: HistoricalDataset, segment: "train" | "oos"): HistoricalDataset {
+function sliceDataset(dataset: HistoricalDataset, segment: "train" | "validation" | "holdout"): HistoricalDataset {
   const first = dataset.candles["15m"][0]?.openTime ?? 0;
-  const split = addMonths(first, 9);
+  const trainBoundary = addMonths(first, 6);
+  const validationBoundary = addMonths(first, 9);
+  const purge = 72 * 60 * 60 * 1000;
+  const validationStart = trainBoundary + purge;
+  const holdoutStart = validationBoundary + purge;
   const filter = segment === "train"
-    ? (timestamp: number) => timestamp <= split
-    : (timestamp: number) => timestamp > split;
+    ? (timestamp: number) => timestamp <= trainBoundary - purge
+    : segment === "validation"
+      ? (timestamp: number) => timestamp >= validationStart && timestamp < validationBoundary
+      : (timestamp: number) => timestamp >= holdoutStart;
   return {
     ...dataset,
     candles: {
@@ -78,8 +91,12 @@ function aggregateMetrics(metrics: BacktestMetrics[]): BacktestMetrics {
   const totalFeesUsdt = metrics.reduce((total, metric) => total + metric.totalFeesUsdt, 0);
   const totalFundingUsdt = metrics.reduce((total, metric) => total + metric.totalFundingUsdt, 0);
   const totalSlippageUsdt = metrics.reduce((total, metric) => total + metric.totalSlippageUsdt, 0);
+  const weighted = (selector: (metric: BacktestMetrics) => number | undefined): number => {
+    if (totalTrades === 0) return 0;
+    return metrics.reduce((total, metric) => total + (selector(metric) ?? 0) * metric.trades, 0) / totalTrades;
+  };
   return {
-    sampleDays: Math.min(...metrics.map((metric) => metric.sampleDays)),
+    sampleDays: metrics.length === 0 ? 0 : Math.min(...metrics.map((metric) => metric.sampleDays)),
     minimumSampleDays: 365,
     trades: totalTrades,
     wins,
@@ -93,11 +110,17 @@ function aggregateMetrics(metrics: BacktestMetrics[]): BacktestMetrics {
     totalFundingUsdt: round(totalFundingUsdt, 4),
     totalSlippageUsdt: round(totalSlippageUsdt, 4),
     profitFactor: grossLossUsdt === 0 ? (grossProfitUsdt > 0 ? 999 : 0) : round(grossProfitUsdt / grossLossUsdt, 4),
-    maxDrawdownPercent: round(Math.max(...metrics.map((metric) => metric.maxDrawdownPercent)), 4),
+    maxDrawdownPercent: metrics.length === 0 ? 0 : round(Math.max(...metrics.map((metric) => metric.maxDrawdownPercent)), 4),
     maxDrawdownUsdt: round(metrics.reduce((total, metric) => total + metric.maxDrawdownUsdt, 0), 4),
     finalEquityUsdt: round(metrics.reduce((total, metric) => total + metric.finalEquityUsdt, 0), 4),
     initialCapitalUsdt: metrics.reduce((total, metric) => total + metric.initialCapitalUsdt, 0),
     eligible: metrics.every((metric) => metric.eligible),
+    averageNetR: round(weighted((metric) => metric.averageNetR), 4),
+    medianNetR: metrics.length === 0 ? 0 : round(metrics.reduce((total, metric) => total + (metric.medianNetR ?? 0), 0) / metrics.length, 4),
+    cvar95: metrics.length === 0 ? 0 : round(Math.min(...metrics.map((metric) => metric.cvar95 ?? 0)), 4),
+    averageMfeR: round(weighted((metric) => metric.averageMfeR), 4),
+    averageMaeR: round(weighted((metric) => metric.averageMaeR), 4),
+    stopFirstRate: round(weighted((metric) => metric.stopFirstRate), 4),
   };
 }
 
@@ -108,8 +131,8 @@ function hasAtLeastOneYear(dataset: HistoricalDataset): boolean {
 }
 
 function rankOptimizerResult(result: OptimizerResult): number {
-  const oos = result.outOfSample;
-  return (result.eligible ? 1_000_000 : 0) + oos.netPnlUsdt - oos.maxDrawdownPercent * 100;
+  const validation = result.validation;
+  return (result.eligible ? 1_000_000 : 0) + validation.netPnlUsdt - validation.maxDrawdownPercent * 100;
 }
 
 function addMonths(timestamp: number, months: number): number {
