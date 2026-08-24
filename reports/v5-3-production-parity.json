@@ -1,0 +1,4088 @@
+{
+  "report": "V5.3 Structural Edge Reconstruction",
+  "generatedAt": "2026-08-24T17:58:39.395Z",
+  "productionBaseline": "d5d2520f3f6307384494501e212bfb4b6ab059b2",
+  "v52ResearchCheckpoint": "9b69efa2299157d1bf5cd334cc697d75a5af6203",
+  "controlStrategy": "trend-rejection-short-v1",
+  "researchOnly": true,
+  "pointInTimeUniverse": "PROXY",
+  "survivorBias": "PROXY",
+  "productionControlConfig": {
+    "strategyVersion": "trend-rejection-short-v1",
+    "entryMode": "TREND_REJECTION",
+    "scoreThreshold": 70,
+    "stopAtrMultiplier": 0.5,
+    "rewardRisk": 2,
+    "sideFilter": "SHORT",
+    "strategyFamily": "TREND",
+    "regimeAlignment": true,
+    "cooldownHours": 8,
+    "maxHoldHours": 72,
+    "entryIntervalHours": 1,
+    "maxConcurrentPositions": 1,
+    "maxPositionNotionalUsdt": 10000,
+    "riskPerTradeUsdt": 50,
+    "perSignalRiskCapUsdt": 100,
+    "dailyRiskBudgetUsdt": 600,
+    "takerFeeRate": 0.0004,
+    "slippageBps": 2,
+    "maxExecutionCostRiskFraction": 0.1,
+    "universeTopSymbols": 100,
+    "scanTimeframes": [
+      "15m",
+      "1h",
+      "4h"
+    ],
+    "entryReference": "just_closed_15m_reference",
+    "closedCandleHandling": "only just-closed 15m candle; source timestamp is candle closeTime"
+  },
+  "queryTimestamp": "2026-08-24T17:58:39.388Z",
+  "dataSource": "immutable_read_only_export",
+  "sourceTable": "public.bca_paper_trades",
+  "strategyVersion": "trend-rejection-short-v1",
+  "extractionQuery": "SELECT p.id, p.signal_id, p.symbol, p.side, p.strategy_family, p.strategy_version, p.entry_time, p.entry_price, p.entry_fill_price, p.stop_price, p.take_profit_price, p.max_hold_until, p.quantity, p.theoretical_risk_usdt, p.exit_time, p.exit_price, p.exit_reason, p.r_multiple, p.net_pnl_usdt, p.fees_usdt, p.funding_usdt, p.slippage_usdt, p.metadata, s.id, s.source_data_timestamp, s.score, s.score_components, s.market_regime, s.side, s.strategy_family, s.primary_timeframe, s.confirmation_timeframes, s.regime_dependency, s.entry_price, s.stop_price, s.take_profit_price, s.valid_until FROM public.bca_paper_trades p LEFT JOIN public.bca_signals s ON s.id = p.signal_id WHERE p.strategy_version = 'trend-rejection-short-v1' AND p.exit_time IS NOT NULL ORDER BY p.entry_time ASC",
+  "exportProvenance": {
+    "capturedAt": "2026-08-24T00:00:00.000Z",
+    "rowCount": 13,
+    "sha256": "641e5680cd7a69abfdc6870b1b6b68ab0afd80fe90eb01695af9b2f41bb3d62b",
+    "hashScope": "canonical_json_rows",
+    "sourceTable": "public.bca_paper_trades",
+    "query": "SELECT p.*, s.source_data_timestamp, s.score, s.score_components, s.market_regime, s.side, s.strategy_family, s.primary_timeframe, s.confirmation_timeframes, s.regime_dependency, s.entry_price, s.stop_price, s.take_profit_price, s.valid_until FROM public.bca_paper_trades p LEFT JOIN public.bca_signals s ON s.id = p.signal_id WHERE p.strategy_version = 'trend-rejection-short-v1' AND p.exit_time IS NOT NULL ORDER BY p.entry_time ASC",
+    "relatedSourceTable": "public.bca_signals",
+    "verified": true
+  },
+  "settledProspectiveTrades": 13,
+  "rawRows": [
+    {
+      "id": "89dbe5df-0312-4236-b622-757251ab47d2",
+      "signalId": "6ca4e837-ca15-4dab-8fc4-7b205717c5d9",
+      "symbol": "DOLOUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-15 19:59:59.999+00",
+      "entryPrice": 0.02031,
+      "entryFillPrice": 0.020305938,
+      "stopPrice": 0.02086,
+      "takeProfitPrice": 0.01922,
+      "maxHoldUntil": "2026-08-18 19:59:59.999+00",
+      "quantity": 90909,
+      "theoreticalRiskUsdt": 49.99995,
+      "exitTime": "2026-08-15 21:59:59.999+00",
+      "exitPrice": 0.020864172,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.05532717,
+      "netPnlUsdt": -52.76630569,
+      "feesUsdt": 1.49709341,
+      "fundingUsdt": -0.52071757,
+      "slippageUsdt": 0.74854471,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-15T19:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "6ca4e837-ca15-4dab-8fc4-7b205717c5d9",
+        "sourceDataTimestamp": "2026-08-15 19:59:59.999+00",
+        "score": 76.655,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.6051,
+          "structure": 0.5845,
+          "liquidity": 0.4155,
+          "volatility": 0.9812,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.02031,
+        "stopPrice": 0.02086,
+        "takeProfitPrice": 0.01922,
+        "validUntil": "2026-08-18 19:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "f4886ad4-0a98-4a68-9820-0519c161fe1b",
+      "signalId": "8a3f78ec-fe07-4246-a4f4-c58094bc5358",
+      "symbol": "HEIUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-16 00:59:59.999+00",
+      "entryPrice": 0.12419,
+      "entryFillPrice": 0.124165162,
+      "stopPrice": 0.1297,
+      "takeProfitPrice": 0.11317,
+      "maxHoldUntil": "2026-08-19 00:59:59.999+00",
+      "quantity": 9074.4,
+      "theoreticalRiskUsdt": 49.999944,
+      "exitTime": "2026-08-16 07:59:59.999+00",
+      "exitPrice": 0.12972594,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.02944651,
+      "netPnlUsdt": -51.47226786,
+      "feesUsdt": 0.92156377,
+      "fundingUsdt": -0.08998021,
+      "slippageUsdt": 0.46077988,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-16T00:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "8a3f78ec-fe07-4246-a4f4-c58094bc5358",
+        "sourceDataTimestamp": "2026-08-16 00:59:59.999+00",
+        "score": 74.666,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.9695,
+          "structure": 0.0983,
+          "liquidity": 0.5181,
+          "volatility": 0.9562,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.12419,
+        "stopPrice": 0.1297,
+        "takeProfitPrice": 0.11317,
+        "validUntil": "2026-08-19 00:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "b07b708e-1d3e-46cc-a91b-f27575e8526f",
+      "signalId": "c1027282-1606-44c8-a5b5-fffcadeafedd",
+      "symbol": "TUTUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-16 11:59:59.999+00",
+      "entryPrice": 0.03243,
+      "entryFillPrice": 0.032423514,
+      "stopPrice": 0.03346,
+      "takeProfitPrice": 0.03038,
+      "maxHoldUntil": "2026-08-19 11:59:59.999+00",
+      "quantity": 48543,
+      "theoreticalRiskUsdt": 49.99929,
+      "exitTime": "2026-08-16 14:14:59.999+00",
+      "exitPrice": 0.033466692,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.03680865,
+      "netPnlUsdt": -51.83969623,
+      "feesUsdt": 1.27940331,
+      "fundingUsdt": 0.07869673,
+      "slippageUsdt": 0.63969965,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-16T11:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "c1027282-1606-44c8-a5b5-fffcadeafedd",
+        "sourceDataTimestamp": "2026-08-16 11:59:59.999+00",
+        "score": 71.373,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.2748,
+          "structure": 0.6091,
+          "liquidity": 0.5999,
+          "volatility": 0.7601,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.03243,
+        "stopPrice": 0.03346,
+        "takeProfitPrice": 0.03038,
+        "validUntil": "2026-08-19 11:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "18b6e209-b80e-4724-a864-5a9cd07ee32a",
+      "signalId": "0099db13-c235-4746-84d6-42b1bf28bd80",
+      "symbol": "BLESSUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-16 20:59:59.999+00",
+      "entryPrice": 0.008933,
+      "entryFillPrice": 0.0089312134,
+      "stopPrice": 0.009178,
+      "takeProfitPrice": 0.008443,
+      "maxHoldUntil": "2026-08-19 20:59:59.999+00",
+      "quantity": 204081,
+      "theoreticalRiskUsdt": 49.999845,
+      "exitTime": "2026-08-16 21:29:59.999+00",
+      "exitPrice": 0.0091798356,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.04435355,
+      "netPnlUsdt": -52.21751559,
+      "feesUsdt": 1.4784484,
+      "fundingUsdt": 0,
+      "slippageUsdt": 0.7392222,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-16T20:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "0099db13-c235-4746-84d6-42b1bf28bd80",
+        "sourceDataTimestamp": "2026-08-16 20:59:59.999+00",
+        "score": 73.671,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.2307,
+          "structure": 0.8626,
+          "liquidity": 0.4246,
+          "volatility": 0.8054,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.008933,
+        "stopPrice": 0.009178,
+        "takeProfitPrice": 0.008443,
+        "validUntil": "2026-08-19 20:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "a60bf76b-c13d-441f-b182-2d164413fe37",
+      "signalId": "3319cf19-4832-48e8-806b-b43ba1138b2d",
+      "symbol": "LABUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-17 13:59:59.999+00",
+      "entryPrice": 0.0776,
+      "entryFillPrice": 0.07758448,
+      "stopPrice": 0.0792,
+      "takeProfitPrice": 0.0744,
+      "maxHoldUntil": "2026-08-20 13:59:59.999+00",
+      "quantity": 25773,
+      "theoreticalRiskUsdt": 41.2368,
+      "exitTime": "2026-08-17 14:14:59.999+00",
+      "exitPrice": 0.07921584,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.05880008,
+      "netPnlUsdt": -43.66152714,
+      "feesUsdt": 1.61648586,
+      "fundingUsdt": 0,
+      "slippageUsdt": 0.80824128,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-17T13:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "3319cf19-4832-48e8-806b-b43ba1138b2d",
+        "sourceDataTimestamp": "2026-08-17 13:59:59.999+00",
+        "score": 70.678,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.8911,
+          "structure": 0.0598,
+          "liquidity": 0.4149,
+          "volatility": 0.8894,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.0776,
+        "stopPrice": 0.0792,
+        "takeProfitPrice": 0.0744,
+        "validUntil": "2026-08-20 13:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "9cdf90ed-686d-4773-8c0d-608a0b379dca",
+      "signalId": "a9266b7a-cca7-4842-b7e0-fb57a679c470",
+      "symbol": "HOMEUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-17 14:59:59.999+00",
+      "entryPrice": 0.006786,
+      "entryFillPrice": 0.0067846428,
+      "stopPrice": 0.006938,
+      "takeProfitPrice": 0.006483,
+      "maxHoldUntil": "2026-08-20 14:59:59.999+00",
+      "quantity": 294724,
+      "theoreticalRiskUsdt": 44.798048,
+      "exitTime": "2026-08-17 16:44:59.999+00",
+      "exitPrice": 0.0069393876,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.1495462,
+      "netPnlUsdt": -51.49742595,
+      "feesUsdt": 1.61792045,
+      "fundingUsdt": -4.27249906,
+      "slippageUsdt": 0.80895844,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-17T14:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "a9266b7a-cca7-4842-b7e0-fb57a679c470",
+        "sourceDataTimestamp": "2026-08-17 14:59:59.999+00",
+        "score": 73.165,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.4151,
+          "structure": 0.5101,
+          "liquidity": 0.5063,
+          "volatility": 0.9645,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.006786,
+        "stopPrice": 0.006938,
+        "takeProfitPrice": 0.006483,
+        "validUntil": "2026-08-20 14:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "c783bdeb-cfc6-4b88-aa78-911b5b8fe9b1",
+      "signalId": "61815011-4db4-4337-9f37-5f47931687df",
+      "symbol": "HOMEUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-18 00:59:59.999+00",
+      "entryPrice": 0.006563,
+      "entryFillPrice": 0.0065616874,
+      "stopPrice": 0.006938,
+      "takeProfitPrice": 0.005814,
+      "maxHoldUntil": "2026-08-21 00:59:59.999+00",
+      "quantity": 133333,
+      "theoreticalRiskUsdt": 49.999875,
+      "exitTime": "2026-08-19 02:59:59.999+00",
+      "exitPrice": 0.0058151628,
+      "exitReason": "TAKE_PROFIT",
+      "rMultiple": 1.67489005,
+      "netPnlUsdt": 83.74429299,
+      "feesUsdt": 0.66009703,
+      "fundingUsdt": -15.13197447,
+      "slippageUsdt": 0.33005251,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-18T00:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "61815011-4db4-4337-9f37-5f47931687df",
+        "sourceDataTimestamp": "2026-08-18 00:59:59.999+00",
+        "score": 70.629,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.5295,
+          "structure": 0.392,
+          "liquidity": 0.4989,
+          "volatility": 0.7854,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.006563,
+        "stopPrice": 0.006938,
+        "takeProfitPrice": 0.005814,
+        "validUntil": "2026-08-21 00:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "79da8d92-034f-48e0-a89e-a8d2a8863bb4",
+      "signalId": "6393a205-c0f9-4791-b494-f726863bf357",
+      "symbol": "BICOUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-19 12:59:59.999+00",
+      "entryPrice": 0.01727,
+      "entryFillPrice": 0.017266546,
+      "stopPrice": 0.01757,
+      "takeProfitPrice": 0.01668,
+      "maxHoldUntil": "2026-08-22 12:59:59.999+00",
+      "quantity": 115807,
+      "theoreticalRiskUsdt": 34.7421,
+      "exitTime": "2026-08-19 15:29:59.999+00",
+      "exitPrice": 0.017573514,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.06968008,
+      "netPnlUsdt": -37.16293231,
+      "feesUsdt": 1.61388913,
+      "fundingUsdt": 0,
+      "slippageUsdt": 0.80694318,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-19T12:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "6393a205-c0f9-4791-b494-f726863bf357",
+        "sourceDataTimestamp": "2026-08-19 12:59:59.999+00",
+        "score": 71.484,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.5865,
+          "structure": 0.33,
+          "liquidity": 0.4298,
+          "volatility": 0.9426,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.01727,
+        "stopPrice": 0.01757,
+        "takeProfitPrice": 0.01668,
+        "validUntil": "2026-08-22 12:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "24aa3446-8e18-46a3-85ed-67f85b853680",
+      "signalId": "ef67d444-ce9b-4a07-8aa4-a870d7032f61",
+      "symbol": "HEIUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-20 08:59:59.999+00",
+      "entryPrice": 0.1251,
+      "entryFillPrice": 0.12507498,
+      "stopPrice": 0.12826,
+      "takeProfitPrice": 0.11878,
+      "maxHoldUntil": "2026-08-23 08:59:59.999+00",
+      "quantity": 15822.7,
+      "theoreticalRiskUsdt": 49.999732,
+      "exitTime": "2026-08-20 10:14:59.999+00",
+      "exitPrice": 0.128285652,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.04810641,
+      "netPnlUsdt": -52.40503956,
+      "feesUsdt": 1.60353971,
+      "fundingUsdt": 0,
+      "slippageUsdt": 0.80176785,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-20T08:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "ef67d444-ce9b-4a07-8aa4-a870d7032f61",
+        "sourceDataTimestamp": "2026-08-20 08:59:59.999+00",
+        "score": 71.672,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.3314,
+          "structure": 0.5305,
+          "liquidity": 0.4754,
+          "volatility": 0.952,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.1251,
+        "stopPrice": 0.12826,
+        "takeProfitPrice": 0.11878,
+        "validUntil": "2026-08-23 08:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "366ea9c8-8c32-452d-913a-709c2d331f95",
+      "signalId": "37fdf902-8207-419f-b84c-219596e500cb",
+      "symbol": "APRUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-20 11:59:59.999+00",
+      "entryPrice": 0.1827,
+      "entryFillPrice": 0.18266346,
+      "stopPrice": 0.187,
+      "takeProfitPrice": 0.1741,
+      "maxHoldUntil": "2026-08-23 11:59:59.999+00",
+      "quantity": 10946,
+      "theoreticalRiskUsdt": 47.0678,
+      "exitTime": "2026-08-20 12:44:59.999+00",
+      "exitPrice": 0.1870374,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.04946213,
+      "netPnlUsdt": -49.39587377,
+      "feesUsdt": 1.61869825,
+      "fundingUsdt": 0.09997171,
+      "slippageUsdt": 0.80934724,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-20T11:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "37fdf902-8207-419f-b84c-219596e500cb",
+        "sourceDataTimestamp": "2026-08-20 11:59:59.999+00",
+        "score": 73.833,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.4121,
+          "structure": 0.5557,
+          "liquidity": 0.4623,
+          "volatility": 0.9999,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.1827,
+        "stopPrice": 0.187,
+        "takeProfitPrice": 0.1741,
+        "validUntil": "2026-08-23 11:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "27a3e161-0b02-4ed3-b54c-3b3cb6e643bd",
+      "signalId": "bed67b2d-3d60-4d00-b8fb-407aff239745",
+      "symbol": "GRVTUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-21 00:59:59.999+00",
+      "entryPrice": 0.2768,
+      "entryFillPrice": 0.27674464,
+      "stopPrice": 0.2832,
+      "takeProfitPrice": 0.264,
+      "maxHoldUntil": "2026-08-24 00:59:59.999+00",
+      "quantity": 7225,
+      "theoreticalRiskUsdt": 46.24,
+      "exitTime": "2026-08-21 11:44:59.999+00",
+      "exitPrice": 0.28325664,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.06114186,
+      "netPnlUsdt": -49.06719978,
+      "feesUsdt": 1.6184037,
+      "fundingUsdt": -0.39959608,
+      "slippageUsdt": 0.8092,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-21T00:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "bed67b2d-3d60-4d00-b8fb-407aff239745",
+        "sourceDataTimestamp": "2026-08-21 00:59:59.999+00",
+        "score": 71.159,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.3969,
+          "structure": 0.4639,
+          "liquidity": 0.5184,
+          "volatility": 0.8788,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.2768,
+        "stopPrice": 0.2832,
+        "takeProfitPrice": 0.264,
+        "validUntil": "2026-08-24 00:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "78ea99f6-2a93-4e34-b900-98f4b43d0194",
+      "signalId": "2b3fc281-e696-4a47-a0cd-f3226c7e1946",
+      "symbol": "LABUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-23 10:59:59.999+00",
+      "entryPrice": 0.07239,
+      "entryFillPrice": 0.072375522,
+      "stopPrice": 0.07334,
+      "takeProfitPrice": 0.07049,
+      "maxHoldUntil": "2026-08-26 10:59:59.999+00",
+      "quantity": 27628,
+      "theoreticalRiskUsdt": 26.2466,
+      "exitTime": "2026-08-23 14:44:59.999+00",
+      "exitPrice": 0.070504098,
+      "exitReason": "TAKE_PROFIT",
+      "rMultiple": 1.9135694,
+      "netPnlUsdt": 50.22469056,
+      "feesUsdt": 1.57899126,
+      "fundingUsdt": 0.09997955,
+      "slippageUsdt": 0.78949773,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-23T10:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "2b3fc281-e696-4a47-a0cd-f3226c7e1946",
+        "sourceDataTimestamp": "2026-08-23 10:59:59.999+00",
+        "score": 71.568,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.311,
+          "structure": 0.6359,
+          "liquidity": 0.4708,
+          "volatility": 0.817,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.07239,
+        "stopPrice": 0.07334,
+        "takeProfitPrice": 0.07049,
+        "validUntil": "2026-08-26 10:59:59.999+00",
+        "inputProvenance": null
+      }
+    },
+    {
+      "id": "16026485-b3f6-4236-97e1-8db899592812",
+      "signalId": "96a0bbfa-966f-4b9b-afa5-4d335e3696e0",
+      "symbol": "TACUSDT",
+      "side": "SHORT",
+      "strategyFamily": "TREND",
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryTime": "2026-08-24 11:59:59.999+00",
+      "entryPrice": 0.001692,
+      "entryFillPrice": 0.0016916616,
+      "stopPrice": 0.001736,
+      "takeProfitPrice": 0.001604,
+      "maxHoldUntil": "2026-08-27 11:59:59.999+00",
+      "quantity": 1136363,
+      "theoreticalRiskUsdt": 49.999972,
+      "exitTime": "2026-08-24 13:14:59.999+00",
+      "exitPrice": 0.0017363472,
+      "exitReason": "STOP_LOSS",
+      "rMultiple": -1.03983241,
+      "netPnlUsdt": -51.99159117,
+      "feesUsdt": 1.55818495,
+      "fundingUsdt": 0.34565625,
+      "slippageUsdt": 0.77909047,
+      "metadata": {
+        "entry_model": "just_closed_15m_reference",
+        "source_data_timestamp": "2026-08-24T11:59:59.999Z",
+        "slippage_bps": 2
+      },
+      "signalTelemetry": {
+        "signalId": "96a0bbfa-966f-4b9b-afa5-4d335e3696e0",
+        "sourceDataTimestamp": "2026-08-24 11:59:59.999+00",
+        "score": 72.563,
+        "scoreComponents": {
+          "trendAlignment": 1,
+          "momentum": 0.202,
+          "structure": 0.8363,
+          "liquidity": 0.4603,
+          "volatility": 0.7552,
+          "regimeFit": 1,
+          "dataQuality": 0.7114
+        },
+        "marketRegime": "BEAR",
+        "side": "SHORT",
+        "strategyFamily": "TREND",
+        "primaryTimeframe": "15m",
+        "confirmationTimeframes": [
+          "1h",
+          "4h"
+        ],
+        "regimeDependency": "HIGH",
+        "entryPrice": 0.001692,
+        "stopPrice": 0.001736,
+        "takeProfitPrice": 0.001604,
+        "validUntil": "2026-08-27 11:59:59.999+00",
+        "inputProvenance": null
+      }
+    }
+  ],
+  "prospectiveMetrics": {
+    "trades": 13,
+    "wins": 2,
+    "losses": 11,
+    "winRate": 0.15384615384615385,
+    "netR": -8.0540456,
+    "avgNetR": -0.6195419692307692,
+    "profitFactor": 0.3082205620344567,
+    "maxDrawdownR": 8.92778259,
+    "maxDrawdownPercent": 8.92778259,
+    "lowerConfidenceBound95": -1.0424681984615385,
+    "positiveMonths": 0,
+    "months": 1,
+    "positiveMonthRatio": 0,
+    "topSymbolProfitShare": 0.23819952040979595,
+    "topFoldProfitShare": null,
+    "totalNetPnlUsdt": -409.5083915,
+    "totalFeesUsdt": 18.66271923,
+    "totalFundingUsdt": -19.790463149999997,
+    "totalSlippageUsdt": 9.33134514,
+    "monthly": [
+      {
+        "month": "2026-08",
+        "trades": 13,
+        "netR": -8.0540456,
+        "profitFactor": 0.3082205620344567,
+        "maxDrawdownR": 8.92778259
+      }
+    ]
+  },
+  "replayResults": [
+    {
+      "id": "89dbe5df-0312-4236-b622-757251ab47d2",
+      "symbol": "DOLOUSDT",
+      "sourceTimestamp": "2026-08-15T19:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 75.892,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.02031,
+        "stopPrice": 0.02086,
+        "takeProfitPrice": 0.01922,
+        "maxHoldUntil": "2026-08-18T19:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-15T21:59:59.999Z",
+        "exitPrice": 0.020864172,
+        "feesUsdt": 1.4970934119960002,
+        "fundingUsdt": -0.5207175693764554,
+        "netPnlUsdt": -52.76630568737225,
+        "rMultiple": -1.055327169074617
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4155,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 250
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786599899999,
+              "lastCloseTime": 1786823999999,
+              "lastClose": 0.02031,
+              "lastVolume": 3107992
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1785927599999,
+              "lastCloseTime": 1786823999999,
+              "lastClose": 0.02031,
+              "lastVolume": 9208244
+            },
+            "4h": {
+              "count": 250,
+              "firstCloseTime": 1783238399999,
+              "lastCloseTime": 1786823999999,
+              "lastClose": 0.02031,
+              "lastVolume": 53533709
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.020467844504182396,
+              "ema50": 0.02097241052647937,
+              "rsi14": 37.476698674773345,
+              "atr14": 0.00025328561586080345,
+              "volumeRatio20": 1.0753244392448
+            },
+            "1h": {
+              "ema20": 0.021423784853365005,
+              "ema50": 0.022172922200531086,
+              "rsi14": 36.34444817271261,
+              "atr14": 0.0006362560204150564,
+              "volumeRatio20": 0.5456578855476351
+            },
+            "4h": {
+              "ema20": 0.022270914511836732,
+              "ema50": 0.02259013532197747,
+              "rsi14": 38.87010159302488,
+              "atr14": 0.0018151469187969746,
+              "volumeRatio20": 0.9149323105610382
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "6ca4e837-ca15-4dab-8fc4-7b205717c5d9",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 76.655,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 75.892
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "6ca4e837-ca15-4dab-8fc4-7b205717c5d9",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 76.655,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.6051,
+              "structure": 0.5845,
+              "liquidity": 0.4155,
+              "volatility": 0.9812,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 75.892,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 75.892
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.02031,
+              "stop": 0.02086,
+              "takeProfit": 0.01922
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.02031,
+              "stop": 0.02086,
+              "takeProfit": 0.01922
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "f4886ad4-0a98-4a68-9820-0519c161fe1b",
+      "symbol": "HEIUSDT",
+      "sourceTimestamp": "2026-08-16T00:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 72.672,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.12419,
+        "stopPrice": 0.1297,
+        "takeProfitPrice": 0.11317,
+        "maxHoldUntil": "2026-08-19T00:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-16T07:59:59.999Z",
+        "exitPrice": 0.12972594,
+        "feesUsdt": 0.9215637663955201,
+        "fundingUsdt": -0.0899802062757766,
+        "netPnlUsdt": -51.47226785587144,
+        "rMultiple": -1.0294465100975174
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.5181,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786617899999,
+              "lastCloseTime": 1786841999999,
+              "lastClose": 0.12419,
+              "lastVolume": 1430214.5
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1785945599999,
+              "lastCloseTime": 1786841999999,
+              "lastClose": 0.12419,
+              "lastVolume": 8610032.2
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783267199999,
+              "lastCloseTime": 1786838399999,
+              "lastClose": 0.1249,
+              "lastVolume": 15310146.3
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.12638945873415325,
+              "ema50": 0.12977698852087907,
+              "rsi14": 28.731000095165797,
+              "atr14": 0.0016262169665293292,
+              "volumeRatio20": 1.1586156065900404
+            },
+            "1h": {
+              "ema20": 0.13173804443301612,
+              "ema50": 0.13455981755346566,
+              "rsi14": 34.98705507516807,
+              "atr14": 0.0037808271912592117,
+              "volumeRatio20": 0.8454678746239658
+            },
+            "4h": {
+              "ema20": 0.1363483987885335,
+              "ema50": 0.14494570614850766,
+              "rsi14": 42.50091413432291,
+              "atr14": 0.013155307175680666,
+              "volumeRatio20": 0.32013969504826034
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "8a3f78ec-fe07-4246-a4f4-c58094bc5358",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 74.666,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 72.672
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "8a3f78ec-fe07-4246-a4f4-c58094bc5358",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 74.666,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.9695,
+              "structure": 0.0983,
+              "liquidity": 0.5181,
+              "volatility": 0.9562,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 72.672,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 72.672
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.12419,
+              "stop": 0.1297,
+              "takeProfit": 0.11317
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.12419,
+              "stop": 0.1297,
+              "takeProfit": 0.11317
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "b07b708e-1d3e-46cc-a91b-f27575e8526f",
+      "symbol": "TUTUSDT",
+      "sourceTimestamp": "2026-08-16T11:59:59.999Z",
+      "replay": {
+        "signalGenerated": false,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 68.397,
+        "regime": "BEAR",
+        "admission": null,
+        "entryPrice": null,
+        "stopPrice": null,
+        "takeProfitPrice": null,
+        "maxHoldUntil": null,
+        "exitReason": null,
+        "exitTime": null,
+        "exitPrice": null,
+        "feesUsdt": null,
+        "fundingUsdt": null,
+        "netPnlUsdt": null,
+        "rMultiple": null
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "Production persisted an admitted signal, but the shared replay returned NO_SIGNAL_CANDIDATE: Raw strategy candidates did not satisfy the Production score threshold.."
+      ],
+      "firstDivergenceStage": "score",
+      "divergence": {
+        "productionEquivalentValue": {
+          "score": 71.373,
+          "threshold": "DATA_UNAVAILABLE"
+        },
+        "replayValue": {
+          "status": "DATA_UNAVAILABLE",
+          "minimumScore": "DATA_UNAVAILABLE",
+          "candidates": [
+            {
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 68.397
+            }
+          ]
+        }
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.5999,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 250
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786657499999,
+              "lastCloseTime": 1786881599999,
+              "lastClose": 0.03243,
+              "lastVolume": 18151719
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1785985199999,
+              "lastCloseTime": 1786881599999,
+              "lastClose": 0.03243,
+              "lastVolume": 58939236
+            },
+            "4h": {
+              "count": 250,
+              "firstCloseTime": 1783295999999,
+              "lastCloseTime": 1786881599999,
+              "lastClose": 0.03243,
+              "lastVolume": 268991743
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.032772176534597935,
+              "ema50": 0.03287189626188136,
+              "rsi14": 45.40544525506815,
+              "atr14": 0.0005836246235161395,
+              "volumeRatio20": 1.078285345783817
+            },
+            "1h": {
+              "ema20": 0.03309440613055783,
+              "ema50": 0.03598945178232932,
+              "rsi14": 46.07774753660562,
+              "atr14": 0.0015474039303879036,
+              "volumeRatio20": 0.4653320018665282
+            },
+            "4h": {
+              "ema20": 0.04169865508020838,
+              "ema50": 0.05541741855101423,
+              "rsi14": 36.10262670409271,
+              "atr14": 0.005417495298731873,
+              "volumeRatio20": 0.3312436868171893
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "c1027282-1606-44c8-a5b5-fffcadeafedd",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 71.373,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 68.397
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "c1027282-1606-44c8-a5b5-fffcadeafedd",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 71.373,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.2748,
+              "structure": 0.6091,
+              "liquidity": 0.5999,
+              "volatility": 0.7601,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 68.397,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": []
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": null
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.03243,
+              "stop": 0.03346,
+              "takeProfit": 0.03038
+            }
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "evaluation": "NO_SIGNAL_CANDIDATE",
+            "admitted": false,
+            "plan": null
+          }
+        }
+      }
+    },
+    {
+      "id": "18b6e209-b80e-4724-a864-5a9cd07ee32a",
+      "symbol": "BLESSUSDT",
+      "sourceTimestamp": "2026-08-16T20:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 72.799,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.008933,
+        "stopPrice": 0.009178,
+        "takeProfitPrice": 0.008443,
+        "maxHoldUntil": "2026-08-19T20:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-16T21:29:59.999Z",
+        "exitPrice": 0.0091798356,
+        "feesUsdt": 1.4784483963876,
+        "fundingUsdt": 0,
+        "netPnlUsdt": -52.217515594587525,
+        "rMultiple": -1.044353549387752
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4246,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786689899999,
+              "lastCloseTime": 1786913999999,
+              "lastClose": 0.008933,
+              "lastVolume": 111209992
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786017599999,
+              "lastCloseTime": 1786913999999,
+              "lastClose": 0.008933,
+              "lastVolume": 122818134
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783339199999,
+              "lastCloseTime": 1786910399999,
+              "lastClose": 0.008904,
+              "lastVolume": 221481025
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.00896404054144137,
+              "ema50": 0.008986000936917878,
+              "rsi14": 46.4620934561439,
+              "atr14": 0.0001506454538667166,
+              "volumeRatio20": 9.234190070716581
+            },
+            "1h": {
+              "ema20": 0.009016631205306663,
+              "ema50": 0.009378593104373235,
+              "rsi14": 43.89477058054409,
+              "atr14": 0.0002879627005481488,
+              "volumeRatio20": 2.111201197120491
+            },
+            "4h": {
+              "ema20": 0.009815333012404379,
+              "ema50": 0.011284387605180872,
+              "rsi14": 35.66019352982042,
+              "atr14": 0.0006292046938861241,
+              "volumeRatio20": 0.5622975452510185
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "0099db13-c235-4746-84d6-42b1bf28bd80",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 73.671,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 72.799
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "0099db13-c235-4746-84d6-42b1bf28bd80",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 73.671,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.2307,
+              "structure": 0.8626,
+              "liquidity": 0.4246,
+              "volatility": 0.8054,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 72.799,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 72.799
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.008933,
+              "stop": 0.009178,
+              "takeProfit": 0.008443
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.008933,
+              "stop": 0.009178,
+              "takeProfit": 0.008443
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "a60bf76b-c13d-441f-b182-2d164413fe37",
+      "symbol": "LABUSDT",
+      "sourceTimestamp": "2026-08-17T13:59:59.999Z",
+      "replay": {
+        "signalGenerated": false,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 69.921,
+        "regime": "BEAR",
+        "admission": null,
+        "entryPrice": null,
+        "stopPrice": null,
+        "takeProfitPrice": null,
+        "maxHoldUntil": null,
+        "exitReason": null,
+        "exitTime": null,
+        "exitPrice": null,
+        "feesUsdt": null,
+        "fundingUsdt": null,
+        "netPnlUsdt": null,
+        "rMultiple": null
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "Production persisted an admitted signal, but the shared replay returned NO_SIGNAL_CANDIDATE: Raw strategy candidates did not satisfy the Production score threshold.."
+      ],
+      "firstDivergenceStage": "score",
+      "divergence": {
+        "productionEquivalentValue": {
+          "score": 70.678,
+          "threshold": "DATA_UNAVAILABLE"
+        },
+        "replayValue": {
+          "status": "DATA_UNAVAILABLE",
+          "minimumScore": "DATA_UNAVAILABLE",
+          "candidates": [
+            {
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 69.921
+            }
+          ]
+        }
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4149,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786751099999,
+              "lastCloseTime": 1786975199999,
+              "lastClose": 0.0776,
+              "lastVolume": 2132178
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786078799999,
+              "lastCloseTime": 1786975199999,
+              "lastClose": 0.0776,
+              "lastVolume": 7589699
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783396799999,
+              "lastCloseTime": 1786967999999,
+              "lastClose": 0.0786,
+              "lastVolume": 19560055
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.07861077811156442,
+              "ema50": 0.0792935168095253,
+              "rsi14": 30.614202374768865,
+              "atr14": 0.0007167209292896681,
+              "volumeRatio20": 1.677877023770196
+            },
+            "1h": {
+              "ema20": 0.07966014229873626,
+              "ema50": 0.08227230616174218,
+              "rsi14": 36.74550461580549,
+              "atr14": 0.0014317016680865239,
+              "volumeRatio20": 1.3342402190336229
+            },
+            "4h": {
+              "ema20": 0.08617822156645387,
+              "ema50": 0.10045086112829098,
+              "rsi14": 26.252940158812706,
+              "atr14": 0.00391815649320077,
+              "volumeRatio20": 0.30954176364543157
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "3319cf19-4832-48e8-806b-b43ba1138b2d",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 70.678,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 69.921
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "3319cf19-4832-48e8-806b-b43ba1138b2d",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 70.678,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.8911,
+              "structure": 0.0598,
+              "liquidity": 0.4149,
+              "volatility": 0.8894,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 69.921,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": []
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": null
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.0776,
+              "stop": 0.0792,
+              "takeProfit": 0.0744
+            }
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "evaluation": "NO_SIGNAL_CANDIDATE",
+            "admitted": false,
+            "plan": null
+          }
+        }
+      }
+    },
+    {
+      "id": "9cdf90ed-686d-4773-8c0d-608a0b379dca",
+      "symbol": "HOMEUSDT",
+      "sourceTimestamp": "2026-08-17T14:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 71.312,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.006786,
+        "stopPrice": 0.006938,
+        "takeProfitPrice": 0.006483,
+        "maxHoldUntil": "2026-08-20T14:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-17T16:44:59.999Z",
+        "exitPrice": 0.006939387599999999,
+        "feesUsdt": 1.6179204542438401,
+        "fundingUsdt": -4.27249905596218,
+        "netPnlUsdt": -51.4974259454056,
+        "rMultiple": -1.1495462022230483
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.5063,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786754699999,
+              "lastCloseTime": 1786978799999,
+              "lastClose": 0.006786,
+              "lastVolume": 50879889
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786082399999,
+              "lastCloseTime": 1786978799999,
+              "lastClose": 0.006786,
+              "lastVolume": 222235067
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783396799999,
+              "lastCloseTime": 1786967999999,
+              "lastClose": 0.006918,
+              "lastVolume": 636376475
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.006850267405730703,
+              "ema50": 0.006957133597315235,
+              "rsi14": 42.03642813340235,
+              "atr14": 0.00008745996724248831,
+              "volumeRatio20": 1.3422822210903698
+            },
+            "1h": {
+              "ema20": 0.007075514536618466,
+              "ema50": 0.007690481969175446,
+              "rsi14": 29.564321147793777,
+              "atr14": 0.00017385466088840442,
+              "volumeRatio20": 1.152045964809399
+            },
+            "4h": {
+              "ema20": 0.008220002021525575,
+              "ema50": 0.008791455678076232,
+              "rsi14": 29.307673896190735,
+              "atr14": 0.00046897423640101003,
+              "volumeRatio20": 0.7268595051609764
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "a9266b7a-cca7-4842-b7e0-fb57a679c470",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 73.165,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 71.312
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "a9266b7a-cca7-4842-b7e0-fb57a679c470",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 73.165,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.4151,
+              "structure": 0.5101,
+              "liquidity": 0.5063,
+              "volatility": 0.9645,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 71.312,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 71.312
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.006786,
+              "stop": 0.006938,
+              "takeProfit": 0.006483
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.006786,
+              "stop": 0.006938,
+              "takeProfit": 0.006483
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "c783bdeb-cfc6-4b88-aa78-911b5b8fe9b1",
+      "symbol": "HOMEUSDT",
+      "sourceTimestamp": "2026-08-18T00:59:59.999Z",
+      "replay": {
+        "signalGenerated": false,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 68.866,
+        "regime": "BEAR",
+        "admission": null,
+        "entryPrice": null,
+        "stopPrice": null,
+        "takeProfitPrice": null,
+        "maxHoldUntil": null,
+        "exitReason": null,
+        "exitTime": null,
+        "exitPrice": null,
+        "feesUsdt": null,
+        "fundingUsdt": null,
+        "netPnlUsdt": null,
+        "rMultiple": null
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "Production persisted an admitted signal, but the shared replay returned NO_SIGNAL_CANDIDATE: Raw strategy candidates did not satisfy the Production score threshold.."
+      ],
+      "firstDivergenceStage": "score",
+      "divergence": {
+        "productionEquivalentValue": {
+          "score": 70.629,
+          "threshold": "DATA_UNAVAILABLE"
+        },
+        "replayValue": {
+          "status": "DATA_UNAVAILABLE",
+          "minimumScore": "DATA_UNAVAILABLE",
+          "candidates": [
+            {
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 68.866
+            }
+          ]
+        }
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4989,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786790699999,
+              "lastCloseTime": 1787014799999,
+              "lastClose": 0.006563,
+              "lastVolume": 136413146
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786118399999,
+              "lastCloseTime": 1787014799999,
+              "lastClose": 0.006563,
+              "lastVolume": 712519457
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783439999999,
+              "lastCloseTime": 1787011199999,
+              "lastClose": 0.006624,
+              "lastVolume": 522179008
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.00666694599853021,
+              "ema50": 0.00674410299882945,
+              "rsi14": 39.292744248286965,
+              "atr14": 0.00011397097938479713,
+              "volumeRatio20": 2.4367464696991608
+            },
+            "1h": {
+              "ema20": 0.006816766457753506,
+              "ema50": 0.007356956578354936,
+              "rsi14": 25.89609763370538,
+              "atr14": 0.00017155451088201137,
+              "volumeRatio20": 4.648297210372132
+            },
+            "4h": {
+              "ema20": 0.007825484274439245,
+              "ema50": 0.0085552291488962,
+              "rsi14": 27.068587392292685,
+              "atr14": 0.0003927906362586724,
+              "volumeRatio20": 0.701969544574566
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "61815011-4db4-4337-9f37-5f47931687df",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 70.629,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 68.866
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "61815011-4db4-4337-9f37-5f47931687df",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 70.629,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.5295,
+              "structure": 0.392,
+              "liquidity": 0.4989,
+              "volatility": 0.7854,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 68.866,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": []
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": null
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.006563,
+              "stop": 0.006938,
+              "takeProfit": 0.005814
+            }
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "evaluation": "NO_SIGNAL_CANDIDATE",
+            "admitted": false,
+            "plan": null
+          }
+        }
+      }
+    },
+    {
+      "id": "79da8d92-034f-48e0-a89e-a8d2a8863bb4",
+      "symbol": "BICOUSDT",
+      "sourceTimestamp": "2026-08-19T12:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 70.55,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.01727,
+        "stopPrice": 0.01757,
+        "takeProfitPrice": 0.01668,
+        "maxHoldUntil": "2026-08-22T12:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-19T15:29:59.999Z",
+        "exitPrice": 0.017573514,
+        "feesUsdt": 1.6138891313680002,
+        "fundingUsdt": 0,
+        "netPnlUsdt": -37.16293230736774,
+        "rMultiple": -1.0696800799999988
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4298,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786920299999,
+              "lastCloseTime": 1787144399999,
+              "lastClose": 0.01727,
+              "lastVolume": 7584108
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786247999999,
+              "lastCloseTime": 1787144399999,
+              "lastClose": 0.01727,
+              "lastVolume": 32704576
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783569599999,
+              "lastCloseTime": 1787140799999,
+              "lastClose": 0.01733,
+              "lastVolume": 110423979
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.017453348500608583,
+              "ema50": 0.017822750868973263,
+              "rsi14": 37.92443609557116,
+              "atr14": 0.00018244855964744347,
+              "volumeRatio20": 1.0667721345700945
+            },
+            "1h": {
+              "ema20": 0.018176438963540473,
+              "ema50": 0.019427761886577757,
+              "rsi14": 23.91481740421881,
+              "atr14": 0.0003893152582208125,
+              "volumeRatio20": 1.0265453956139567
+            },
+            "4h": {
+              "ema20": 0.020672140260552415,
+              "ema50": 0.025204800134194107,
+              "rsi14": 26.10722568050221,
+              "atr14": 0.0011027295147134019,
+              "volumeRatio20": 0.42113967603286506
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "6393a205-c0f9-4791-b494-f726863bf357",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 71.484,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 70.55
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "6393a205-c0f9-4791-b494-f726863bf357",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 71.484,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.5865,
+              "structure": 0.33,
+              "liquidity": 0.4298,
+              "volatility": 0.9426,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 70.55,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 70.55
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.01727,
+              "stop": 0.01757,
+              "takeProfit": 0.01668
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.01727,
+              "stop": 0.01757,
+              "takeProfit": 0.01668
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "24aa3446-8e18-46a3-85ed-67f85b853680",
+      "symbol": "HEIUSDT",
+      "sourceTimestamp": "2026-08-20T08:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 70.19,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.1251,
+        "stopPrice": 0.12826,
+        "takeProfitPrice": 0.11878,
+        "maxHoldUntil": "2026-08-23T08:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-20T10:14:59.999Z",
+        "exitPrice": 0.128285652,
+        "feesUsdt": 1.6035397087785601,
+        "fundingUsdt": 0,
+        "netPnlUsdt": -52.405039563178526,
+        "rMultiple": -1.0481064091139154
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4754,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1786992299999,
+              "lastCloseTime": 1787216399999,
+              "lastClose": 0.1251,
+              "lastVolume": 1322000.2
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786319999999,
+              "lastCloseTime": 1787216399999,
+              "lastClose": 0.1251,
+              "lastVolume": 4817299.9
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783641599999,
+              "lastCloseTime": 1787212799999,
+              "lastClose": 0.12578,
+              "lastVolume": 24054915.8
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.12626297786912727,
+              "ema50": 0.12748153962172631,
+              "rsi14": 44.04523027527105,
+              "atr14": 0.0016514644583505115,
+              "volumeRatio20": 0.9178015845043569
+            },
+            "1h": {
+              "ema20": 0.12866130622400682,
+              "ema50": 0.13158606880355114,
+              "rsi14": 40.43946155102353,
+              "atr14": 0.0036838161606310405,
+              "volumeRatio20": 0.6535036693153994
+            },
+            "4h": {
+              "ema20": 0.13230678692089048,
+              "ema50": 0.13682019993469244,
+              "rsi14": 42.75479754812788,
+              "atr14": 0.008828459324729853,
+              "volumeRatio20": 1.0942191289032719
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "ef67d444-ce9b-4a07-8aa4-a870d7032f61",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 71.672,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 70.19
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "ef67d444-ce9b-4a07-8aa4-a870d7032f61",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 71.672,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.3314,
+              "structure": 0.5305,
+              "liquidity": 0.4754,
+              "volatility": 0.952,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 70.19,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 70.19
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.1251,
+              "stop": 0.12826,
+              "takeProfit": 0.11878
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.1251,
+              "stop": 0.12826,
+              "takeProfit": 0.11878
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "366ea9c8-8c32-452d-913a-709c2d331f95",
+      "symbol": "APRUSDT",
+      "sourceTimestamp": "2026-08-20T11:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 72.508,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.1827,
+        "stopPrice": 0.187,
+        "takeProfitPrice": 0.1741,
+        "maxHoldUntil": "2026-08-23T11:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-20T12:44:59.999Z",
+        "exitPrice": 0.1870374,
+        "feesUsdt": 1.618698245424,
+        "fundingUsdt": 0.099971711658,
+        "netPnlUsdt": -49.39587377376592,
+        "rMultiple": -1.0494621327906966
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4623,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 250
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1787003099999,
+              "lastCloseTime": 1787227199999,
+              "lastClose": 0.1827,
+              "lastVolume": 1254074
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786330799999,
+              "lastCloseTime": 1787227199999,
+              "lastClose": 0.1827,
+              "lastVolume": 3718424
+            },
+            "4h": {
+              "count": 250,
+              "firstCloseTime": 1783641599999,
+              "lastCloseTime": 1787227199999,
+              "lastClose": 0.1827,
+              "lastVolume": 14466649
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.18416076681438096,
+              "ema50": 0.18783776830632504,
+              "rsi14": 42.11018720455689,
+              "atr14": 0.0021917610042073085,
+              "volumeRatio20": 1.4199169646684024
+            },
+            "1h": {
+              "ema20": 0.19033906483348534,
+              "ema50": 0.19537523354534123,
+              "rsi14": 32.515702302307815,
+              "atr14": 0.00381287896320953,
+              "volumeRatio20": 0.9845480908683516
+            },
+            "4h": {
+              "ema20": 0.20296566410149927,
+              "ema50": 0.233810707688115,
+              "rsi14": 38.838711556869214,
+              "atr14": 0.013250438073304312,
+              "volumeRatio20": 0.34681259944958326
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "37fdf902-8207-419f-b84c-219596e500cb",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 73.833,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 72.508
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "37fdf902-8207-419f-b84c-219596e500cb",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 73.833,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.4121,
+              "structure": 0.5557,
+              "liquidity": 0.4623,
+              "volatility": 0.9999,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 72.508,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 72.508
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.1827,
+              "stop": 0.187,
+              "takeProfit": 0.1741
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.1827,
+              "stop": 0.187,
+              "takeProfit": 0.1741
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "27a3e161-0b02-4ed3-b54c-3b3cb6e643bd",
+      "symbol": "GRVTUSDT",
+      "sourceTimestamp": "2026-08-21T00:59:59.999Z",
+      "replay": {
+        "signalGenerated": false,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 69.161,
+        "regime": "BEAR",
+        "admission": null,
+        "entryPrice": null,
+        "stopPrice": null,
+        "takeProfitPrice": null,
+        "maxHoldUntil": null,
+        "exitReason": null,
+        "exitTime": null,
+        "exitPrice": null,
+        "feesUsdt": null,
+        "fundingUsdt": null,
+        "netPnlUsdt": null,
+        "rMultiple": null
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "Production persisted an admitted signal, but the shared replay returned NO_SIGNAL_CANDIDATE: Raw strategy candidates did not satisfy the Production score threshold.."
+      ],
+      "firstDivergenceStage": "score",
+      "divergence": {
+        "productionEquivalentValue": {
+          "score": 71.159,
+          "threshold": "DATA_UNAVAILABLE"
+        },
+        "replayValue": {
+          "status": "DATA_UNAVAILABLE",
+          "minimumScore": "DATA_UNAVAILABLE",
+          "candidates": [
+            {
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 69.161
+            }
+          ]
+        }
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.5184,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 123
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1787049899999,
+              "lastCloseTime": 1787273999999,
+              "lastClose": 0.2768,
+              "lastVolume": 371729
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786377599999,
+              "lastCloseTime": 1787273999999,
+              "lastClose": 0.2768,
+              "lastVolume": 1608557
+            },
+            "4h": {
+              "count": 123,
+              "firstCloseTime": 1785513599999,
+              "lastCloseTime": 1787270399999,
+              "lastClose": 0.2778,
+              "lastVolume": 6686618
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.2787969502758929,
+              "ema50": 0.28180259125375007,
+              "rsi14": 42.473322347525546,
+              "atr14": 0.0024830965156576778,
+              "volumeRatio20": 0.9118835254734059
+            },
+            "1h": {
+              "ema20": 0.28464476629531954,
+              "ema50": 0.29051152605731223,
+              "rsi14": 33.45315918089514,
+              "atr14": 0.005130514001722803,
+              "volumeRatio20": 0.26296809789318604
+            },
+            "4h": {
+              "ema20": 0.2926443072084087,
+              "ema50": 0.2979130804930246,
+              "rsi14": 40.73188056829362,
+              "atr14": 0.013194569585667424,
+              "volumeRatio20": 0.26006656583140964
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "bed67b2d-3d60-4d00-b8fb-407aff239745",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 71.159,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 69.161
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "bed67b2d-3d60-4d00-b8fb-407aff239745",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 71.159,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.3969,
+              "structure": 0.4639,
+              "liquidity": 0.5184,
+              "volatility": 0.8788,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 69.161,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": []
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": null
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.2768,
+              "stop": 0.2832,
+              "takeProfit": 0.264
+            }
+          },
+          "replayValue": {
+            "status": "FAIL",
+            "evaluation": "NO_SIGNAL_CANDIDATE",
+            "admitted": false,
+            "plan": null
+          }
+        }
+      }
+    },
+    {
+      "id": "78ea99f6-2a93-4e34-b900-98f4b43d0194",
+      "symbol": "LABUSDT",
+      "sourceTimestamp": "2026-08-23T10:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 70.142,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.07239,
+        "stopPrice": 0.07334,
+        "takeProfitPrice": 0.07049,
+        "maxHoldUntil": "2026-08-26T10:59:59.999Z",
+        "exitReason": "TAKE_PROFIT",
+        "exitTime": "2026-08-23T14:44:59.999Z",
+        "exitPrice": 0.070504098,
+        "feesUsdt": 1.5789912565440003,
+        "fundingUsdt": 0.09997954609080001,
+        "netPnlUsdt": 50.2246905615467,
+        "rMultiple": 1.9135693979999833
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4708,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 249
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1787258699999,
+              "lastCloseTime": 1787482799999,
+              "lastClose": 0.07239,
+              "lastVolume": 1676219
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786586399999,
+              "lastCloseTime": 1787482799999,
+              "lastClose": 0.07239,
+              "lastVolume": 4471508
+            },
+            "4h": {
+              "count": 249,
+              "firstCloseTime": 1783900799999,
+              "lastCloseTime": 1787471999999,
+              "lastClose": 0.07222,
+              "lastVolume": 35153472
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.07268356917603762,
+              "ema50": 0.07329963545815811,
+              "rsi14": 44.5353206015682,
+              "atr14": 0.0005375740826656789,
+              "volumeRatio20": 1.099521039449511
+            },
+            "1h": {
+              "ema20": 0.07423617869943389,
+              "ema50": 0.07768294128336221,
+              "rsi14": 37.76356768683411,
+              "atr14": 0.0016528660041593625,
+              "volumeRatio20": 0.336261652081787
+            },
+            "4h": {
+              "ema20": 0.07933717658088062,
+              "ema50": 0.08507822699710788,
+              "rsi14": 38.249643355960494,
+              "atr14": 0.0069362219405557975,
+              "volumeRatio20": 0.640601566451984
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "2b3fc281-e696-4a47-a0cd-f3226c7e1946",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 71.568,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 70.142
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "2b3fc281-e696-4a47-a0cd-f3226c7e1946",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 71.568,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.311,
+              "structure": 0.6359,
+              "liquidity": 0.4708,
+              "volatility": 0.817,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 70.142,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 70.142
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.07239,
+              "stop": 0.07334,
+              "takeProfit": 0.07049
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.07239,
+              "stop": 0.07334,
+              "takeProfit": 0.07049
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "16026485-b3f6-4236-97e1-8db899592812",
+      "symbol": "TACUSDT",
+      "sourceTimestamp": "2026-08-24T11:59:59.999Z",
+      "replay": {
+        "signalGenerated": true,
+        "candidateSide": "SHORT",
+        "candidateFamily": "TREND",
+        "score": 71.262,
+        "regime": "BEAR",
+        "admission": true,
+        "entryPrice": 0.001692,
+        "stopPrice": 0.001736,
+        "takeProfitPrice": 0.001604,
+        "maxHoldUntil": "2026-08-27T11:59:59.999Z",
+        "exitReason": "STOP_LOSS",
+        "exitTime": "2026-08-24T13:14:59.999Z",
+        "exitPrice": 0.0017363472,
+        "feesUsdt": 1.5581849455977599,
+        "fundingUsdt": 0.34565625222329943,
+        "netPnlUsdt": -51.99159116617449,
+        "rMultiple": -1.0398324056296373
+      },
+      "quantizationVerdict": "INPUT_DATA_UNAVAILABLE",
+      "status": "INPUT_DATA_UNAVAILABLE",
+      "reasons": [],
+      "dataUnavailable": [
+        "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+        "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+        "point-in-time quoteVolume24h was not persisted with the admitted signal",
+        "Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched",
+        "signal.score comparison depends on unavailable point-in-time replay inputs",
+        "signal.score_components.trendAlignment comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.momentum comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.structure comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.liquidity comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.volatility comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.regimeFit comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.score_components.dataQuality comparison is DATA_UNAVAILABLE because the Production input was not persisted",
+        "signal.market_regime comparison depends on unavailable Production candle inputs",
+        "signal risk-plan comparison depends on unavailable Production candle inputs",
+        "historical Production price-filter and rounding proof for stop/take-profit quantization"
+      ],
+      "firstDivergenceStage": "data_unavailable",
+      "divergence": {
+        "productionEquivalentValue": "DATA_UNAVAILABLE",
+        "replayValue": "DATA_UNAVAILABLE"
+      },
+      "inputProvenance": {
+        "productionLiquidity": 0.4603,
+        "replayLiquidity": null,
+        "pointInTimeLiquidityAvailable": false,
+        "source": "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+        "productionCandleCounts": null,
+        "replayCandleCounts": {
+          "15m": 250,
+          "1h": 250,
+          "4h": 250
+        },
+        "pointInTimeCandleCountsAvailable": false,
+        "dataQualityComparison": "DATA_UNAVAILABLE",
+        "rawCandlesAvailable": false
+      },
+      "trace": {
+        "rawCandles": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "count": 250,
+              "firstCloseTime": 1787348699999,
+              "lastCloseTime": 1787572799999,
+              "lastClose": 0.001692,
+              "lastVolume": 61707748
+            },
+            "1h": {
+              "count": 250,
+              "firstCloseTime": 1786676399999,
+              "lastCloseTime": 1787572799999,
+              "lastClose": 0.001692,
+              "lastVolume": 185383236
+            },
+            "4h": {
+              "count": 250,
+              "firstCloseTime": 1783987199999,
+              "lastCloseTime": 1787572799999,
+              "lastClose": 0.001692,
+              "lastVolume": 705195362
+            }
+          }
+        },
+        "indicators": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE",
+          "replayValue": {
+            "15m": {
+              "ema20": 0.0016995299997357893,
+              "ema50": 0.0017053769089575145,
+              "rsi14": 47.151111113617354,
+              "atr14": 0.00003066032967477405,
+              "volumeRatio20": 1.4762805439709796
+            },
+            "1h": {
+              "ema20": 0.0017144336664313678,
+              "ema50": 0.001878623004249923,
+              "rsi14": 44.106517782302646,
+              "atr14": 0.00007086263181501513,
+              "volumeRatio20": 0.37038776813753715
+            },
+            "4h": {
+              "ema20": 0.002011330009969518,
+              "ema50": 0.0023399947615432874,
+              "rsi14": 25.760356515491864,
+              "atr14": 0.00020044692700851212,
+              "volumeRatio20": 0.3321551987118774
+            }
+          }
+        },
+        "rawStrategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "96a0bbfa-966f-4b9b-afa5-4d335e3696e0",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "score": {
+          "productionEquivalentValue": {
+            "score": 72.563,
+            "threshold": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "DATA_UNAVAILABLE",
+            "minimumScore": "DATA_UNAVAILABLE",
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND",
+                "score": 71.262
+              }
+            ]
+          }
+        },
+        "strategyTrigger": {
+          "productionEquivalentValue": {
+            "signalId": "96a0bbfa-966f-4b9b-afa5-4d335e3696e0",
+            "persisted": true,
+            "rawTrigger": "DATA_UNAVAILABLE"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidateCount": 1,
+            "candidates": [
+              {
+                "side": "SHORT",
+                "family": "TREND"
+              }
+            ]
+          }
+        },
+        "scoreComponents": {
+          "productionEquivalentValue": {
+            "score": 72.563,
+            "components": {
+              "trendAlignment": 1,
+              "momentum": 0.202,
+              "structure": 0.8363,
+              "liquidity": 0.4603,
+              "volatility": 0.7552,
+              "regimeFit": 1,
+              "dataQuality": 0.7114
+            }
+          },
+          "replayValue": {
+            "score": 71.262,
+            "components": {
+              "trendAlignment": "DATA_UNAVAILABLE",
+              "momentum": "DATA_UNAVAILABLE",
+              "structure": "DATA_UNAVAILABLE",
+              "liquidity": "DATA_UNAVAILABLE",
+              "volatility": "DATA_UNAVAILABLE",
+              "regimeFit": "DATA_UNAVAILABLE",
+              "dataQuality": "DATA_UNAVAILABLE"
+            }
+          }
+        },
+        "rankCandidates": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production rank context was not persisted",
+          "replayValue": [
+            {
+              "rank": 1,
+              "side": "SHORT",
+              "family": "TREND",
+              "score": 71.262
+            }
+          ]
+        },
+        "regime": {
+          "productionEquivalentValue": "BEAR",
+          "replayValue": "BEAR"
+        },
+        "entryInterval": {
+          "productionEquivalentValue": "DATA_UNAVAILABLE: Production admission context was not persisted",
+          "replayValue": true
+        },
+        "sideFamilyFilter": {
+          "productionEquivalentValue": {
+            "side": "SHORT",
+            "family": "TREND"
+          },
+          "replayValue": {
+            "status": "PASS",
+            "candidate": {
+              "side": "SHORT",
+              "family": "TREND"
+            }
+          }
+        },
+        "riskAdmission": {
+          "productionEquivalentValue": {
+            "paperTradePersisted": true,
+            "plan": {
+              "entry": 0.001692,
+              "stop": 0.001736,
+              "takeProfit": 0.001604
+            }
+          },
+          "replayValue": {
+            "status": "PASS",
+            "evaluation": "ADMITTED",
+            "admitted": true,
+            "plan": {
+              "entry": 0.001692,
+              "stop": 0.001736,
+              "takeProfit": 0.001604
+            }
+          }
+        }
+      }
+    }
+  ],
+  "exactMatches": 0,
+  "partialMatches": 0,
+  "quantizationExplained": 0,
+  "inputDataUnavailable": 13,
+  "materialMismatches": 0,
+  "configParity": {
+    "source": "unavailable",
+    "expectedSource": "replay_runtime_config",
+    "status": "INCOMPLETE",
+    "checked": [
+      "strategyVersion",
+      "entryMode",
+      "scoreThreshold",
+      "stopAtrMultiplier",
+      "rewardRisk",
+      "sideFilter",
+      "strategyFamily",
+      "regimeAlignment",
+      "cooldownHours",
+      "maxHoldHours",
+      "entryIntervalHours",
+      "maxConcurrentPositions",
+      "maxPositionNotionalUsdt",
+      "riskPerTradeUsdt",
+      "perSignalRiskCapUsdt",
+      "dailyRiskBudgetUsdt",
+      "takerFeeRate",
+      "slippageBps",
+      "maxExecutionCostRiskFraction",
+      "universeTopSymbols",
+      "scanTimeframes",
+      "entryReference",
+      "closedCandleHandling"
+    ],
+    "mismatches": [],
+    "unavailable": [
+      "actual Production runtime config"
+    ]
+  },
+  "verdict": "INCOMPLETE",
+  "failureClassification": "INCONCLUSIVE",
+  "historicalControlReliable": false,
+  "queryError": "Production paper trade query failed: Invalid API key"
+}
