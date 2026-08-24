@@ -40,6 +40,7 @@ import {
   fetchSettledProductionPaperTrades,
   finalizeParityReport,
   loadLocalRuntimeEnv,
+  readActualProductionRuntimeConfig,
   readProductionPaperTradeExport,
   replayProductionPaperTrade,
   type CanonicalTradeSet,
@@ -241,6 +242,16 @@ async function main(): Promise<void> {
     controlConfig,
     analyses.get("SHORT")?.control ?? null,
   );
+  const controlComparison = {
+    reliable: productionParity.verdict === "PASS",
+    reason: productionParity.verdict === "PASS"
+      ? "Production parity audit passed."
+      : `reliable Production comparator unavailable; parity=${productionParity.verdict}; failure=${productionParity.failureClassification}`,
+  };
+  for (const side of ["LONG", "SHORT"] as const) {
+    const analysis = analyses.get(side);
+    if (analysis) analysis.gate = evaluateDirectionGate(analysis, controlComparison);
+  }
   await writeReports(groups, analyses, states, productionParity, controlConfig);
   console.info(JSON.stringify({
     stage: "v5_3_validation_complete",
@@ -509,6 +520,7 @@ async function analyzeDirection(
     foldGroups,
     regimeMetrics,
     dataQuality: { passed: false, reason: "PIT_UNIVERSE=PROXY; true point-in-time membership is unavailable for 1Y Broad." },
+    controlComparison: { reliable: false, reason: "Production parity audit pending; historical control is not trusted before parity PASS." },
     adjustedLcb,
     delayedEntry,
     removeTop3: calculateMetrics(removeTopTrades(fixedOosTrades, 3)),
@@ -544,6 +556,32 @@ async function analyzeDirection(
     stopComparison,
     robustness,
   };
+}
+
+function evaluateDirectionGate(
+  analysis: DirectionAnalysis,
+  controlComparison: { reliable: boolean; reason: string },
+): ReturnType<typeof evaluateV53PromotionGate> {
+  const fixedOosTrades = analysis.fixedOosTrades;
+  const fixedFoldRows = analysis.fixedFoldRows;
+  return evaluateV53PromotionGate({
+    metrics: analysis.fixedOosMetrics,
+    holdout: analysis.finalHoldout,
+    control: analysis.control,
+    costStress: analysis.costStress,
+    folds: fixedFoldRows.map((row) => ({ netR: row.metrics.netR, trades: row.metrics.trades })),
+    foldGroups: ["3Y_CORE", "1Y_BROAD"].map((id) => ({
+      id,
+      folds: fixedFoldRows.filter((row) => row.group === id).map((row) => ({ netR: row.metrics.netR, trades: row.metrics.trades })),
+    })),
+    regimeMetrics: regimeSlices(fixedOosTrades),
+    dataQuality: { passed: false, reason: "PIT_UNIVERSE=PROXY; true point-in-time membership is unavailable for 1Y Broad." },
+    controlComparison,
+    adjustedLcb: analysis.adjustedLcb,
+    delayedEntry: analysis.delayedEntry,
+    removeTop3: calculateMetrics(removeTopTrades(fixedOosTrades, 3)),
+    perturbations: analysis.perturbations,
+  });
 }
 
 function buildInnerFolds(group: ValidationGroup, outer: PurgedWalkForwardFold): PurgedWalkForwardFold[] {
@@ -740,12 +778,16 @@ async function runProductionParityAudit(
   controlConfig: ProductionControlConfig | null,
   historicalControl: ValidationMetrics | null,
 ): Promise<ProductionParityReport> {
-  const configParity = controlConfig
-    ? compareControlConfigParity(controlConfig.normalized, controlConfig.normalized)
-    : compareControlConfigParity(null, {});
+  const actualConfig = readActualProductionRuntimeConfig();
+  const configParity = compareControlConfigParity(
+    actualConfig.config,
+    controlConfig?.replayExpectedConfig ?? null,
+    actualConfig.source,
+  );
   let rows: ProductionPaperTradeRow[];
   let dataSource: ProductionParityReport["dataSource"] = "live_supabase_read";
   let queryError: string | undefined;
+  let exportProvenance: ProductionParityReport["exportProvenance"] = null;
   try {
     rows = await fetchSettledProductionPaperTrades(getSupabaseAdmin());
   } catch (error) {
@@ -754,6 +796,7 @@ async function runProductionParityAudit(
     if (!exportData) return createUnavailableParityReport(error, configParity);
     rows = exportData.rows;
     dataSource = "immutable_read_only_export";
+    exportProvenance = exportData.provenance;
   }
   try {
     const datasetCache = new Map<string, HistoricalDataset | null>();
@@ -774,7 +817,7 @@ async function runProductionParityAudit(
         queryError = `${queryError ? `${queryError}; ` : ""}${row.symbol} replay data unavailable: ${error instanceof Error ? error.message : String(error)}`;
       }
     }
-    return finalizeParityReport(rows, replayResults, configParity, historicalControl, dataSource, queryError);
+    return finalizeParityReport(rows, replayResults, configParity, historicalControl, dataSource, queryError, exportProvenance);
   } catch (error) {
     return createUnavailableParityReport(queryError ? new Error(`${queryError}; replay data fetch failed: ${error instanceof Error ? error.message : String(error)}`) : error, configParity);
   }
@@ -842,7 +885,7 @@ function parseReplayTimestamp(row: ProductionPaperTradeRow): number | null {
 function productionParityMarkdown(report: ProductionParityReport): string {
   const metrics = report.prospectiveMetrics;
   const rows = report.replayResults.length > 0
-    ? report.replayResults.map((row) => `- ${row.id} / ${row.symbol}: **${row.status}**${row.reasons.length > 0 ? ` — ${row.reasons.join("; ")}` : ""}${row.dataUnavailable.length > 0 ? `; DATA_UNAVAILABLE: ${row.dataUnavailable.join("; ")}` : ""}`).join("\n")
+    ? report.replayResults.map((row) => `- ${row.id} / ${row.symbol}: **${row.status}**; first divergence=${row.firstDivergenceStage ?? "none"}; quantization=${row.quantizationVerdict}${row.reasons.length > 0 ? ` — ${row.reasons.join("; ")}` : ""}${row.dataUnavailable.length > 0 ? `; DATA_UNAVAILABLE: ${row.dataUnavailable.join("; ")}` : ""}`).join("\n")
     : "- DATA_UNAVAILABLE: no replay rows were available.";
   return [
     "# V5.3 Production Backtest Parity Audit",
@@ -859,17 +902,22 @@ function productionParityMarkdown(report: ProductionParityReport): string {
     `- Settled prospective rows: ${report.settledProspectiveTrades === null ? "DATA_UNAVAILABLE" : report.settledProspectiveTrades}`,
     `- Query timestamp: ${report.queryTimestamp}`,
     `- Extraction query: \`${report.extractionQuery}\``,
+    report.exportProvenance
+      ? `- Immutable export provenance: capturedAt=${report.exportProvenance.capturedAt}; rowCount=${report.exportProvenance.rowCount}; sha256=${report.exportProvenance.sha256}; sourceTable=${report.exportProvenance.sourceTable}; hashVerified=${report.exportProvenance.verified ? "YES" : "NO"}`
+      : "- Immutable export provenance: DATA_UNAVAILABLE (live read or fallback export unavailable)",
     report.queryError ? `- Query error: ${report.queryError}` : "- Query error: none",
     metrics ? `- Prospective metrics: ${metrics.trades} trades, AvgR ${format(metrics.avgNetR)}, PF ${format(metrics.profitFactor)}, NetR ${format(metrics.netR)}` : "- Prospective metrics: DATA_UNAVAILABLE",
     "",
     "## Replay classification",
     `- MATCH: ${report.exactMatches === null ? "DATA_UNAVAILABLE" : report.exactMatches}`,
     `- PARTIAL_MATCH: ${report.partialMatches === null ? "DATA_UNAVAILABLE" : report.partialMatches}`,
+    `- QUANTIZATION_EXPLAINED: ${report.quantizationExplained === null ? "DATA_UNAVAILABLE" : report.quantizationExplained}`,
     `- MISMATCH: ${report.mismatches === null ? "DATA_UNAVAILABLE" : report.mismatches}`,
     `- DATA_UNAVAILABLE: ${report.dataUnavailable === null ? "DATA_UNAVAILABLE" : report.dataUnavailable}`,
     rows,
     "",
     "## Control configuration parity",
+    `- Source: **${report.configParity.source}**; expected source: **${report.configParity.expectedSource}**`,
     `- Status: **${report.configParity.status}**`,
     `- Checked: ${report.configParity.checked.join(", ") || "DATA_UNAVAILABLE"}`,
     report.configParity.mismatches.length > 0 ? `- Mismatches: ${report.configParity.mismatches.join("; ")}` : "- Mismatches: none",
@@ -899,7 +947,7 @@ async function writeReports(
     researchOnly: true,
     pointInTimeUniverse: "PROXY",
     survivorBias: "PROXY",
-    productionControlConfig: controlConfig?.normalized ?? "DATA_UNAVAILABLE",
+    productionControlConfig: controlConfig?.replayExpectedConfig ?? "DATA_UNAVAILABLE",
   };
   await writeJson("v5-3-candidate-registry.json", { ...base, ...candidateRegistrySummary(), v52FrozenConclusions: { LONG: "BREAKOUT_RETEST=SHADOW_ONLY", SHORT: "TREND_REJECTION=SHADOW_ONLY" } });
   await writeJson("v5-3-long-candidates.json", { ...base, direction: "LONG", finalCandidate: long.finalCandidate, candidates: long.candidateRows.map(serializeCandidateRow), nestedSelectionProcedureOos: serializeMetrics(long.nestedSelectionMetrics), fixedFinalCandidateOos: serializeMetrics(long.fixedOosMetrics) });

@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BinancePublicClient, mapWithConcurrency, selectDeepUniverse } from "@/lib/binance/public-client";
 import { getServerConfig, type ServerConfig } from "@/lib/config";
-import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
 import {
   PRODUCTION_ENTRY_MODE,
   PRODUCTION_STRATEGY_VERSION,
   SHADOW_ENTRY_MODE,
   SHADOW_STRATEGY_VERSION,
 } from "@/lib/core/production-policy";
-import { buildTradePlan } from "@/lib/core/risk";
-import { rankCandidates } from "@/lib/core/scoring";
-import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
+import { buildProductionOpportunity, type ProductionSignalPolicy } from "@/lib/core/production-signal";
+import { DEFAULT_STRATEGY_PARAMS, type StrategyParams } from "@/lib/core/strategies";
 import { buildStrategyHealthEvent } from "@/lib/core/strategy-health";
 import { fifteenMinuteGroupKey, signalKey, zonedDateString } from "@/lib/core/time";
-import type { Instrument, MarketSnapshot, ScoredCandidate, Timeframe, TradePlan } from "@/lib/core/types";
+import type { Instrument, MarketSnapshot, Timeframe } from "@/lib/core/types";
 import { sendSignalEmail, sendSystemAlertEmail } from "@/lib/notifications/email";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -116,7 +114,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
       .flatMap((snapshot) => {
         try {
-          const opportunity = buildOpportunity(snapshot, strategyParams, runtimeConfig);
+          const opportunity = buildProductionOpportunity(snapshot, toProductionSignalPolicy(strategyParams, runtimeConfig));
           return opportunity ? [opportunity] : [];
         } catch (error) {
           errors.push({ symbol: snapshot.instrument.symbol, stage: "risk_plan", message: errorMessage(error) });
@@ -130,7 +128,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
           .flatMap((snapshot) => {
             try {
-              const opportunity = buildOpportunity(snapshot, shadowStrategyParams, runtimeConfig);
+              const opportunity = buildProductionOpportunity(snapshot, toProductionSignalPolicy(shadowStrategyParams, runtimeConfig));
               return opportunity ? [opportunity] : [];
             } catch (error) {
               errors.push({ symbol: snapshot.instrument.symbol, stage: "shadow_risk_plan", message: errorMessage(error) });
@@ -359,18 +357,20 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-function buildOpportunity(
-  snapshot: MarketSnapshot,
-  strategyParams: StrategyParams,
-  config: ServerConfig,
-): { snapshot: MarketSnapshot; candidate: ScoredCandidate; plan: TradePlan } | undefined {
-  const candidate = rankCandidates(generateCandidates(snapshot, strategyParams), {
+function isAuthorized(request: NextRequest, expectedSecret?: string): boolean {
+  if (!expectedSecret) return false;
+  const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  return bearer === expectedSecret || request.headers.get("x-cron-secret") === expectedSecret;
+}
+
+function toProductionSignalPolicy(strategyParams: StrategyParams, config: ServerConfig): ProductionSignalPolicy {
+  return {
+    strategyParams,
     minimumScore: config.CS_MIN_SIGNAL_SCORE,
     sideFilter: config.CS_SIGNAL_SIDE_FILTER === "BOTH" ? undefined : config.CS_SIGNAL_SIDE_FILTER,
     strategyFamily: config.CS_SIGNAL_STRATEGY_FAMILY === "ALL" ? undefined : config.CS_SIGNAL_STRATEGY_FAMILY,
-  }).find((item) => isRegimeAllowed(item, config.CS_REQUIRE_REGIME_ALIGNMENT));
-  if (!candidate || !isEntryIntervalAllowed(snapshot.sourceTimestamp, config.CS_ENTRY_INTERVAL_HOURS)) return undefined;
-  const plan = buildTradePlan(candidate, snapshot.instrument, {
+    requireRegimeAlignment: config.CS_REQUIRE_REGIME_ALIGNMENT,
+    entryIntervalHours: config.CS_ENTRY_INTERVAL_HOURS,
     marginUsdt: config.CS_MARGIN_USDT,
     leverage: config.CS_ASSUMED_LEVERAGE,
     singleSignalRiskCapUsdt: config.CS_PER_SIGNAL_RISK_CAP_USDT,
@@ -379,20 +379,10 @@ function buildOpportunity(
     rewardRisk: config.CS_REWARD_RISK,
     riskPerTradeUsdt: config.CS_RISK_PER_TRADE_USDT,
     maxPositionNotionalUsdt: config.CS_MAX_POSITION_NOTIONAL_USDT,
-  }, snapshot.sourceTimestamp);
-  if (plan.riskOverSingleCap) return undefined;
-  if (estimatedExecutionCostRiskFraction(
-    plan,
-    config.CS_PAPER_TAKER_FEE_RATE,
-    config.CS_PAPER_SLIPPAGE_BPS,
-  ) > config.CS_MAX_EXECUTION_COST_RISK_FRACTION) return undefined;
-  return { snapshot, candidate, plan };
-}
-
-function isAuthorized(request: NextRequest, expectedSecret?: string): boolean {
-  if (!expectedSecret) return false;
-  const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  return bearer === expectedSecret || request.headers.get("x-cron-secret") === expectedSecret;
+    takerFeeRate: config.CS_PAPER_TAKER_FEE_RATE,
+    slippageBps: config.CS_PAPER_SLIPPAGE_BPS,
+    maxExecutionCostRiskFraction: config.CS_MAX_EXECUTION_COST_RISK_FRACTION,
+  };
 }
 
 function parseBatchNumber(value: string | null): number {
@@ -405,16 +395,6 @@ function parseBatchNumber(value: string | null): number {
 function normalizedTimeframes(values: string[]): Timeframe[] {
   const valid = values.filter((value): value is Timeframe => value === "15m" || value === "1h" || value === "4h");
   return valid.includes("15m") ? valid : ["15m", ...valid];
-}
-
-function isRegimeAllowed(candidate: Parameters<typeof rankCandidates>[0][number], required: boolean): boolean {
-  if (!required) return true;
-  if (candidate.strategyFamily === "MEAN_REVERSION") {
-    return candidate.marketRegime === "RANGE" || candidate.marketRegime === "UNKNOWN";
-  }
-  return candidate.side === "LONG"
-    ? candidate.marketRegime === "BULL"
-    : candidate.marketRegime === "BEAR";
 }
 
 function toInstrumentRow(instrument: Instrument) {

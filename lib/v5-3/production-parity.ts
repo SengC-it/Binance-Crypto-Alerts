@@ -1,16 +1,16 @@
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { buildTradePlan } from "@/lib/core/risk";
-import { estimatedExecutionCostRiskFraction, isEntryIntervalAllowed } from "@/lib/core/execution-policy";
+import { evaluateProductionSignal, type ProductionSignalEvaluation, type ProductionSignalPolicy } from "@/lib/core/production-signal";
 import {
   PRODUCTION_ENTRY_MODE,
   PRODUCTION_STRATEGY_VERSION,
 } from "@/lib/core/production-policy";
-import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from "@/lib/core/strategies";
-import type { Candle, MarketSnapshot, ScoredCandidate } from "@/lib/core/types";
-import { rankCandidates } from "@/lib/core/scoring";
+import { DEFAULT_STRATEGY_PARAMS, type StrategyParams } from "@/lib/core/strategies";
+import { atr, closes, ema, latest, rsi, volumeRatio } from "@/lib/core/indicators";
+import type { Candle, MarketSnapshot, ScoreComponents, TradePlan } from "@/lib/core/types";
 import type { HistoricalDataset } from "@/lib/backtest/types";
 import type { BacktestOptions } from "@/lib/backtest/engine";
 import type { ServerConfig } from "@/lib/config";
@@ -19,6 +19,7 @@ import { calculateMetrics, type ValidationMetrics, type ValidationTrade } from "
 export const PRODUCTION_ENTRY_MODEL = "just_closed_15m_reference";
 const PAPER_TRADE_QUERY = [
   "id",
+  "signal_id",
   "symbol",
   "side",
   "strategy_family",
@@ -42,13 +43,72 @@ const PAPER_TRADE_QUERY = [
   "metadata",
 ].join(",");
 
+const SIGNAL_QUERY = [
+  "id",
+  "source_data_timestamp",
+  "score",
+  "score_components",
+  "market_regime",
+  "side",
+  "strategy_family",
+  "primary_timeframe",
+  "confirmation_timeframes",
+  "regime_dependency",
+  "entry_price",
+  "stop_price",
+  "take_profit_price",
+  "valid_until",
+].join(",");
+
+const EXTRACTION_QUERY = `SELECT p.${PAPER_TRADE_QUERY.replaceAll(",", ", p.")}, s.${SIGNAL_QUERY.replaceAll(",", ", s.")} FROM public.bca_paper_trades p LEFT JOIN public.bca_signals s ON s.id = p.signal_id WHERE p.strategy_version = '${PRODUCTION_STRATEGY_VERSION}' AND p.exit_time IS NOT NULL ORDER BY p.entry_time ASC`;
+
+const CONFIG_ALLOWLIST = [
+  "strategyVersion",
+  "entryMode",
+  "scoreThreshold",
+  "stopAtrMultiplier",
+  "rewardRisk",
+  "sideFilter",
+  "strategyFamily",
+  "regimeAlignment",
+  "cooldownHours",
+  "maxHoldHours",
+  "entryIntervalHours",
+  "maxConcurrentPositions",
+  "maxPositionNotionalUsdt",
+  "riskPerTradeUsdt",
+  "perSignalRiskCapUsdt",
+  "dailyRiskBudgetUsdt",
+  "takerFeeRate",
+  "slippageBps",
+  "maxExecutionCostRiskFraction",
+  "universeTopSymbols",
+  "scanTimeframes",
+  "entryReference",
+  "closedCandleHandling",
+] as const;
+
+export type ConfigAllowlistKey = typeof CONFIG_ALLOWLIST[number];
+
+export interface ImmutableExportProvenance {
+  capturedAt: string;
+  rowCount: number;
+  sha256: string;
+  hashScope: "canonical_json_rows";
+  sourceTable: string;
+  query: string;
+  relatedSourceTable?: string;
+  verified: boolean;
+}
+
 export interface ProductionControlConfig {
   source: "resolved_runtime_config";
   strategyVersion: string;
   entryMode: typeof PRODUCTION_ENTRY_MODE;
   params: StrategyParams;
   options: BacktestOptions;
-  normalized: Record<string, unknown>;
+  signalPolicy: ProductionSignalPolicy;
+  replayExpectedConfig: Record<ConfigAllowlistKey, unknown>;
 }
 
 export interface CanonicalTradeSet<T extends ValidationTrade> {
@@ -62,6 +122,7 @@ export interface CanonicalTradeSet<T extends ValidationTrade> {
 
 export interface ProductionPaperTradeRow {
   id: string;
+  signalId: string | null;
   symbol: string;
   side: string | null;
   strategyFamily: string | null;
@@ -83,17 +144,68 @@ export interface ProductionPaperTradeRow {
   fundingUsdt: number | null;
   slippageUsdt: number | null;
   metadata: Record<string, unknown>;
+  signalTelemetry: ProductionSignalTelemetry | null;
 }
 
-export type ReplayStatus = "MATCH" | "PARTIAL_MATCH" | "MISMATCH" | "DATA_UNAVAILABLE";
+export interface ProductionSignalTelemetry {
+  signalId: string;
+  sourceDataTimestamp: string | null;
+  score: number | null;
+  scoreComponents: ScoreComponents | null;
+  marketRegime: string | null;
+  side: string | null;
+  strategyFamily: string | null;
+  primaryTimeframe: string | null;
+  confirmationTimeframes: string[];
+  regimeDependency: string | null;
+  entryPrice: number | null;
+  stopPrice: number | null;
+  takeProfitPrice: number | null;
+  validUntil: string | null;
+}
+
+export type ReplayStatus = "MATCH" | "PARTIAL_MATCH" | "QUANTIZATION_EXPLAINED" | "MISMATCH" | "DATA_UNAVAILABLE";
+export type QuantizationVerdict = "QUANTIZATION_EXPLAINED" | "MISMATCH" | "DATA_UNAVAILABLE";
+
+export type DivergenceStage =
+  | "raw_candles"
+  | "indicators"
+  | "strategy_trigger"
+  | "score_components"
+  | "rank_candidates"
+  | "regime"
+  | "entry_interval"
+  | "side_family_filter"
+  | "risk_admission"
+  | "settlement"
+  | "data_unavailable";
+
+export interface DivergenceValue {
+  productionEquivalentValue: unknown;
+  replayValue: unknown;
+}
 
 export interface ProductionReplayResult {
   id: string;
   symbol: string;
   sourceTimestamp: string | null;
   status: ReplayStatus;
+  quantizationVerdict: QuantizationVerdict;
   reasons: string[];
   dataUnavailable: string[];
+  firstDivergenceStage: DivergenceStage | null;
+  divergence: DivergenceValue | null;
+  trace: {
+    rawCandles: Record<string, unknown>;
+    indicators: Record<string, unknown>;
+    strategyTrigger: DivergenceValue;
+    scoreComponents: DivergenceValue;
+    rankCandidates: DivergenceValue;
+    regime: DivergenceValue;
+    entryInterval: DivergenceValue;
+    sideFamilyFilter: DivergenceValue;
+    riskAdmission: DivergenceValue;
+  };
   replay: {
     signalGenerated: boolean | null;
     candidateSide: string | null;
@@ -121,12 +233,14 @@ export interface ProductionParityReport {
   sourceTable: "public.bca_paper_trades";
   strategyVersion: string;
   extractionQuery: string;
+  exportProvenance: ImmutableExportProvenance | null;
   settledProspectiveTrades: number | null;
   rawRows: ProductionPaperTradeRow[];
   prospectiveMetrics: ValidationMetrics | null;
   replayResults: ProductionReplayResult[];
   exactMatches: number | null;
   partialMatches: number | null;
+  quantizationExplained: number | null;
   mismatches: number | null;
   dataUnavailable: number | null;
   configParity: ConfigParityResult;
@@ -137,6 +251,8 @@ export interface ProductionParityReport {
 }
 
 export interface ConfigParityResult {
+  source: "production_runtime_environment" | "unavailable";
+  expectedSource: "replay_runtime_config";
   status: "PASS" | "FAIL" | "INCOMPLETE";
   checked: string[];
   mismatches: string[];
@@ -201,50 +317,131 @@ export function buildProductionControlConfig(config: ServerConfig): ProductionCo
     sideFilter,
     strategyFamilies,
   };
+  const signalPolicy: ProductionSignalPolicy = {
+    strategyParams: params,
+    minimumScore: config.CS_MIN_SIGNAL_SCORE,
+    sideFilter: sideFilter as "LONG" | "SHORT" | undefined,
+    strategyFamily: strategyFamilies?.[0],
+    requireRegimeAlignment: config.CS_REQUIRE_REGIME_ALIGNMENT,
+    entryIntervalHours: config.CS_ENTRY_INTERVAL_HOURS,
+    marginUsdt: config.CS_MARGIN_USDT,
+    leverage: config.CS_ASSUMED_LEVERAGE,
+    singleSignalRiskCapUsdt: config.CS_PER_SIGNAL_RISK_CAP_USDT,
+    dailyRiskBudgetUsdt: config.CS_DAILY_RISK_BUDGET_USDT,
+    maxHoldHours: config.CS_MAX_HOLD_HOURS,
+    rewardRisk: config.CS_REWARD_RISK,
+    riskPerTradeUsdt: config.CS_RISK_PER_TRADE_USDT,
+    maxPositionNotionalUsdt: config.CS_MAX_POSITION_NOTIONAL_USDT,
+    takerFeeRate: config.CS_PAPER_TAKER_FEE_RATE,
+    slippageBps: config.CS_PAPER_SLIPPAGE_BPS,
+    maxExecutionCostRiskFraction: config.CS_MAX_EXECUTION_COST_RISK_FRACTION,
+  };
+  const replayExpectedConfig = {
+    strategyVersion: PRODUCTION_STRATEGY_VERSION,
+    entryMode: PRODUCTION_ENTRY_MODE,
+    scoreThreshold: config.CS_MIN_SIGNAL_SCORE,
+    stopAtrMultiplier: config.CS_STRATEGY_STOP_ATR_MULTIPLIER,
+    rewardRisk: config.CS_REWARD_RISK,
+    sideFilter: config.CS_SIGNAL_SIDE_FILTER,
+    strategyFamily: config.CS_SIGNAL_STRATEGY_FAMILY,
+    regimeAlignment: config.CS_REQUIRE_REGIME_ALIGNMENT,
+    cooldownHours: config.CS_COOLDOWN_HOURS,
+    maxHoldHours: config.CS_MAX_HOLD_HOURS,
+    entryIntervalHours: config.CS_ENTRY_INTERVAL_HOURS,
+    maxConcurrentPositions: config.CS_MAX_CONCURRENT_POSITIONS,
+    maxPositionNotionalUsdt: config.CS_MAX_POSITION_NOTIONAL_USDT,
+    riskPerTradeUsdt: config.CS_RISK_PER_TRADE_USDT,
+    perSignalRiskCapUsdt: config.CS_PER_SIGNAL_RISK_CAP_USDT,
+    dailyRiskBudgetUsdt: config.CS_DAILY_RISK_BUDGET_USDT,
+    takerFeeRate: config.CS_PAPER_TAKER_FEE_RATE,
+    slippageBps: config.CS_PAPER_SLIPPAGE_BPS,
+    maxExecutionCostRiskFraction: config.CS_MAX_EXECUTION_COST_RISK_FRACTION,
+    universeTopSymbols: config.CS_TOP_SYMBOLS,
+    scanTimeframes: config.scanTimeframes,
+    entryReference: PRODUCTION_ENTRY_MODEL,
+    closedCandleHandling: "only just-closed 15m candle; source timestamp is candle closeTime",
+  } satisfies Record<ConfigAllowlistKey, unknown>;
   return {
     source: "resolved_runtime_config",
     strategyVersion: PRODUCTION_STRATEGY_VERSION,
     entryMode: PRODUCTION_ENTRY_MODE,
     params,
     options,
-    normalized: {
-      strategyVersion: PRODUCTION_STRATEGY_VERSION,
-      entryMode: PRODUCTION_ENTRY_MODE,
-      scoreThreshold: config.CS_MIN_SIGNAL_SCORE,
-      stopAtrMultiplier: config.CS_STRATEGY_STOP_ATR_MULTIPLIER,
-      rewardRisk: config.CS_REWARD_RISK,
-      sideFilter: config.CS_SIGNAL_SIDE_FILTER,
-      strategyFamily: config.CS_SIGNAL_STRATEGY_FAMILY,
-      regimeAlignment: config.CS_REQUIRE_REGIME_ALIGNMENT,
-      cooldownHours: config.CS_COOLDOWN_HOURS,
-      maxHoldHours: config.CS_MAX_HOLD_HOURS,
-      entryIntervalHours: config.CS_ENTRY_INTERVAL_HOURS,
-      maxConcurrentPositions: config.CS_MAX_CONCURRENT_POSITIONS,
-      maxPositionNotionalUsdt: config.CS_MAX_POSITION_NOTIONAL_USDT,
-      riskPerTradeUsdt: config.CS_RISK_PER_TRADE_USDT,
-      perSignalRiskCapUsdt: config.CS_PER_SIGNAL_RISK_CAP_USDT,
-      dailyRiskBudgetUsdt: config.CS_DAILY_RISK_BUDGET_USDT,
-      takerFeeRate: config.CS_PAPER_TAKER_FEE_RATE,
-      slippageBps: config.CS_PAPER_SLIPPAGE_BPS,
-      maxExecutionCostRiskFraction: config.CS_MAX_EXECUTION_COST_RISK_FRACTION,
-      universeTopSymbols: config.CS_TOP_SYMBOLS,
-      scanTimeframes: config.scanTimeframes,
-      entryReference: PRODUCTION_ENTRY_MODEL,
-      closedCandleHandling: "only just-closed 15m candle; source timestamp is candle closeTime",
-    },
+    signalPolicy,
+    replayExpectedConfig,
   };
 }
 
 export function compareControlConfigParity(
   actual: Record<string, unknown> | null,
-  expected: Record<string, unknown>,
+  expected: Record<string, unknown> | null,
+  source: ConfigParityResult["source"] = actual ? "production_runtime_environment" : "unavailable",
 ): ConfigParityResult {
-  const checked = Object.keys(expected);
-  if (!actual) {
-    return { status: "INCOMPLETE", checked, mismatches: [], unavailable: ["resolved Production runtime config"] };
+  const checked = expected ? Object.keys(expected) : [...CONFIG_ALLOWLIST];
+  if (actual && expected && actual === expected) {
+    return {
+      source,
+      expectedSource: "replay_runtime_config",
+      status: "INCOMPLETE",
+      checked,
+      mismatches: [],
+      unavailable: ["actual Production config and replay expected config must be independent sources"],
+    };
   }
-  const mismatches = checked.filter((key) => actual[key] !== expected[key]).map((key) => `${key}: actual=${String(actual[key])}, expected=${String(expected[key])}`);
-  return { status: mismatches.length > 0 ? "FAIL" : "PASS", checked, mismatches, unavailable: [] };
+  if (!actual || !expected) {
+    return {
+      source,
+      expectedSource: "replay_runtime_config",
+      status: "INCOMPLETE",
+      checked,
+      mismatches: [],
+      unavailable: [!actual ? "actual Production runtime config" : "replay expected config"],
+    };
+  }
+  const unavailable = checked.filter((key) => actual[key] === undefined || actual[key] === null);
+  const mismatches = checked
+    .filter((key) => !unavailable.includes(key) && canonicalJson(actual[key]) !== canonicalJson(expected[key]))
+    .map((key) => `${key}: actual=${String(actual[key])}, expected=${String(expected[key])}`);
+  return {
+    source,
+    expectedSource: "replay_runtime_config",
+    status: mismatches.length > 0 ? "FAIL" : unavailable.length > 0 ? "INCOMPLETE" : "PASS",
+    checked,
+    mismatches,
+    unavailable,
+  };
+}
+
+export function readActualProductionRuntimeConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): { source: ConfigParityResult["source"]; config: Record<string, unknown> | null; unavailable: string[] } {
+  const raw = env.PRODUCTION_RUNTIME_CONFIG_ALLOWLIST_JSON;
+  if (!raw) {
+    return {
+      source: "unavailable",
+      config: null,
+      unavailable: ["PRODUCTION_RUNTIME_CONFIG_ALLOWLIST_JSON was not independently provided by Production"],
+    };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { source: "unavailable", config: null, unavailable: ["Production runtime config allowlist is not valid JSON"] };
+  }
+  if (!isRecord(parsed)) {
+    return { source: "unavailable", config: null, unavailable: ["Production runtime config allowlist is not an object"] };
+  }
+  const keys = Object.keys(parsed);
+  if (keys.some((key) => !CONFIG_ALLOWLIST.includes(key as ConfigAllowlistKey))) {
+    return { source: "unavailable", config: null, unavailable: ["Production runtime config contains a non-allowlisted field"] };
+  }
+  return { source: "production_runtime_environment", config: parsed, unavailable: [] };
+}
+
+export function serializeAllowlistedConfig(config: Record<string, unknown> | null): Record<string, unknown> | null {
+  if (!config) return null;
+  return Object.fromEntries(CONFIG_ALLOWLIST.filter((key) => config[key] !== undefined).map((key) => [key, config[key]]));
 }
 
 export function canonicalTradeKey(trade: ValidationTrade & { candidateId?: string }, candidateKey?: string): string {
@@ -302,19 +499,35 @@ export async function fetchSettledProductionPaperTrades(
     rows.push(...page);
     if (page.length < pageSize) break;
   }
-  return rows;
+  const signalIds = [...new Set(rows.map((row) => row.signalId).filter((value): value is string => Boolean(value)))];
+  if (signalIds.length === 0) return rows;
+  const { data: signalRows, error: signalError } = await supabase
+    .from("bca_signals")
+    .select(SIGNAL_QUERY)
+    .in("id", signalIds);
+  if (signalError) throw new Error(`Production signal telemetry query failed: ${signalError.message}`);
+  const signals = new Map((signalRows ?? []).map((row) => {
+    const record = row as unknown as Record<string, unknown>;
+    return [String(record.id), parseSignalTelemetry(record)] as const;
+  }));
+  return rows.map((row) => ({ ...row, signalTelemetry: row.signalId ? signals.get(row.signalId) ?? null : null }));
 }
 
 export async function readProductionPaperTradeExport(
   root = process.cwd(),
-): Promise<{ capturedAt: string | null; rows: ProductionPaperTradeRow[] } | null> {
+): Promise<{ provenance: ImmutableExportProvenance; rows: ProductionPaperTradeRow[] } | null> {
   const path = resolve(root, "data/production-parity/settled-paper-trades.json");
   try {
-    const parsed = JSON.parse(await readFile(path, "utf8")) as { capturedAt?: unknown; rows?: unknown[] };
-    const rows = Array.isArray(parsed.rows)
-      ? parsed.rows.filter(isRecord).map((row) => parsePaperTradeRow(row))
-      : [];
-    return { capturedAt: typeof parsed.capturedAt === "string" ? parsed.capturedAt : null, rows };
+    const parsed = JSON.parse(await readFile(path, "utf8")) as {
+      provenance?: unknown;
+      rows?: unknown[];
+    };
+    const rawRows = Array.isArray(parsed.rows) ? parsed.rows.filter(isRecord) : [];
+    const rows = rawRows.map((row) => parsePaperTradeRow(row));
+    if (!isRecord(parsed.provenance)) return null;
+    const provenance = parseExportProvenance(parsed.provenance, rawRows);
+    if (!provenance || !provenance.verified) return null;
+    return { provenance, rows };
   } catch {
     return null;
   }
@@ -331,6 +544,7 @@ export function replayProductionPaperTrade(
     symbol: row.symbol,
     sourceTimestamp: sourceTimestamp === null ? null : new Date(sourceTimestamp).toISOString(),
     replay: emptyReplay(),
+    quantizationVerdict: "DATA_UNAVAILABLE" as QuantizationVerdict,
   };
   if (!dataset || !config || sourceTimestamp === null) {
     return {
@@ -342,6 +556,9 @@ export function replayProductionPaperTrade(
         ...(!config ? ["resolved Production runtime config"] : []),
         ...(sourceTimestamp === null ? ["metadata.source_data_timestamp or entry_time"] : []),
       ],
+      firstDivergenceStage: "data_unavailable",
+      divergence: { productionEquivalentValue: row.signalTelemetry ?? "DATA_UNAVAILABLE", replayValue: "DATA_UNAVAILABLE" },
+      trace: emptyTrace(),
     };
   }
   const snapshot = snapshotAt(dataset, sourceTimestamp);
@@ -351,60 +568,52 @@ export function replayProductionPaperTrade(
       status: "DATA_UNAVAILABLE",
       reasons: [],
       dataUnavailable: ["exact source timestamp candle in immutable cache"],
+      firstDivergenceStage: "data_unavailable",
+      divergence: { productionEquivalentValue: row.signalTelemetry ?? "DATA_UNAVAILABLE", replayValue: "DATA_UNAVAILABLE" },
+      trace: emptyTrace(),
     };
   }
-  const candidates = rankCandidates(generateCandidates(snapshot.snapshot, config.params), {
-    minimumScore: config.options.minScore,
-    sideFilter: config.options.sideFilter,
-    strategyFamily: config.options.strategyFamilies?.length === 1 ? config.options.strategyFamilies[0] : undefined,
-  });
-  const candidate = candidates.find((item) => isRegimeAllowed(item, config.options.requireRegimeAlignment)
-    && isEntryIntervalAllowed(sourceTimestamp, config.options.entryIntervalHours ?? 0));
+  const evaluation = evaluateProductionSignal(snapshot.snapshot, config.signalPolicy);
+  const candidate = evaluation.candidate;
+  const trace = buildReplayTrace(snapshot.snapshot, evaluation, row.signalTelemetry);
   const replay = base.replay;
-  replay.signalGenerated = candidate !== undefined;
+  replay.signalGenerated = evaluation.status === "ADMITTED";
   replay.candidateSide = candidate?.side ?? null;
   replay.candidateFamily = candidate?.strategyFamily ?? null;
   replay.score = candidate?.score ?? null;
   replay.regime = candidate?.marketRegime ?? null;
   const reasons: string[] = [];
   const dataUnavailable: string[] = [
-    "Production paper row does not persist the admitted candidate score",
-    "Production paper row does not persist the admitted market regime",
     "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
+    "Production raw candles and indicator snapshots were not persisted with the admitted signal",
   ];
-  if (!candidate) {
-    reasons.push("No current Production candidate passed signal, score, side, family, regime, and entry-timing admission at the exact timestamp.");
-    return { ...base, status: "MISMATCH", reasons, dataUnavailable, replay };
+  if (!row.signalTelemetry) dataUnavailable.push("bca_signals telemetry for the admitted Production signal");
+  compareRequiredText(row.strategyVersion, config.strategyVersion, "strategy_version", reasons, dataUnavailable);
+  if (row.signalTelemetry) compareSignalTelemetry(row.signalTelemetry, evaluation, sourceTimestamp, reasons, dataUnavailable);
+  if (evaluation.status !== "ADMITTED" || !candidate || !evaluation.plan) {
+    if (row.signalTelemetry) reasons.push(`Production persisted an admitted signal, but the exact shared replay returned ${evaluation.status}: ${evaluation.reason ?? "no admitted candidate"}.`);
+    const stage = row.signalTelemetry ? divergenceStageForEvaluation(evaluation.status) : "data_unavailable";
+    return {
+      ...base,
+      status: row.signalTelemetry ? "MISMATCH" : "PARTIAL_MATCH",
+      reasons,
+      dataUnavailable,
+      firstDivergenceStage: stage,
+      divergence: divergenceForStage(stage, trace),
+      trace,
+      replay,
+    };
   }
-  let plan;
-  try {
-    plan = buildTradePlan(candidate, dataset.instrument, {
-      marginUsdt: config.options.marginUsdt ?? 100,
-      leverage: config.options.leverage ?? 20,
-      singleSignalRiskCapUsdt: config.options.singleSignalRiskCapUsdt ?? 100,
-      dailyRiskBudgetUsdt: config.options.dailyRiskBudgetUsdt ?? 600,
-      maxHoldHours: config.options.maxHoldHours ?? 72,
-      rewardRisk: config.options.rewardRisk,
-      riskPerTradeUsdt: config.options.riskPerTradeUsdt,
-      maxPositionNotionalUsdt: config.options.maxPositionNotionalUsdt,
-    }, sourceTimestamp);
-  } catch (error) {
-    reasons.push(`Production risk-plan replay failed: ${error instanceof Error ? error.message : String(error)}`);
-    return { ...base, status: "MISMATCH", reasons, dataUnavailable, replay };
-  }
-  replay.admission = !plan.riskOverSingleCap
-    && estimatedExecutionCostRiskFraction(plan, config.options.takerFeeRate ?? 0.0004, config.options.slippageBps ?? 2)
-      <= (config.options.maxExecutionCostRiskFraction ?? Number.POSITIVE_INFINITY);
+  const plan = evaluation.plan;
+  replay.admission = true;
   replay.entryPrice = plan.entryPrice;
   replay.stopPrice = plan.stopPrice;
   replay.takeProfitPrice = plan.takeProfitPrice;
   replay.maxHoldUntil = new Date(plan.validUntil).toISOString();
-  if (!replay.admission) reasons.push("Replayed risk/cost admission rejected the stored Production paper trade.");
-  compareRequiredText(row.strategyVersion, config.strategyVersion, "strategy_version", reasons, dataUnavailable);
   compareRequiredText(row.side, candidate.side, "side", reasons, dataUnavailable);
   compareRequiredText(row.strategyFamily, candidate.strategyFamily, "strategy_family", reasons, dataUnavailable);
   compareNumber(row.entryPrice, plan.entryPrice, "entry_price", reasons, dataUnavailable);
-  compareNumber(row.entryFillPrice, adverseFill(plan.entryPrice, candidate.side === "LONG" ? 1 : -1, (config.options.slippageBps ?? 2) / 10_000, "entry"), "entry_fill_price", reasons, dataUnavailable);
+  compareNumber(row.entryFillPrice, adverseFill(plan.entryPrice, candidate.side === "LONG" ? 1 : -1, config.signalPolicy.slippageBps / 10_000, "entry"), "entry_fill_price", reasons, dataUnavailable);
   compareNumber(row.stopPrice, plan.stopPrice, "stop_price", reasons, dataUnavailable);
   compareNumber(row.takeProfitPrice, plan.takeProfitPrice, "take_profit_price", reasons, dataUnavailable);
   compareRequiredText(row.maxHoldUntil, new Date(plan.validUntil).toISOString(), "max_hold_until", reasons, dataUnavailable, true);
@@ -412,6 +621,19 @@ export function replayProductionPaperTrade(
   compareNumber(row.theoreticalRiskUsdt, plan.theoreticalRiskUsdt, "theoretical_risk_usdt", reasons, dataUnavailable);
   const entryModel = typeof row.metadata.entry_model === "string" ? row.metadata.entry_model : null;
   compareRequiredText(entryModel, PRODUCTION_ENTRY_MODEL, "metadata.entry_model", reasons, dataUnavailable);
+  const quantizationVerdict = classifyQuantizationMismatch({
+    actualStop: row.signalTelemetry?.stopPrice ?? row.stopPrice,
+    actualTakeProfit: row.signalTelemetry?.takeProfitPrice ?? row.takeProfitPrice,
+    replayStop: plan.stopPrice,
+    replayTakeProfit: plan.takeProfitPrice,
+    historicalPriceTick: numberOrNull(row.metadata.production_price_tick),
+    replayPriceTick: dataset.instrument.priceTick,
+    sameUnroundedInputs: typeof row.metadata.same_unrounded_risk_inputs === "boolean" ? row.metadata.same_unrounded_risk_inputs : undefined,
+    sameNonPriceFields: typeof row.metadata.same_non_price_risk_fields === "boolean" ? row.metadata.same_non_price_risk_fields : undefined,
+  });
+  if (quantizationVerdict === "MISMATCH" && (row.metadata.production_price_tick === undefined || row.metadata.same_unrounded_risk_inputs !== true || row.metadata.same_non_price_risk_fields !== true)) {
+    dataUnavailable.push("historical Production price-filter and rounding proof for stop/take-profit quantization");
+  }
   const settlement = replaySettlement(dataset, snapshot.index, plan, candidate.side, config);
   if (!settlement) {
     dataUnavailable.push("settlement path after exact entry timestamp in immutable cache");
@@ -431,12 +653,243 @@ export function replayProductionPaperTrade(
     compareNumber(row.netPnlUsdt, settlement.netPnlUsdt, "net_pnl_usdt", reasons, dataUnavailable);
     compareNumber(row.rMultiple, replay.rMultiple, "r_multiple", reasons, dataUnavailable);
   }
+  if (quantizationVerdict === "QUANTIZATION_EXPLAINED") {
+    const quantizationReasons = reasons.filter((reason) => /(?:stop_price|take_profit_price|entry_price|quantity)/.test(reason));
+    if (quantizationReasons.length === reasons.length) reasons.length = 0;
+  }
+  const firstDivergenceStage = firstMaterialDivergence(row.signalTelemetry, evaluation, reasons, dataUnavailable, quantizationVerdict);
   const status: ReplayStatus = reasons.length > 0
     ? "MISMATCH"
+    : quantizationVerdict === "QUANTIZATION_EXPLAINED"
+      ? "QUANTIZATION_EXPLAINED"
     : dataUnavailable.length > 0
       ? "PARTIAL_MATCH"
       : "MATCH";
-  return { ...base, status, reasons, dataUnavailable, replay };
+  return {
+    ...base,
+    status,
+    quantizationVerdict,
+    reasons,
+    dataUnavailable,
+    firstDivergenceStage,
+    divergence: firstDivergenceStage ? divergenceForStage(firstDivergenceStage, trace) : null,
+    trace,
+    replay,
+  };
+}
+
+export function classifyQuantizationMismatch(input: {
+  actualStop: number | null;
+  actualTakeProfit: number | null;
+  replayStop: number | null;
+  replayTakeProfit: number | null;
+  historicalPriceTick?: number | null;
+  replayPriceTick?: number | null;
+  sameUnroundedInputs?: boolean;
+  sameNonPriceFields?: boolean;
+}): QuantizationVerdict {
+  const {
+    actualStop,
+    actualTakeProfit,
+    replayStop,
+    replayTakeProfit,
+    historicalPriceTick,
+    replayPriceTick,
+    sameUnroundedInputs,
+    sameNonPriceFields,
+  } = input;
+  if (![actualStop, actualTakeProfit, replayStop, replayTakeProfit].every((value) => value !== null && value !== undefined && Number.isFinite(value))) {
+    return "DATA_UNAVAILABLE";
+  }
+  const samePrices = Math.abs((actualStop as number) - (replayStop as number)) <= 1e-12
+    && Math.abs((actualTakeProfit as number) - (replayTakeProfit as number)) <= 1e-12;
+  if (samePrices) return "DATA_UNAVAILABLE";
+  if (![historicalPriceTick, replayPriceTick].every((value) => value !== null && value !== undefined && Number.isFinite(value))) return "MISMATCH";
+  if (sameUnroundedInputs !== true || sameNonPriceFields !== true) return "MISMATCH";
+  const actualTick = historicalPriceTick as number;
+  const replayTick = replayPriceTick as number;
+  const aligned = (value: number, tick: number): boolean => {
+    if (tick <= 0) return false;
+    const units = value / tick;
+    return Math.abs(units - Math.round(units)) <= 1e-9;
+  };
+  const stopDifference = Math.abs((actualStop as number) - (replayStop as number));
+  const takeProfitDifference = Math.abs((actualTakeProfit as number) - (replayTakeProfit as number));
+  const maxAllowedDifference = Math.max(actualTick, replayTick) + 1e-12;
+  return aligned(actualStop as number, actualTick)
+    && aligned(actualTakeProfit as number, actualTick)
+    && aligned(replayStop as number, replayTick)
+    && aligned(replayTakeProfit as number, replayTick)
+    && stopDifference <= maxAllowedDifference
+    && takeProfitDifference <= maxAllowedDifference
+    ? "QUANTIZATION_EXPLAINED"
+    : "MISMATCH";
+}
+
+function compareSignalTelemetry(
+  telemetry: ProductionSignalTelemetry,
+  evaluation: ProductionSignalEvaluation,
+  sourceTimestamp: number,
+  reasons: string[],
+  dataUnavailable: string[],
+): void {
+  const candidate = evaluation.candidate;
+  if (telemetry.sourceDataTimestamp) compareRequiredText(telemetry.sourceDataTimestamp, new Date(sourceTimestamp).toISOString(), "signal.source_data_timestamp", reasons, dataUnavailable, true);
+  else dataUnavailable.push("signal.source_data_timestamp missing from bca_signals telemetry");
+  if (telemetry.score === null) dataUnavailable.push("signal.score missing from bca_signals telemetry");
+  else if (candidate) compareNumber(telemetry.score, candidate.score, "signal.score", reasons, dataUnavailable);
+  if (!telemetry.scoreComponents) dataUnavailable.push("signal.score_components missing or incomplete in bca_signals telemetry");
+  else if (candidate) compareScoreComponents(telemetry.scoreComponents, candidate.scoreComponents, reasons, dataUnavailable);
+  if (telemetry.marketRegime === null) dataUnavailable.push("signal.market_regime missing from bca_signals telemetry");
+  else if (candidate) compareRequiredText(telemetry.marketRegime, candidate.marketRegime, "signal.market_regime", reasons, dataUnavailable);
+  if (telemetry.side === null) dataUnavailable.push("signal.side missing from bca_signals telemetry");
+  else if (candidate) compareRequiredText(telemetry.side, candidate.side, "signal.side", reasons, dataUnavailable);
+  if (telemetry.strategyFamily === null) dataUnavailable.push("signal.strategy_family missing from bca_signals telemetry");
+  else if (candidate) compareRequiredText(telemetry.strategyFamily, candidate.strategyFamily, "signal.strategy_family", reasons, dataUnavailable);
+  if (candidate && evaluation.plan) {
+    compareNumber(telemetry.entryPrice, evaluation.plan.entryPrice, "signal.entry_price", reasons, dataUnavailable);
+    compareNumber(telemetry.stopPrice, evaluation.plan.stopPrice, "signal.stop_price", reasons, dataUnavailable);
+    compareNumber(telemetry.takeProfitPrice, evaluation.plan.takeProfitPrice, "signal.take_profit_price", reasons, dataUnavailable);
+    compareRequiredText(telemetry.validUntil, new Date(evaluation.plan.validUntil).toISOString(), "signal.valid_until", reasons, dataUnavailable, true);
+  }
+}
+
+function compareScoreComponents(
+  actual: ScoreComponents,
+  expected: ScoreComponents,
+  reasons: string[],
+  dataUnavailable: string[],
+): void {
+  for (const key of ["trendAlignment", "momentum", "structure", "liquidity", "volatility", "regimeFit", "dataQuality"] as const) {
+    compareNumber(actual[key], expected[key], `signal.score_components.${key}`, reasons, dataUnavailable);
+  }
+}
+
+function divergenceStageForEvaluation(status: ProductionSignalEvaluation["status"]): DivergenceStage {
+  switch (status) {
+    case "NO_SIGNAL_CANDIDATE": return "strategy_trigger";
+    case "NO_REGIME_ELIGIBLE_CANDIDATE": return "regime";
+    case "ENTRY_INTERVAL_BLOCKED": return "entry_interval";
+    case "RISK_PLAN_ERROR":
+    case "SINGLE_RISK_CAP":
+    case "EXECUTION_COST_BLOCKED": return "risk_admission";
+    case "ADMITTED": return "risk_admission";
+  }
+}
+
+function firstMaterialDivergence(
+  telemetry: ProductionSignalTelemetry | null,
+  evaluation: ProductionSignalEvaluation,
+  reasons: string[],
+  dataUnavailable: string[],
+  quantizationVerdict: QuantizationVerdict,
+): DivergenceStage | null {
+  if (reasons.length === 0) return dataUnavailable.length > 0 ? "data_unavailable" : null;
+  if (evaluation.status !== "ADMITTED") return telemetry ? divergenceStageForEvaluation(evaluation.status) : "data_unavailable";
+  if (reasons.some((reason) => reason.startsWith("signal.score") || reason.startsWith("signal.score_components"))) return "score_components";
+  if (reasons.some((reason) => reason.startsWith("signal.market_regime"))) return "regime";
+  if (reasons.some((reason) => reason.startsWith("signal.side") || reason.startsWith("signal.strategy_family") || reason.startsWith("side:") || reason.startsWith("strategy_family:"))) return "side_family_filter";
+  if (quantizationVerdict === "MISMATCH" || reasons.some((reason) => /(?:entry_price|stop_price|take_profit_price|quantity|theoretical_risk|risk)/.test(reason))) return "risk_admission";
+  if (reasons.some((reason) => /(?:exit_|fees_|funding_|net_pnl|r_multiple)/.test(reason))) return "settlement";
+  return "data_unavailable";
+}
+
+function divergenceForStage(
+  stage: DivergenceStage,
+  trace: ProductionReplayResult["trace"],
+): DivergenceValue {
+  if (stage === "raw_candles") return { productionEquivalentValue: trace.rawCandles.productionEquivalentValue, replayValue: trace.rawCandles.replayValue };
+  if (stage === "indicators") return { productionEquivalentValue: trace.indicators.productionEquivalentValue, replayValue: trace.indicators.replayValue };
+  if (stage === "strategy_trigger" || stage === "score_components" || stage === "rank_candidates" || stage === "regime" || stage === "entry_interval" || stage === "side_family_filter" || stage === "risk_admission") {
+    const key = stage === "strategy_trigger"
+      ? "strategyTrigger"
+      : stage === "score_components"
+        ? "scoreComponents"
+        : stage === "rank_candidates"
+          ? "rankCandidates"
+          : stage === "entry_interval"
+              ? "entryInterval"
+              : stage === "side_family_filter"
+                ? "sideFamilyFilter"
+                : "riskAdmission";
+    return trace[key];
+  }
+  return { productionEquivalentValue: "DATA_UNAVAILABLE", replayValue: "DATA_UNAVAILABLE" };
+}
+
+function buildReplayTrace(
+  snapshot: MarketSnapshot,
+  evaluation: ProductionSignalEvaluation,
+  telemetry: ProductionSignalTelemetry | null,
+): ProductionReplayResult["trace"] {
+  const replayCandidate = evaluation.candidate;
+  return {
+    rawCandles: {
+      productionEquivalentValue: "DATA_UNAVAILABLE",
+      replayValue: summarizeCandles(snapshot.candles),
+    },
+    indicators: {
+      productionEquivalentValue: "DATA_UNAVAILABLE",
+      replayValue: summarizeIndicators(snapshot.candles),
+    },
+    strategyTrigger: {
+      productionEquivalentValue: telemetry ? { signalId: telemetry.signalId, persisted: true } : "DATA_UNAVAILABLE",
+      replayValue: { status: evaluation.status, reason: evaluation.reason ?? null },
+    },
+    scoreComponents: {
+      productionEquivalentValue: telemetry ? { score: telemetry.score, components: telemetry.scoreComponents } : "DATA_UNAVAILABLE",
+      replayValue: replayCandidate ? { score: replayCandidate.score, components: replayCandidate.scoreComponents } : "DATA_UNAVAILABLE",
+    },
+    rankCandidates: {
+      productionEquivalentValue: "DATA_UNAVAILABLE: Production rank context was not persisted",
+      replayValue: evaluation.rankedCandidates.map((candidate, index) => ({ rank: index + 1, side: candidate.side, family: candidate.strategyFamily, score: candidate.score })),
+    },
+    regime: {
+      productionEquivalentValue: telemetry?.marketRegime ?? "DATA_UNAVAILABLE",
+      replayValue: replayCandidate?.marketRegime ?? "DATA_UNAVAILABLE",
+    },
+    entryInterval: {
+      productionEquivalentValue: "DATA_UNAVAILABLE: Production admission context was not persisted",
+      replayValue: evaluation.entryIntervalAllowed,
+    },
+    sideFamilyFilter: {
+      productionEquivalentValue: telemetry ? { side: telemetry.side, family: telemetry.strategyFamily } : "DATA_UNAVAILABLE",
+      replayValue: replayCandidate ? { side: replayCandidate.side, family: replayCandidate.strategyFamily } : "DATA_UNAVAILABLE",
+    },
+    riskAdmission: {
+      productionEquivalentValue: telemetry ? { paperTradePersisted: true, plan: { entry: telemetry.entryPrice, stop: telemetry.stopPrice, takeProfit: telemetry.takeProfitPrice } } : "DATA_UNAVAILABLE",
+      replayValue: { status: evaluation.status, admitted: evaluation.status === "ADMITTED", plan: evaluation.plan ? { entry: evaluation.plan.entryPrice, stop: evaluation.plan.stopPrice, takeProfit: evaluation.plan.takeProfitPrice } : null },
+    },
+  };
+}
+
+function summarizeCandles(candles: Partial<Record<"15m" | "1h" | "4h", Candle[]>>): Record<string, unknown> {
+  return Object.fromEntries((["15m", "1h", "4h"] as const).map((timeframe) => {
+    const rows = candles[timeframe] ?? [];
+    const first = rows[0];
+    const last = rows[rows.length - 1];
+    return [timeframe, {
+      count: rows.length,
+      firstCloseTime: first?.closeTime ?? null,
+      lastCloseTime: last?.closeTime ?? null,
+      lastClose: last?.close ?? null,
+      lastVolume: last?.volume ?? null,
+    }];
+  }));
+}
+
+function summarizeIndicators(candles: Partial<Record<"15m" | "1h" | "4h", Candle[]>>): Record<string, unknown> {
+  return Object.fromEntries((["15m", "1h", "4h"] as const).map((timeframe) => {
+    const rows = candles[timeframe] ?? [];
+    const values = closes(rows);
+    return [timeframe, {
+      ema20: latest(ema(values, 20)),
+      ema50: latest(ema(values, 50)),
+      rsi14: latest(rsi(values, 14)),
+      atr14: latest(atr(rows, 14)),
+      volumeRatio20: latest(volumeRatio(rows, 20)),
+    }];
+  }));
 }
 
 export function buildProspectiveMetrics(rows: ProductionPaperTradeRow[]): ValidationMetrics | null {
@@ -461,19 +914,22 @@ export function buildProspectiveMetrics(rows: ProductionPaperTradeRow[]): Valida
 export function createUnavailableParityReport(
   error: unknown,
   configParity: ConfigParityResult,
+  exportProvenance: ImmutableExportProvenance | null = null,
 ): ProductionParityReport {
   return {
     queryTimestamp: new Date().toISOString(),
     dataSource: "live_supabase_read",
     sourceTable: "public.bca_paper_trades",
     strategyVersion: PRODUCTION_STRATEGY_VERSION,
-    extractionQuery: `SELECT ${PAPER_TRADE_QUERY} FROM public.bca_paper_trades WHERE strategy_version = '${PRODUCTION_STRATEGY_VERSION}' AND exit_time IS NOT NULL ORDER BY entry_time ASC`,
+    extractionQuery: EXTRACTION_QUERY,
+    exportProvenance,
     settledProspectiveTrades: null,
     rawRows: [],
     prospectiveMetrics: null,
     replayResults: [],
     exactMatches: null,
     partialMatches: null,
+    quantizationExplained: null,
     mismatches: null,
     dataUnavailable: null,
     configParity,
@@ -491,14 +947,16 @@ export function finalizeParityReport(
   historicalControl: ValidationMetrics | null,
   dataSource: ProductionParityReport["dataSource"] = "live_supabase_read",
   queryError?: string,
+  exportProvenance: ImmutableExportProvenance | null = null,
 ): ProductionParityReport {
   const exactMatches = replayResults.filter((result) => result.status === "MATCH").length;
   const partialMatches = replayResults.filter((result) => result.status === "PARTIAL_MATCH").length;
+  const quantizationExplained = replayResults.filter((result) => result.status === "QUANTIZATION_EXPLAINED").length;
   const mismatches = replayResults.filter((result) => result.status === "MISMATCH").length;
   const dataUnavailable = replayResults.filter((result) => result.status === "DATA_UNAVAILABLE").length;
   const verdict = configParity.status === "FAIL" || mismatches > 0
     ? "FAIL"
-    : configParity.status !== "PASS" || rows.length === 0 || partialMatches > 0 || dataUnavailable > 0
+    : configParity.status !== "PASS" || rows.length === 0 || partialMatches > 0 || dataUnavailable > 0 || (dataSource === "immutable_read_only_export" && !exportProvenance?.verified)
       ? "INCOMPLETE"
       : "PASS";
   const prospectiveMetrics = buildProspectiveMetrics(rows);
@@ -516,13 +974,15 @@ export function finalizeParityReport(
     dataSource,
     sourceTable: "public.bca_paper_trades",
     strategyVersion: PRODUCTION_STRATEGY_VERSION,
-    extractionQuery: `SELECT ${PAPER_TRADE_QUERY} FROM public.bca_paper_trades WHERE strategy_version = '${PRODUCTION_STRATEGY_VERSION}' AND exit_time IS NOT NULL ORDER BY entry_time ASC`,
+    extractionQuery: EXTRACTION_QUERY,
+    exportProvenance,
     settledProspectiveTrades: rows.length,
     rawRows: rows,
     prospectiveMetrics,
     replayResults,
     exactMatches,
     partialMatches,
+    quantizationExplained,
     mismatches,
     dataUnavailable,
     configParity,
@@ -533,9 +993,62 @@ export function finalizeParityReport(
   };
 }
 
+function parseExportProvenance(value: Record<string, unknown>, rows: unknown[]): ImmutableExportProvenance | null {
+  const capturedAt = stringOrNull(value.capturedAt);
+  const rowCount = numberOrNull(value.rowCount);
+  const sha256 = stringOrNull(value.sha256)?.toLowerCase() ?? null;
+  const hashScope = value.hashScope === "canonical_json_rows" ? value.hashScope : null;
+  const sourceTable = stringOrNull(value.sourceTable);
+  const query = stringOrNull(value.query);
+  if (!capturedAt || rowCount === null || !sha256 || !hashScope || !sourceTable || !query) return null;
+  const verified = rowCount === rows.length && hashCanonicalRows(rows) === sha256;
+  return {
+    capturedAt,
+    rowCount,
+    sha256,
+    hashScope,
+    sourceTable,
+    query,
+    relatedSourceTable: stringOrNull(value.relatedSourceTable) ?? undefined,
+    verified,
+  };
+}
+
+export function hashCanonicalRows(rows: unknown[]): string {
+  return createHash("sha256").update(canonicalJson(rows)).digest("hex");
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map((item) => canonicalJson(item)).join(",")}]`;
+  if (isRecord(value)) {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
 function parsePaperTradeRow(row: Record<string, unknown>): ProductionPaperTradeRow {
+  const nestedSignal = isRecord(row.signal) ? parseSignalTelemetry(row.signal) : null;
+  const flatSignal = row.signal_score !== undefined || row.signal_market_regime !== undefined
+    ? parseSignalTelemetry({
+      id: row.signal_id,
+      source_data_timestamp: row.signal_source_data_timestamp,
+      score: row.signal_score,
+      score_components: row.signal_score_components,
+      market_regime: row.signal_market_regime,
+      side: row.signal_side,
+      strategy_family: row.signal_strategy_family,
+      primary_timeframe: row.signal_primary_timeframe,
+      confirmation_timeframes: row.signal_confirmation_timeframes,
+      regime_dependency: row.signal_regime_dependency,
+      entry_price: row.signal_entry_price,
+      stop_price: row.signal_stop_price,
+      take_profit_price: row.signal_take_profit_price,
+      valid_until: row.signal_valid_until,
+    })
+    : null;
   return {
     id: stringOrNull(row.id) ?? "UNKNOWN_ROW",
+    signalId: stringOrNull(row.signal_id),
     symbol: stringOrNull(row.symbol) ?? "UNKNOWN_SYMBOL",
     side: stringOrNull(row.side),
     strategyFamily: stringOrNull(row.strategy_family),
@@ -556,8 +1069,61 @@ function parsePaperTradeRow(row: Record<string, unknown>): ProductionPaperTradeR
     feesUsdt: numberOrNull(row.fees_usdt),
     fundingUsdt: numberOrNull(row.funding_usdt),
     slippageUsdt: numberOrNull(row.slippage_usdt),
-    metadata: isRecord(row.metadata) ? row.metadata : {},
+    metadata: sanitizePaperMetadata(row.metadata),
+    signalTelemetry: nestedSignal ?? flatSignal,
   };
+}
+
+function parseSignalTelemetry(row: Record<string, unknown>): ProductionSignalTelemetry | null {
+  const signalId = stringOrNull(row.id) ?? stringOrNull(row.signal_id);
+  if (!signalId) return null;
+  const scoreComponents = isRecord(row.score_components)
+    ? parseScoreComponents(row.score_components)
+    : null;
+  return {
+    signalId,
+    sourceDataTimestamp: stringOrNull(row.source_data_timestamp),
+    score: numberOrNull(row.score),
+    scoreComponents,
+    marketRegime: stringOrNull(row.market_regime),
+    side: stringOrNull(row.side),
+    strategyFamily: stringOrNull(row.strategy_family),
+    primaryTimeframe: stringOrNull(row.primary_timeframe),
+    confirmationTimeframes: Array.isArray(row.confirmation_timeframes)
+      ? row.confirmation_timeframes.filter((value): value is string => typeof value === "string")
+      : [],
+    regimeDependency: stringOrNull(row.regime_dependency),
+    entryPrice: numberOrNull(row.entry_price),
+    stopPrice: numberOrNull(row.stop_price),
+    takeProfitPrice: numberOrNull(row.take_profit_price),
+    validUntil: stringOrNull(row.valid_until),
+  };
+}
+
+function parseScoreComponents(row: Record<string, unknown>): ScoreComponents | null {
+  const keys: Array<keyof ScoreComponents> = [
+    "trendAlignment",
+    "momentum",
+    "structure",
+    "liquidity",
+    "volatility",
+    "regimeFit",
+    "dataQuality",
+  ];
+  if (keys.some((key) => numberOrNull(row[key]) === null)) return null;
+  return Object.fromEntries(keys.map((key) => [key, numberOrNull(row[key])])) as unknown as ScoreComponents;
+}
+
+function sanitizePaperMetadata(value: unknown): Record<string, unknown> {
+  if (!isRecord(value)) return {};
+  const metadata: Record<string, unknown> = {};
+  if (typeof value.entry_model === "string") metadata.entry_model = value.entry_model;
+  if (typeof value.source_data_timestamp === "string") metadata.source_data_timestamp = value.source_data_timestamp;
+  if (numberOrNull(value.slippage_bps) !== null) metadata.slippage_bps = numberOrNull(value.slippage_bps);
+  if (numberOrNull(value.production_price_tick) !== null) metadata.production_price_tick = numberOrNull(value.production_price_tick);
+  if (typeof value.same_unrounded_risk_inputs === "boolean") metadata.same_unrounded_risk_inputs = value.same_unrounded_risk_inputs;
+  if (typeof value.same_non_price_risk_fields === "boolean") metadata.same_non_price_risk_fields = value.same_non_price_risk_fields;
+  return metadata;
 }
 
 function parseSourceTimestamp(row: ProductionPaperTradeRow): number | null {
@@ -593,12 +1159,6 @@ function snapshotAt(dataset: HistoricalDataset, timestamp: number): { snapshot: 
   };
 }
 
-function isRegimeAllowed(candidate: ScoredCandidate, required: boolean | undefined): boolean {
-  if (!required) return true;
-  if (candidate.strategyFamily === "MEAN_REVERSION") return candidate.marketRegime === "RANGE" || candidate.marketRegime === "UNKNOWN";
-  return candidate.side === "LONG" ? candidate.marketRegime === "BULL" : candidate.marketRegime === "BEAR";
-}
-
 interface ReplaySettlement {
   exitReason: "STOP_LOSS" | "TAKE_PROFIT" | "TIME_LIMIT";
   exitTime: number;
@@ -611,7 +1171,7 @@ interface ReplaySettlement {
 function replaySettlement(
   dataset: HistoricalDataset,
   entryIndex: number,
-  plan: ReturnType<typeof buildTradePlan>,
+  plan: TradePlan,
   side: "LONG" | "SHORT",
   config: ProductionControlConfig,
 ): ReplaySettlement | null {
@@ -723,6 +1283,21 @@ function emptyReplay(): ProductionReplayResult["replay"] {
     fundingUsdt: null,
     netPnlUsdt: null,
     rMultiple: null,
+  };
+}
+
+function emptyTrace(): ProductionReplayResult["trace"] {
+  const unavailable = { productionEquivalentValue: "DATA_UNAVAILABLE", replayValue: "DATA_UNAVAILABLE" };
+  return {
+    rawCandles: { ...unavailable },
+    indicators: { ...unavailable },
+    strategyTrigger: { ...unavailable },
+    scoreComponents: { ...unavailable },
+    rankCandidates: { ...unavailable },
+    regime: { ...unavailable },
+    entryInterval: { ...unavailable },
+    sideFamilyFilter: { ...unavailable },
+    riskAdmission: { ...unavailable },
   };
 }
 

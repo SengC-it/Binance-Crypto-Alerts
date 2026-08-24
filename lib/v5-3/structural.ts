@@ -895,6 +895,7 @@ export function evaluateV53PromotionGate(input: {
   foldGroups?: Array<{ id: string; folds: Array<{ netR: number; trades: number }> }>;
   regimeMetrics?: Array<{ regime: string; metrics: ValidationMetrics }>;
   dataQuality: { passed: boolean; reason: string };
+  controlComparison: { reliable: boolean; reason: string };
   adjustedLcb: number | null;
   delayedEntry: ValidationMetrics;
   removeTop3: ValidationMetrics;
@@ -910,7 +911,15 @@ export function evaluateV53PromotionGate(input: {
     foldGroups: input.foldGroups,
     regimeMetrics: input.regimeMetrics,
     dataQuality: input.dataQuality,
-  }).gates;
+  }).gates.map((gate) => gate.id === "control_comparison"
+    ? {
+      ...gate,
+      passed: input.controlComparison.reliable && gate.passed,
+      evidence: input.controlComparison.reliable
+        ? gate.evidence
+        : `FAIL / DATA_UNAVAILABLE: ${input.controlComparison.reason}`,
+    }
+    : gate);
   const gates = [
     ...base,
     {

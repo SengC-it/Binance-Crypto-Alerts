@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HistoricalDataset } from "@/lib/backtest/types";
 import type { Candle, Instrument } from "@/lib/core/types";
+import { DEFAULT_STRATEGY_PARAMS } from "@/lib/core/strategies";
 import { buildFeatureFrames } from "@/lib/v5-3/feature-snapshot";
 import {
   buildPerturbationSummary,
@@ -11,21 +12,27 @@ import {
   summarizeExtensionBuckets,
   trueEquityDrawdown,
   V53_CANDIDATE_REGISTRY,
+  evaluateV53PromotionGate,
   type StructuralTrade,
 } from "@/lib/v5-3/structural";
 import {
+  buildCostStressMetrics,
+} from "@/lib/v5-2/validation";
+import {
+  classifyQuantizationMismatch,
   compareControlConfigParity,
   deduplicateCanonicalTrades,
   finalizeParityReport,
+  hashCanonicalRows,
+  readActualProductionRuntimeConfig,
+  readProductionPaperTradeExport,
   replayProductionPaperTrade,
+  serializeAllowlistedConfig,
+  type ProductionControlConfig,
   type ProductionPaperTradeRow,
   type ProductionReplayResult,
 } from "@/lib/v5-3/production-parity";
-import {
-  calculateMetrics,
-  createFrozenHoldoutWindow,
-  createPurgedWalkForwardFolds,
-} from "@/lib/v5-2/validation";
+import { calculateMetrics, createFrozenHoldoutWindow, createPurgedWalkForwardFolds } from "@/lib/v5-2/validation";
 
 function candle(index: number, close: number): Candle {
   const openTime = index * 15 * 60 * 1000;
@@ -70,6 +77,67 @@ function trade(index: number, rMultiple: number, symbol = "TESTUSDT"): Structura
     hitOneRBeforeStop: rMultiple > 1,
     exitReason: rMultiple > 0 ? "TAKE_PROFIT" : "STOP",
     delayedEntryBars: 0,
+  };
+}
+
+function paperRow(overrides: Partial<ProductionPaperTradeRow> = {}): ProductionPaperTradeRow {
+  return {
+    id: "paper-1",
+    signalId: null,
+    symbol: "TESTUSDT",
+    side: "SHORT",
+    strategyFamily: "TREND",
+    strategyVersion: "trend-rejection-short-v1",
+    entryTime: new Date(1_000).toISOString(),
+    entryPrice: 100,
+    entryFillPrice: 100,
+    stopPrice: 101,
+    takeProfitPrice: 98,
+    maxHoldUntil: new Date(72 * 60 * 60 * 1000).toISOString(),
+    quantity: 1,
+    theoreticalRiskUsdt: 1,
+    exitTime: new Date(2_000).toISOString(),
+    exitPrice: 99,
+    exitReason: "STOP_LOSS",
+    rMultiple: -1,
+    netPnlUsdt: -1,
+    feesUsdt: 0,
+    fundingUsdt: 0,
+    slippageUsdt: 0,
+    metadata: {},
+    signalTelemetry: null,
+    ...overrides,
+  };
+}
+
+function replayConfig(minimumScore = 101): ProductionControlConfig {
+  const signalPolicy = {
+    strategyParams: DEFAULT_STRATEGY_PARAMS,
+    minimumScore,
+    sideFilter: "SHORT" as const,
+    strategyFamily: "TREND" as const,
+    requireRegimeAlignment: false,
+    entryIntervalHours: 0,
+    marginUsdt: 100,
+    leverage: 20,
+    singleSignalRiskCapUsdt: 100,
+    dailyRiskBudgetUsdt: 600,
+    maxHoldHours: 72,
+    rewardRisk: 2,
+    riskPerTradeUsdt: 50,
+    maxPositionNotionalUsdt: 2_000,
+    takerFeeRate: 0.0004,
+    slippageBps: 2,
+    maxExecutionCostRiskFraction: 1,
+  };
+  return {
+    source: "resolved_runtime_config",
+    strategyVersion: "trend-rejection-short-v1",
+    entryMode: "TREND_REJECTION",
+    params: DEFAULT_STRATEGY_PARAMS,
+    options: { minScore: minimumScore, sideFilter: "SHORT", strategyFamilies: ["TREND"] },
+    signalPolicy,
+    replayExpectedConfig: {} as ProductionControlConfig["replayExpectedConfig"],
   };
 }
 
@@ -199,6 +267,7 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
     expect(configParity.status).toBe("FAIL");
     const mismatch = {
       id: "paper-1",
+      signalId: null,
       symbol: "BTCUSDT",
       sourceTimestamp: null,
       status: "MISMATCH",
@@ -212,9 +281,158 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
     expect(report.historicalControlReliable).toBe(false);
   });
 
+  it("never treats the same config object as an independent Production parity source", () => {
+    const expected = { strategyVersion: "trend-rejection-short-v1", scoreThreshold: 70 };
+    const parity = compareControlConfigParity(expected, expected);
+    expect(parity.status).toBe("INCOMPLETE");
+    expect(parity.unavailable.join(" ")).toContain("independent sources");
+  });
+
+  it("marks missing actual Production config as INCOMPLETE", () => {
+    const parity = compareControlConfigParity(null, { strategyVersion: "trend-rejection-short-v1" });
+    expect(parity.status).toBe("INCOMPLETE");
+    expect(parity.source).toBe("unavailable");
+    expect(readActualProductionRuntimeConfig({} as NodeJS.ProcessEnv).config).toBeNull();
+  });
+
+  it("fails the historical control gate closed when Production parity is not reliable", () => {
+    const rows = [trade(1, 1), trade(2, 1), trade(3, 1), trade(4, 1)];
+    const metrics = calculateMetrics(rows);
+    const stress = buildCostStressMetrics(rows);
+    const gate = evaluateV53PromotionGate({
+      metrics,
+      holdout: metrics,
+      control: metrics,
+      costStress: stress,
+      folds: [{ netR: metrics.netR, trades: metrics.trades }],
+      foldGroups: [{ id: "3Y_CORE", folds: [{ netR: metrics.netR, trades: metrics.trades }] }],
+      regimeMetrics: [{ regime: "BULL", metrics }],
+      dataQuality: { passed: true, reason: "test" },
+      controlComparison: { reliable: false, reason: "reliable Production comparator unavailable" },
+      adjustedLcb: 1,
+      delayedEntry: metrics,
+      removeTop3: metrics,
+      perturbations: [{ label: "test", metrics, passed: true }],
+    });
+    const controlGate = gate.gates.find((item) => item.id === "control_comparison");
+    expect(controlGate?.passed).toBe(false);
+    expect(controlGate?.evidence).toContain("DATA_UNAVAILABLE");
+    expect(gate.status).not.toBe("PRODUCTION_EMAIL_ELIGIBLE");
+  });
+
+  it("classifies material signal divergence as MODEL_PARITY_FAILURE", () => {
+    const configParity = compareControlConfigParity(
+      { strategyVersion: "trend-rejection-short-v1" },
+      { strategyVersion: "trend-rejection-short-v1" },
+    );
+    const mismatch = {
+      id: "home-paper",
+      symbol: "HOMEUSDT",
+      sourceTimestamp: new Date(1_000).toISOString(),
+      status: "MISMATCH",
+      quantizationVerdict: "DATA_UNAVAILABLE",
+      reasons: ["strategy trigger divergence"],
+      dataUnavailable: [],
+      firstDivergenceStage: "strategy_trigger",
+      divergence: { productionEquivalentValue: "signal persisted", replayValue: "NO_SIGNAL_CANDIDATE" },
+      trace: {} as ProductionReplayResult["trace"],
+      replay: {},
+    } as unknown as ProductionReplayResult;
+    const report = finalizeParityReport([paperRow()], [mismatch], configParity, null);
+    expect(report.verdict).toBe("FAIL");
+    expect(report.failureClassification).toBe("MODEL_PARITY_FAILURE");
+    expect(report.historicalControlReliable).toBe(false);
+  });
+
+  it("keeps missing persisted telemetry INCOMPLETE rather than model failure", () => {
+    const config = { strategyVersion: "trend-rejection-short-v1" };
+    const configParity = compareControlConfigParity({ ...config }, { ...config });
+    const partial = {
+      id: "partial-paper",
+      symbol: "TESTUSDT",
+      sourceTimestamp: null,
+      status: "PARTIAL_MATCH",
+      quantizationVerdict: "DATA_UNAVAILABLE",
+      reasons: [],
+      dataUnavailable: ["bca_signals telemetry"],
+      firstDivergenceStage: "data_unavailable",
+      divergence: { productionEquivalentValue: "DATA_UNAVAILABLE", replayValue: "DATA_UNAVAILABLE" },
+      trace: {} as ProductionReplayResult["trace"],
+      replay: {},
+    } as unknown as ProductionReplayResult;
+    const report = finalizeParityReport([paperRow()], [partial], configParity, null);
+    expect(report.verdict).toBe("INCOMPLETE");
+    expect(report.failureClassification).toBe("INCONCLUSIVE");
+    expect(report.historicalControlReliable).toBe(false);
+  });
+
+  it("only explains quantization when both raw inputs and non-price fields are proven equal", () => {
+    expect(classifyQuantizationMismatch({
+      actualStop: 0.0792,
+      actualTakeProfit: 0.0744,
+      replayStop: 0.07916,
+      replayTakeProfit: 0.07449,
+      historicalPriceTick: 0.0001,
+      replayPriceTick: 0.00001,
+      sameUnroundedInputs: true,
+      sameNonPriceFields: true,
+    })).toBe("QUANTIZATION_EXPLAINED");
+    expect(classifyQuantizationMismatch({
+      actualStop: 0.0792,
+      actualTakeProfit: 0.0744,
+      replayStop: 0.07916,
+      replayTakeProfit: 0.07449,
+      replayPriceTick: 0.00001,
+      sameUnroundedInputs: true,
+      sameNonPriceFields: true,
+    })).toBe("MISMATCH");
+  });
+
+  it("records HOME-style no-candidate divergence at the strategy trigger stage", () => {
+    const sourceCandle = dataset().candles["15m"]![100];
+    const row = paperRow({
+      id: "c783bdeb-cfc6-4b88-aa78-911b5b8fe9b1",
+      symbol: "HOMEUSDT",
+      entryTime: new Date(sourceCandle.closeTime).toISOString(),
+      metadata: { source_data_timestamp: new Date(sourceCandle.closeTime).toISOString() },
+      signalId: "home-signal",
+      signalTelemetry: {
+        signalId: "home-signal",
+        sourceDataTimestamp: new Date(sourceCandle.closeTime).toISOString(),
+        score: 70.629,
+        scoreComponents: { trendAlignment: 1, momentum: 0.5295, structure: 0.392, liquidity: 0.4989, volatility: 0.7854, regimeFit: 1, dataQuality: 0.7114 },
+        marketRegime: "BEAR",
+        side: "SHORT",
+        strategyFamily: "TREND",
+        primaryTimeframe: "15m",
+        confirmationTimeframes: ["1h", "4h"],
+        regimeDependency: "HIGH",
+        entryPrice: 100,
+        stopPrice: 101,
+        takeProfitPrice: 98,
+        validUntil: new Date(sourceCandle.closeTime + 72 * 60 * 60 * 1000).toISOString(),
+      },
+    });
+    const replay = replayProductionPaperTrade(row, dataset(), replayConfig(101));
+    expect(replay.status).toBe("MISMATCH");
+    expect(replay.firstDivergenceStage).toBe("strategy_trigger");
+    expect(replay.divergence?.replayValue).toMatchObject({ status: "NO_SIGNAL_CANDIDATE" });
+  });
+
+  it("verifies immutable export provenance and excludes secrets from config serialization", async () => {
+    const exportData = await readProductionPaperTradeExport();
+    expect(exportData?.provenance.verified).toBe(true);
+    expect(exportData?.provenance.rowCount).toBe(exportData?.rows.length);
+    expect(hashCanonicalRows([{ b: 2, a: 1 }])).toBe(hashCanonicalRows([{ a: 1, b: 2 }]));
+    const serialized = serializeAllowlistedConfig({ strategyVersion: "trend-rejection-short-v1", CRON_SECRET: "secret", SUPABASE_SERVICE_ROLE_KEY: "secret2" });
+    expect(serialized).toEqual({ strategyVersion: "trend-rejection-short-v1" });
+    expect(JSON.stringify(serialized)).not.toContain("secret");
+  });
+
   it("classifies replay rows as DATA_UNAVAILABLE without inventing a match", () => {
     const row = {
       id: "paper-1",
+      signalId: null,
       symbol: "BTCUSDT",
       side: "SHORT",
       strategyFamily: "TREND",
@@ -236,6 +454,7 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
       fundingUsdt: 0,
       slippageUsdt: 0,
       metadata: {},
+      signalTelemetry: null,
     } satisfies ProductionPaperTradeRow;
     const replay = replayProductionPaperTrade(row, null, null);
     expect(replay.status).toBe("DATA_UNAVAILABLE");
