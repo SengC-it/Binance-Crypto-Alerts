@@ -1,0 +1,13 @@
+{
+  "evidence_type": "readonly_shadow_supporting_evidence",
+  "source_table": "public.bca_paper_trades",
+  "strategy_versions": [
+    "default-trend-shadow-v1",
+    "trend-rejection-shadow-v1"
+  ],
+  "extraction_query": "SELECT strategy_version, count(*) AS settled_trades, count(*) FILTER (WHERE r_multiple > 0) AS wins, count(*) FILTER (WHERE r_multiple < 0) AS losses, avg(r_multiple) AS avg_r, sum(net_pnl_usdt) AS net_pnl_usdt, min(entry_time) AS first_entry_time, max(entry_time) AS last_entry_time FROM public.bca_paper_trades WHERE strategy_version IN ('default-trend-shadow-v1','trend-rejection-shadow-v1') AND exit_time IS NOT NULL GROUP BY strategy_version ORDER BY strategy_version;",
+  "result_rows": [],
+  "status": "DATA_UNAVAILABLE_NO_SETTLED_ROWS",
+  "methodology": "Read-only query only. Zero settled prospective rows were returned for both shadow versions, so they remain supporting evidence unavailable and cannot replace historical OOS or frozen holdout evidence.",
+  "production_promotion": "NO"
+}
