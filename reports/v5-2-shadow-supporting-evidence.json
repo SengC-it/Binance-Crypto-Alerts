@@ -1,0 +1,39 @@
+{
+  "evidence_type": "readonly_shadow_supporting_evidence",
+  "query_timestamp": "2026-08-24T08:25:28.868Z",
+  "source_table": "public.bca_shadow_paper_trades",
+  "strategy_versions": [
+    "default-trend-shadow-v1",
+    "trend-rejection-shadow-v1"
+  ],
+  "extraction_query": "SELECT strategy_version, count(*) AS settled_trades, count(*) FILTER (WHERE r_multiple > 0) AS wins, count(*) FILTER (WHERE r_multiple < 0) AS losses, avg(r_multiple) AS avg_r, CASE WHEN sum(CASE WHEN r_multiple < 0 THEN abs(r_multiple) ELSE 0 END) = 0 THEN NULL ELSE sum(CASE WHEN r_multiple > 0 THEN r_multiple ELSE 0 END) / sum(CASE WHEN r_multiple < 0 THEN abs(r_multiple) ELSE 0 END) END AS profit_factor, sum(net_pnl_usdt) AS net_pnl_usdt, min(entry_time) AS first_entry_time, max(entry_time) AS last_entry_time FROM public.bca_shadow_paper_trades WHERE strategy_version IN ('default-trend-shadow-v1','trend-rejection-shadow-v1') AND exit_time IS NOT NULL GROUP BY strategy_version ORDER BY strategy_version;",
+  "row_count": 2,
+  "settled_trade_row_count": 41,
+  "result_rows": [
+    {
+      "strategy_version": "default-trend-shadow-v1",
+      "settled_trades": 34,
+      "wins": 13,
+      "losses": 21,
+      "avg_r": 0.08546482411764706,
+      "profit_factor": 1.1302697180794961,
+      "net_pnl_usdt": 83.51976168,
+      "first_entry_time": "2026-08-15 05:59:59.999+00",
+      "last_entry_time": "2026-08-24 00:59:59.999+00"
+    },
+    {
+      "strategy_version": "trend-rejection-shadow-v1",
+      "settled_trades": 7,
+      "wins": 3,
+      "losses": 4,
+      "avg_r": 0.17027349,
+      "profit_factor": 1.2654993344955169,
+      "net_pnl_usdt": 88.44455145,
+      "first_entry_time": "2026-08-11 14:59:59.999+00",
+      "last_entry_time": "2026-08-15 03:59:59.999+00"
+    }
+  ],
+  "status": "AVAILABLE_SUPPORTING_ONLY",
+  "methodology": "Read-only aggregate query against public.bca_shadow_paper_trades using settled rows only (exit_time IS NOT NULL). Shadow metrics are supporting evidence only; they do not replace immutable historical OOS or frozen holdout evidence, lower any Promotion Gate, or grant Production Email eligibility.",
+  "production_promotion": "NO"
+}
