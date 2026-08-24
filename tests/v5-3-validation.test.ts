@@ -14,6 +14,14 @@ import {
   type StructuralTrade,
 } from "@/lib/v5-3/structural";
 import {
+  compareControlConfigParity,
+  deduplicateCanonicalTrades,
+  finalizeParityReport,
+  replayProductionPaperTrade,
+  type ProductionPaperTradeRow,
+  type ProductionReplayResult,
+} from "@/lib/v5-3/production-parity";
+import {
   calculateMetrics,
   createFrozenHoldoutWindow,
   createPurgedWalkForwardFolds,
@@ -148,5 +156,90 @@ describe("V5.3 confidence and robustness", () => {
     expect(drawdown.maxDrawdownUsdt).toBeGreaterThan(0);
     expect(drawdown.finalEquityUsdt).toBeLessThan(10_000);
     expect(calculateMetrics(rows).topSymbolProfitShare).not.toBeNull();
+  });
+});
+
+describe("V5.3 fixed-candidate attribution and parity audit", () => {
+  it("keeps nested selector OOS separate from fixed final-candidate OOS", () => {
+    const nested = [trade(1, 1), { ...trade(2, -0.5), candidateId: "OTHER" }];
+    const fixed = deduplicateCanonicalTrades(nested.filter((row) => row.candidateId === "TEST"), "TEST");
+    expect(calculateMetrics(nested).trades).toBe(2);
+    expect(calculateMetrics(fixed.uniqueTrades).trades).toBe(1);
+    expect(calculateMetrics(nested).avgNetR).not.toBe(calculateMetrics(fixed.uniqueTrades).avgNetR);
+    expect(fixed.uniqueTrades[0].candidateId).toBe("TEST");
+  });
+
+  it("deduplicates the same trade across Core/Broad and holdout windows", () => {
+    const coreTrade = trade(10, 0.8, "BTCUSDT");
+    const broadTrade = { ...coreTrade };
+    const holdoutTrade = { ...coreTrade };
+    const coreBroad = deduplicateCanonicalTrades([coreTrade, broadTrade], "SHORT-FAILED_BREAKOUT_SHORT-02");
+    const holdout = deduplicateCanonicalTrades([coreTrade, holdoutTrade], "SHORT-FAILED_BREAKOUT_SHORT-02");
+    expect(coreBroad.rawTradeCount).toBe(2);
+    expect(coreBroad.uniqueTradeCount).toBe(1);
+    expect(coreBroad.duplicateTradeCount).toBe(1);
+    expect(holdout.uniqueTradeCount).toBe(1);
+    expect(holdout.duplicateTradeCount).toBe(1);
+  });
+
+  it("uses fixed-candidate OOS identity for stress and remove-top3 inputs", () => {
+    const fixed = [trade(1, 1.5), trade(2, 0.4), trade(3, -0.3)];
+    const audit = deduplicateCanonicalTrades(fixed, "FIXED");
+    const stressed = audit.uniqueTrades.map((row) => ({ ...row, rMultiple: row.rMultiple - 0.1 }));
+    expect(calculateMetrics(stressed).trades).toBe(audit.uniqueTradeCount);
+    expect(removeTopTrades(audit.uniqueTrades, 3)).toHaveLength(0);
+    expect(audit.uniqueTrades.every((row) => row.candidateId === "TEST")).toBe(true);
+  });
+
+  it("detects control configuration drift and marks parity mismatch unreliable", () => {
+    const configParity = compareControlConfigParity(
+      { strategyVersion: "trend-rejection-short-v1", scoreThreshold: 65 },
+      { strategyVersion: "trend-rejection-short-v1", scoreThreshold: 70 },
+    );
+    expect(configParity.status).toBe("FAIL");
+    const mismatch = {
+      id: "paper-1",
+      symbol: "BTCUSDT",
+      sourceTimestamp: null,
+      status: "MISMATCH",
+      reasons: ["score threshold drift"],
+      dataUnavailable: [],
+      replay: {},
+    } as unknown as ProductionReplayResult;
+    const report = finalizeParityReport([], [mismatch], configParity, null);
+    expect(report.verdict).toBe("FAIL");
+    expect(report.failureClassification).toBe("MODEL_PARITY_FAILURE");
+    expect(report.historicalControlReliable).toBe(false);
+  });
+
+  it("classifies replay rows as DATA_UNAVAILABLE without inventing a match", () => {
+    const row = {
+      id: "paper-1",
+      symbol: "BTCUSDT",
+      side: "SHORT",
+      strategyFamily: "TREND",
+      strategyVersion: "trend-rejection-short-v1",
+      entryTime: new Date(1_000).toISOString(),
+      entryPrice: 100,
+      entryFillPrice: 100,
+      stopPrice: 101,
+      takeProfitPrice: 98,
+      maxHoldUntil: new Date(72 * 60 * 60 * 1000).toISOString(),
+      quantity: 1,
+      theoreticalRiskUsdt: 1,
+      exitTime: new Date(2_000).toISOString(),
+      exitPrice: 99,
+      exitReason: "STOP_LOSS",
+      rMultiple: -1,
+      netPnlUsdt: -1,
+      feesUsdt: 0,
+      fundingUsdt: 0,
+      slippageUsdt: 0,
+      metadata: {},
+    } satisfies ProductionPaperTradeRow;
+    const replay = replayProductionPaperTrade(row, null, null);
+    expect(replay.status).toBe("DATA_UNAVAILABLE");
+    expect(replay.reasons).toHaveLength(0);
+    expect(replay.dataUnavailable.length).toBeGreaterThan(0);
   });
 });

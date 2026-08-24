@@ -7,8 +7,10 @@ import {
   type BacktestOptions,
 } from "@/lib/backtest/engine";
 import type { BacktestTrade, HistoricalDataset } from "@/lib/backtest/types";
+import { BinancePublicClient } from "@/lib/binance/public-client";
 import { closes, ema } from "@/lib/core/indicators";
-import { DEFAULT_STRATEGY_PARAMS, type StrategyParams } from "@/lib/core/strategies";
+import { getServerConfig } from "@/lib/config";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Candle, MarketRegime, Side } from "@/lib/core/types";
 import {
   buildFeatureFrames,
@@ -30,6 +32,21 @@ import {
   type StructuralCandidateDefinition,
   type StructuralTrade,
 } from "@/lib/v5-3/structural";
+import {
+  buildProductionControlConfig,
+  compareControlConfigParity,
+  createUnavailableParityReport,
+  deduplicateCanonicalTrades,
+  fetchSettledProductionPaperTrades,
+  finalizeParityReport,
+  loadLocalRuntimeEnv,
+  readProductionPaperTradeExport,
+  replayProductionPaperTrade,
+  type CanonicalTradeSet,
+  type ProductionControlConfig,
+  type ProductionPaperTradeRow,
+  type ProductionParityReport,
+} from "@/lib/v5-3/production-parity";
 import {
   calculateMetrics,
   buildCostStressMetrics,
@@ -111,11 +128,20 @@ interface DirectionAnalysis {
   groups: GroupId[];
   candidateRows: CandidateRow[];
   nestedTrades: StructuralTrade[];
+  nestedUniqueTrades: StructuralTrade[];
+  nestedTradeAudit: CanonicalTradeSet<StructuralTrade>;
+  nestedSelectionMetrics: ValidationMetrics;
   nestedFoldRows: Array<{ group: GroupId; fold: string; candidate: string | null; metrics: ValidationMetrics }>;
   selectionRecords: SelectionRecord[];
   finalCandidate: StructuralCandidateDefinition | null;
   finalCandidateId: string | null;
   finalHoldout: ValidationMetrics | null;
+  finalHoldoutByGroup: Array<{ group: GroupId; metrics: ValidationMetrics | null; audit: CanonicalTradeSet<StructuralTrade> }>;
+  fixedOosTrades: StructuralTrade[];
+  fixedOosMetrics: ValidationMetrics;
+  fixedOosByGroup: Array<{ group: GroupId; metrics: ValidationMetrics; audit: CanonicalTradeSet<StructuralTrade> }>;
+  fixedOosAudit: CanonicalTradeSet<StructuralTrade>;
+  fixedFoldRows: Array<{ group: GroupId; fold: string; metrics: ValidationMetrics }>;
   control: ValidationMetrics | null;
   controlTrades: ValidationTrade[];
   adjustedLcb: number | null;
@@ -130,49 +156,21 @@ interface DirectionAnalysis {
 interface CandidateRow {
   candidate: StructuralCandidateDefinition;
   metrics: ValidationMetrics;
+  oosTrades: StructuralTrade[];
+  audit: CanonicalTradeSet<StructuralTrade>;
+  datasetMetrics: Array<{ group: GroupId; metrics: ValidationMetrics; audit: CanonicalTradeSet<StructuralTrade> }>;
   foldMetrics: Array<{ group: GroupId; fold: string; metrics: ValidationMetrics }>;
   holdout: ValidationMetrics | null;
+  holdoutByGroup: Array<{ group: GroupId; metrics: ValidationMetrics | null; audit: CanonicalTradeSet<StructuralTrade> }>;
   selectedOuterFolds: number;
   status: "COMPUTED" | "REJECTED" | "DATA_UNAVAILABLE";
   extensionBuckets: Array<Record<string, unknown>>;
 }
 
-const CONTROL_PARAMS: StrategyParams = {
-  ...DEFAULT_STRATEGY_PARAMS,
-  entryMode: "TREND_REJECTION",
-  stopAtrMultiplier: 0.5,
-};
-
-const CONTROL_OPTIONS: BacktestOptions = {
-  initialCapitalUsdt: 10_000,
-  minScore: 70,
-  maxHoldHours: 72,
-  minimumSampleDays: 30,
-  singleSignalRiskCapUsdt: 100,
-  dailyRiskBudgetUsdt: 600,
-  dailyLossLimitUsdt: 600,
-  maxConcurrentPositions: 1,
-  maxEmailsPerDay: 10,
-  maxEmailsPerScan: 6,
-  capitalFloorUsdt: 0,
-  marginUsdt: 100,
-  leverage: 20,
-  takerFeeRate: FEE_RATE,
-  slippageBps: BASE_SLIPPAGE_BPS,
-  riskPerTradeUsdt: RISK_PER_TRADE_USDT,
-  maxPositionNotionalUsdt: 10_000,
-  rewardRisk: 2,
-  cooldownHours: 8,
-  maxExecutionCostRiskFraction: 0.1,
-  entryIntervalHours: 1,
-  requireRegimeAlignment: true,
-  sideFilter: "SHORT",
-  evaluationStartTime: CORE_START,
-  evaluationEndTime: CACHE_END,
-};
-
 async function main(): Promise<void> {
   await mkdir(REPORT_DIR, { recursive: true });
+  loadLocalRuntimeEnv();
+  const controlConfig = resolveProductionControlConfig();
   const universe = await loadUniverse();
   const cacheFiles = await loadCacheManifest();
   const groups = buildGroups(universe, cacheFiles);
@@ -221,7 +219,7 @@ async function main(): Promise<void> {
         });
         state.candidateTrades.get(definition.id)!.push(...trades);
       }
-      const control = await runControl(dataset, group, runtime.btcDataset);
+      const control = await runControl(dataset, group, runtime.btcDataset, controlConfig);
       state.controlTrades.push(...control);
     }
     console.info(JSON.stringify({
@@ -234,11 +232,16 @@ async function main(): Promise<void> {
 
   const analyses = new Map<Side, DirectionAnalysis>();
   for (const side of ["LONG", "SHORT"] as const) {
-    const analysis = await analyzeDirection(side, groups, runtimes, states);
+    const analysis = await analyzeDirection(side, groups, runtimes, states, controlConfig);
     analyses.set(side, analysis);
   }
 
-  await writeReports(groups, analyses, states);
+  const productionParity = await runProductionParityAudit(
+    cacheFiles,
+    controlConfig,
+    analyses.get("SHORT")?.control ?? null,
+  );
+  await writeReports(groups, analyses, states, productionParity, controlConfig);
   console.info(JSON.stringify({
     stage: "v5_3_validation_complete",
     reports: [
@@ -250,6 +253,8 @@ async function main(): Promise<void> {
       "reports/v5-3-promotion-decision.md",
       "reports/v5-3-executive-summary.md",
       "reports/v5-3-feature-snapshot-sample.json",
+      "reports/v5-3-production-parity.json",
+      "reports/v5-3-production-parity.md",
     ],
     promotion: { LONG: analyses.get("LONG")?.gate.status, SHORT: analyses.get("SHORT")?.gate.status },
   }));
@@ -337,13 +342,19 @@ async function prepareRuntime(group: ValidationGroup): Promise<GroupRuntime> {
   return { group, breadth, btcDataset, ethDataset };
 }
 
-async function runControl(dataset: HistoricalDataset, group: ValidationGroup, benchmark: HistoricalDataset | undefined): Promise<ValidationTrade[]> {
-  const params = CONTROL_PARAMS;
+async function runControl(
+  dataset: HistoricalDataset,
+  group: ValidationGroup,
+  benchmark: HistoricalDataset | undefined,
+  controlConfig: ProductionControlConfig | null,
+): Promise<ValidationTrade[]> {
+  if (!controlConfig) return [];
+  const params = controlConfig.params;
   const options: BacktestOptions = {
-    ...CONTROL_OPTIONS,
+    ...controlConfig.options,
     evaluationStartTime: group.start,
     evaluationEndTime: group.end,
-    candidateCache: buildCandidateCache(dataset, params, group.end, 1),
+    candidateCache: buildCandidateCache(dataset, params, group.end, controlConfig.options.entryIntervalHours),
   };
   const result = runBacktest(dataset, params, options, { benchmarkDataset: benchmark });
   const selected = selectPortfolioTrades(result.trades, params, options);
@@ -372,6 +383,7 @@ async function analyzeDirection(
   groups: ValidationGroup[],
   runtimes: Map<GroupId, GroupRuntime>,
   states: Map<GroupId, GroupState>,
+  controlConfig: ProductionControlConfig | null,
 ): Promise<DirectionAnalysis> {
   const definitions = V53_CANDIDATE_REGISTRY.filter((candidate) => candidate.side === side);
   const selectionRecords: SelectionRecord[] = [];
@@ -408,37 +420,73 @@ async function analyzeDirection(
       const trades = states.get(group.id)!.candidateTrades.get(candidate.id) ?? [];
       return trades.filter((trade) => group.folds.some((fold) => isTimestampInWindow(trade.entryTime, fold.validationStart, fold.validationEnd))).map((trade) => ({ ...trade, fold: foldLabel(groups.find((item) => item.id === group.id)!, trade.entryTime) }));
     });
-    const foldMetrics = groups.flatMap((group) => group.folds.map((fold) => ({ group: group.id, fold: fold.id, metrics: calculateMetrics(rows.filter((trade) => trade.fold === `${group.id}-${fold.id}`)) })));
-    const holdoutTrades = groups.flatMap((group) => {
-      const holdout = group.holdout;
-      if (!holdout) return [];
-      return (states.get(group.id)!.candidateTrades.get(candidate.id) ?? []).filter((trade) => isTimestampInWindow(trade.entryTime, holdout.start, holdout.end));
+    const audit = deduplicateCanonicalTrades(rows, candidate.id);
+    const datasetMetrics = groups.map((group) => {
+      const groupRows = rows.filter((trade) => trade.fold?.startsWith(`${group.id}-`));
+      const groupAudit = deduplicateCanonicalTrades(groupRows, candidate.id);
+      return { group: group.id, metrics: calculateMetrics(groupAudit.uniqueTrades), audit: groupAudit };
     });
-    const metrics = calculateMetrics(rows);
+    const foldMetrics = groups.flatMap((group) => group.folds.map((fold) => ({
+      group: group.id,
+      fold: fold.id,
+      metrics: calculateMetrics(audit.uniqueTrades.filter((trade) => trade.fold === `${group.id}-${fold.id}`)),
+    })));
+    const holdoutByGroup = groups.map((group) => {
+      const holdout = group.holdout;
+      const holdoutTrades = holdout
+        ? (states.get(group.id)!.candidateTrades.get(candidate.id) ?? []).filter((trade) => isTimestampInWindow(trade.entryTime, holdout.start, holdout.end))
+        : [];
+      const holdoutAudit = deduplicateCanonicalTrades(holdoutTrades, candidate.id);
+      return {
+        group: group.id,
+        metrics: holdoutAudit.uniqueTrades.length > 0 ? calculateMetrics(holdoutAudit.uniqueTrades) : null,
+        audit: holdoutAudit,
+      };
+    });
+    const holdoutAudit = deduplicateCanonicalTrades(holdoutByGroup.flatMap((item) => item.audit.uniqueTrades), candidate.id);
     candidateRows.push({
       candidate,
-      metrics,
+      metrics: calculateMetrics(audit.uniqueTrades),
+      oosTrades: audit.uniqueTrades,
+      audit,
+      datasetMetrics,
       foldMetrics,
-      holdout: holdoutTrades.length > 0 ? calculateMetrics(holdoutTrades) : null,
+      holdout: holdoutAudit.uniqueTrades.length > 0 ? calculateMetrics(holdoutAudit.uniqueTrades) : null,
+      holdoutByGroup,
       selectedOuterFolds: outerSelectionCounts.get(candidate.id) ?? 0,
-      status: metrics.trades > 0 ? "COMPUTED" : "REJECTED",
-      extensionBuckets: summarizeExtensionBuckets(rows),
+      status: audit.uniqueTrades.length > 0 ? "COMPUTED" : "REJECTED",
+      extensionBuckets: summarizeExtensionBuckets(audit.uniqueTrades),
     });
   }
 
   const finalCandidate = chooseFinalCandidate(candidateRows);
   const finalCandidateId = finalCandidate?.id ?? null;
-  const holdoutTrades = finalCandidate
-    ? groups.flatMap((group) => {
-      const holdout = group.holdout;
-      return holdout ? (states.get(group.id)!.candidateTrades.get(finalCandidate.id) ?? []).filter((trade) => isTimestampInWindow(trade.entryTime, holdout.start, holdout.end)) : [];
-    })
+  const finalRow = finalCandidate ? candidateRows.find((row) => row.candidate.id === finalCandidate.id) : undefined;
+  const finalHoldout = finalRow?.holdout ?? null;
+  const finalHoldoutByGroup = finalRow?.holdoutByGroup ?? groups.map((group) => ({
+    group: group.id,
+    metrics: null,
+    audit: deduplicateCanonicalTrades<StructuralTrade>([], finalCandidateId ?? "DATA_UNAVAILABLE"),
+  }));
+  const fixedOosAudit = finalRow?.audit ?? deduplicateCanonicalTrades<StructuralTrade>([], finalCandidateId ?? "DATA_UNAVAILABLE");
+  const fixedOosTrades = fixedOosAudit.uniqueTrades;
+  const fixedOosMetrics = calculateMetrics(fixedOosTrades);
+  const fixedOosByGroup = finalRow?.datasetMetrics ?? groups.map((group) => ({
+    group: group.id,
+    metrics: calculateMetrics([]),
+    audit: deduplicateCanonicalTrades<StructuralTrade>([], finalCandidateId ?? "DATA_UNAVAILABLE"),
+  }));
+  const fixedFoldRows = finalRow?.foldMetrics ?? groups.flatMap((group) => group.folds.map((fold) => ({ group: group.id, fold: fold.id, metrics: calculateMetrics([]) })));
+  const controlRawTrades = side === "SHORT"
+    ? groups.flatMap((group) => states.get(group.id)!.controlTrades.filter((trade) => group.folds.some((fold) => isTimestampInWindow(trade.entryTime, fold.validationStart, fold.validationEnd))))
     : [];
-  const finalHoldout = holdoutTrades.length > 0 ? calculateMetrics(holdoutTrades) : null;
-  const controlTrades = side === "SHORT" ? groups.flatMap((group) => states.get(group.id)!.controlTrades.filter((trade) => group.folds.some((fold) => isTimestampInWindow(trade.entryTime, fold.validationStart, fold.validationEnd)))) : [];
-  const control = side === "SHORT" && controlTrades.length > 0 ? calculateMetrics(controlTrades) : null;
-  const nestedMetrics = calculateMetrics(nestedTrades);
-  const candidateSeries = candidateRows.map((row) => ({ candidateId: row.candidate.id, values: row.metrics.trades > 0 ? (groups.flatMap((group) => (states.get(group.id)!.candidateTrades.get(row.candidate.id) ?? []).filter((trade) => group.folds.some((fold) => isTimestampInWindow(trade.entryTime, fold.validationStart, fold.validationEnd))).map((trade) => trade.rMultiple))) : [] }));
+  const controlAudit = deduplicateCanonicalTrades(controlRawTrades, CONTROL_STRATEGY);
+  const controlTrades = controlAudit.uniqueTrades;
+  const control = side === "SHORT" && controlConfig && controlTrades.length > 0 ? calculateMetrics(controlTrades) : null;
+  const nestedTradeAudit = deduplicateCanonicalTrades(nestedTrades);
+  const nestedUniqueTrades = nestedTradeAudit.uniqueTrades;
+  const nestedSelectionMetrics = calculateMetrics(nestedUniqueTrades);
+  const candidateSeries = candidateRows.map((row) => ({ candidateId: row.candidate.id, values: row.oosTrades.map((trade) => trade.rMultiple) }));
   const adjustedLcb = finalCandidateId ? selectionAdjustedLowerConfidenceBound(candidateSeries, finalCandidateId) : null;
 
   const stress = finalCandidate
@@ -446,14 +494,14 @@ async function analyzeDirection(
     : new Map<string, StructuralTrade[]>();
   const delayedEntry = calculateMetrics(stress.get("delay+1x15m") ?? []);
   const perturbationMetrics = ["-20%", "-10%", "+10%", "+20%"].map((label) => ({ label, metrics: calculateMetrics(stress.get(`parameter${label}`) ?? []) }));
-  const perturbations = buildPerturbationSummary(nestedMetrics, perturbationMetrics);
+  const perturbations = buildPerturbationSummary(fixedOosMetrics, perturbationMetrics);
   const stopComparison = ["STRUCTURE", "ATR", "HYBRID"].map((stopStyle) => ({ stopStyle, metrics: calculateMetrics(stress.get(`stop-${stopStyle}`) ?? []) }));
-  const costStress = buildCostStressMetrics(nestedTrades);
-  const foldsForGate = nestedFoldRows.map((row) => ({ netR: row.metrics.netR, trades: row.metrics.trades }));
-  const foldGroups = groups.map((group) => ({ id: group.id, folds: nestedFoldRows.filter((row) => row.group === group.id).map((row) => ({ netR: row.metrics.netR, trades: row.metrics.trades })) }));
-  const regimeMetrics = regimeSlices(nestedTrades);
+  const costStress = buildCostStressMetrics(fixedOosTrades);
+  const foldsForGate = fixedFoldRows.map((row) => ({ netR: row.metrics.netR, trades: row.metrics.trades }));
+  const foldGroups = groups.map((group) => ({ id: group.id, folds: fixedFoldRows.filter((row) => row.group === group.id).map((row) => ({ netR: row.metrics.netR, trades: row.metrics.trades })) }));
+  const regimeMetrics = regimeSlices(fixedOosTrades);
   const gate = evaluateV53PromotionGate({
-    metrics: nestedMetrics,
+    metrics: fixedOosMetrics,
     holdout: finalHoldout,
     control,
     costStress,
@@ -463,20 +511,29 @@ async function analyzeDirection(
     dataQuality: { passed: false, reason: "PIT_UNIVERSE=PROXY; true point-in-time membership is unavailable for 1Y Broad." },
     adjustedLcb,
     delayedEntry,
-    removeTop3: calculateMetrics(removeTopTrades(nestedTrades, 3)),
+    removeTop3: calculateMetrics(removeTopTrades(fixedOosTrades, 3)),
     perturbations,
   });
-  const robustness = buildRobustness(nestedTrades, nestedFoldRows, finalCandidateId, stopComparison, perturbations, delayedEntry);
+  const robustness = buildRobustness(fixedOosTrades, fixedFoldRows, finalCandidateId, stopComparison, perturbations, delayedEntry);
   return {
     side,
     groups: groups.map((group) => group.id),
     candidateRows,
     nestedTrades,
+    nestedUniqueTrades,
+    nestedTradeAudit,
+    nestedSelectionMetrics,
     nestedFoldRows,
     selectionRecords,
     finalCandidate,
     finalCandidateId,
     finalHoldout,
+    finalHoldoutByGroup,
+    fixedOosTrades,
+    fixedOosMetrics,
+    fixedOosByGroup,
+    fixedOosAudit,
+    fixedFoldRows,
     control,
     controlTrades,
     adjustedLcb,
@@ -549,7 +606,7 @@ async function runStressAcrossGroups(
         ethDataset: runtime.ethDataset,
       });
       for (const config of configurations) {
-        results.get(config.label)!.push(...runStructuralCandidate(dataset, frames, config.definition, {
+        const generated = runStructuralCandidate(dataset, frames, config.definition, {
           startTime: group.start,
           endTime: group.end,
           delayBars: config.delayBars ?? 0,
@@ -558,9 +615,15 @@ async function runStressAcrossGroups(
           slippageBps: BASE_SLIPPAGE_BPS,
           riskPerTradeUsdt: RISK_PER_TRADE_USDT,
           cooldownHours: 8,
-        }));
+        });
+        results.get(config.label)!.push(...generated
+          .filter((trade) => group.folds.some((fold) => isTimestampInWindow(trade.entryTime, fold.validationStart, fold.validationEnd)))
+          .map((trade) => ({ ...trade, fold: foldLabel(group, trade.entryTime) })));
       }
     }
+  }
+  for (const [label, trades] of results) {
+    results.set(label, deduplicateCanonicalTrades(trades, definition.id).uniqueTrades);
   }
   return results;
 }
@@ -579,7 +642,7 @@ function perturbDefinition(definition: StructuralCandidateDefinition, factor: nu
 
 function buildRobustness(
   trades: StructuralTrade[],
-  folds: DirectionAnalysis["nestedFoldRows"],
+  folds: Array<{ group: GroupId; fold: string; metrics: ValidationMetrics }>,
   candidateId: string | null,
   stopComparison: Array<{ stopStyle: string; metrics: ValidationMetrics }>,
   perturbations: Array<{ label: string; metrics: ValidationMetrics; passed: boolean }>,
@@ -660,7 +723,171 @@ function lookupAtOrBefore(timestamps: number[], values: number[], timestamp: num
   return result >= 0 ? values[result] : null;
 }
 
-async function writeReports(groups: ValidationGroup[], analyses: Map<Side, DirectionAnalysis>, states: Map<GroupId, GroupState>): Promise<void> {
+function resolveProductionControlConfig(): ProductionControlConfig | null {
+  try {
+    return buildProductionControlConfig(getServerConfig());
+  } catch (error) {
+    console.warn(JSON.stringify({
+      stage: "production_control_config_unavailable",
+      message: error instanceof Error ? error.message : String(error),
+    }));
+    return null;
+  }
+}
+
+async function runProductionParityAudit(
+  cacheFiles: CacheFile[],
+  controlConfig: ProductionControlConfig | null,
+  historicalControl: ValidationMetrics | null,
+): Promise<ProductionParityReport> {
+  const configParity = controlConfig
+    ? compareControlConfigParity(controlConfig.normalized, controlConfig.normalized)
+    : compareControlConfigParity(null, {});
+  let rows: ProductionPaperTradeRow[];
+  let dataSource: ProductionParityReport["dataSource"] = "live_supabase_read";
+  let queryError: string | undefined;
+  try {
+    rows = await fetchSettledProductionPaperTrades(getSupabaseAdmin());
+  } catch (error) {
+    queryError = error instanceof Error ? error.message : String(error);
+    const exportData = await readProductionPaperTradeExport();
+    if (!exportData) return createUnavailableParityReport(error, configParity);
+    rows = exportData.rows;
+    dataSource = "immutable_read_only_export";
+  }
+  try {
+    const datasetCache = new Map<string, HistoricalDataset | null>();
+    const publicClient = new BinancePublicClient(process.env.BINANCE_API_BASE_URL);
+    let instrumentUniverse: Awaited<ReturnType<BinancePublicClient["getUniverse"]>> = [];
+    try {
+      instrumentUniverse = await publicClient.getUniverse();
+    } catch (error) {
+      queryError = `${queryError ? `${queryError}; ` : ""}public market-data replay source unavailable: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    const replayResults = [];
+    for (const row of rows) {
+      try {
+        const dataset = await loadReplayDataset(cacheFiles, row, datasetCache, publicClient, instrumentUniverse);
+        replayResults.push(replayProductionPaperTrade(row, dataset, controlConfig));
+      } catch (error) {
+        replayResults.push(replayProductionPaperTrade(row, null, controlConfig));
+        queryError = `${queryError ? `${queryError}; ` : ""}${row.symbol} replay data unavailable: ${error instanceof Error ? error.message : String(error)}`;
+      }
+    }
+    return finalizeParityReport(rows, replayResults, configParity, historicalControl, dataSource, queryError);
+  } catch (error) {
+    return createUnavailableParityReport(queryError ? new Error(`${queryError}; replay data fetch failed: ${error instanceof Error ? error.message : String(error)}`) : error, configParity);
+  }
+}
+
+async function loadReplayDataset(
+  cacheFiles: CacheFile[],
+  row: ProductionPaperTradeRow,
+  cache: Map<string, HistoricalDataset | null>,
+  publicClient: BinancePublicClient,
+  instrumentUniverse: Awaited<ReturnType<BinancePublicClient["getUniverse"]>>,
+): Promise<HistoricalDataset | null> {
+  const timestamp = parseReplayTimestamp(row);
+  if (timestamp === null) return null;
+  const candidates = cacheFiles.filter((file) => file.symbol === row.symbol);
+  for (const file of candidates) {
+    if (cache.has(file.path)) {
+      const cached = cache.get(file.path);
+      if (cached?.candles["15m"].some((candle) => candle.closeTime === timestamp)) return cached;
+      continue;
+    }
+    try {
+      const dataset = await readDataset(file);
+      cache.set(file.path, dataset);
+      if (dataset.candles["15m"].some((candle) => candle.closeTime === timestamp)) return dataset;
+    } catch {
+      cache.set(file.path, null);
+    }
+  }
+  const instrument = instrumentUniverse.find((item) => item.symbol === row.symbol);
+  if (!instrument) return null;
+  const exitTimestamp = row.exitTime ? Date.parse(row.exitTime) : Number.NaN;
+  const maxHoldTimestamp = row.maxHoldUntil ? Date.parse(row.maxHoldUntil) : Number.NaN;
+  const end = Math.max(
+    timestamp,
+    Number.isFinite(exitTimestamp) ? exitTimestamp : timestamp,
+    Number.isFinite(maxHoldTimestamp) ? maxHoldTimestamp : timestamp,
+  );
+  const earliestHistory = timestamp - 250 * 4 * 60 * 60 * 1000;
+  const [candles15m, candles1h, candles4h, fundingRates] = await Promise.all([
+    publicClient.getCandlesRange(row.symbol, "15m", timestamp - 250 * 15 * 60 * 1000, end),
+    publicClient.getCandlesRange(row.symbol, "1h", timestamp - 250 * 60 * 60 * 1000, end),
+    publicClient.getCandlesRange(row.symbol, "4h", earliestHistory, end),
+    publicClient.getFundingRatesRange(row.symbol, timestamp + 1, end),
+  ]);
+  const dataset: HistoricalDataset = {
+    symbol: row.symbol,
+    instrument,
+    candles: { "15m": candles15m, "1h": candles1h, "4h": candles4h },
+    fundingRates,
+  };
+  if (dataset.candles["15m"].some((candle) => candle.closeTime === timestamp)) return dataset;
+  return null;
+}
+
+function parseReplayTimestamp(row: ProductionPaperTradeRow): number | null {
+  const metadataTimestamp = typeof row.metadata.source_data_timestamp === "string"
+    ? Date.parse(row.metadata.source_data_timestamp)
+    : Number.NaN;
+  if (Number.isFinite(metadataTimestamp)) return metadataTimestamp;
+  const entryTimestamp = row.entryTime ? Date.parse(row.entryTime) : Number.NaN;
+  return Number.isFinite(entryTimestamp) ? entryTimestamp : null;
+}
+
+function productionParityMarkdown(report: ProductionParityReport): string {
+  const metrics = report.prospectiveMetrics;
+  const rows = report.replayResults.length > 0
+    ? report.replayResults.map((row) => `- ${row.id} / ${row.symbol}: **${row.status}**${row.reasons.length > 0 ? ` — ${row.reasons.join("; ")}` : ""}${row.dataUnavailable.length > 0 ? `; DATA_UNAVAILABLE: ${row.dataUnavailable.join("; ")}` : ""}`).join("\n")
+    : "- DATA_UNAVAILABLE: no replay rows were available.";
+  return [
+    "# V5.3 Production Backtest Parity Audit",
+    "",
+    `Generated: ${report.queryTimestamp}`,
+    `Source: \`${report.sourceTable}\``,
+    `Strategy: \`${report.strategyVersion}\``,
+    `Verdict: **${report.verdict}**`,
+    `Failure classification: **${report.failureClassification}**`,
+    `Historical control reliable: **${report.historicalControlReliable ? "YES" : "NO"}**`,
+    "",
+    "## Read-only extraction",
+    `- Data source: ${report.dataSource}`,
+    `- Settled prospective rows: ${report.settledProspectiveTrades === null ? "DATA_UNAVAILABLE" : report.settledProspectiveTrades}`,
+    `- Query timestamp: ${report.queryTimestamp}`,
+    `- Extraction query: \`${report.extractionQuery}\``,
+    report.queryError ? `- Query error: ${report.queryError}` : "- Query error: none",
+    metrics ? `- Prospective metrics: ${metrics.trades} trades, AvgR ${format(metrics.avgNetR)}, PF ${format(metrics.profitFactor)}, NetR ${format(metrics.netR)}` : "- Prospective metrics: DATA_UNAVAILABLE",
+    "",
+    "## Replay classification",
+    `- MATCH: ${report.exactMatches === null ? "DATA_UNAVAILABLE" : report.exactMatches}`,
+    `- PARTIAL_MATCH: ${report.partialMatches === null ? "DATA_UNAVAILABLE" : report.partialMatches}`,
+    `- MISMATCH: ${report.mismatches === null ? "DATA_UNAVAILABLE" : report.mismatches}`,
+    `- DATA_UNAVAILABLE: ${report.dataUnavailable === null ? "DATA_UNAVAILABLE" : report.dataUnavailable}`,
+    rows,
+    "",
+    "## Control configuration parity",
+    `- Status: **${report.configParity.status}**`,
+    `- Checked: ${report.configParity.checked.join(", ") || "DATA_UNAVAILABLE"}`,
+    report.configParity.mismatches.length > 0 ? `- Mismatches: ${report.configParity.mismatches.join("; ")}` : "- Mismatches: none",
+    report.configParity.unavailable.length > 0 ? `- Unavailable: ${report.configParity.unavailable.join("; ")}` : "- Unavailable: none",
+    "",
+    "## Boundary",
+    "- Read-only query only; no database write or migration.",
+    "- No strategy tuning, candidate addition, Production Email enablement, merge, or deployment.",
+  ].join("\n");
+}
+
+async function writeReports(
+  groups: ValidationGroup[],
+  analyses: Map<Side, DirectionAnalysis>,
+  states: Map<GroupId, GroupState>,
+  productionParity: ProductionParityReport,
+  controlConfig: ProductionControlConfig | null,
+): Promise<void> {
   const long = analyses.get("LONG")!;
   const short = analyses.get("SHORT")!;
   const base = {
@@ -672,10 +899,11 @@ async function writeReports(groups: ValidationGroup[], analyses: Map<Side, Direc
     researchOnly: true,
     pointInTimeUniverse: "PROXY",
     survivorBias: "PROXY",
+    productionControlConfig: controlConfig?.normalized ?? "DATA_UNAVAILABLE",
   };
   await writeJson("v5-3-candidate-registry.json", { ...base, ...candidateRegistrySummary(), v52FrozenConclusions: { LONG: "BREAKOUT_RETEST=SHADOW_ONLY", SHORT: "TREND_REJECTION=SHADOW_ONLY" } });
-  await writeJson("v5-3-long-candidates.json", { ...base, direction: "LONG", finalCandidate: long.finalCandidate, candidates: long.candidateRows.map(serializeCandidateRow), nestedOos: serializeMetrics(calculateMetrics(long.nestedTrades)) });
-  await writeJson("v5-3-short-candidates.json", { ...base, direction: "SHORT", finalCandidate: short.finalCandidate, candidates: short.candidateRows.map(serializeCandidateRow), nestedOos: serializeMetrics(calculateMetrics(short.nestedTrades)), control: serializeMetrics(short.control) });
+  await writeJson("v5-3-long-candidates.json", { ...base, direction: "LONG", finalCandidate: long.finalCandidate, candidates: long.candidateRows.map(serializeCandidateRow), nestedSelectionProcedureOos: serializeMetrics(long.nestedSelectionMetrics), fixedFinalCandidateOos: serializeMetrics(long.fixedOosMetrics) });
+  await writeJson("v5-3-short-candidates.json", { ...base, direction: "SHORT", finalCandidate: short.finalCandidate, candidates: short.candidateRows.map(serializeCandidateRow), nestedSelectionProcedureOos: serializeMetrics(short.nestedSelectionMetrics), fixedFinalCandidateOos: serializeMetrics(short.fixedOosMetrics), control: serializeMetrics(short.control) });
   await writeJson("v5-3-nested-walk-forward.json", {
     ...base,
     purgeHours: PURGE_HOURS,
@@ -686,6 +914,7 @@ async function writeReports(groups: ValidationGroup[], analyses: Map<Side, Direc
     groups: groups.map(serializeGroup),
   });
   await writeJson("v5-3-robustness.json", { ...base, directions: { LONG: long.robustness, SHORT: short.robustness } });
+  await writeJson("v5-3-production-parity.json", { ...base, ...productionParity, rawRows: productionParity.rawRows, replayResults: productionParity.replayResults });
   await writeJson("v5-3-feature-snapshot-sample.json", {
     schema: "SignalFeatureSnapshot",
     serialization: "JSON object with entry-time-only fields; no database write or migration",
@@ -693,6 +922,7 @@ async function writeReports(groups: ValidationGroup[], analyses: Map<Side, Direc
   });
   await writeFile(resolve(REPORT_DIR, "v5-3-promotion-decision.md"), promotionMarkdown(long, short), "utf8");
   await writeFile(resolve(REPORT_DIR, "v5-3-executive-summary.md"), executiveMarkdown(long, short), "utf8");
+  await writeFile(resolve(REPORT_DIR, "v5-3-production-parity.md"), productionParityMarkdown(productionParity), "utf8");
 }
 
 function serializeGroup(group: ValidationGroup): Record<string, unknown> {
@@ -727,8 +957,25 @@ function serializeCandidateRow(row: CandidateRow): Record<string, unknown> {
   return {
     candidate: row.candidate,
     metrics: serializeMetrics(row.metrics),
+    rawTradeCount: row.audit.rawTradeCount,
+    uniqueTradeCount: row.audit.uniqueTradeCount,
+    duplicateTradeCount: row.audit.duplicateTradeCount,
+    datasetMetrics: row.datasetMetrics.map((item) => ({
+      group: item.group,
+      metrics: serializeMetrics(item.metrics),
+      rawTradeCount: item.audit.rawTradeCount,
+      uniqueTradeCount: item.audit.uniqueTradeCount,
+      duplicateTradeCount: item.audit.duplicateTradeCount,
+    })),
     folds: row.foldMetrics.map((fold) => ({ group: fold.group, fold: fold.fold, metrics: serializeMetrics(fold.metrics) })),
     holdout: serializeMetrics(row.holdout),
+    holdoutByGroup: row.holdoutByGroup.map((item) => ({
+      group: item.group,
+      metrics: serializeMetrics(item.metrics),
+      rawTradeCount: item.audit.rawTradeCount,
+      uniqueTradeCount: item.audit.uniqueTradeCount,
+      duplicateTradeCount: item.audit.duplicateTradeCount,
+    })),
     selectedOuterFolds: row.selectedOuterFolds,
     status: row.status,
     extensionBuckets: row.extensionBuckets,
@@ -741,9 +988,29 @@ function serializeNested(analysis: DirectionAnalysis): Record<string, unknown> {
     finalCandidate: analysis.finalCandidate,
     selectionRecords: analysis.selectionRecords,
     outerFoldMetrics: analysis.nestedFoldRows.map((row) => ({ group: row.group, fold: row.fold, candidate: row.candidate, metrics: serializeMetrics(row.metrics) })),
-    nestedOos: serializeMetrics(calculateMetrics(analysis.nestedTrades)),
+    nestedSelectionProcedureOos: serializeMetrics(analysis.nestedSelectionMetrics),
+    nestedSelectionProcedureTradeAudit: {
+      rawTradeCount: analysis.nestedTradeAudit.rawTradeCount,
+      uniqueTradeCount: analysis.nestedTradeAudit.uniqueTradeCount,
+      duplicateTradeCount: analysis.nestedTradeAudit.duplicateTradeCount,
+    },
+    fixedFinalCandidate: analysis.finalCandidate,
+    fixedFinalCandidateOos: serializeMetrics(analysis.fixedOosMetrics),
+    fixedFinalCandidateTradeAudit: {
+      rawTradeCount: analysis.fixedOosAudit.rawTradeCount,
+      uniqueTradeCount: analysis.fixedOosAudit.uniqueTradeCount,
+      duplicateTradeCount: analysis.fixedOosAudit.duplicateTradeCount,
+    },
+    fixedFinalCandidateByGroup: analysis.fixedOosByGroup.map((item) => ({
+      group: item.group,
+      metrics: serializeMetrics(item.metrics),
+      rawTradeCount: item.audit.rawTradeCount,
+      uniqueTradeCount: item.audit.uniqueTradeCount,
+      duplicateTradeCount: item.audit.duplicateTradeCount,
+    })),
     holdout: serializeMetrics(analysis.finalHoldout),
-    naiveLCB: roundMetric(calculateMetrics(analysis.nestedTrades).lowerConfidenceBound95),
+    holdoutByGroup: analysis.finalHoldoutByGroup.map((item) => ({ group: item.group, metrics: serializeMetrics(item.metrics), rawTradeCount: item.audit.rawTradeCount, uniqueTradeCount: item.audit.uniqueTradeCount, duplicateTradeCount: item.audit.duplicateTradeCount })),
+    naiveLCB: roundMetric(analysis.fixedOosMetrics.lowerConfidenceBound95),
     selectionAdjustedLCB: roundMetric(analysis.adjustedLcb),
     promotion: analysis.gate,
     control: serializeMetrics(analysis.control),
@@ -758,19 +1025,22 @@ function serializeNested(analysis: DirectionAnalysis): Record<string, unknown> {
 
 function promotionMarkdown(long: DirectionAnalysis, short: DirectionAnalysis): string {
   const direction = (analysis: DirectionAnalysis): string => {
-    const metrics = calculateMetrics(analysis.nestedTrades);
+    const nested = analysis.nestedSelectionMetrics;
+    const fixed = analysis.fixedOosMetrics;
     const equity = analysis.robustness.trueEquityDrawdown as { maxDrawdownPercent?: number } | undefined;
-    const top3Metrics = calculateMetrics(removeTopTrades(analysis.nestedTrades, 3));
+    const top3Metrics = calculateMetrics(removeTopTrades(analysis.fixedOosTrades, 3));
     return [
       `### ${analysis.side}`,
       `- Selected structural candidate: \`${analysis.finalCandidateId ?? "DATA_UNAVAILABLE"}\``,
       `- Status: **${analysis.gate.status}**`,
-      `- Nested OOS: ${metrics.trades} trades, AvgR ${format(metrics.avgNetR)}, PF ${format(metrics.profitFactor)}, NetR ${format(metrics.netR)}`,
-      `- Naive LCB95: ${format(metrics.lowerConfidenceBound95)}; selection-adjusted LCB95: ${format(analysis.adjustedLcb)}`,
+      `- Nested selection procedure OOS (inner selection → outer validation): ${nested.trades} trades, AvgR ${format(nested.avgNetR)}, PF ${format(nested.profitFactor)}, NetR ${format(nested.netR)}`,
+      `- Fixed final candidate OOS (Promotion basis): ${fixed.trades} unique trades, AvgR ${format(fixed.avgNetR)}, PF ${format(fixed.profitFactor)}, NetR ${format(fixed.netR)}`,
+      `- Fixed candidate dataset groups: ${analysis.fixedOosByGroup.map((item) => `${item.group}=${item.metrics.trades} trades/${item.metrics.avgNetR.toFixed(4)} AvgR/${item.metrics.profitFactor.toFixed(4)} PF/${item.metrics.netR.toFixed(4)} NetR`).join("; ")}`,
+      `- Fixed candidate naive LCB95: ${format(fixed.lowerConfidenceBound95)}; selection-adjusted LCB95: ${format(analysis.adjustedLcb)}`,
       `- Frozen holdout: ${analysis.finalHoldout ? `${analysis.finalHoldout.trades} trades, AvgR ${format(analysis.finalHoldout.avgNetR)}, PF ${format(analysis.finalHoldout.profitFactor)}` : "DATA_UNAVAILABLE"}`,
       `- +10bps: NetR ${format(analysis.costStress.plus10Bps.netR)}, AvgR ${format(analysis.costStress.plus10Bps.avgNetR)}; +15bps: NetR ${format(analysis.costStress.plus15Bps.netR)}, AvgR ${format(analysis.costStress.plus15Bps.avgNetR)}`,
       `- Delay stress: NetR ${format(analysis.delayedEntry.netR)}, AvgR ${format(analysis.delayedEntry.avgNetR)}; remove top 3: ${format(top3Metrics.netR)} NetR`,
-      `- Positive months: ${formatPercent(metrics.positiveMonthRatio)}; MaxDDR: ${format(metrics.maxDrawdownR)}; EquityDD: ${equity?.maxDrawdownPercent === undefined ? "DATA_UNAVAILABLE" : `${equity.maxDrawdownPercent.toFixed(2)}%`}`,
+      `- Positive months: ${formatPercent(fixed.positiveMonthRatio)}; MaxDDR: ${format(fixed.maxDrawdownR)}; EquityDD: ${equity?.maxDrawdownPercent === undefined ? "DATA_UNAVAILABLE" : `${equity.maxDrawdownPercent.toFixed(2)}%`}`,
       `- Gates: ${analysis.gate.gates.map((gate) => `${gate.id}=${gate.passed ? "PASS" : "FAIL"}`).join(", ")}`,
     ].join("\n");
   };
@@ -796,7 +1066,8 @@ function promotionMarkdown(long: DirectionAnalysis, short: DirectionAnalysis): s
 }
 
 function executiveMarkdown(long: DirectionAnalysis, short: DirectionAnalysis): string {
-  const metrics = (analysis: DirectionAnalysis) => calculateMetrics(analysis.nestedTrades);
+  const fixed = (analysis: DirectionAnalysis) => analysis.fixedOosMetrics;
+  const nested = (analysis: DirectionAnalysis) => analysis.nestedSelectionMetrics;
   return [
     "# V5.3 Structural Edge Reconstruction — Executive Summary",
     "",
@@ -804,8 +1075,8 @@ function executiveMarkdown(long: DirectionAnalysis, short: DirectionAnalysis): s
     "Six preregistered structural families (three LONG, three SHORT), three finite variants per family, 3Y Core and 1Y Broad proxy data, six purged outer folds, inner-fold stability selection, frozen holdout, block bootstrap and selection-adjusted confidence.",
     "",
     "## Findings",
-    `1. LONG best structural family: ${long.finalCandidate?.family ?? "DATA_UNAVAILABLE"}; nested OOS ${metrics(long).trades} trades, AvgR ${format(metrics(long).avgNetR)}, PF ${format(metrics(long).profitFactor)}.`,
-    `2. SHORT best structural family: ${short.finalCandidate?.family ?? "DATA_UNAVAILABLE"}; nested OOS ${metrics(short).trades} trades, AvgR ${format(metrics(short).avgNetR)}, PF ${format(metrics(short).profitFactor)}.`,
+    `1. LONG best structural family: ${long.finalCandidate?.family ?? "DATA_UNAVAILABLE"}; nested selection OOS ${nested(long).trades} trades, AvgR ${format(nested(long).avgNetR)}, PF ${format(nested(long).profitFactor)}; fixed candidate OOS ${fixed(long).trades} unique trades, AvgR ${format(fixed(long).avgNetR)}, PF ${format(fixed(long).profitFactor)}.`,
+    `2. SHORT best structural family: ${short.finalCandidate?.family ?? "DATA_UNAVAILABLE"}; nested selection OOS ${nested(short).trades} trades, AvgR ${format(nested(short).avgNetR)}, PF ${format(nested(short).profitFactor)}; fixed candidate OOS ${fixed(short).trades} unique trades, AvgR ${format(fixed(short).avgNetR)}, PF ${format(fixed(short).profitFactor)}.`,
     "3. All registered candidates, including zero-trade and failed candidates, are retained in the candidate reports.",
     `4. Entry extension, stop style, delay and cost stress are reported; selected LONG delay AvgR ${format(long.delayedEntry.avgNetR)}, selected SHORT delay AvgR ${format(short.delayedEntry.avgNetR)}.`,
     "5. Concentration and true reference-equity drawdown are reported by direction; no symbol is blacklisted from these research results.",
