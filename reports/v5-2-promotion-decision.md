@@ -10,6 +10,19 @@ PIT universe: **PROXY** / SURVIVOR_BIAS=PROXY (93 cache files available; the fro
 
 The gates below are measured independently for LONG and SHORT. A strategy can only be Production Email eligible if every required gate passes on the same frozen evidence, including 3Y Core, 1Y Broad, purged walk-forward, cost stress and frozen holdout.
 
+## Shadow Supporting Evidence (not a Promotion Gate input)
+
+Source: public.bca_shadow_paper_trades
+Status: **AVAILABLE_SUPPORTING_ONLY**
+Aggregate result rows: 2; settled trade rows: 41.
+
+| Strategy | Settled | Wins | Losses | Avg R | PF | Net PnL (USDT) |
+|---|---:|---:|---:|---:|---:|---:|
+| default-trend-shadow-v1 | 34 | 13 | 21 | 0.0855 | 1.1303 | 83.5198 |
+| trend-rejection-shadow-v1 | 7 | 3 | 4 | 0.1703 | 1.2655 | 88.4446 |
+
+These Shadow metrics are supporting evidence only. They do not replace immutable historical OOS or frozen holdout evidence, lower any gate, or grant Production Email eligibility.
+
 ## LONG
 
 - Selected research variant: **BREAKOUT_RETEST**
@@ -55,7 +68,8 @@ The gates below are measured independently for LONG and SHORT. A strategy can on
 - No Binance private API, order, position, or account action is used.
 - No Supabase migration or database mutation is performed.
 - PR #1 remains Research / Draft and is not merged or promoted.
-- Shadow supporting evidence is DATA_UNAVAILABLE because the read-only query returned zero settled rows; see reports/v5-2-shadow-supporting-evidence.json.
+- Shadow supporting evidence source: public.bca_shadow_paper_trades. See reports/v5-2-shadow-supporting-evidence.json.
+- Shadow metrics are supporting evidence only; they are not used to lower gates or grant Production Email eligibility.
 - The 12-trade control sample is evidence of current degradation, not a permanent symbol blacklist.
 
 Dataset groups: 3Y_CORE=24/24, 1Y_BROAD=45/50.

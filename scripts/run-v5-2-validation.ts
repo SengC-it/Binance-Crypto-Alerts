@@ -43,6 +43,7 @@ const REPORT_DIR = resolve("reports");
 const CACHE_DIR = resolve("data/validation-cache");
 const UNIVERSE_FILE = resolve("data/validation-universe-50.json");
 const CONTROL_EVIDENCE_FILE = resolve(REPORT_DIR, "v5-2-prospective-control.json");
+const SHADOW_SUPPORTING_EVIDENCE_FILE = resolve(REPORT_DIR, "v5-2-shadow-supporting-evidence.json");
 const CORE_START = 1_691_633_700_000;
 const BROAD_START = 1_754_705_700_000;
 const CACHE_END = 1_786_241_699_999;
@@ -156,6 +157,32 @@ interface ControlEvidence {
     settled_trades: number;
   };
   rows: Array<Record<string, unknown>>;
+}
+
+interface ShadowSupportingEvidenceRow {
+  strategy_version: string;
+  settled_trades: number;
+  wins: number;
+  losses: number;
+  avg_r: number | null;
+  profit_factor: number | null;
+  net_pnl_usdt: number | null;
+  first_entry_time: string | null;
+  last_entry_time: string | null;
+}
+
+interface ShadowSupportingEvidence {
+  evidence_type: string;
+  query_timestamp: string;
+  source_table: string;
+  strategy_versions: string[];
+  extraction_query: string;
+  row_count: number;
+  settled_trade_row_count?: number;
+  result_rows: ShadowSupportingEvidenceRow[];
+  status: string;
+  methodology: string;
+  production_promotion: "NO";
 }
 
 interface SnapshotDiagnostics {
@@ -301,6 +328,14 @@ async function main(): Promise<void> {
 async function loadUniverse(): Promise<string[]> {
   const raw = JSON.parse(await readFile(UNIVERSE_FILE, "utf8")) as { symbols?: string[] };
   return raw.symbols ?? [];
+}
+
+async function loadShadowSupportingEvidence(): Promise<ShadowSupportingEvidence> {
+  const evidence = JSON.parse(await readFile(SHADOW_SUPPORTING_EVIDENCE_FILE, "utf8")) as ShadowSupportingEvidence;
+  if (evidence.source_table !== "public.bca_shadow_paper_trades") {
+    throw new Error("Shadow supporting evidence must use public.bca_shadow_paper_trades");
+  }
+  return evidence;
 }
 
 async function loadCacheFileManifest(): Promise<CacheFile[]> {
@@ -607,6 +642,7 @@ async function buildValidationSummary(
 ): Promise<Record<string, unknown>> {
   currentGroups = new Map(groups.map((group) => [group.id, group]));
   const controlEvidence = JSON.parse(await readFile(CONTROL_EVIDENCE_FILE, "utf8")) as ControlEvidence;
+  const shadowEvidence = await loadShadowSupportingEvidence();
   const directions: Record<Side, Record<string, unknown>> = { LONG: {}, SHORT: {} };
   for (const side of ["LONG", "SHORT"] as const) {
     const selectedVariant = chooseVariant(groupRuns, broadGroup, side);
@@ -701,6 +737,7 @@ async function buildValidationSummary(
       profitFactor: controlEvidence.summary.profit_factor,
       netPnlUsdt: controlEvidence.summary.net_pnl_usdt,
     },
+    shadowSupportingEvidence: shadowEvidence,
     groups: groups.map(serializeGroup),
     directions,
     overallDecision: "NO_PRODUCTION_PROMOTION",
@@ -708,7 +745,7 @@ async function buildValidationSummary(
       "This is research-only validation. Production remains on trend-rejection-short-v1.",
       "Missing point-in-time universe membership is marked PROXY and blocks Production Email promotion.",
       "Unavailable historical snapshot fields are not inferred from current state.",
-      "Read-only supporting-evidence query for default-trend-shadow-v1 and trend-rejection-shadow-v1 returned zero settled rows; see reports/v5-2-shadow-supporting-evidence.json. Shadow evidence is DATA_UNAVAILABLE and cannot replace historical OOS or holdout evidence.",
+      "Read-only supporting-evidence query used public.bca_shadow_paper_trades and returned " + shadowEvidence.row_count + " strategy rows; Shadow metrics are supporting evidence only and cannot replace historical OOS or frozen holdout evidence or relax Promotion Gates.",
     ],
   };
 }
@@ -1342,6 +1379,7 @@ function promotionDecisionMarkdown(
   cacheFiles: CacheFile[],
 ): string {
   const directions = summary.directions as Record<Side, Record<string, unknown>>;
+  const shadowEvidence = summary.shadowSupportingEvidence as ShadowSupportingEvidence;
   const lines = [
     "# V5.2 Promotion Decision",
     "",
@@ -1356,6 +1394,26 @@ function promotionDecisionMarkdown(
     "The gates below are measured independently for LONG and SHORT. A strategy can only be Production Email eligible if every required gate passes on the same frozen evidence, including 3Y Core, 1Y Broad, purged walk-forward, cost stress and frozen holdout.",
     "",
   ];
+  lines.push(
+    "## Shadow Supporting Evidence (not a Promotion Gate input)",
+    "",
+    "Source: " + shadowEvidence.source_table,
+    "Status: **" + shadowEvidence.status + "**",
+    "Aggregate result rows: " + shadowEvidence.row_count + "; settled trade rows: " + (shadowEvidence.settled_trade_row_count ?? "DATA_UNAVAILABLE") + ".",
+    "",
+    "| Strategy | Settled | Wins | Losses | Avg R | PF | Net PnL (USDT) |",
+    "|---|---:|---:|---:|---:|---:|---:|",
+  );
+  for (const row of shadowEvidence.result_rows) {
+    lines.push(
+      "| " + row.strategy_version + " | " + row.settled_trades + " | " + row.wins + " | " + row.losses + " | " + formatAvailable(row.avg_r) + " | " + formatAvailable(row.profit_factor) + " | " + formatAvailable(row.net_pnl_usdt) + " |",
+    );
+  }
+  lines.push(
+    "",
+    "These Shadow metrics are supporting evidence only. They do not replace immutable historical OOS or frozen holdout evidence, lower any gate, or grant Production Email eligibility.",
+    "",
+  );
   for (const side of ["LONG", "SHORT"] as const) {
     const direction = directions[side] ?? {};
     const promotion = direction.promotion as { status?: string; gates?: PromotionGateResult[] } | undefined;
@@ -1379,7 +1437,8 @@ function promotionDecisionMarkdown(
     "- No Binance private API, order, position, or account action is used.",
     "- No Supabase migration or database mutation is performed.",
     "- PR #1 remains Research / Draft and is not merged or promoted.",
-    "- Shadow supporting evidence is DATA_UNAVAILABLE because the read-only query returned zero settled rows; see reports/v5-2-shadow-supporting-evidence.json.",
+    "- Shadow supporting evidence source: " + text((summary.shadowSupportingEvidence as { source_table?: string }).source_table) + ". See reports/v5-2-shadow-supporting-evidence.json.",
+    "- Shadow metrics are supporting evidence only; they are not used to lower gates or grant Production Email eligibility.",
     "- The 12-trade control sample is evidence of current degradation, not a permanent symbol blacklist.",
     "",
     "Dataset groups: " + groups.map((group) => group.id + "=" + group.files.length + "/" + group.expectedSymbols).join(", ") + ".",

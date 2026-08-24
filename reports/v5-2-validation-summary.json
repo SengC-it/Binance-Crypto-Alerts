@@ -1,6 +1,6 @@
 {
   "report": "V5.2 Profitability Validation",
-  "generatedAt": "2026-08-24T08:07:36.189Z",
+  "generatedAt": "2026-08-24T08:41:01.792Z",
   "productionBase": "d5d2520f3f6307384494501e212bfb4b6ab059b2",
   "controlStrategy": "trend-rejection-short-v1",
   "datasetSource": "Binance official public historical cache",
@@ -18,6 +18,45 @@
     "avgR": -0.5845177658333334,
     "profitFactor": 0.33844857535844847,
     "netPnlUsdt": -357.51680033
+  },
+  "shadowSupportingEvidence": {
+    "evidence_type": "readonly_shadow_supporting_evidence",
+    "query_timestamp": "2026-08-24T08:25:28.868Z",
+    "source_table": "public.bca_shadow_paper_trades",
+    "strategy_versions": [
+      "default-trend-shadow-v1",
+      "trend-rejection-shadow-v1"
+    ],
+    "extraction_query": "SELECT strategy_version, count(*) AS settled_trades, count(*) FILTER (WHERE r_multiple > 0) AS wins, count(*) FILTER (WHERE r_multiple < 0) AS losses, avg(r_multiple) AS avg_r, CASE WHEN sum(CASE WHEN r_multiple < 0 THEN abs(r_multiple) ELSE 0 END) = 0 THEN NULL ELSE sum(CASE WHEN r_multiple > 0 THEN r_multiple ELSE 0 END) / sum(CASE WHEN r_multiple < 0 THEN abs(r_multiple) ELSE 0 END) END AS profit_factor, sum(net_pnl_usdt) AS net_pnl_usdt, min(entry_time) AS first_entry_time, max(entry_time) AS last_entry_time FROM public.bca_shadow_paper_trades WHERE strategy_version IN ('default-trend-shadow-v1','trend-rejection-shadow-v1') AND exit_time IS NOT NULL GROUP BY strategy_version ORDER BY strategy_version;",
+    "row_count": 2,
+    "settled_trade_row_count": 41,
+    "result_rows": [
+      {
+        "strategy_version": "default-trend-shadow-v1",
+        "settled_trades": 34,
+        "wins": 13,
+        "losses": 21,
+        "avg_r": 0.08546482411764705,
+        "profit_factor": 1.130269718079496,
+        "net_pnl_usdt": 83.51976168,
+        "first_entry_time": "2026-08-15 05:59:59.999+00",
+        "last_entry_time": "2026-08-24 00:59:59.999+00"
+      },
+      {
+        "strategy_version": "trend-rejection-shadow-v1",
+        "settled_trades": 7,
+        "wins": 3,
+        "losses": 4,
+        "avg_r": 0.17027349,
+        "profit_factor": 1.265499334495517,
+        "net_pnl_usdt": 88.44455145,
+        "first_entry_time": "2026-08-11 14:59:59.999+00",
+        "last_entry_time": "2026-08-15 03:59:59.999+00"
+      }
+    ],
+    "status": "AVAILABLE_SUPPORTING_ONLY",
+    "methodology": "Read-only aggregate query against public.bca_shadow_paper_trades using settled rows only (exit_time IS NOT NULL). Shadow metrics are supporting evidence only; they do not replace immutable historical OOS or frozen holdout evidence, lower any Promotion Gate, or grant Production Email eligibility.",
+    "production_promotion": "NO"
   },
   "groups": [
     {
@@ -6927,6 +6966,6 @@
     "This is research-only validation. Production remains on trend-rejection-short-v1.",
     "Missing point-in-time universe membership is marked PROXY and blocks Production Email promotion.",
     "Unavailable historical snapshot fields are not inferred from current state.",
-    "Read-only supporting-evidence query for default-trend-shadow-v1 and trend-rejection-shadow-v1 returned zero settled rows; see reports/v5-2-shadow-supporting-evidence.json. Shadow evidence is DATA_UNAVAILABLE and cannot replace historical OOS or holdout evidence."
+    "Read-only supporting-evidence query used public.bca_shadow_paper_trades and returned 2 strategy rows; Shadow metrics are supporting evidence only and cannot replace historical OOS or frozen holdout evidence or relax Promotion Gates."
   ]
 }
