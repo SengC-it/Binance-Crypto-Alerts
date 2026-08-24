@@ -25,66 +25,117 @@ export type ProductionSignalEvaluationStatus =
   | "SINGLE_RISK_CAP"
   | "EXECUTION_COST_BLOCKED";
 
+export type ProductionSignalStageStatus = "PASS" | "FAIL";
+
+export interface ProductionSignalStageTrace {
+  rawStrategyTrigger: ProductionSignalStageStatus;
+  score: ProductionSignalStageStatus;
+  sideFamilyFilter: ProductionSignalStageStatus;
+  regime: ProductionSignalStageStatus;
+  entryInterval: ProductionSignalStageStatus;
+  riskAdmission: ProductionSignalStageStatus;
+}
+
 export interface ProductionSignalEvaluation {
   status: ProductionSignalEvaluationStatus;
   reason?: string;
+  rawCandidates: StrategyCandidate[];
+  scoredCandidates: ScoredCandidate[];
+  scoreEligibleCandidates: ScoredCandidate[];
+  sideFamilyEligibleCandidates: ScoredCandidate[];
   rankedCandidates: ScoredCandidate[];
   regimeEligibleCandidate: ScoredCandidate | null;
   candidate: ScoredCandidate | null;
   plan: TradePlan | null;
   entryIntervalAllowed: boolean | null;
   executionCostRiskFraction: number | null;
+  stages: ProductionSignalStageTrace;
 }
 
 export function evaluateProductionSignal(
   snapshot: MarketSnapshot,
   policy: ProductionSignalPolicy,
 ): ProductionSignalEvaluation {
-  const rankedCandidates = rankCandidates(generateCandidates(snapshot, policy.strategyParams), {
-    minimumScore: policy.minimumScore,
-    sideFilter: policy.sideFilter,
-    strategyFamily: policy.strategyFamily,
-  });
+  const rawCandidates = generateCandidates(snapshot, policy.strategyParams);
+  const scoredCandidates = rankCandidates(rawCandidates);
+  const scoreEligibleCandidates = scoredCandidates.filter((candidate) => (
+    policy.minimumScore === undefined || candidate.score >= policy.minimumScore
+  ));
+  const sideFamilyEligibleCandidates = scoreEligibleCandidates.filter((candidate) => (
+    (!policy.sideFilter || candidate.side === policy.sideFilter)
+    && (!policy.strategyFamily || candidate.strategyFamily === policy.strategyFamily)
+  ));
+  const rankedCandidates = sideFamilyEligibleCandidates;
+  const stages: ProductionSignalStageTrace = {
+    rawStrategyTrigger: rawCandidates.length > 0 ? "PASS" : "FAIL",
+    score: scoreEligibleCandidates.length > 0 ? "PASS" : "FAIL",
+    sideFamilyFilter: sideFamilyEligibleCandidates.length > 0 ? "PASS" : "FAIL",
+    regime: "FAIL",
+    entryInterval: "FAIL",
+    riskAdmission: "FAIL",
+  };
   if (rankedCandidates.length === 0) {
     return {
       status: "NO_SIGNAL_CANDIDATE",
-      reason: "No candidate passed the Production strategy trigger, score, side, or family filter.",
+      reason: rawCandidates.length === 0
+        ? "No raw candidate passed the Production strategy trigger."
+        : scoreEligibleCandidates.length === 0
+          ? "Raw strategy candidates did not satisfy the Production score threshold."
+          : "Scored candidates did not satisfy the Production side or family filter.",
+      rawCandidates,
+      scoredCandidates,
+      scoreEligibleCandidates,
+      sideFamilyEligibleCandidates,
       rankedCandidates,
       regimeEligibleCandidate: null,
       candidate: null,
       plan: null,
       entryIntervalAllowed: null,
       executionCostRiskFraction: null,
+      stages,
     };
   }
 
   const regimeEligibleCandidate = rankedCandidates.find((item) => isRegimeAllowed(item, policy.requireRegimeAlignment)) ?? null;
   if (!regimeEligibleCandidate) {
+    stages.regime = "FAIL";
     return {
       status: "NO_REGIME_ELIGIBLE_CANDIDATE",
       reason: "Ranked candidates did not satisfy Production regime alignment.",
+      rawCandidates,
+      scoredCandidates,
+      scoreEligibleCandidates,
+      sideFamilyEligibleCandidates,
       rankedCandidates,
       regimeEligibleCandidate: null,
       candidate: null,
       plan: null,
       entryIntervalAllowed: null,
       executionCostRiskFraction: null,
+      stages,
     };
   }
+  stages.regime = "PASS";
 
   const entryIntervalAllowed = isEntryIntervalAllowed(snapshot.sourceTimestamp, policy.entryIntervalHours);
   if (!entryIntervalAllowed) {
     return {
       status: "ENTRY_INTERVAL_BLOCKED",
       reason: "The Production entry interval rejected the source timestamp.",
+      rawCandidates,
+      scoredCandidates,
+      scoreEligibleCandidates,
+      sideFamilyEligibleCandidates,
       rankedCandidates,
       regimeEligibleCandidate,
       candidate: null,
       plan: null,
       entryIntervalAllowed,
       executionCostRiskFraction: null,
+      stages,
     };
   }
+  stages.entryInterval = "PASS";
 
   let plan: TradePlan;
   try {
@@ -93,12 +144,17 @@ export function evaluateProductionSignal(
     return {
       status: "RISK_PLAN_ERROR",
       reason: error instanceof Error ? error.message : String(error),
+      rawCandidates,
+      scoredCandidates,
+      scoreEligibleCandidates,
+      sideFamilyEligibleCandidates,
       rankedCandidates,
       regimeEligibleCandidate,
       candidate: null,
       plan: null,
       entryIntervalAllowed,
       executionCostRiskFraction: null,
+      stages,
     };
   }
 
@@ -106,12 +162,17 @@ export function evaluateProductionSignal(
     return {
       status: "SINGLE_RISK_CAP",
       reason: "The Production risk plan exceeded the single-signal risk cap.",
+      rawCandidates,
+      scoredCandidates,
+      scoreEligibleCandidates,
+      sideFamilyEligibleCandidates,
       rankedCandidates,
       regimeEligibleCandidate,
       candidate: null,
       plan,
       entryIntervalAllowed,
       executionCostRiskFraction: null,
+      stages,
     };
   }
 
@@ -120,23 +181,34 @@ export function evaluateProductionSignal(
     return {
       status: "EXECUTION_COST_BLOCKED",
       reason: "The Production execution-cost risk fraction exceeded its configured limit.",
+      rawCandidates,
+      scoredCandidates,
+      scoreEligibleCandidates,
+      sideFamilyEligibleCandidates,
       rankedCandidates,
       regimeEligibleCandidate,
       candidate: null,
       plan,
       entryIntervalAllowed,
       executionCostRiskFraction,
+      stages,
     };
   }
 
+  stages.riskAdmission = "PASS";
   return {
     status: "ADMITTED",
     rankedCandidates,
+    rawCandidates,
+    scoredCandidates,
+    scoreEligibleCandidates,
+    sideFamilyEligibleCandidates,
     regimeEligibleCandidate,
     candidate: regimeEligibleCandidate,
     plan,
     entryIntervalAllowed,
     executionCostRiskFraction,
+    stages,
   };
 }
 

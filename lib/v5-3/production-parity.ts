@@ -10,7 +10,7 @@ import {
 } from "@/lib/core/production-policy";
 import { DEFAULT_STRATEGY_PARAMS, type StrategyParams } from "@/lib/core/strategies";
 import { atr, closes, ema, latest, rsi, volumeRatio } from "@/lib/core/indicators";
-import type { Candle, MarketSnapshot, ScoreComponents, TradePlan } from "@/lib/core/types";
+import type { Candle, MarketSnapshot, ScoreComponents, Timeframe, TradePlan } from "@/lib/core/types";
 import type { HistoricalDataset } from "@/lib/backtest/types";
 import type { BacktestOptions } from "@/lib/backtest/engine";
 import type { ServerConfig } from "@/lib/config";
@@ -162,15 +162,42 @@ export interface ProductionSignalTelemetry {
   stopPrice: number | null;
   takeProfitPrice: number | null;
   validUntil: string | null;
+  inputProvenance?: PersistedProductionInputProvenance | null;
 }
 
-export type ReplayStatus = "MATCH" | "PARTIAL_MATCH" | "QUANTIZATION_EXPLAINED" | "MISMATCH" | "DATA_UNAVAILABLE";
-export type QuantizationVerdict = "QUANTIZATION_EXPLAINED" | "MISMATCH" | "DATA_UNAVAILABLE";
+export type ReplayStatus = "MATCH" | "PARTIAL_MATCH" | "QUANTIZATION_EXPLAINED" | "INPUT_DATA_UNAVAILABLE" | "MATERIAL_MISMATCH";
+export type QuantizationVerdict = "QUANTIZATION_EXPLAINED" | "MATERIAL_MISMATCH" | "INPUT_DATA_UNAVAILABLE";
+
+export interface CandleCounts {
+  "15m": number | null;
+  "1h": number | null;
+  "4h": number | null;
+}
+
+export interface PersistedProductionInputProvenance {
+  quoteVolume24h: number | null;
+  candleCounts: CandleCounts | null;
+  rawCandlesAvailable: boolean;
+  source: string;
+}
+
+export interface ReplayInputProvenance {
+  productionLiquidity: number | null;
+  replayLiquidity: number | null;
+  pointInTimeLiquidityAvailable: boolean;
+  source: string;
+  productionCandleCounts: CandleCounts | null;
+  replayCandleCounts: CandleCounts;
+  pointInTimeCandleCountsAvailable: boolean;
+  dataQualityComparison: "PASS" | "DATA_UNAVAILABLE";
+  rawCandlesAvailable: boolean;
+}
 
 export type DivergenceStage =
   | "raw_candles"
   | "indicators"
   | "strategy_trigger"
+  | "score"
   | "score_components"
   | "rank_candidates"
   | "regime"
@@ -195,9 +222,12 @@ export interface ProductionReplayResult {
   dataUnavailable: string[];
   firstDivergenceStage: DivergenceStage | null;
   divergence: DivergenceValue | null;
+  inputProvenance: ReplayInputProvenance;
   trace: {
     rawCandles: Record<string, unknown>;
     indicators: Record<string, unknown>;
+    rawStrategyTrigger: DivergenceValue;
+    score: DivergenceValue;
     strategyTrigger: DivergenceValue;
     scoreComponents: DivergenceValue;
     rankCandidates: DivergenceValue;
@@ -241,8 +271,8 @@ export interface ProductionParityReport {
   exactMatches: number | null;
   partialMatches: number | null;
   quantizationExplained: number | null;
-  mismatches: number | null;
-  dataUnavailable: number | null;
+  inputDataUnavailable: number | null;
+  materialMismatches: number | null;
   configParity: ConfigParityResult;
   verdict: "PASS" | "FAIL" | "INCOMPLETE";
   failureClassification: "MODEL_PARITY_FAILURE" | "PROSPECTIVE_DISTRIBUTION_SHIFT" | "INCONCLUSIVE";
@@ -544,12 +574,13 @@ export function replayProductionPaperTrade(
     symbol: row.symbol,
     sourceTimestamp: sourceTimestamp === null ? null : new Date(sourceTimestamp).toISOString(),
     replay: emptyReplay(),
-    quantizationVerdict: "DATA_UNAVAILABLE" as QuantizationVerdict,
+    quantizationVerdict: "INPUT_DATA_UNAVAILABLE" as QuantizationVerdict,
   };
+  const unavailableInputProvenance = buildReplayInputProvenance(row.signalTelemetry, null);
   if (!dataset || !config || sourceTimestamp === null) {
     return {
       ...base,
-      status: "DATA_UNAVAILABLE",
+      status: "INPUT_DATA_UNAVAILABLE",
       reasons: [],
       dataUnavailable: [
         ...(!dataset ? ["historical cache for symbol/timestamp"] : []),
@@ -558,6 +589,7 @@ export function replayProductionPaperTrade(
       ],
       firstDivergenceStage: "data_unavailable",
       divergence: { productionEquivalentValue: row.signalTelemetry ?? "DATA_UNAVAILABLE", replayValue: "DATA_UNAVAILABLE" },
+      inputProvenance: unavailableInputProvenance,
       trace: emptyTrace(),
     };
   }
@@ -565,41 +597,60 @@ export function replayProductionPaperTrade(
   if (!snapshot) {
     return {
       ...base,
-      status: "DATA_UNAVAILABLE",
+      status: "INPUT_DATA_UNAVAILABLE",
       reasons: [],
       dataUnavailable: ["exact source timestamp candle in immutable cache"],
       firstDivergenceStage: "data_unavailable",
       divergence: { productionEquivalentValue: row.signalTelemetry ?? "DATA_UNAVAILABLE", replayValue: "DATA_UNAVAILABLE" },
+      inputProvenance: unavailableInputProvenance,
       trace: emptyTrace(),
     };
   }
-  const evaluation = evaluateProductionSignal(snapshot.snapshot, config.signalPolicy);
-  const candidate = evaluation.candidate;
-  const trace = buildReplayTrace(snapshot.snapshot, evaluation, row.signalTelemetry);
+  const inputProvenance = buildReplayInputProvenance(row.signalTelemetry, snapshot.snapshot);
+  const replayQuoteVolume = row.signalTelemetry?.inputProvenance?.quoteVolume24h ?? undefined;
+  const replaySnapshot: MarketSnapshot = {
+    ...snapshot.snapshot,
+    instrument: {
+      ...snapshot.snapshot.instrument,
+      quoteVolume24h: replayQuoteVolume,
+    },
+  };
+  const evaluation = evaluateProductionSignal(replaySnapshot, config.signalPolicy);
+  const candidate = selectReplayCandidate(evaluation, row.signalTelemetry);
+  inputProvenance.replayLiquidity = inputProvenance.pointInTimeLiquidityAvailable
+    ? candidate?.scoreComponents.liquidity ?? null
+    : null;
+  const trace = buildReplayTrace(replaySnapshot, evaluation, row.signalTelemetry, inputProvenance);
   const replay = base.replay;
   replay.signalGenerated = evaluation.status === "ADMITTED";
   replay.candidateSide = candidate?.side ?? null;
   replay.candidateFamily = candidate?.strategyFamily ?? null;
   replay.score = candidate?.score ?? null;
   replay.regime = candidate?.marketRegime ?? null;
-  const reasons: string[] = [];
+  const comparisonReasons: string[] = [];
   const dataUnavailable: string[] = [
     "global claimSignal cooldown/cap context is not reconstructable from a single paper row",
-    "Production raw candles and indicator snapshots were not persisted with the admitted signal",
+    ...(!inputProvenance.rawCandlesAvailable ? ["Production raw candles and indicator snapshots were not persisted with the admitted signal"] : []),
+    ...(!inputProvenance.pointInTimeLiquidityAvailable ? ["point-in-time quoteVolume24h was not persisted with the admitted signal"] : []),
+    ...(inputProvenance.dataQualityComparison === "DATA_UNAVAILABLE" ? ["Production 15m/1h/4h snapshot candle counts were not persisted or could not be matched"] : []),
   ];
   if (!row.signalTelemetry) dataUnavailable.push("bca_signals telemetry for the admitted Production signal");
-  compareRequiredText(row.strategyVersion, config.strategyVersion, "strategy_version", reasons, dataUnavailable);
-  if (row.signalTelemetry) compareSignalTelemetry(row.signalTelemetry, evaluation, sourceTimestamp, reasons, dataUnavailable);
+  compareRequiredText(row.strategyVersion, config.strategyVersion, "strategy_version", comparisonReasons, dataUnavailable);
+  if (row.signalTelemetry) compareSignalTelemetry(row.signalTelemetry, evaluation, sourceTimestamp, inputProvenance, comparisonReasons, dataUnavailable);
   if (evaluation.status !== "ADMITTED" || !candidate || !evaluation.plan) {
-    if (row.signalTelemetry) reasons.push(`Production persisted an admitted signal, but the exact shared replay returned ${evaluation.status}: ${evaluation.reason ?? "no admitted candidate"}.`);
-    const stage = row.signalTelemetry ? divergenceStageForEvaluation(evaluation.status) : "data_unavailable";
+    if (row.signalTelemetry) dataUnavailable.push(`Production persisted an admitted signal, but the shared replay returned ${evaluation.status}: ${evaluation.reason ?? "no admitted candidate"}.`);
+    const stage = row.signalTelemetry ? divergenceStageForEvaluation(evaluation) : "data_unavailable";
+    const classified = classifyComparisonReasons(comparisonReasons, inputProvenance);
     return {
       ...base,
-      status: row.signalTelemetry ? "MISMATCH" : "PARTIAL_MATCH",
-      reasons,
-      dataUnavailable,
+      status: row.signalTelemetry
+        ? classified.materialReasons.length > 0 ? "MATERIAL_MISMATCH" : "INPUT_DATA_UNAVAILABLE"
+        : "PARTIAL_MATCH",
+      reasons: classified.materialReasons,
+      dataUnavailable: dataUnavailable.concat(classified.unavailableReasons),
       firstDivergenceStage: stage,
       divergence: divergenceForStage(stage, trace),
+      inputProvenance,
       trace,
       replay,
     };
@@ -610,17 +661,17 @@ export function replayProductionPaperTrade(
   replay.stopPrice = plan.stopPrice;
   replay.takeProfitPrice = plan.takeProfitPrice;
   replay.maxHoldUntil = new Date(plan.validUntil).toISOString();
-  compareRequiredText(row.side, candidate.side, "side", reasons, dataUnavailable);
-  compareRequiredText(row.strategyFamily, candidate.strategyFamily, "strategy_family", reasons, dataUnavailable);
-  compareNumber(row.entryPrice, plan.entryPrice, "entry_price", reasons, dataUnavailable);
-  compareNumber(row.entryFillPrice, adverseFill(plan.entryPrice, candidate.side === "LONG" ? 1 : -1, config.signalPolicy.slippageBps / 10_000, "entry"), "entry_fill_price", reasons, dataUnavailable);
-  compareNumber(row.stopPrice, plan.stopPrice, "stop_price", reasons, dataUnavailable);
-  compareNumber(row.takeProfitPrice, plan.takeProfitPrice, "take_profit_price", reasons, dataUnavailable);
-  compareRequiredText(row.maxHoldUntil, new Date(plan.validUntil).toISOString(), "max_hold_until", reasons, dataUnavailable, true);
-  compareNumber(row.quantity, plan.quantity, "quantity", reasons, dataUnavailable);
-  compareNumber(row.theoreticalRiskUsdt, plan.theoreticalRiskUsdt, "theoretical_risk_usdt", reasons, dataUnavailable);
+  compareRequiredText(row.side, candidate.side, "side", comparisonReasons, dataUnavailable);
+  compareRequiredText(row.strategyFamily, candidate.strategyFamily, "strategy_family", comparisonReasons, dataUnavailable);
+  compareNumber(row.entryPrice, plan.entryPrice, "entry_price", comparisonReasons, dataUnavailable);
+  compareNumber(row.entryFillPrice, adverseFill(plan.entryPrice, candidate.side === "LONG" ? 1 : -1, config.signalPolicy.slippageBps / 10_000, "entry"), "entry_fill_price", comparisonReasons, dataUnavailable);
+  compareNumber(row.stopPrice, plan.stopPrice, "stop_price", comparisonReasons, dataUnavailable);
+  compareNumber(row.takeProfitPrice, plan.takeProfitPrice, "take_profit_price", comparisonReasons, dataUnavailable);
+  compareRequiredText(row.maxHoldUntil, new Date(plan.validUntil).toISOString(), "max_hold_until", comparisonReasons, dataUnavailable, true);
+  compareNumber(row.quantity, plan.quantity, "quantity", comparisonReasons, dataUnavailable);
+  compareNumber(row.theoreticalRiskUsdt, plan.theoreticalRiskUsdt, "theoretical_risk_usdt", comparisonReasons, dataUnavailable);
   const entryModel = typeof row.metadata.entry_model === "string" ? row.metadata.entry_model : null;
-  compareRequiredText(entryModel, PRODUCTION_ENTRY_MODEL, "metadata.entry_model", reasons, dataUnavailable);
+  compareRequiredText(entryModel, PRODUCTION_ENTRY_MODEL, "metadata.entry_model", comparisonReasons, dataUnavailable);
   const quantizationVerdict = classifyQuantizationMismatch({
     actualStop: row.signalTelemetry?.stopPrice ?? row.stopPrice,
     actualTakeProfit: row.signalTelemetry?.takeProfitPrice ?? row.takeProfitPrice,
@@ -631,7 +682,7 @@ export function replayProductionPaperTrade(
     sameUnroundedInputs: typeof row.metadata.same_unrounded_risk_inputs === "boolean" ? row.metadata.same_unrounded_risk_inputs : undefined,
     sameNonPriceFields: typeof row.metadata.same_non_price_risk_fields === "boolean" ? row.metadata.same_non_price_risk_fields : undefined,
   });
-  if (quantizationVerdict === "MISMATCH" && (row.metadata.production_price_tick === undefined || row.metadata.same_unrounded_risk_inputs !== true || row.metadata.same_non_price_risk_fields !== true)) {
+  if (quantizationVerdict === "INPUT_DATA_UNAVAILABLE") {
     dataUnavailable.push("historical Production price-filter and rounding proof for stop/take-profit quantization");
   }
   const settlement = replaySettlement(dataset, snapshot.index, plan, candidate.side, config);
@@ -645,34 +696,36 @@ export function replayProductionPaperTrade(
     replay.fundingUsdt = settlement.fundingUsdt;
     replay.netPnlUsdt = settlement.netPnlUsdt;
     replay.rMultiple = plan.theoreticalRiskUsdt === 0 ? 0 : settlement.netPnlUsdt / plan.theoreticalRiskUsdt;
-    compareRequiredText(row.exitReason, settlement.exitReason, "exit_reason", reasons, dataUnavailable);
-    compareRequiredText(row.exitTime, new Date(settlement.exitTime).toISOString(), "exit_time", reasons, dataUnavailable, true);
-    compareNumber(row.exitPrice, settlement.exitPrice, "exit_price", reasons, dataUnavailable);
-    compareNumber(row.feesUsdt, settlement.feesUsdt, "fees_usdt", reasons, dataUnavailable);
-    compareNumber(row.fundingUsdt, settlement.fundingUsdt, "funding_usdt", reasons, dataUnavailable);
-    compareNumber(row.netPnlUsdt, settlement.netPnlUsdt, "net_pnl_usdt", reasons, dataUnavailable);
-    compareNumber(row.rMultiple, replay.rMultiple, "r_multiple", reasons, dataUnavailable);
+    compareRequiredText(row.exitReason, settlement.exitReason, "exit_reason", comparisonReasons, dataUnavailable);
+    compareRequiredText(row.exitTime, new Date(settlement.exitTime).toISOString(), "exit_time", comparisonReasons, dataUnavailable, true);
+    compareNumber(row.exitPrice, settlement.exitPrice, "exit_price", comparisonReasons, dataUnavailable);
+    compareNumber(row.feesUsdt, settlement.feesUsdt, "fees_usdt", comparisonReasons, dataUnavailable);
+    compareNumber(row.fundingUsdt, settlement.fundingUsdt, "funding_usdt", comparisonReasons, dataUnavailable);
+    compareNumber(row.netPnlUsdt, settlement.netPnlUsdt, "net_pnl_usdt", comparisonReasons, dataUnavailable);
+    compareNumber(row.rMultiple, replay.rMultiple, "r_multiple", comparisonReasons, dataUnavailable);
   }
   if (quantizationVerdict === "QUANTIZATION_EXPLAINED") {
-    const quantizationReasons = reasons.filter((reason) => /(?:stop_price|take_profit_price|entry_price|quantity)/.test(reason));
-    if (quantizationReasons.length === reasons.length) reasons.length = 0;
+    const quantizationReasons = comparisonReasons.filter((reason) => /(?:stop_price|take_profit_price|entry_price|quantity)/.test(reason));
+    if (quantizationReasons.length === comparisonReasons.length) comparisonReasons.length = 0;
   }
-  const firstDivergenceStage = firstMaterialDivergence(row.signalTelemetry, evaluation, reasons, dataUnavailable, quantizationVerdict);
-  const status: ReplayStatus = reasons.length > 0
-    ? "MISMATCH"
-    : quantizationVerdict === "QUANTIZATION_EXPLAINED"
+  const classified = classifyComparisonReasons(comparisonReasons, inputProvenance);
+  const status: ReplayStatus = classified.materialReasons.length > 0
+    ? "MATERIAL_MISMATCH"
+    : quantizationVerdict === "QUANTIZATION_EXPLAINED" && dataUnavailable.length === 0
       ? "QUANTIZATION_EXPLAINED"
     : dataUnavailable.length > 0
-      ? "PARTIAL_MATCH"
+      ? "INPUT_DATA_UNAVAILABLE"
       : "MATCH";
+  const firstDivergenceStage = firstMaterialDivergence(evaluation, classified.materialReasons, dataUnavailable, quantizationVerdict);
   return {
     ...base,
     status,
     quantizationVerdict,
-    reasons,
-    dataUnavailable,
+    reasons: classified.materialReasons,
+    dataUnavailable: dataUnavailable.concat(classified.unavailableReasons),
     firstDivergenceStage,
     divergence: firstDivergenceStage ? divergenceForStage(firstDivergenceStage, trace) : null,
+    inputProvenance,
     trace,
     replay,
   };
@@ -699,13 +752,13 @@ export function classifyQuantizationMismatch(input: {
     sameNonPriceFields,
   } = input;
   if (![actualStop, actualTakeProfit, replayStop, replayTakeProfit].every((value) => value !== null && value !== undefined && Number.isFinite(value))) {
-    return "DATA_UNAVAILABLE";
+    return "INPUT_DATA_UNAVAILABLE";
   }
   const samePrices = Math.abs((actualStop as number) - (replayStop as number)) <= 1e-12
     && Math.abs((actualTakeProfit as number) - (replayTakeProfit as number)) <= 1e-12;
-  if (samePrices) return "DATA_UNAVAILABLE";
-  if (![historicalPriceTick, replayPriceTick].every((value) => value !== null && value !== undefined && Number.isFinite(value))) return "MISMATCH";
-  if (sameUnroundedInputs !== true || sameNonPriceFields !== true) return "MISMATCH";
+  if (samePrices) return "INPUT_DATA_UNAVAILABLE";
+  if (![historicalPriceTick, replayPriceTick].every((value) => value !== null && value !== undefined && Number.isFinite(value))) return "INPUT_DATA_UNAVAILABLE";
+  if (sameUnroundedInputs !== true || sameNonPriceFields !== true) return "INPUT_DATA_UNAVAILABLE";
   const actualTick = historicalPriceTick as number;
   const replayTick = replayPriceTick as number;
   const aligned = (value: number, tick: number): boolean => {
@@ -723,73 +776,90 @@ export function classifyQuantizationMismatch(input: {
     && stopDifference <= maxAllowedDifference
     && takeProfitDifference <= maxAllowedDifference
     ? "QUANTIZATION_EXPLAINED"
-    : "MISMATCH";
+    : "MATERIAL_MISMATCH";
 }
 
 function compareSignalTelemetry(
   telemetry: ProductionSignalTelemetry,
   evaluation: ProductionSignalEvaluation,
   sourceTimestamp: number,
+  inputProvenance: ReplayInputProvenance,
   reasons: string[],
   dataUnavailable: string[],
 ): void {
-  const candidate = evaluation.candidate;
+  const candidate = selectReplayCandidate(evaluation, telemetry);
   if (telemetry.sourceDataTimestamp) compareRequiredText(telemetry.sourceDataTimestamp, new Date(sourceTimestamp).toISOString(), "signal.source_data_timestamp", reasons, dataUnavailable, true);
   else dataUnavailable.push("signal.source_data_timestamp missing from bca_signals telemetry");
   if (telemetry.score === null) dataUnavailable.push("signal.score missing from bca_signals telemetry");
-  else if (candidate) compareNumber(telemetry.score, candidate.score, "signal.score", reasons, dataUnavailable);
+  else if (candidate) {
+    const scoreInputsUnavailable = !inputProvenance.rawCandlesAvailable
+      || !inputProvenance.pointInTimeLiquidityAvailable
+      || inputProvenance.dataQualityComparison !== "PASS";
+    if (scoreInputsUnavailable) dataUnavailable.push("signal.score comparison depends on unavailable point-in-time replay inputs");
+    else compareNumber(telemetry.score, candidate.score, "signal.score", reasons, dataUnavailable);
+  }
   if (!telemetry.scoreComponents) dataUnavailable.push("signal.score_components missing or incomplete in bca_signals telemetry");
-  else if (candidate) compareScoreComponents(telemetry.scoreComponents, candidate.scoreComponents, reasons, dataUnavailable);
+  else if (candidate) compareScoreComponents(telemetry.scoreComponents, candidate.scoreComponents, inputProvenance, reasons, dataUnavailable);
   if (telemetry.marketRegime === null) dataUnavailable.push("signal.market_regime missing from bca_signals telemetry");
-  else if (candidate) compareRequiredText(telemetry.marketRegime, candidate.marketRegime, "signal.market_regime", reasons, dataUnavailable);
+  else if (candidate && inputProvenance.rawCandlesAvailable) compareRequiredText(telemetry.marketRegime, candidate.marketRegime, "signal.market_regime", reasons, dataUnavailable);
+  else if (candidate) dataUnavailable.push("signal.market_regime comparison depends on unavailable Production candle inputs");
   if (telemetry.side === null) dataUnavailable.push("signal.side missing from bca_signals telemetry");
   else if (candidate) compareRequiredText(telemetry.side, candidate.side, "signal.side", reasons, dataUnavailable);
   if (telemetry.strategyFamily === null) dataUnavailable.push("signal.strategy_family missing from bca_signals telemetry");
   else if (candidate) compareRequiredText(telemetry.strategyFamily, candidate.strategyFamily, "signal.strategy_family", reasons, dataUnavailable);
-  if (candidate && evaluation.plan) {
+  if (candidate && evaluation.plan && inputProvenance.rawCandlesAvailable) {
     compareNumber(telemetry.entryPrice, evaluation.plan.entryPrice, "signal.entry_price", reasons, dataUnavailable);
     compareNumber(telemetry.stopPrice, evaluation.plan.stopPrice, "signal.stop_price", reasons, dataUnavailable);
     compareNumber(telemetry.takeProfitPrice, evaluation.plan.takeProfitPrice, "signal.take_profit_price", reasons, dataUnavailable);
     compareRequiredText(telemetry.validUntil, new Date(evaluation.plan.validUntil).toISOString(), "signal.valid_until", reasons, dataUnavailable, true);
+  } else if (candidate && evaluation.plan) {
+    dataUnavailable.push("signal risk-plan comparison depends on unavailable Production candle inputs");
   }
 }
 
 function compareScoreComponents(
   actual: ScoreComponents,
   expected: ScoreComponents,
+  inputProvenance: ReplayInputProvenance,
   reasons: string[],
   dataUnavailable: string[],
 ): void {
   for (const key of ["trendAlignment", "momentum", "structure", "liquidity", "volatility", "regimeFit", "dataQuality"] as const) {
-    compareNumber(actual[key], expected[key], `signal.score_components.${key}`, reasons, dataUnavailable);
+    const unavailable = key === "liquidity"
+      ? !inputProvenance.pointInTimeLiquidityAvailable
+      : key === "dataQuality"
+        ? inputProvenance.dataQualityComparison !== "PASS"
+        : !inputProvenance.rawCandlesAvailable;
+    if (unavailable) {
+      dataUnavailable.push(`signal.score_components.${key} comparison is DATA_UNAVAILABLE because the Production input was not persisted`);
+    } else {
+      compareNumber(actual[key], expected[key], `signal.score_components.${key}`, reasons, dataUnavailable);
+    }
   }
 }
 
-function divergenceStageForEvaluation(status: ProductionSignalEvaluation["status"]): DivergenceStage {
-  switch (status) {
-    case "NO_SIGNAL_CANDIDATE": return "strategy_trigger";
-    case "NO_REGIME_ELIGIBLE_CANDIDATE": return "regime";
-    case "ENTRY_INTERVAL_BLOCKED": return "entry_interval";
-    case "RISK_PLAN_ERROR":
-    case "SINGLE_RISK_CAP":
-    case "EXECUTION_COST_BLOCKED": return "risk_admission";
-    case "ADMITTED": return "risk_admission";
-  }
+function divergenceStageForEvaluation(evaluation: ProductionSignalEvaluation): DivergenceStage {
+  if (evaluation.rawCandidates.length === 0) return "strategy_trigger";
+  if (evaluation.scoreEligibleCandidates.length === 0) return "score";
+  if (evaluation.sideFamilyEligibleCandidates.length === 0) return "side_family_filter";
+  if (evaluation.status === "NO_REGIME_ELIGIBLE_CANDIDATE") return "regime";
+  if (evaluation.status === "ENTRY_INTERVAL_BLOCKED") return "entry_interval";
+  if (["RISK_PLAN_ERROR", "SINGLE_RISK_CAP", "EXECUTION_COST_BLOCKED", "ADMITTED"].includes(evaluation.status)) return "risk_admission";
+  return "data_unavailable";
 }
 
 function firstMaterialDivergence(
-  telemetry: ProductionSignalTelemetry | null,
   evaluation: ProductionSignalEvaluation,
   reasons: string[],
   dataUnavailable: string[],
   quantizationVerdict: QuantizationVerdict,
 ): DivergenceStage | null {
   if (reasons.length === 0) return dataUnavailable.length > 0 ? "data_unavailable" : null;
-  if (evaluation.status !== "ADMITTED") return telemetry ? divergenceStageForEvaluation(evaluation.status) : "data_unavailable";
+  if (evaluation.status !== "ADMITTED") return divergenceStageForEvaluation(evaluation);
   if (reasons.some((reason) => reason.startsWith("signal.score") || reason.startsWith("signal.score_components"))) return "score_components";
   if (reasons.some((reason) => reason.startsWith("signal.market_regime"))) return "regime";
   if (reasons.some((reason) => reason.startsWith("signal.side") || reason.startsWith("signal.strategy_family") || reason.startsWith("side:") || reason.startsWith("strategy_family:"))) return "side_family_filter";
-  if (quantizationVerdict === "MISMATCH" || reasons.some((reason) => /(?:entry_price|stop_price|take_profit_price|quantity|theoretical_risk|risk)/.test(reason))) return "risk_admission";
+  if (quantizationVerdict === "MATERIAL_MISMATCH" || reasons.some((reason) => /(?:entry_price|stop_price|take_profit_price|quantity|theoretical_risk|risk)/.test(reason))) return "risk_admission";
   if (reasons.some((reason) => /(?:exit_|fees_|funding_|net_pnl|r_multiple)/.test(reason))) return "settlement";
   return "data_unavailable";
 }
@@ -800,10 +870,12 @@ function divergenceForStage(
 ): DivergenceValue {
   if (stage === "raw_candles") return { productionEquivalentValue: trace.rawCandles.productionEquivalentValue, replayValue: trace.rawCandles.replayValue };
   if (stage === "indicators") return { productionEquivalentValue: trace.indicators.productionEquivalentValue, replayValue: trace.indicators.replayValue };
-  if (stage === "strategy_trigger" || stage === "score_components" || stage === "rank_candidates" || stage === "regime" || stage === "entry_interval" || stage === "side_family_filter" || stage === "risk_admission") {
+  if (stage === "strategy_trigger" || stage === "score" || stage === "score_components" || stage === "rank_candidates" || stage === "regime" || stage === "entry_interval" || stage === "side_family_filter" || stage === "risk_admission") {
     const key = stage === "strategy_trigger"
-      ? "strategyTrigger"
-      : stage === "score_components"
+      ? "rawStrategyTrigger"
+      : stage === "score"
+        ? "score"
+        : stage === "score_components"
         ? "scoreComponents"
         : stage === "rank_candidates"
           ? "rankCandidates"
@@ -821,8 +893,17 @@ function buildReplayTrace(
   snapshot: MarketSnapshot,
   evaluation: ProductionSignalEvaluation,
   telemetry: ProductionSignalTelemetry | null,
+  inputProvenance: ReplayInputProvenance,
 ): ProductionReplayResult["trace"] {
-  const replayCandidate = evaluation.candidate;
+  const replayCandidate = selectReplayCandidate(evaluation, telemetry);
+  const rawStrategyTrigger = {
+    productionEquivalentValue: telemetry ? { signalId: telemetry.signalId, persisted: true, rawTrigger: "DATA_UNAVAILABLE" } : "DATA_UNAVAILABLE",
+    replayValue: {
+      status: evaluation.stages.rawStrategyTrigger,
+      candidateCount: evaluation.rawCandidates.length,
+      candidates: evaluation.rawCandidates.map((candidate) => ({ side: candidate.side, family: candidate.strategyFamily })),
+    },
+  };
   return {
     rawCandles: {
       productionEquivalentValue: "DATA_UNAVAILABLE",
@@ -832,13 +913,19 @@ function buildReplayTrace(
       productionEquivalentValue: "DATA_UNAVAILABLE",
       replayValue: summarizeIndicators(snapshot.candles),
     },
-    strategyTrigger: {
-      productionEquivalentValue: telemetry ? { signalId: telemetry.signalId, persisted: true } : "DATA_UNAVAILABLE",
-      replayValue: { status: evaluation.status, reason: evaluation.reason ?? null },
+    rawStrategyTrigger,
+    score: {
+      productionEquivalentValue: telemetry ? { score: telemetry.score, threshold: "DATA_UNAVAILABLE" } : "DATA_UNAVAILABLE",
+      replayValue: {
+        status: replayScoreStageStatus(evaluation, inputProvenance),
+        minimumScore: "DATA_UNAVAILABLE",
+        candidates: evaluation.scoredCandidates.map((candidate) => ({ side: candidate.side, family: candidate.strategyFamily, score: candidate.score })),
+      },
     },
+    strategyTrigger: rawStrategyTrigger,
     scoreComponents: {
       productionEquivalentValue: telemetry ? { score: telemetry.score, components: telemetry.scoreComponents } : "DATA_UNAVAILABLE",
-      replayValue: replayCandidate ? { score: replayCandidate.score, components: replayCandidate.scoreComponents } : "DATA_UNAVAILABLE",
+      replayValue: replayCandidate ? { score: replayCandidate.score, components: replayScoreComponents(replayCandidate, inputProvenance) } : "DATA_UNAVAILABLE",
     },
     rankCandidates: {
       productionEquivalentValue: "DATA_UNAVAILABLE: Production rank context was not persisted",
@@ -854,13 +941,108 @@ function buildReplayTrace(
     },
     sideFamilyFilter: {
       productionEquivalentValue: telemetry ? { side: telemetry.side, family: telemetry.strategyFamily } : "DATA_UNAVAILABLE",
-      replayValue: replayCandidate ? { side: replayCandidate.side, family: replayCandidate.strategyFamily } : "DATA_UNAVAILABLE",
+      replayValue: { status: evaluation.stages.sideFamilyFilter, candidate: replayCandidate ? { side: replayCandidate.side, family: replayCandidate.strategyFamily } : null },
     },
     riskAdmission: {
       productionEquivalentValue: telemetry ? { paperTradePersisted: true, plan: { entry: telemetry.entryPrice, stop: telemetry.stopPrice, takeProfit: telemetry.takeProfitPrice } } : "DATA_UNAVAILABLE",
-      replayValue: { status: evaluation.status, admitted: evaluation.status === "ADMITTED", plan: evaluation.plan ? { entry: evaluation.plan.entryPrice, stop: evaluation.plan.stopPrice, takeProfit: evaluation.plan.takeProfitPrice } : null },
+      replayValue: { status: evaluation.stages.riskAdmission, evaluation: evaluation.status, admitted: evaluation.status === "ADMITTED", plan: evaluation.plan ? { entry: evaluation.plan.entryPrice, stop: evaluation.plan.stopPrice, takeProfit: evaluation.plan.takeProfitPrice } : null },
     },
   };
+}
+
+function replayScoreStageStatus(
+  evaluation: ProductionSignalEvaluation,
+  inputProvenance: ReplayInputProvenance,
+): "PASS" | "FAIL" | "DATA_UNAVAILABLE" {
+  if (!inputProvenance.rawCandlesAvailable
+    || !inputProvenance.pointInTimeLiquidityAvailable
+    || inputProvenance.dataQualityComparison !== "PASS") return "DATA_UNAVAILABLE";
+  return evaluation.stages.score;
+}
+
+function replayScoreComponents(
+  candidate: import("@/lib/core/types").ScoredCandidate,
+  inputProvenance: ReplayInputProvenance,
+): Record<string, unknown> {
+  const components: Record<string, unknown> = { ...candidate.scoreComponents };
+  if (!inputProvenance.rawCandlesAvailable) {
+    for (const key of ["trendAlignment", "momentum", "structure", "volatility", "regimeFit"] as const) components[key] = "DATA_UNAVAILABLE";
+  }
+  if (!inputProvenance.pointInTimeLiquidityAvailable) components.liquidity = "DATA_UNAVAILABLE";
+  if (inputProvenance.dataQualityComparison !== "PASS") components.dataQuality = "DATA_UNAVAILABLE";
+  return components;
+}
+
+function selectReplayCandidate(
+  evaluation: ProductionSignalEvaluation,
+  telemetry: ProductionSignalTelemetry | null,
+): import("@/lib/core/types").ScoredCandidate | null {
+  const matching = telemetry
+    ? evaluation.scoredCandidates.find((candidate) => (
+      candidate.side === telemetry.side && candidate.strategyFamily === telemetry.strategyFamily
+    ))
+    : undefined;
+  return matching ?? evaluation.candidate ?? evaluation.scoredCandidates[0] ?? null;
+}
+
+function buildReplayInputProvenance(
+  telemetry: ProductionSignalTelemetry | null,
+  snapshot: MarketSnapshot | null,
+): ReplayInputProvenance {
+  const persisted = telemetry?.inputProvenance ?? null;
+  const replayCandleCounts = snapshot ? candleCounts(snapshot.candles) : emptyCandleCounts();
+  const productionCandleCounts = persisted?.candleCounts ?? null;
+  const pointInTimeCandleCountsAvailable = productionCandleCounts !== null;
+  const sameCandleCounts = pointInTimeCandleCountsAvailable
+    && Object.keys(replayCandleCounts).every((key) => replayCandleCounts[key as Timeframe] === productionCandleCounts?.[key as Timeframe]);
+  const pointInTimeLiquidityAvailable = persisted?.quoteVolume24h !== null && persisted?.quoteVolume24h !== undefined;
+  return {
+    productionLiquidity: telemetry?.scoreComponents?.liquidity ?? null,
+    replayLiquidity: null,
+    pointInTimeLiquidityAvailable,
+    source: persisted?.source ?? "public.bca_signals.score_components; point-in-time quoteVolume24h not persisted",
+    productionCandleCounts,
+    replayCandleCounts,
+    pointInTimeCandleCountsAvailable,
+    dataQualityComparison: sameCandleCounts ? "PASS" : "DATA_UNAVAILABLE",
+    rawCandlesAvailable: persisted?.rawCandlesAvailable === true,
+  };
+}
+
+function candleCounts(candles: Partial<Record<Timeframe, Candle[]>>): CandleCounts {
+  return {
+    "15m": candles["15m"]?.length ?? null,
+    "1h": candles["1h"]?.length ?? null,
+    "4h": candles["4h"]?.length ?? null,
+  };
+}
+
+function emptyCandleCounts(): CandleCounts {
+  return { "15m": null, "1h": null, "4h": null };
+}
+
+function classifyComparisonReasons(
+  reasons: string[],
+  inputProvenance: ReplayInputProvenance,
+): { materialReasons: string[]; unavailableReasons: string[] } {
+  const materialReasons: string[] = [];
+  const unavailableReasons: string[] = [];
+  for (const reason of reasons) {
+    if (isInputDependentReason(reason, inputProvenance)) {
+      unavailableReasons.push(`${reason}; input provenance is incomplete`);
+    } else {
+      materialReasons.push(reason);
+    }
+  }
+  return { materialReasons, unavailableReasons };
+}
+
+function isInputDependentReason(reason: string, inputProvenance: ReplayInputProvenance): boolean {
+  if (!inputProvenance.rawCandlesAvailable) return true;
+  if (!inputProvenance.pointInTimeLiquidityAvailable && /signal\.score(?:_components\.liquidity)?/.test(reason)) return true;
+  if (inputProvenance.dataQualityComparison !== "PASS" && /signal\.score(?:_components\.dataQuality)?/.test(reason)) return true;
+  if (/global claimSignal|entry_|stop_|take_profit_|quantity|theoretical_risk|risk|exit_|fees_|funding_|net_pnl|r_multiple/.test(reason)) return true;
+  return false;
 }
 
 function summarizeCandles(candles: Partial<Record<"15m" | "1h" | "4h", Candle[]>>): Record<string, unknown> {
@@ -930,8 +1112,8 @@ export function createUnavailableParityReport(
     exactMatches: null,
     partialMatches: null,
     quantizationExplained: null,
-    mismatches: null,
-    dataUnavailable: null,
+    inputDataUnavailable: null,
+    materialMismatches: null,
     configParity,
     verdict: "INCOMPLETE",
     failureClassification: "INCONCLUSIVE",
@@ -952,11 +1134,11 @@ export function finalizeParityReport(
   const exactMatches = replayResults.filter((result) => result.status === "MATCH").length;
   const partialMatches = replayResults.filter((result) => result.status === "PARTIAL_MATCH").length;
   const quantizationExplained = replayResults.filter((result) => result.status === "QUANTIZATION_EXPLAINED").length;
-  const mismatches = replayResults.filter((result) => result.status === "MISMATCH").length;
-  const dataUnavailable = replayResults.filter((result) => result.status === "DATA_UNAVAILABLE").length;
-  const verdict = configParity.status === "FAIL" || mismatches > 0
+  const materialMismatches = replayResults.filter((result) => result.status === "MATERIAL_MISMATCH").length;
+  const inputDataUnavailable = replayResults.filter((result) => result.status === "INPUT_DATA_UNAVAILABLE").length;
+  const verdict = configParity.status === "FAIL" || materialMismatches > 0
     ? "FAIL"
-    : configParity.status !== "PASS" || rows.length === 0 || partialMatches > 0 || dataUnavailable > 0 || (dataSource === "immutable_read_only_export" && !exportProvenance?.verified)
+    : configParity.status !== "PASS" || rows.length === 0 || partialMatches > 0 || inputDataUnavailable > 0 || (dataSource === "immutable_read_only_export" && !exportProvenance?.verified)
       ? "INCOMPLETE"
       : "PASS";
   const prospectiveMetrics = buildProspectiveMetrics(rows);
@@ -983,8 +1165,8 @@ export function finalizeParityReport(
     exactMatches,
     partialMatches,
     quantizationExplained,
-    mismatches,
-    dataUnavailable,
+    inputDataUnavailable,
+    materialMismatches,
     configParity,
     verdict,
     failureClassification,
@@ -1044,8 +1226,17 @@ function parsePaperTradeRow(row: Record<string, unknown>): ProductionPaperTradeR
       stop_price: row.signal_stop_price,
       take_profit_price: row.signal_take_profit_price,
       valid_until: row.signal_valid_until,
+      input_provenance: row.signal_input_provenance,
     })
     : null;
+  const metadata = sanitizePaperMetadata(row.metadata);
+  const metadataInputProvenance = isRecord(metadata.input_provenance)
+    ? parsePersistedProductionInputProvenance(metadata.input_provenance)
+    : null;
+  const signalTelemetry = nestedSignal ?? flatSignal;
+  if (signalTelemetry && !signalTelemetry.inputProvenance && metadataInputProvenance) {
+    signalTelemetry.inputProvenance = metadataInputProvenance;
+  }
   return {
     id: stringOrNull(row.id) ?? "UNKNOWN_ROW",
     signalId: stringOrNull(row.signal_id),
@@ -1069,8 +1260,8 @@ function parsePaperTradeRow(row: Record<string, unknown>): ProductionPaperTradeR
     feesUsdt: numberOrNull(row.fees_usdt),
     fundingUsdt: numberOrNull(row.funding_usdt),
     slippageUsdt: numberOrNull(row.slippage_usdt),
-    metadata: sanitizePaperMetadata(row.metadata),
-    signalTelemetry: nestedSignal ?? flatSignal,
+    metadata,
+    signalTelemetry,
   };
 }
 
@@ -1097,7 +1288,33 @@ function parseSignalTelemetry(row: Record<string, unknown>): ProductionSignalTel
     stopPrice: numberOrNull(row.stop_price),
     takeProfitPrice: numberOrNull(row.take_profit_price),
     validUntil: stringOrNull(row.valid_until),
+    inputProvenance: parsePersistedProductionInputProvenance(row.input_provenance),
   };
+}
+
+function parsePersistedProductionInputProvenance(value: unknown): PersistedProductionInputProvenance | null {
+  if (!isRecord(value)) return null;
+  const quoteVolume24h = numberOrNull(value.quoteVolume24h ?? value.quote_volume_24h);
+  const rawCounts = value.candleCounts ?? value.candle_counts;
+  const candleCounts = parseCandleCounts(rawCounts);
+  const rawCandlesAvailable = value.rawCandlesAvailable === true || value.raw_candles_available === true;
+  if (quoteVolume24h === null && candleCounts === null && !rawCandlesAvailable) return null;
+  return {
+    quoteVolume24h,
+    candleCounts,
+    rawCandlesAvailable,
+    source: stringOrNull(value.source) ?? "persisted Production input provenance",
+  };
+}
+
+function parseCandleCounts(value: unknown): CandleCounts | null {
+  if (!isRecord(value)) return null;
+  const counts = {
+    "15m": numberOrNull(value["15m"]),
+    "1h": numberOrNull(value["1h"]),
+    "4h": numberOrNull(value["4h"]),
+  } satisfies CandleCounts;
+  return Object.values(counts).every((count) => count !== null) ? counts : null;
 }
 
 function parseScoreComponents(row: Record<string, unknown>): ScoreComponents | null {
@@ -1123,6 +1340,8 @@ function sanitizePaperMetadata(value: unknown): Record<string, unknown> {
   if (numberOrNull(value.production_price_tick) !== null) metadata.production_price_tick = numberOrNull(value.production_price_tick);
   if (typeof value.same_unrounded_risk_inputs === "boolean") metadata.same_unrounded_risk_inputs = value.same_unrounded_risk_inputs;
   if (typeof value.same_non_price_risk_fields === "boolean") metadata.same_non_price_risk_fields = value.same_non_price_risk_fields;
+  const inputProvenance = parsePersistedProductionInputProvenance(value.input_provenance);
+  if (inputProvenance) metadata.input_provenance = inputProvenance;
   return metadata;
 }
 
@@ -1291,6 +1510,8 @@ function emptyTrace(): ProductionReplayResult["trace"] {
   return {
     rawCandles: { ...unavailable },
     indicators: { ...unavailable },
+    rawStrategyTrigger: { ...unavailable },
+    score: { ...unavailable },
     strategyTrigger: { ...unavailable },
     scoreComponents: { ...unavailable },
     rankCandidates: { ...unavailable },

@@ -1,6 +1,6 @@
 {
   "report": "V5.3 Structural Edge Reconstruction",
-  "generatedAt": "2026-08-24T16:35:32.438Z",
+  "generatedAt": "2026-08-24T17:58:39.395Z",
   "productionBaseline": "d5d2520f3f6307384494501e212bfb4b6ab059b2",
   "v52ResearchCheckpoint": "9b69efa2299157d1bf5cd334cc697d75a5af6203",
   "controlStrategy": "trend-rejection-short-v1",
@@ -1188,7 +1188,7 @@
           {
             "id": "control_comparison",
             "passed": false,
-            "evidence": "FAIL / DATA_UNAVAILABLE: reliable Production comparator unavailable; parity=FAIL; failure=MODEL_PARITY_FAILURE"
+            "evidence": "FAIL / DATA_UNAVAILABLE: reliable Production comparator unavailable; parity=INCOMPLETE; failure=INCONCLUSIVE"
           },
           {
             "id": "regime_conditional",
@@ -2650,7 +2650,7 @@
           {
             "id": "control_comparison",
             "passed": false,
-            "evidence": "FAIL / DATA_UNAVAILABLE: reliable Production comparator unavailable; parity=FAIL; failure=MODEL_PARITY_FAILURE"
+            "evidence": "FAIL / DATA_UNAVAILABLE: reliable Production comparator unavailable; parity=INCOMPLETE; failure=INCONCLUSIVE"
           },
           {
             "id": "regime_conditional",

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { HistoricalDataset } from "@/lib/backtest/types";
-import type { Candle, Instrument } from "@/lib/core/types";
+import type { Candle, Instrument, MarketSnapshot, ScoredCandidate } from "@/lib/core/types";
 import { DEFAULT_STRATEGY_PARAMS } from "@/lib/core/strategies";
+import { evaluateProductionSignal } from "@/lib/core/production-signal";
 import { buildFeatureFrames } from "@/lib/v5-3/feature-snapshot";
 import {
   buildPerturbationSummary,
@@ -31,6 +32,7 @@ import {
   type ProductionControlConfig,
   type ProductionPaperTradeRow,
   type ProductionReplayResult,
+  type ProductionSignalTelemetry,
 } from "@/lib/v5-3/production-parity";
 import { calculateMetrics, createFrozenHoldoutWindow, createPurgedWalkForwardFolds } from "@/lib/v5-2/validation";
 
@@ -51,6 +53,46 @@ function dataset(count = 240): HistoricalDataset {
     quantityStep: 0.001,
   };
   return { symbol: "TESTUSDT", instrument, candles: { "15m": candles } };
+}
+
+function descendingDataset(count = 240): HistoricalDataset {
+  const base = dataset(count);
+  const candles = base.candles["15m"].map((row, index) => {
+    const close = 300 - index * 0.8;
+    return { ...row, open: close + 0.2, high: close + 0.8, low: close - 0.8, close };
+  });
+  const instrument = { ...base.instrument, quoteVolume24h: 1_000_000_000 };
+  return { ...base, instrument, candles: { "15m": candles, "1h": candles, "4h": candles } };
+}
+
+function snapshotFor(data: HistoricalDataset): MarketSnapshot {
+  const primary = data.candles["15m"];
+  return {
+    instrument: data.instrument,
+    tickerPrice: primary.at(-1)!.close,
+    candles: data.candles,
+    sourceTimestamp: primary.at(-1)!.closeTime,
+  };
+}
+
+function telemetryFor(candidate: ScoredCandidate, timestamp: number, inputProvenance?: ProductionSignalTelemetry["inputProvenance"]): ProductionSignalTelemetry {
+  return {
+    signalId: "signal-1",
+    sourceDataTimestamp: new Date(timestamp).toISOString(),
+    score: candidate.score,
+    scoreComponents: candidate.scoreComponents,
+    marketRegime: candidate.marketRegime,
+    side: candidate.side,
+    strategyFamily: candidate.strategyFamily,
+    primaryTimeframe: candidate.primaryTimeframe,
+    confirmationTimeframes: candidate.confirmationTimeframes,
+    regimeDependency: candidate.regimeDependency,
+    entryPrice: candidate.entryPrice,
+    stopPrice: null,
+    takeProfitPrice: null,
+    validUntil: null,
+    inputProvenance,
+  };
 }
 
 function trade(index: number, rMultiple: number, symbol = "TESTUSDT"): StructuralTrade {
@@ -270,7 +312,7 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
       signalId: null,
       symbol: "BTCUSDT",
       sourceTimestamp: null,
-      status: "MISMATCH",
+      status: "MATERIAL_MISMATCH",
       reasons: ["score threshold drift"],
       dataUnavailable: [],
       replay: {},
@@ -278,6 +320,101 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
     const report = finalizeParityReport([], [mismatch], configParity, null);
     expect(report.verdict).toBe("FAIL");
     expect(report.failureClassification).toBe("MODEL_PARITY_FAILURE");
+    expect(report.historicalControlReliable).toBe(false);
+  });
+
+  it("evaluates the raw trigger before score threshold and keeps score failure separate", () => {
+    const data = descendingDataset();
+    const evaluation = evaluateProductionSignal(snapshotFor(data), replayConfig(101).signalPolicy);
+
+    expect(evaluation.rawCandidates.length).toBeGreaterThan(0);
+    expect(evaluation.stages.rawStrategyTrigger).toBe("PASS");
+    expect(evaluation.stages.score).toBe("FAIL");
+    expect(evaluation.status).toBe("NO_SIGNAL_CANDIDATE");
+    expect(evaluation.reason).toContain("score threshold");
+  });
+
+  it("does not turn unavailable historical quoteVolume24h into a material mismatch", () => {
+    const data = descendingDataset();
+    const sourceTimestamp = data.candles["15m"].at(-1)!.closeTime;
+    const evaluation = evaluateProductionSignal(snapshotFor(data), replayConfig(0).signalPolicy);
+    const candidate = evaluation.scoredCandidates.find((item) => item.side === "SHORT" && item.strategyFamily === "TREND");
+    expect(candidate).toBeDefined();
+    const row = paperRow({
+      id: "liquidity-input-row",
+      symbol: data.symbol,
+      entryTime: new Date(sourceTimestamp).toISOString(),
+      metadata: { source_data_timestamp: new Date(sourceTimestamp).toISOString() },
+      signalTelemetry: telemetryFor(candidate!, sourceTimestamp),
+    });
+
+    const replay = replayProductionPaperTrade(row, data, replayConfig(0));
+
+    expect(replay.status).toBe("INPUT_DATA_UNAVAILABLE");
+    expect(replay.reasons).toHaveLength(0);
+    expect(replay.inputProvenance.productionLiquidity).toBe(candidate!.scoreComponents.liquidity);
+    expect(replay.inputProvenance.replayLiquidity).toBeNull();
+    expect(replay.inputProvenance.pointInTimeLiquidityAvailable).toBe(false);
+    expect(replay.inputProvenance.source).toContain("quoteVolume24h");
+    expect(replay.inputProvenance.dataQualityComparison).toBe("DATA_UNAVAILABLE");
+    expect(replay.trace.score.replayValue).toMatchObject({ status: "DATA_UNAVAILABLE" });
+    expect(replay.trace.scoreComponents.replayValue).toMatchObject({ components: { liquidity: "DATA_UNAVAILABLE" } });
+    expect(replay.dataUnavailable.join(" ")).toContain("point-in-time quoteVolume24h");
+  });
+
+  it("requires identical known inputs before classifying a score difference as material", () => {
+    const data = descendingDataset();
+    const sourceTimestamp = data.candles["15m"].at(-1)!.closeTime;
+    const evaluation = evaluateProductionSignal(snapshotFor(data), replayConfig(0).signalPolicy);
+    const candidate = evaluation.scoredCandidates.find((item) => item.side === "SHORT" && item.strategyFamily === "TREND");
+    expect(candidate).toBeDefined();
+    const row = paperRow({
+      id: "known-input-score-row",
+      symbol: data.symbol,
+      entryTime: new Date(sourceTimestamp).toISOString(),
+      metadata: { source_data_timestamp: new Date(sourceTimestamp).toISOString() },
+      signalTelemetry: {
+        ...telemetryFor(candidate!, sourceTimestamp, {
+          quoteVolume24h: data.instrument.quoteVolume24h!,
+          candleCounts: { "15m": 240, "1h": 240, "4h": 240 },
+          rawCandlesAvailable: true,
+          source: "immutable Production snapshot export",
+        }),
+        score: candidate!.score + 5,
+      },
+    });
+
+    const replay = replayProductionPaperTrade(row, data, replayConfig(0));
+
+    expect(replay.inputProvenance.pointInTimeLiquidityAvailable).toBe(true);
+    expect(replay.inputProvenance.dataQualityComparison).toBe("PASS");
+    expect(replay.status).toBe("MATERIAL_MISMATCH");
+    expect(replay.reasons.some((reason) => reason.startsWith("signal.score:"))).toBe(true);
+  });
+
+  it("keeps missing candle-count provenance inconclusive", () => {
+    const data = descendingDataset();
+    const sourceTimestamp = data.candles["15m"].at(-1)!.closeTime;
+    const evaluation = evaluateProductionSignal(snapshotFor(data), replayConfig(0).signalPolicy);
+    const candidate = evaluation.scoredCandidates[0];
+    const row = paperRow({
+      id: "candle-count-input-row",
+      symbol: data.symbol,
+      entryTime: new Date(sourceTimestamp).toISOString(),
+      metadata: { source_data_timestamp: new Date(sourceTimestamp).toISOString() },
+      signalTelemetry: telemetryFor(candidate, sourceTimestamp, {
+        quoteVolume24h: data.instrument.quoteVolume24h!,
+        candleCounts: null,
+        rawCandlesAvailable: false,
+        source: "partial Production signal export",
+      }),
+    });
+    const replay = replayProductionPaperTrade(row, data, replayConfig(0));
+    const report = finalizeParityReport([row], [replay], compareControlConfigParity(null, replayConfig(0).replayExpectedConfig), null);
+
+    expect(replay.inputProvenance.dataQualityComparison).toBe("DATA_UNAVAILABLE");
+    expect(report.verdict).toBe("INCOMPLETE");
+    expect(report.failureClassification).toBe("INCONCLUSIVE");
     expect(report.historicalControlReliable).toBe(false);
   });
 
@@ -329,8 +466,8 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
       id: "home-paper",
       symbol: "HOMEUSDT",
       sourceTimestamp: new Date(1_000).toISOString(),
-      status: "MISMATCH",
-      quantizationVerdict: "DATA_UNAVAILABLE",
+      status: "MATERIAL_MISMATCH",
+      quantizationVerdict: "INPUT_DATA_UNAVAILABLE",
       reasons: ["strategy trigger divergence"],
       dataUnavailable: [],
       firstDivergenceStage: "strategy_trigger",
@@ -352,7 +489,7 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
       symbol: "TESTUSDT",
       sourceTimestamp: null,
       status: "PARTIAL_MATCH",
-      quantizationVerdict: "DATA_UNAVAILABLE",
+      quantizationVerdict: "INPUT_DATA_UNAVAILABLE",
       reasons: [],
       dataUnavailable: ["bca_signals telemetry"],
       firstDivergenceStage: "data_unavailable",
@@ -385,10 +522,10 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
       replayPriceTick: 0.00001,
       sameUnroundedInputs: true,
       sameNonPriceFields: true,
-    })).toBe("MISMATCH");
+    })).toBe("INPUT_DATA_UNAVAILABLE");
   });
 
-  it("records HOME-style no-candidate divergence at the strategy trigger stage", () => {
+  it("records HOME-style raw-trigger and score stages separately", () => {
     const sourceCandle = dataset().candles["15m"]![100];
     const row = paperRow({
       id: "c783bdeb-cfc6-4b88-aa78-911b5b8fe9b1",
@@ -414,9 +551,11 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
       },
     });
     const replay = replayProductionPaperTrade(row, dataset(), replayConfig(101));
-    expect(replay.status).toBe("MISMATCH");
-    expect(replay.firstDivergenceStage).toBe("strategy_trigger");
-    expect(replay.divergence?.replayValue).toMatchObject({ status: "NO_SIGNAL_CANDIDATE" });
+    expect(replay.status).toBe("INPUT_DATA_UNAVAILABLE");
+    expect(replay.firstDivergenceStage).toBe("score");
+    expect(replay.trace.rawStrategyTrigger.replayValue).toMatchObject({ status: "PASS" });
+    expect(replay.trace.score.replayValue).toMatchObject({ status: "DATA_UNAVAILABLE" });
+    expect(replay.divergence?.replayValue).toMatchObject({ status: "DATA_UNAVAILABLE" });
   });
 
   it("verifies immutable export provenance and excludes secrets from config serialization", async () => {
@@ -457,7 +596,7 @@ describe("V5.3 fixed-candidate attribution and parity audit", () => {
       signalTelemetry: null,
     } satisfies ProductionPaperTradeRow;
     const replay = replayProductionPaperTrade(row, null, null);
-    expect(replay.status).toBe("DATA_UNAVAILABLE");
+    expect(replay.status).toBe("INPUT_DATA_UNAVAILABLE");
     expect(replay.reasons).toHaveLength(0);
     expect(replay.dataUnavailable.length).toBeGreaterThan(0);
   });

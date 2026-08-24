@@ -885,7 +885,7 @@ function parseReplayTimestamp(row: ProductionPaperTradeRow): number | null {
 function productionParityMarkdown(report: ProductionParityReport): string {
   const metrics = report.prospectiveMetrics;
   const rows = report.replayResults.length > 0
-    ? report.replayResults.map((row) => `- ${row.id} / ${row.symbol}: **${row.status}**; first divergence=${row.firstDivergenceStage ?? "none"}; quantization=${row.quantizationVerdict}${row.reasons.length > 0 ? ` — ${row.reasons.join("; ")}` : ""}${row.dataUnavailable.length > 0 ? `; DATA_UNAVAILABLE: ${row.dataUnavailable.join("; ")}` : ""}`).join("\n")
+    ? report.replayResults.map((row) => `- ${row.id} / ${row.symbol}: **${row.status}**; raw trigger=${row.trace.rawStrategyTrigger.replayValue && typeof row.trace.rawStrategyTrigger.replayValue === "object" && "status" in row.trace.rawStrategyTrigger.replayValue ? String(row.trace.rawStrategyTrigger.replayValue.status) : "DATA_UNAVAILABLE"}; score=${row.trace.score.replayValue && typeof row.trace.score.replayValue === "object" && "status" in row.trace.score.replayValue ? String(row.trace.score.replayValue.status) : "DATA_UNAVAILABLE"}; first divergence=${row.firstDivergenceStage ?? "none"}; quantization=${row.quantizationVerdict}; liquidity=${row.inputProvenance.pointInTimeLiquidityAvailable ? "PIT_AVAILABLE" : "DATA_UNAVAILABLE"}; dataQuality=${row.inputProvenance.dataQualityComparison}${row.reasons.length > 0 ? ` — ${row.reasons.join("; ")}` : ""}${row.dataUnavailable.length > 0 ? `; DATA_UNAVAILABLE: ${row.dataUnavailable.join("; ")}` : ""}`).join("\n")
     : "- DATA_UNAVAILABLE: no replay rows were available.";
   return [
     "# V5.3 Production Backtest Parity Audit",
@@ -912,8 +912,8 @@ function productionParityMarkdown(report: ProductionParityReport): string {
     `- MATCH: ${report.exactMatches === null ? "DATA_UNAVAILABLE" : report.exactMatches}`,
     `- PARTIAL_MATCH: ${report.partialMatches === null ? "DATA_UNAVAILABLE" : report.partialMatches}`,
     `- QUANTIZATION_EXPLAINED: ${report.quantizationExplained === null ? "DATA_UNAVAILABLE" : report.quantizationExplained}`,
-    `- MISMATCH: ${report.mismatches === null ? "DATA_UNAVAILABLE" : report.mismatches}`,
-    `- DATA_UNAVAILABLE: ${report.dataUnavailable === null ? "DATA_UNAVAILABLE" : report.dataUnavailable}`,
+    `- INPUT_DATA_UNAVAILABLE: ${report.inputDataUnavailable === null ? "DATA_UNAVAILABLE" : report.inputDataUnavailable}`,
+    `- MATERIAL_MISMATCH: ${report.materialMismatches === null ? "DATA_UNAVAILABLE" : report.materialMismatches}`,
     rows,
     "",
     "## Control configuration parity",
