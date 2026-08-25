@@ -18,6 +18,7 @@ export type V55PersistenceStatus = "CREATED" | "IDEMPOTENT_EXISTING" | "SKIPPED_
 
 export interface V55UniversePersistResult {
   snapshotId: string;
+  snapshotHash: string;
   status: V55PersistenceStatus;
 }
 
@@ -41,7 +42,7 @@ export async function persistV55UniverseSnapshot(
   snapshot: V55UniverseSnapshot,
 ): Promise<V55UniversePersistResult> {
   if (isBeforeForwardStart(snapshot.scanTimestamp, context.forwardStartTimestamp)) {
-    return { snapshotId: "", status: "SKIPPED_BEFORE_FORWARD_START" };
+    return { snapshotId: "", snapshotHash: "", status: "SKIPPED_BEFORE_FORWARD_START" };
   }
   await ensureV55ForwardExperiment(supabase, context);
   const payload = {
@@ -58,7 +59,11 @@ export async function persistV55UniverseSnapshot(
     .select("snapshot_id, snapshot_hash")
     .maybeSingle();
   if (!inserted.error && inserted.data?.snapshot_id) {
-    return { snapshotId: String(inserted.data.snapshot_id), status: "CREATED" };
+    return {
+      snapshotId: String(inserted.data.snapshot_id),
+      snapshotHash: String(inserted.data.snapshot_hash ?? snapshot.snapshotHash),
+      status: "CREATED",
+    };
   }
   if (inserted.error?.code === "23505") {
     const existing = await supabase
@@ -69,13 +74,21 @@ export async function persistV55UniverseSnapshot(
       .maybeSingle();
     if (existing.error) throw new Error(`V5.5 universe idempotency lookup failed: ${existing.error.message}`);
     if (existing.data?.snapshot_id) {
-      if (existing.data.snapshot_hash !== snapshot.snapshotHash) {
-        throw new Error("V5.5 universe snapshot identity collision has different content");
+      if (typeof existing.data.snapshot_hash !== "string" || existing.data.snapshot_hash.length === 0) {
+        throw new Error("V5.5 universe idempotency lookup returned an invalid canonical hash");
       }
-      return { snapshotId: String(existing.data.snapshot_id), status: "IDEMPOTENT_EXISTING" };
+      return {
+        snapshotId: String(existing.data.snapshot_id),
+        snapshotHash: existing.data.snapshot_hash,
+        status: "IDEMPOTENT_EXISTING",
+      };
     }
   }
   throw new Error(`V5.5 universe snapshot write failed: ${inserted.error?.message ?? "empty response"}`);
+}
+
+export function isV55UniverseCanonicalOwner(status: V55PersistenceStatus): status is "CREATED" {
+  return status === "CREATED";
 }
 
 export async function persistV55ShadowEvidence(

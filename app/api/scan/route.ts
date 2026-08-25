@@ -34,7 +34,12 @@ import {
 import { createPaperTrade, createShadowPaperTrade } from "@/lib/services/paper-trading";
 import { loadProspectiveStrategyHealth } from "@/lib/services/strategy-health";
 import { evaluateV55Snapshot, type V55RuntimeContext } from "@/lib/v5-5/runtime";
-import { persistV55ShadowEvidence, persistV55UniverseSnapshot, v55WarningEvent } from "@/lib/v5-5/repository";
+import {
+  isV55UniverseCanonicalOwner,
+  persistV55ShadowEvidence,
+  persistV55UniverseSnapshot,
+  v55WarningEvent,
+} from "@/lib/v5-5/repository";
 import { buildUniverseSnapshot } from "@/lib/v5-5/universe";
 import { getFrozenStrategy } from "@/lib/v5-5/manifest";
 import { filterForwardEligibleSnapshots } from "@/lib/v5-5/forward-start";
@@ -96,6 +101,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     let v55IdempotentSnapshots = 0;
     let v55IdempotentTradeSkips = 0;
     let v55ShadowTradesWritten = 0;
+    let v55UniverseIdempotentSkips = 0;
     let v55ForwardStartTimestamp: number | null = null;
     const productionHealth = await loadProspectiveStrategyHealth(supabase, PRODUCTION_STRATEGY_VERSION);
     const productionHealthEvent = buildStrategyHealthEvent(productionHealth, batchNumber);
@@ -168,7 +174,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           universeSnapshotHash: universeSnapshot.snapshotHash,
         };
         const persistedUniverse = await persistV55UniverseSnapshot(supabase, candidateContext, universeSnapshot);
-        if (persistedUniverse.status !== "SKIPPED_BEFORE_FORWARD_START") {
+        if (isV55UniverseCanonicalOwner(persistedUniverse.status)) {
           const evidenceContext: V55RuntimeContext = { ...candidateContext, universeSnapshotId: persistedUniverse.snapshotId };
           const evaluations = forwardEligibleSnapshots.map((snapshot) => evaluateV55Snapshot(snapshot, evidenceContext));
           const v55Summary = await persistV55ShadowEvidence(supabase, evidenceContext, evaluations);
@@ -178,6 +184,10 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           v55ShadowTradesWritten = v55Summary.shadowTradesWritten;
           const warning = v55WarningEvent(v55Summary);
           if (warning) await recordV55Warning(supabase, warning.message, warning.details);
+        } else if (persistedUniverse.status === "IDEMPOTENT_EXISTING") {
+          v55UniverseIdempotentSkips += 1;
+        } else {
+          // SKIPPED_BEFORE_FORWARD_START intentionally has no evidence path.
         }
       } catch (error) {
         await recordV55Warning(supabase, "V5.5 universe/evidence write failed; Production scan continued without Shadow evidence.", {
@@ -386,6 +396,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         idempotentSnapshots: v55IdempotentSnapshots,
         idempotentTradeSkips: v55IdempotentTradeSkips,
         shadowTradesWritten: v55ShadowTradesWritten,
+        universeIdempotentSkips: v55UniverseIdempotentSkips,
       },
       finalized: finalizing,
       claimedCount,

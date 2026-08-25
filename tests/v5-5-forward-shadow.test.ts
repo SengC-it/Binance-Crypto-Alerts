@@ -15,7 +15,13 @@ import {
 } from "@/lib/v5-5/evaluator";
 import { getFrozenStrategy, V55_FORWARD_EXPERIMENT_ID, V55_PRODUCTION_EMAIL_ALLOWED, V55_STRATEGY_VERSION } from "@/lib/v5-5/manifest";
 import { evaluateV55Snapshot } from "@/lib/v5-5/runtime";
-import { persistV55ShadowEvidence, persistV55Snapshot, persistV55UniverseSnapshot, v55WarningEvent } from "@/lib/v5-5/repository";
+import {
+  isV55UniverseCanonicalOwner,
+  persistV55ShadowEvidence,
+  persistV55Snapshot,
+  persistV55UniverseSnapshot,
+  v55WarningEvent,
+} from "@/lib/v5-5/repository";
 import { serializeSignalFeatureSnapshotV2 } from "@/lib/v5-5/snapshot";
 import { buildUniverseSnapshot } from "@/lib/v5-5/universe";
 import { filterForwardEligibleSnapshots, isForwardEligibleSourceTimestamp } from "@/lib/v5-5/forward-start";
@@ -65,6 +71,7 @@ type FakeRow = Record<string, unknown>;
 
 class FakeSupabase {
   readonly rows = new Map<string, FakeRow[]>();
+  forceUniverseConflictWithoutCanonicalRow = false;
 
   from(table: string): FakeSupabaseQuery {
     return new FakeSupabaseQuery(this, table);
@@ -97,6 +104,9 @@ class FakeSupabaseQuery {
     const rows = this.client.rows.get(this.table) ?? [];
     if (this.operation === "insert") {
       const row = { ...(this.payload ?? {}) };
+      if (this.table === "bca_v55_universe_snapshots" && this.client.forceUniverseConflictWithoutCanonicalRow) {
+        return { data: null, error: { code: "23505", message: "unrelated unique constraint" } };
+      }
       const duplicate = rows.some((existing) => this.isDuplicate(existing, row));
       if (duplicate) return { data: null, error: { code: "23505", message: "duplicate key" } };
       if (!row.snapshot_id && this.table === "bca_v55_universe_snapshots") {
@@ -239,6 +249,109 @@ describe("V5.5 point-in-time universe capture", () => {
 });
 
 describe("V5.5 repository forward-evidence integrity", () => {
+  it("A: makes the first universe write the canonical owner", async () => {
+    const store = fakeSupabase();
+    const ownerContext = { ...context(), scanId: "canonical-scan" };
+    const ownerUniverse = universeSnapshot("TESTUSDT", ownerContext.scanId, ownerContext.scanGroupKey);
+
+    const result = await persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      ownerContext,
+      ownerUniverse,
+    );
+
+    expect(result.status).toBe("CREATED");
+    expect(result.snapshotHash).toBe(ownerUniverse.snapshotHash);
+    expect(store.rows.get("bca_v55_universe_snapshots")).toHaveLength(1);
+  });
+
+  it("B: keeps the first hash when the same scan is retried with different content", async () => {
+    const store = fakeSupabase();
+    const ownerContext = { ...context(), scanId: "canonical-scan" };
+    const ownerUniverse = universeSnapshot("TESTUSDT", ownerContext.scanId, ownerContext.scanGroupKey);
+    const differentUniverse = universeSnapshot("SECONDUSDT", ownerContext.scanId, ownerContext.scanGroupKey);
+    const first = await persistV55UniverseSnapshot(store as unknown as SupabaseClient, ownerContext, ownerUniverse);
+    const duplicate = await persistV55UniverseSnapshot(store as unknown as SupabaseClient, ownerContext, differentUniverse);
+
+    expect(differentUniverse.snapshotHash).not.toBe(ownerUniverse.snapshotHash);
+    expect(duplicate.status).toBe("IDEMPOTENT_EXISTING");
+    expect(duplicate.snapshotId).toBe(first.snapshotId);
+    expect(duplicate.snapshotHash).toBe(first.snapshotHash);
+    expect(store.rows.get("bca_v55_universe_snapshots")).toHaveLength(1);
+  });
+
+  it("C: resolves a concurrent same-scan race to one canonical universe", async () => {
+    const store = fakeSupabase();
+    const ownerContext = { ...context(), scanId: "concurrent-scan" };
+    const ownerUniverse = universeSnapshot("TESTUSDT", ownerContext.scanId, ownerContext.scanGroupKey);
+    const alternateUniverse = universeSnapshot("SECONDUSDT", ownerContext.scanId, ownerContext.scanGroupKey);
+    const results = await Promise.all([
+      persistV55UniverseSnapshot(store as unknown as SupabaseClient, ownerContext, ownerUniverse),
+      persistV55UniverseSnapshot(store as unknown as SupabaseClient, ownerContext, alternateUniverse),
+    ]);
+
+    expect(results.map((result) => result.status).sort()).toEqual(["CREATED", "IDEMPOTENT_EXISTING"]);
+    expect(results[1]?.snapshotId).toBe(results[0]?.snapshotId);
+    expect(store.rows.get("bca_v55_universe_snapshots")).toHaveLength(1);
+  });
+
+  it("D: skips the entire evidence path for an idempotent universe", async () => {
+    const store = fakeSupabase();
+    const ownerContext = { ...context(), scanId: "canonical-scan" };
+    const ownerUniverse = universeSnapshot("TESTUSDT", ownerContext.scanId, ownerContext.scanGroupKey);
+    await persistV55UniverseSnapshot(store as unknown as SupabaseClient, ownerContext, ownerUniverse);
+    const duplicate = await persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      ownerContext,
+      universeSnapshot("SECONDUSDT", ownerContext.scanId, ownerContext.scanGroupKey),
+    );
+
+    expect(isV55UniverseCanonicalOwner(duplicate.status)).toBe(false);
+    if (isV55UniverseCanonicalOwner(duplicate.status)) {
+      throw new Error("idempotent universe must not enter the evidence path");
+    }
+    expect(store.rows.get("bca_v55_signal_feature_snapshots") ?? []).toHaveLength(0);
+    expect(store.rows.get("bca_shadow_paper_trades") ?? []).toHaveLength(0);
+    expect(v55WarningEvent({
+      snapshotsWritten: 0,
+      idempotentSnapshots: 0,
+      idempotentTradeSkips: 0,
+      shadowTradesWritten: 0,
+      skippedBeforeForwardStart: 0,
+      errors: [],
+    })).toBeNull();
+  });
+
+  it("E: does not backfill evidence after a first-owner crash", async () => {
+    const store = fakeSupabase();
+    const ownerContext = { ...context(), scanId: "crashed-owner-scan" };
+    const ownerUniverse = universeSnapshot("TESTUSDT", ownerContext.scanId, ownerContext.scanGroupKey);
+    await persistV55UniverseSnapshot(store as unknown as SupabaseClient, ownerContext, ownerUniverse);
+
+    const retry = await persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      ownerContext,
+      universeSnapshot("SECONDUSDT", ownerContext.scanId, ownerContext.scanGroupKey),
+    );
+
+    expect(retry.status).toBe("IDEMPOTENT_EXISTING");
+    expect(store.rows.get("bca_v55_signal_feature_snapshots") ?? []).toHaveLength(0);
+    expect(store.rows.get("bca_shadow_paper_trades") ?? []).toHaveLength(0);
+  });
+
+  it("F: fails closed for an unrelated unique conflict", async () => {
+    const store = fakeSupabase();
+    store.forceUniverseConflictWithoutCanonicalRow = true;
+    const ownerContext = { ...context(), scanId: "unrelated-conflict-scan" };
+
+    await expect(persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      ownerContext,
+      universeSnapshot("TESTUSDT", ownerContext.scanId, ownerContext.scanGroupKey),
+    )).rejects.toThrow("universe snapshot write failed");
+    expect(store.rows.get("bca_v55_universe_snapshots") ?? []).toHaveLength(0);
+  });
+
   it("treats duplicate cron snapshots as idempotent by the natural identity", async () => {
     const store = fakeSupabase();
     const contextA = { ...context(), scanId: "scan-A", universeSnapshotId: "universe-A" };
