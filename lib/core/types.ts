@@ -36,11 +36,17 @@ export interface Instrument {
   onboardDate?: number;
 }
 
+export interface ExecutionCandleOpen {
+  openTime: number;
+  open: number;
+}
+
 export interface MarketSnapshot {
   instrument: Instrument;
   tickerPrice: number;
   candles: Partial<Record<Timeframe, Candle[]>>;
   sourceTimestamp: number;
+  nextExecutionCandle?: ExecutionCandleOpen | null;
 }
 
 export interface ScoreComponents {

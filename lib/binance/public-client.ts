@@ -1,4 +1,4 @@
-import type { Candle, FundingRatePoint, Instrument, MarketSnapshot, Timeframe } from "@/lib/core/types";
+import type { Candle, ExecutionCandleOpen, FundingRatePoint, Instrument, MarketSnapshot, Timeframe } from "@/lib/core/types";
 import { ProxyAgent, setGlobalDispatcher } from "undici";
 import type {
   BinanceExchangeInfo,
@@ -153,10 +153,26 @@ export class BinancePublicClient {
     return Number(result.price);
   }
 
+  async getNextExecutionCandleOpen(symbol: string, signalCandleCloseTime: number): Promise<ExecutionCandleOpen | null> {
+    const expectedOpenTime = signalCandleCloseTime + 1;
+    const raw = await this.get<unknown[][]>("/fapi/v1/klines", {
+      symbol,
+      interval: "15m",
+      startTime: String(expectedOpenTime),
+      endTime: String(expectedOpenTime),
+      limit: "1",
+    });
+    const next = raw
+      .map(parseExecutionCandleOpen)
+      .find((candle) => candle.openTime === expectedOpenTime);
+    return next ?? null;
+  }
+
   async getSnapshot(
     instrument: Instrument,
     timeframes: Timeframe[],
     limit = 250,
+    includeNextExecutionCandle = false,
   ): Promise<MarketSnapshot> {
     const requestedTimeframes = Array.from(new Set(["15m" as Timeframe, ...timeframes]));
     const candleEntries = await Promise.all(
@@ -167,11 +183,15 @@ export class BinancePublicClient {
       ?? (await this.getTickerPrice(instrument.symbol));
     const sourceTimestamp = primaryCandles.at(-1)?.closeTime
       ?? candleEntries.flatMap(([, candles]) => candles).reduce((latest, candle) => Math.max(latest, candle.closeTime), 0);
+    const nextExecutionCandle = includeNextExecutionCandle && primaryCandles.at(-1)
+      ? await this.getNextExecutionCandleOpen(instrument.symbol, sourceTimestamp).catch(() => null)
+      : undefined;
 
     return {
       instrument,
       tickerPrice,
       candles: Object.fromEntries(candleEntries),
+      nextExecutionCandle,
       // Signal identity follows the primary 15m candle. A higher timeframe can stay
       // unchanged for hours and must not suppress new 15m opportunities.
       sourceTimestamp,
@@ -287,6 +307,15 @@ function parseKline(raw: unknown[]): BinanceKline {
   };
   if (Object.values(candle).some((value) => !Number.isFinite(value))) {
     throw new Error("Malformed Binance kline values");
+  }
+  return candle;
+}
+
+function parseExecutionCandleOpen(raw: unknown[]): ExecutionCandleOpen {
+  if (raw.length < 2) throw new Error("Malformed Binance execution kline");
+  const candle = { openTime: Number(raw[0]), open: Number(raw[1]) };
+  if (Object.values(candle).some((value) => !Number.isFinite(value))) {
+    throw new Error("Malformed Binance execution kline values");
   }
   return candle;
 }

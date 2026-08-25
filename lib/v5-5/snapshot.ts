@@ -7,6 +7,11 @@ import { V55_STRATEGY_VERSION } from "./manifest";
 const nullableNumber = z.number().finite().nullable();
 const nullableString = z.string().nullable();
 
+export const V55_EXECUTION_REFERENCE_SOURCE = "BINANCE_15M_NEXT_BAR_OPEN" as const;
+export const V55_EXECUTION_REFERENCE_UNAVAILABLE = "EXECUTION_REFERENCE_UNAVAILABLE" as const;
+export type V55ExecutionReferenceSource = typeof V55_EXECUTION_REFERENCE_SOURCE | typeof V55_EXECUTION_REFERENCE_UNAVAILABLE;
+export type V55ExecutionReferenceStatus = "AVAILABLE" | typeof V55_EXECUTION_REFERENCE_UNAVAILABLE;
+
 export const SignalFeatureSnapshotV2Schema = z.object({
   schema: z.literal("SignalFeatureSnapshotV2"),
   schemaVersion: z.literal("2"),
@@ -16,6 +21,11 @@ export const SignalFeatureSnapshotV2Schema = z.object({
   shadowSignalId: nullableString,
   scanTimestamp: z.string().min(1),
   sourceDataTimestamp: z.string().min(1),
+  signalCandleCloseTime: z.string().min(1),
+  executionCandleOpenTime: nullableString,
+  executionReferencePrice: nullableNumber,
+  executionReferenceSource: z.enum([V55_EXECUTION_REFERENCE_SOURCE, V55_EXECUTION_REFERENCE_UNAVAILABLE]),
+  executionReferenceStatus: z.enum(["AVAILABLE", V55_EXECUTION_REFERENCE_UNAVAILABLE]),
   closeTime15m: nullableString,
   closeTime1h: nullableString,
   closeTime4h: nullableString,
@@ -114,6 +124,11 @@ export function buildSignalFeatureSnapshot(input: {
   shadowSignalId: string | null;
   scanTimestamp: number;
   sourceDataTimestamp: number;
+  signalCandleCloseTime: number;
+  executionCandleOpenTime: number | null;
+  executionReferencePrice: number | null;
+  executionReferenceSource: V55ExecutionReferenceSource;
+  executionReferenceStatus: V55ExecutionReferenceStatus;
   strategyId: string;
   manifestHash: string;
   instrument: Instrument;
@@ -134,6 +149,11 @@ export function buildSignalFeatureSnapshot(input: {
     shadowSignalId: input.shadowSignalId,
     scanTimestamp: new Date(input.scanTimestamp).toISOString(),
     sourceDataTimestamp: new Date(input.sourceDataTimestamp).toISOString(),
+    signalCandleCloseTime: new Date(input.signalCandleCloseTime).toISOString(),
+    executionCandleOpenTime: timestampOf(input.executionCandleOpenTime ?? undefined),
+    executionReferencePrice: input.executionReferencePrice,
+    executionReferenceSource: input.executionReferenceSource,
+    executionReferenceStatus: input.executionReferenceStatus,
     closeTime15m: timestampOf(input.candles["15m"].at(-1)?.closeTime),
     closeTime1h: timestampOf(input.candles["1h"].at(-1)?.closeTime),
     closeTime4h: timestampOf(input.candles["4h"].at(-1)?.closeTime),
@@ -207,6 +227,11 @@ export function serializeSignalFeatureSnapshotV2(input: SignalFeatureSnapshotV2)
     shadowSignalId: input.shadowSignalId,
     scanTimestamp: input.scanTimestamp,
     sourceDataTimestamp: input.sourceDataTimestamp,
+    signalCandleCloseTime: input.signalCandleCloseTime,
+    executionCandleOpenTime: input.executionCandleOpenTime,
+    executionReferencePrice: input.executionReferencePrice,
+    executionReferenceSource: input.executionReferenceSource,
+    executionReferenceStatus: input.executionReferenceStatus,
     closeTime15m: input.closeTime15m,
     closeTime1h: input.closeTime1h,
     closeTime4h: input.closeTime4h,

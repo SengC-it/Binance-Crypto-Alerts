@@ -89,6 +89,8 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
     let v55Context: V55RuntimeContext | null = null;
     let v55SnapshotsWritten = 0;
+    let v55IdempotentSnapshots = 0;
+    let v55IdempotentTradeSkips = 0;
     let v55ShadowTradesWritten = 0;
     const productionHealth = await loadProspectiveStrategyHealth(supabase, PRODUCTION_STRATEGY_VERSION);
     const productionHealthEvent = buildStrategyHealthEvent(productionHealth, batchNumber);
@@ -151,7 +153,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     const snapshots = await mapWithConcurrency(batch, runtimeConfig.CS_REQUEST_CONCURRENCY, async (instrument) => {
       try {
         const timeframes = normalizedTimeframes(runtimeConfig.scanTimeframes);
-        return await client.getSnapshot(instrument, timeframes, 250) as MarketSnapshot;
+        return await client.getSnapshot(instrument, timeframes, 250, runtimeConfig.BCA_V55_SHADOW_ENABLED) as MarketSnapshot;
       } catch (error) {
         errors.push({ symbol: instrument.symbol, stage: "market_data", message: errorMessage(error) });
         return null;
@@ -165,6 +167,8 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           .map((snapshot) => evaluateV55Snapshot(snapshot, v55Context as V55RuntimeContext));
         const v55Summary = await persistV55ShadowEvidence(supabase, v55Context, evaluations);
         v55SnapshotsWritten = v55Summary.snapshotsWritten;
+        v55IdempotentSnapshots = v55Summary.idempotentSnapshots;
+        v55IdempotentTradeSkips = v55Summary.idempotentTradeSkips;
         v55ShadowTradesWritten = v55Summary.shadowTradesWritten;
         const warning = v55WarningEvent(v55Summary);
         if (warning) await recordV55Warning(supabase, warning.message, warning.details);
@@ -372,6 +376,8 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       v55Shadow: {
         enabled: runtimeConfig.BCA_V55_SHADOW_ENABLED,
         snapshotsWritten: v55SnapshotsWritten,
+        idempotentSnapshots: v55IdempotentSnapshots,
+        idempotentTradeSkips: v55IdempotentTradeSkips,
         shadowTradesWritten: v55ShadowTradesWritten,
       },
       finalized: finalizing,

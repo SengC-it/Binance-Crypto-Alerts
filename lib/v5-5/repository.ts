@@ -8,6 +8,7 @@ import type { V55ForwardTradeRow } from "./evaluator";
 export interface V55PersistSummary {
   snapshotsWritten: number;
   idempotentSnapshots: number;
+  idempotentTradeSkips: number;
   shadowTradesWritten: number;
   errors: Array<{ symbol: string; stage: string; message: string }>;
 }
@@ -78,16 +79,31 @@ export async function persistV55ShadowEvidence(
   context: V55RuntimeContext,
   evaluations: V55Evaluation[],
 ): Promise<V55PersistSummary> {
-  const summary: V55PersistSummary = { snapshotsWritten: 0, idempotentSnapshots: 0, shadowTradesWritten: 0, errors: [] };
+  const summary: V55PersistSummary = {
+    snapshotsWritten: 0,
+    idempotentSnapshots: 0,
+    idempotentTradeSkips: 0,
+    shadowTradesWritten: 0,
+    errors: [],
+  };
   for (const evaluation of evaluations) {
     const symbol = evaluation.snapshot.instrument.symbol;
     try {
       const persistedSnapshot = await persistV55Snapshot(supabase, context, evaluation);
       if (persistedSnapshot.status === "CREATED") summary.snapshotsWritten += 1;
-      else summary.idempotentSnapshots += 1;
+      else {
+        summary.idempotentSnapshots += 1;
+        // The first persisted snapshot is the canonical decision. A duplicate
+        // invocation may never backfill a trade from a newer evaluation.
+        if (evaluation.finalEligible && evaluation.tradePlan && evaluation.shadowSignalId) {
+          summary.idempotentTradeSkips += 1;
+        }
+        continue;
+      }
       if (evaluation.finalEligible && evaluation.tradePlan && evaluation.shadowSignalId) {
         const created = await persistShadowTrade(supabase, context, evaluation, persistedSnapshot.snapshotId);
         if (created) summary.shadowTradesWritten += 1;
+        else summary.idempotentTradeSkips += 1;
       }
     } catch (error) {
       summary.errors.push({ symbol, stage: "v55_shadow_evidence", message: errorMessage(error) });
@@ -228,7 +244,7 @@ async function persistShadowTrade(
     side: "SHORT",
     strategy_family: "FAILED_BREAKOUT_SHORT",
     strategy_version: snapshot.strategy.strategyVersion,
-    entry_time: snapshot.sourceDataTimestamp,
+    entry_time: new Date(plan.executionCandleOpenTime).toISOString(),
     entry_price: plan.entryPrice,
     entry_fill_price: entryFillPrice,
     stop_price: plan.stopPrice,
@@ -247,6 +263,10 @@ async function persistShadowTrade(
       forward_experiment_id: context.experimentId,
       strategy_manifest_hash: snapshot.strategy.manifestHash,
       source_data_timestamp: snapshot.sourceDataTimestamp,
+      signal_candle_close_time: new Date(plan.signalCandleCloseTime).toISOString(),
+      execution_candle_open_time: new Date(plan.executionCandleOpenTime).toISOString(),
+      execution_reference_price: plan.executionReferencePrice,
+      execution_reference_source: snapshot.executionReferenceSource,
       runtime_commit_sha: context.runtimeCommitSha,
       universe_snapshot_hash: context.universeSnapshotHash,
       idempotency_key: idempotencyKey,
