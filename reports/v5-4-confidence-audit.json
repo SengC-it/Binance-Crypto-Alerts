@@ -1,0 +1,63 @@
+{
+  "report": "V5.4 Confidence Audit",
+  "generatedAt": "2026-08-25T00:09:15.191Z",
+  "selectedCandidate": "SHORT-FAILED_BREAKOUT_SHORT-02",
+  "candidateCount": 18,
+  "nestedCandidateSelection": true,
+  "sourceSelectionAdjustedLcb": "E:\\Codex\\binance-crypto-alerts\\reports\\v5-3-nested-walk-forward.json",
+  "observations": 133,
+  "confidence": {
+    "promotionLcb95": -0.2604,
+    "methods": [
+      {
+        "method": "naive_bootstrap",
+        "lcb95": 0.0169,
+        "repetitions": 2000,
+        "blockLength": null,
+        "clusterCount": null,
+        "notes": "IID resampling; does not correct serial or cluster dependence."
+      },
+      {
+        "method": "block_bootstrap",
+        "lcb95": 0.0276,
+        "repetitions": 2000,
+        "blockLength": 5,
+        "clusterCount": null,
+        "notes": "Circular blocks preserve short-range serial correlation and overlapping-trade dependence."
+      },
+      {
+        "method": "symbol_cluster_bootstrap",
+        "lcb95": -0.0072,
+        "repetitions": 2000,
+        "blockLength": null,
+        "clusterCount": 39,
+        "notes": "Resamples complete symbol clusters with replacement."
+      },
+      {
+        "method": "fold_cluster_bootstrap",
+        "lcb95": -0.126,
+        "repetitions": 2000,
+        "blockLength": null,
+        "clusterCount": 12,
+        "notes": "Resamples complete outer-fold clusters with replacement."
+      },
+      {
+        "method": "selection_adjusted_bootstrap",
+        "lcb95": -0.2604,
+        "repetitions": 2000,
+        "blockLength": 5,
+        "clusterCount": 18,
+        "notes": "Nested selection adjustment over 18 preregistered candidates; selected=SHORT-FAILED_BREAKOUT_SHORT-02."
+      }
+    ]
+  },
+  "promotionLcb95": -0.2604,
+  "promotionMethod": "minimum_available_lcb95",
+  "methodology": [
+    "Naive bootstrap is retained as a diagnostic only.",
+    "Block bootstrap uses circular block length 5 to address serial correlation and overlapping trades.",
+    "Symbol-cluster bootstrap resamples complete symbols; fold-cluster bootstrap resamples complete outer folds.",
+    "Selection-adjusted LCB is the frozen nested-selection result over 18 preregistered candidates; it is not recomputed by selecting a new candidate in V5.4.",
+    "Promotion uses the minimum available LCB across all methods; the prettiest interval cannot be selected."
+  ]
+}
