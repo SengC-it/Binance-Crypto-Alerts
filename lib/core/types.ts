@@ -27,10 +27,18 @@ export interface Instrument {
   priceTick: number;
   quantityStep: number;
   minQuantity?: number;
+  minNotional?: number;
+  pricePrecision?: number;
+  quantityPrecision?: number;
   maxLeverage?: number;
   quoteVolume24h?: number;
   universeRank?: number;
   onboardDate?: number;
+}
+
+export interface ExecutionCandleOpen {
+  openTime: number;
+  open: number;
 }
 
 export interface MarketSnapshot {
@@ -38,6 +46,7 @@ export interface MarketSnapshot {
   tickerPrice: number;
   candles: Partial<Record<Timeframe, Candle[]>>;
   sourceTimestamp: number;
+  nextExecutionCandle?: ExecutionCandleOpen | null;
 }
 
 export interface ScoreComponents {

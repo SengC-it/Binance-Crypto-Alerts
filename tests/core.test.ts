@@ -393,6 +393,31 @@ describe("Binance public client", () => {
     expect(snapshot.sourceTimestamp).toBe(1_000_000);
   });
 
+  it("retrieves only the real next-bar open when execution reference is requested", async () => {
+    const rowsByInterval: Record<string, unknown[][]> = {
+      "15m": [rawKline(1_000_000, 100)],
+      "1h": [rawKline(2_000_000, 101)],
+      "4h": [rawKline(3_000_000, 102)],
+    };
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input));
+      const interval = url.searchParams.get("interval") ?? "15m";
+      if (url.searchParams.get("startTime") === "1000001") {
+        return new Response(JSON.stringify([[1_000_001, "101", "999", "1", "777", "999999", "1900000"]]), { status: 200 });
+      }
+      return new Response(JSON.stringify(rowsByInterval[interval]), { status: 200 });
+    }));
+
+    const snapshot = await new BinancePublicClient("https://fapi.binance.com").getSnapshot(
+      instrument,
+      ["1h", "4h"],
+      10,
+      true,
+    );
+
+    expect(snapshot.nextExecutionCandle).toEqual({ openTime: 1_000_001, open: 101 });
+  });
+
   it("limits concurrent work to the requested worker count", async () => {
     let active = 0;
     let maximum = 0;

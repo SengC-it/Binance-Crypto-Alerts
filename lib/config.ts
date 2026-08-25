@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const V55_SHADOW_DEFAULT_ENABLED = false;
+
 const serverEnvSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
@@ -54,6 +56,13 @@ const serverEnvSchema = z.object({
     .string()
     .default("true")
     .transform((value) => value.toLowerCase() === "true"),
+  BCA_V55_SHADOW_ENABLED: z
+    .string()
+    .default(String(V55_SHADOW_DEFAULT_ENABLED))
+    .transform((value) => value.toLowerCase() === "true"),
+  BCA_V55_FORWARD_EXPERIMENT_ID: z.string().min(1).default("v55-fbos02-forward-001"),
+  BCA_V55_FORWARD_START_TIMESTAMP: z.string().datetime().optional(),
+  BCA_V55_RUNTIME_COMMIT_SHA: z.string().min(1).optional(),
 });
 
 export type ServerConfig = z.infer<typeof serverEnvSchema> & {
