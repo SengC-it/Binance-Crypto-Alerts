@@ -1,6 +1,6 @@
 {
   "schemaVersion": "v5.5a-rollout-manifest-v1",
-  "sourceV55ASha": "4c06fd2157df0b9ed59095d2533de74a08dd0430",
+  "sourceV55ASha": "3080519295ac246a099a21681ebe3d51c3cde3b3",
   "requiredFiles": [
     "app/api/scan/route.ts",
     "lib/binance/public-client.ts",

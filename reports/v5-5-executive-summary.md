@@ -8,5 +8,5 @@
 6. Missing evidence: no V5.5 prospective rows exist before rollout; at least 50 settled trades over 30 days are needed for the minimum observation target.
 7. V5.5B minimum rollout: selectively port the listed runtime files, apply the additive migration, set the forward experiment/start timestamp, keep `BCA_V55_SHADOW_ENABLED=false` until approval, then enable only through a separately reviewed Production change.
 
-Source code SHA recorded for this report: `4c06fd2157df0b9ed59095d2533de74a08dd0430`.
+Source code SHA recorded for this report: `3080519295ac246a099a21681ebe3d51c3cde3b3`.
 Forward evaluator pre-rollout status: `INSUFFICIENT_FORWARD_EVIDENCE`.
