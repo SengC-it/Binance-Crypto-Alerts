@@ -1,0 +1,52 @@
+{
+  "schema": "SignalFeatureSnapshotV2",
+  "signalId": "research-design-placeholder",
+  "strategyVersion": "trend-rejection-short-v1",
+  "candidateFamily": "TREND",
+  "timestamp": "1970-01-01T00:00:00.000Z",
+  "instrument": {
+    "quoteVolume24h": null,
+    "tickSize": null,
+    "stepSize": null,
+    "pricePrecision": null,
+    "quantityPrecision": null
+  },
+  "snapshot": {
+    "candleCount15m": 0,
+    "candleCount1h": 0,
+    "candleCount4h": 0,
+    "lastCandleTimestamp15m": null,
+    "lastCandleTimestamp1h": null,
+    "lastCandleTimestamp4h": null
+  },
+  "features": {
+    "atr": null,
+    "ema": null,
+    "rsi": null,
+    "volumeRatio": null,
+    "marketRegime": null,
+    "score": null,
+    "scoreComponents": {}
+  },
+  "policy": {
+    "entryMode": "TREND_REJECTION",
+    "scoreThreshold": 70,
+    "sideFilter": "SHORT",
+    "strategyFamily": "TREND",
+    "regimeAlignment": "REQUIRED",
+    "stopATR": 0.5,
+    "RR": 2
+  },
+  "sourceHashes": {
+    "candle15m": "DATA_UNAVAILABLE",
+    "candle1h": "DATA_UNAVAILABLE",
+    "candle4h": "DATA_UNAVAILABLE",
+    "features": "DATA_UNAVAILABLE",
+    "policy": "DATA_UNAVAILABLE"
+  },
+  "version": {
+    "schemaVersion": "2",
+    "producerVersion": "research-design",
+    "featureCodeVersion": "v5.4"
+  }
+}
