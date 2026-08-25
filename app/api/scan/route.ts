@@ -31,6 +31,10 @@ import {
 } from "@/lib/services/signal-repository";
 import { createPaperTrade, createShadowPaperTrade } from "@/lib/services/paper-trading";
 import { loadProspectiveStrategyHealth } from "@/lib/services/strategy-health";
+import { evaluateV55Snapshot, type V55RuntimeContext } from "@/lib/v5-5/runtime";
+import { persistV55ShadowEvidence, persistV55UniverseSnapshot, v55WarningEvent } from "@/lib/v5-5/repository";
+import { buildUniverseSnapshot } from "@/lib/v5-5/universe";
+import { getFrozenStrategy } from "@/lib/v5-5/manifest";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,7 +62,8 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
 
     const batchNumber = parseBatchNumber(request.nextUrl.searchParams.get("batch"));
     const client = new BinancePublicClient(runtimeConfig.BINANCE_API_BASE_URL);
-    const universe = await client.getUniverse();
+    const observedUniverse = await client.getUniverseSnapshot();
+    const universe = observedUniverse.eligibleSymbols;
     const deepUniverse = selectDeepUniverse(universe, runtimeConfig.CS_TOP_SYMBOLS);
     const batchCount = Math.max(1, Math.ceil(deepUniverse.length / runtimeConfig.CS_SCAN_BATCH_SIZE));
     if (batchNumber >= batchCount) {
@@ -82,6 +87,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     };
     supabase = getSupabaseAdmin();
     const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
+    let v55Context: V55RuntimeContext | null = null;
+    let v55SnapshotsWritten = 0;
+    let v55IdempotentSnapshots = 0;
+    let v55IdempotentTradeSkips = 0;
+    let v55ShadowTradesWritten = 0;
     const productionHealth = await loadProspectiveStrategyHealth(supabase, PRODUCTION_STRATEGY_VERSION);
     const productionHealthEvent = buildStrategyHealthEvent(productionHealth, batchNumber);
     if (productionHealthEvent) {
@@ -100,15 +110,75 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       batchCount,
       universeSize: universe.length,
     });
+    if (runtimeConfig.BCA_V55_SHADOW_ENABLED) {
+      const forwardStartTimestamp = runtimeConfig.BCA_V55_FORWARD_START_TIMESTAMP
+        ? Date.parse(runtimeConfig.BCA_V55_FORWARD_START_TIMESTAMP)
+        : NaN;
+      if (!Number.isFinite(forwardStartTimestamp)) {
+        await recordV55Warning(supabase, "V5.5 Shadow is enabled without a valid forward start timestamp; no evidence was written.", {
+          scanRunId,
+          reason: "missing_forward_start_timestamp",
+        });
+      } else {
+        try {
+          const universeSnapshot = buildUniverseSnapshot({
+            scanId: scanRunId,
+            scanGroupKey: scanGroupKey as string,
+            scanTimestamp: observedUniverse.retrievedAt,
+            observed: observedUniverse,
+            selectedForEvaluation: deepUniverse.map((instrument) => instrument.symbol),
+          });
+          const candidateContext: V55RuntimeContext = {
+            scanId: scanRunId,
+            scanGroupKey: scanGroupKey as string,
+            scanTimestamp: observedUniverse.retrievedAt,
+            forwardStartTimestamp,
+            experimentId: runtimeConfig.BCA_V55_FORWARD_EXPERIMENT_ID,
+            runtimeCommitSha: runtimeConfig.BCA_V55_RUNTIME_COMMIT_SHA
+              ?? process.env.VERCEL_GIT_COMMIT_SHA
+              ?? "unknown",
+            strategyManifestHash: getFrozenStrategy().manifestHash,
+            universeSnapshotHash: universeSnapshot.snapshotHash,
+          };
+          const persistedUniverse = await persistV55UniverseSnapshot(supabase, candidateContext, universeSnapshot);
+          v55Context = { ...candidateContext, universeSnapshotId: persistedUniverse.snapshotId };
+        } catch (error) {
+          await recordV55Warning(supabase, "V5.5 universe evidence write failed; this scan will not write Shadow evidence.", {
+            scanRunId,
+            message: errorMessage(error),
+          });
+        }
+      }
+    }
     const snapshots = await mapWithConcurrency(batch, runtimeConfig.CS_REQUEST_CONCURRENCY, async (instrument) => {
       try {
         const timeframes = normalizedTimeframes(runtimeConfig.scanTimeframes);
-        return await client.getSnapshot(instrument, timeframes, 250) as MarketSnapshot;
+        return await client.getSnapshot(instrument, timeframes, 250, runtimeConfig.BCA_V55_SHADOW_ENABLED) as MarketSnapshot;
       } catch (error) {
         errors.push({ symbol: instrument.symbol, stage: "market_data", message: errorMessage(error) });
         return null;
       }
     });
+
+    if (v55Context) {
+      try {
+        const evaluations = snapshots
+          .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
+          .map((snapshot) => evaluateV55Snapshot(snapshot, v55Context as V55RuntimeContext));
+        const v55Summary = await persistV55ShadowEvidence(supabase, v55Context, evaluations);
+        v55SnapshotsWritten = v55Summary.snapshotsWritten;
+        v55IdempotentSnapshots = v55Summary.idempotentSnapshots;
+        v55IdempotentTradeSkips = v55Summary.idempotentTradeSkips;
+        v55ShadowTradesWritten = v55Summary.shadowTradesWritten;
+        const warning = v55WarningEvent(v55Summary);
+        if (warning) await recordV55Warning(supabase, warning.message, warning.details);
+      } catch (error) {
+        await recordV55Warning(supabase, "V5.5 Shadow evidence failed closed; Production scan continued.", {
+          scanRunId,
+          message: errorMessage(error),
+        });
+      }
+    }
 
     const candidates = snapshots
       .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
@@ -303,6 +373,13 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       shadowCandidateCount: shadowCandidates.length,
       finalShadowCandidateCount: finalShadowCandidates.length,
       shadowPaperTradeCreated,
+      v55Shadow: {
+        enabled: runtimeConfig.BCA_V55_SHADOW_ENABLED,
+        snapshotsWritten: v55SnapshotsWritten,
+        idempotentSnapshots: v55IdempotentSnapshots,
+        idempotentTradeSkips: v55IdempotentTradeSkips,
+        shadowTradesWritten: v55ShadowTradesWritten,
+      },
       finalized: finalizing,
       claimedCount,
       emailedCount,
@@ -416,4 +493,22 @@ function toInstrumentRow(instrument: Instrument) {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+async function recordV55Warning(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  message: string,
+  details: unknown,
+): Promise<void> {
+  try {
+    await recordSystemEvent(supabase, {
+      eventType: "WARNING",
+      severity: "WARNING",
+      component: "v5_5_forward_shadow",
+      message,
+      details,
+    });
+  } catch {
+    // V5.5 evidence logging is non-blocking for the Production scan.
+  }
 }
