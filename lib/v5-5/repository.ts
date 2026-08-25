@@ -10,10 +10,11 @@ export interface V55PersistSummary {
   idempotentSnapshots: number;
   idempotentTradeSkips: number;
   shadowTradesWritten: number;
+  skippedBeforeForwardStart: number;
   errors: Array<{ symbol: string; stage: string; message: string }>;
 }
 
-export type V55PersistenceStatus = "CREATED" | "IDEMPOTENT_EXISTING";
+export type V55PersistenceStatus = "CREATED" | "IDEMPOTENT_EXISTING" | "SKIPPED_BEFORE_FORWARD_START";
 
 export interface V55UniversePersistResult {
   snapshotId: string;
@@ -39,6 +40,9 @@ export async function persistV55UniverseSnapshot(
   context: V55RuntimeContext,
   snapshot: V55UniverseSnapshot,
 ): Promise<V55UniversePersistResult> {
+  if (isBeforeForwardStart(snapshot.scanTimestamp, context.forwardStartTimestamp)) {
+    return { snapshotId: "", status: "SKIPPED_BEFORE_FORWARD_START" };
+  }
   await ensureV55ForwardExperiment(supabase, context);
   const payload = {
     scan_id: context.scanId,
@@ -84,12 +88,17 @@ export async function persistV55ShadowEvidence(
     idempotentSnapshots: 0,
     idempotentTradeSkips: 0,
     shadowTradesWritten: 0,
+    skippedBeforeForwardStart: 0,
     errors: [],
   };
   for (const evaluation of evaluations) {
     const symbol = evaluation.snapshot.instrument.symbol;
     try {
       const persistedSnapshot = await persistV55Snapshot(supabase, context, evaluation);
+      if (persistedSnapshot.status === "SKIPPED_BEFORE_FORWARD_START") {
+        summary.skippedBeforeForwardStart += 1;
+        continue;
+      }
       if (persistedSnapshot.status === "CREATED") summary.snapshotsWritten += 1;
       else {
         summary.idempotentSnapshots += 1;
@@ -133,6 +142,9 @@ export async function persistV55Snapshot(
   evaluation: V55Evaluation,
 ): Promise<V55SnapshotPersistResult> {
   const snapshot = evaluation.snapshot;
+  if (isBeforeForwardStart(snapshot.sourceDataTimestamp, context.forwardStartTimestamp)) {
+    return { snapshotId: "", status: "SKIPPED_BEFORE_FORWARD_START" };
+  }
   if (!context.universeSnapshotId) {
     throw new Error("V5.5 universe snapshot reference is required before feature evidence write");
   }
@@ -302,4 +314,11 @@ export function v55WarningEvent(summary: V55PersistSummary): {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function isBeforeForwardStart(sourceTimestamp: string, forwardStartTimestamp: number): boolean {
+  const parsedSourceTimestamp = Date.parse(sourceTimestamp);
+  return !Number.isFinite(parsedSourceTimestamp)
+    || !Number.isFinite(forwardStartTimestamp)
+    || parsedSourceTimestamp < forwardStartTimestamp;
 }

@@ -15,9 +15,10 @@ import {
 } from "@/lib/v5-5/evaluator";
 import { getFrozenStrategy, V55_FORWARD_EXPERIMENT_ID, V55_PRODUCTION_EMAIL_ALLOWED, V55_STRATEGY_VERSION } from "@/lib/v5-5/manifest";
 import { evaluateV55Snapshot } from "@/lib/v5-5/runtime";
-import { persistV55ShadowEvidence, persistV55Snapshot, persistV55UniverseSnapshot } from "@/lib/v5-5/repository";
+import { persistV55ShadowEvidence, persistV55Snapshot, persistV55UniverseSnapshot, v55WarningEvent } from "@/lib/v5-5/repository";
 import { serializeSignalFeatureSnapshotV2 } from "@/lib/v5-5/snapshot";
 import { buildUniverseSnapshot } from "@/lib/v5-5/universe";
+import { filterForwardEligibleSnapshots, isForwardEligibleSourceTimestamp } from "@/lib/v5-5/forward-start";
 
 const baseInstrument: Instrument = {
   symbol: "TESTUSDT",
@@ -34,12 +35,15 @@ const baseInstrument: Instrument = {
   quoteVolume24h: 100_000,
 };
 
-function emptyMarketSnapshot(): MarketSnapshot {
+function emptyMarketSnapshot(
+  sourceTimestamp = Date.parse("2026-08-25T00:00:00.000Z"),
+  instrument = baseInstrument,
+): MarketSnapshot {
   return {
-    instrument: baseInstrument,
+    instrument,
     tickerPrice: 100,
     candles: { "15m": [], "1h": [], "4h": [] },
-    sourceTimestamp: Date.parse("2026-08-25T00:00:00.000Z"),
+    sourceTimestamp,
   };
 }
 
@@ -138,11 +142,16 @@ function universeInput(symbol: string, status = "TRADING"): ExchangeUniverseSnap
   };
 }
 
-function universeSnapshot(symbol: string, scanId: string, scanGroupKey: string) {
+function universeSnapshot(
+  symbol: string,
+  scanId: string,
+  scanGroupKey: string,
+  scanTimestamp = Date.parse("2026-08-25T00:15:00.000Z"),
+) {
   return buildUniverseSnapshot({
     scanId,
     scanGroupKey,
-    scanTimestamp: Date.parse("2026-08-25T00:15:00.000Z"),
+    scanTimestamp,
     observed: universeInput(symbol),
     selectedForEvaluation: [symbol],
   });
@@ -249,6 +258,115 @@ describe("V5.5 repository forward-evidence integrity", () => {
     expect(summary.snapshotsWritten).toBe(0);
     expect(summary.idempotentSnapshots).toBe(1);
     expect(summary.errors).toEqual([]);
+  });
+
+  it("writes no experiment, universe, feature, or trade when every source is before start", async () => {
+    const start = Date.parse("2026-08-25T01:00:00.000Z");
+    const store = fakeSupabase();
+    const beforeContext = { ...context(), forwardStartTimestamp: start };
+    const universeResult = await persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      beforeContext,
+      universeSnapshot("TESTUSDT", "scan-before", beforeContext.scanGroupKey, start - 1),
+    );
+    const evaluation = evaluateV55Snapshot(emptyMarketSnapshot(start - 1), beforeContext);
+    const summary = await persistV55ShadowEvidence(store as unknown as SupabaseClient, beforeContext, [evaluation]);
+
+    expect(universeResult.status).toBe("SKIPPED_BEFORE_FORWARD_START");
+    expect(summary.skippedBeforeForwardStart).toBe(1);
+    expect(v55WarningEvent(summary)).toBeNull();
+    expect(store.rows.get("bca_v55_forward_experiments") ?? []).toHaveLength(0);
+    expect(store.rows.get("bca_v55_universe_snapshots") ?? []).toHaveLength(0);
+    expect(store.rows.get("bca_v55_signal_feature_snapshots") ?? []).toHaveLength(0);
+    expect(store.rows.get("bca_shadow_paper_trades") ?? []).toHaveLength(0);
+  });
+
+  it("accepts the exact start boundary and rejects start minus one millisecond", () => {
+    const start = Date.parse("2026-08-25T01:00:00.000Z");
+    expect(isForwardEligibleSourceTimestamp(start - 1, start)).toBe(false);
+    expect(isForwardEligibleSourceTimestamp(start, start)).toBe(true);
+    expect(isForwardEligibleSourceTimestamp(start + 1, start)).toBe(true);
+  });
+
+  it("creates prospective rows at the exact start and after it", async () => {
+    const start = Date.parse("2026-08-25T01:00:00.000Z");
+    const store = fakeSupabase();
+    const exactContext = { ...context(), forwardStartTimestamp: start, scanId: "scan-exact" };
+    const exactUniverse = universeSnapshot("TESTUSDT", exactContext.scanId, exactContext.scanGroupKey, start);
+    const exactPersistedUniverse = await persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      exactContext,
+      exactUniverse,
+    );
+    const exactEvidenceContext = {
+      ...exactContext,
+      universeSnapshotHash: exactUniverse.snapshotHash,
+      universeSnapshotId: exactPersistedUniverse.snapshotId,
+    };
+    const exactSummary = await persistV55ShadowEvidence(
+      store as unknown as SupabaseClient,
+      exactEvidenceContext,
+      [evaluateV55Snapshot(emptyMarketSnapshot(start), exactEvidenceContext)],
+    );
+    expect(exactPersistedUniverse.status).toBe("CREATED");
+    expect(exactSummary.snapshotsWritten).toBe(1);
+
+    const afterContext = { ...context(), forwardStartTimestamp: start, scanId: "scan-after" };
+    const afterUniverse = universeSnapshot("TESTUSDT", afterContext.scanId, afterContext.scanGroupKey, start + 1);
+    const afterPersistedUniverse = await persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      afterContext,
+      afterUniverse,
+    );
+    const afterEvidenceContext = {
+      ...afterContext,
+      universeSnapshotHash: afterUniverse.snapshotHash,
+      universeSnapshotId: afterPersistedUniverse.snapshotId,
+    };
+    const afterSummary = await persistV55ShadowEvidence(
+      store as unknown as SupabaseClient,
+      afterEvidenceContext,
+      [evaluateV55Snapshot(emptyMarketSnapshot(start + 1), afterEvidenceContext)],
+    );
+    expect(afterPersistedUniverse.status).toBe("CREATED");
+    expect(afterSummary.snapshotsWritten).toBe(1);
+    expect(store.rows.get("bca_v55_forward_experiments") ?? []).toHaveLength(1);
+    expect(store.rows.get("bca_v55_universe_snapshots") ?? []).toHaveLength(2);
+    expect(store.rows.get("bca_v55_signal_feature_snapshots") ?? []).toHaveLength(2);
+  });
+
+  it("filters a mixed scan before persistence so only prospective symbols get feature evidence", async () => {
+    const start = Date.parse("2026-08-25T01:00:00.000Z");
+    const beforeInstrument = { ...baseInstrument, symbol: "BEFOREUSDT", baseAsset: "BEFORE" };
+    const afterInstrument = { ...baseInstrument, symbol: "AFTERUSDT", baseAsset: "AFTER" };
+    const snapshots = [
+      emptyMarketSnapshot(start - 1, beforeInstrument),
+      emptyMarketSnapshot(start + 1, afterInstrument),
+    ];
+    const eligible = filterForwardEligibleSnapshots(snapshots, start);
+    expect(eligible.map((snapshot) => snapshot.instrument.symbol)).toEqual(["AFTERUSDT"]);
+
+    const store = fakeSupabase();
+    const baseContext = { ...context(), forwardStartTimestamp: start, scanId: "scan-mixed" };
+    const universe = universeSnapshot("AFTERUSDT", baseContext.scanId, baseContext.scanGroupKey, start + 1);
+    const persistedUniverse = await persistV55UniverseSnapshot(
+      store as unknown as SupabaseClient,
+      baseContext,
+      universe,
+    );
+    const evidenceContext = {
+      ...baseContext,
+      universeSnapshotHash: universe.snapshotHash,
+      universeSnapshotId: persistedUniverse.snapshotId,
+    };
+    const evaluations = eligible.map((snapshot) => evaluateV55Snapshot(snapshot, evidenceContext));
+    await persistV55ShadowEvidence(store as unknown as SupabaseClient, evidenceContext, evaluations);
+
+    const features = store.rows.get("bca_v55_signal_feature_snapshots") ?? [];
+    expect(store.rows.get("bca_v55_forward_experiments") ?? []).toHaveLength(1);
+    expect(store.rows.get("bca_v55_universe_snapshots") ?? []).toHaveLength(1);
+    expect(features).toHaveLength(1);
+    expect(features[0]?.symbol).toBe("AFTERUSDT");
   });
 
   it("keeps two batch universe rows and resolves each feature snapshot provenance", async () => {
