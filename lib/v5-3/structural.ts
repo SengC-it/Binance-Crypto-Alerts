@@ -620,13 +620,13 @@ export function runStructuralCandidate(
   return trades;
 }
 
-interface StructuralPlan {
+export interface StructuralPlan {
   stopPrice: number;
   targetPrice: number;
   riskPrice: number;
 }
 
-function buildStructuralPlan(
+export function buildStructuralPlan(
   candles: Candle[],
   frame: FeatureFrame,
   entry: Candle,

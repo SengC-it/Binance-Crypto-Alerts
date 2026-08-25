@@ -34,22 +34,32 @@ export class BinancePublicClient {
   private nextRequestAt = 0;
 
   async getUniverse(): Promise<Instrument[]> {
+    return (await this.getUniverseSnapshot()).eligibleSymbols;
+  }
+
+  async getUniverseSnapshot(): Promise<ExchangeUniverseSnapshot> {
     const [exchangeInfo, tickers] = await Promise.all([
       this.get<BinanceExchangeInfo>("/fapi/v1/exchangeInfo"),
       this.get<BinanceTicker24h[]>("/fapi/v1/ticker/24hr"),
     ]);
     const tickerBySymbol = new Map(tickers.map((ticker) => [ticker.symbol, ticker]));
 
-    return exchangeInfo.symbols
-      .filter(
-        (symbol) =>
-          symbol.status === "TRADING" &&
-          symbol.contractType === "PERPETUAL" &&
-          symbol.quoteAsset === "USDT",
-      )
-      .map((symbol) => this.toInstrument(symbol, tickerBySymbol.get(symbol.symbol)))
+    const allSymbols = exchangeInfo.symbols.map((symbol) => this.toInstrument(symbol, tickerBySymbol.get(symbol.symbol)));
+    const eligibleSymbols = allSymbols
+      .filter((instrument) => instrument.status === "TRADING" && instrument.contractType === "PERPETUAL" && instrument.quoteAsset === "USDT")
       .sort((left, right) => (right.quoteVolume24h ?? 0) - (left.quoteVolume24h ?? 0))
       .map((instrument, index) => ({ ...instrument, universeRank: index + 1 }));
+    const eligibleSet = new Set(eligibleSymbols.map((instrument) => instrument.symbol));
+    const excludedSymbols = allSymbols
+      .filter((instrument) => !eligibleSet.has(instrument.symbol))
+      .map((instrument) => ({ instrument, reason: universeExclusionReason(instrument) }));
+
+    return {
+      retrievedAt: Date.now(),
+      allSymbols,
+      eligibleSymbols,
+      excludedSymbols,
+    };
   }
 
   async getCandles(symbol: string, timeframe: Timeframe, limit = 250): Promise<Candle[]> {
@@ -203,6 +213,7 @@ export class BinancePublicClient {
   private toInstrument(symbol: BinanceExchangeSymbol, ticker?: BinanceTicker24h): Instrument {
     const priceFilter = symbol.filters.find((filter) => filter.filterType === "PRICE_FILTER");
     const lotSizeFilter = symbol.filters.find((filter) => filter.filterType === "LOT_SIZE");
+    const notionalFilter = symbol.filters.find((filter) => filter.filterType === "MIN_NOTIONAL" || filter.filterType === "NOTIONAL");
     return {
       symbol: symbol.symbol,
       baseAsset: symbol.baseAsset,
@@ -212,11 +223,21 @@ export class BinancePublicClient {
       priceTick: Number(priceFilter?.tickSize ?? "0.00000001"),
       quantityStep: Number(lotSizeFilter?.stepSize ?? "0.00000001"),
       minQuantity: lotSizeFilter?.minQty ? Number(lotSizeFilter.minQty) : undefined,
+      minNotional: Number(notionalFilter?.minNotional ?? notionalFilter?.notional ?? NaN) || undefined,
+      pricePrecision: decimalPrecision(priceFilter?.tickSize),
+      quantityPrecision: decimalPrecision(lotSizeFilter?.stepSize),
       maxLeverage: undefined,
       quoteVolume24h: ticker?.quoteVolume ? Number(ticker.quoteVolume) : undefined,
       onboardDate: Number.isFinite(Number(symbol.onboardDate)) ? Number(symbol.onboardDate) : undefined,
     };
   }
+}
+
+export interface ExchangeUniverseSnapshot {
+  retrievedAt: number;
+  allSymbols: Instrument[];
+  eligibleSymbols: Instrument[];
+  excludedSymbols: Array<{ instrument: Instrument; reason: string }>;
 }
 
 export class BinanceApiError extends Error {
@@ -277,6 +298,18 @@ function delay(ms: number): Promise<void> {
 function configuredRequestDelayMs(): number {
   const value = Number(process.env.BINANCE_REQUEST_DELAY_MS);
   return Number.isFinite(value) ? Math.max(0, value) : DEFAULT_REQUEST_DELAY_MS;
+}
+
+function decimalPrecision(value?: string): number | undefined {
+  if (!value || !value.includes(".")) return value ? 0 : undefined;
+  return value.replace(/0+$/, "").split(".")[1]?.length ?? 0;
+}
+
+function universeExclusionReason(instrument: Instrument): string {
+  if (instrument.quoteAsset !== "USDT") return "QUOTE_ASSET_NOT_USDT";
+  if (instrument.contractType !== "PERPETUAL") return "CONTRACT_TYPE_NOT_PERPETUAL";
+  if (instrument.status !== "TRADING") return `EXCHANGE_STATUS_${instrument.status}`;
+  return "NOT_SELECTED";
 }
 
 function configureNodeProxy(): void {

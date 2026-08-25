@@ -27,6 +27,9 @@ export interface Instrument {
   priceTick: number;
   quantityStep: number;
   minQuantity?: number;
+  minNotional?: number;
+  pricePrecision?: number;
+  quantityPrecision?: number;
   maxLeverage?: number;
   quoteVolume24h?: number;
   universeRank?: number;

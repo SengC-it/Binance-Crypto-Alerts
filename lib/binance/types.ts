@@ -4,6 +4,8 @@ export interface BinanceExchangeFilter {
   stepSize?: string;
   minQty?: string;
   maxQty?: string;
+  minNotional?: string;
+  notional?: string;
 }
 
 export interface BinanceExchangeSymbol {
