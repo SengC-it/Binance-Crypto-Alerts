@@ -94,13 +94,28 @@ describe("V5.5B rollout preparation", () => {
     expect(migration).not.toMatch(/\binsert\s+into\b/i);
     expect(migration).toMatch(/enable row level security/i);
     expect(migration).toMatch(/revoke all on table[\s\S]*from public, anon, authenticated/i);
-    expect(migration).toMatch(/grant all on table[\s\S]*to service_role/i);
     expect(migration).toMatch(/bca_v55_signal_feature_snapshots_immutable/i);
     expect(migration).toMatch(/bca_v55_universe_snapshots_immutable/i);
     expect(migration).toMatch(/bca_v55_shadow_entry_guard/i);
     expect(migration).toMatch(/bca_v55_forward_experiment_identity_guard/i);
     const entryGuard = migration.slice(migration.indexOf("create or replace function public.bca_v55_guard_shadow_entry"));
     expect(entryGuard).not.toMatch(/old\.status|old\.exit_time|old\.exit_price|old\.r_multiple|old\.net_pnl_usdt/);
+  });
+
+  it("hardens evidence table privileges and blocks truncate", () => {
+    const hardening = file("supabase/migrations/20260825100000_v55_evidence_privilege_hardening.sql");
+    expect(hardening).not.toMatch(/grant\s+all[\s\S]*to\s+service_role/i);
+    expect(hardening).toMatch(/revoke\s+all\s+on\s+table[\s\S]*from\s+public,\s*anon,\s*authenticated,\s*service_role/i);
+    expect(hardening).toMatch(/grant\s+select,\s*insert\s+on\s+table\s+public\.bca_v55_signal_feature_snapshots\s+to\s+service_role/i);
+    expect(hardening).toMatch(/grant\s+select,\s*insert\s+on\s+table\s+public\.bca_v55_universe_snapshots\s+to\s+service_role/i);
+    expect(hardening).toMatch(/grant\s+select,\s*insert\s+on\s+table\s+public\.bca_v55_forward_experiments\s+to\s+service_role/i);
+    expect(hardening).not.toMatch(/grant\s+(?:[^;]*\b(?:update|delete|truncate|references|trigger)\b)[^;]*on\s+table\s+public\.bca_v55_/i);
+    expect(hardening).toMatch(/bca_v55_signal_feature_snapshots_no_truncate/i);
+    expect(hardening).toMatch(/bca_v55_universe_snapshots_no_truncate/i);
+    expect(hardening).toMatch(/before\s+truncate\s+on\s+public\.bca_v55_signal_feature_snapshots/i);
+    expect(hardening).toMatch(/before\s+truncate\s+on\s+public\.bca_v55_universe_snapshots/i);
+    expect(hardening).not.toMatch(/^\s*(?:insert\s+into|update\s+public\.|delete\s+from|truncate\s+(?:table\s+)?public\.)/im);
+    expect(hardening).not.toMatch(/\bdrop\s+(?:table|function|trigger|index|schema|column)\b/i);
   });
 
   it("does not initialize the forward experiment or assign a runtime SHA during preparation", () => {
