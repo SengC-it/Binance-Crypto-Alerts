@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "v5.5a-rollout-manifest-v1",
+  "sourceV55ASha": "a2232e3c2be186fd3478a60253469df17e6d4613",
+  "requiredFiles": [
+    "app/api/scan/route.ts",
+    "lib/binance/public-client.ts",
+    "lib/binance/types.ts",
+    "lib/config.ts",
+    "lib/core/types.ts",
+    "lib/v5-5/canonical.ts",
+    "lib/v5-5/evaluator.ts",
+    "lib/v5-5/manifest.ts",
+    "lib/v5-5/repository.ts",
+    "lib/v5-5/runtime.ts",
+    "lib/v5-5/snapshot.ts",
+    "lib/v5-5/universe.ts",
+    "lib/v5-3/feature-snapshot.ts",
+    "lib/v5-3/structural.ts"
+  ],
+  "requiredMigration": "supabase/migrations/20260825090000_v55_forward_shadow_evidence.sql",
+  "requiredEnvVars": [
+    "BCA_V55_SHADOW_ENABLED=false until independent V5.5B approval",
+    "BCA_V55_FORWARD_EXPERIMENT_ID",
+    "BCA_V55_FORWARD_START_TIMESTAMP",
+    "BCA_V55_RUNTIME_COMMIT_SHA"
+  ],
+  "requiredCronChanges": [
+    "No new cron route; V5.5B must use the existing protected /api/scan and /api/paper/settle calls."
+  ],
+  "strategyManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "expectedRuntimeBehavior": {
+    "shadowOnly": true,
+    "productionEmailPossible": false,
+    "productionStrategyAffected": false,
+    "productionHealthGateAffected": false,
+    "productionScanFailureOnShadowError": false,
+    "evidenceWriteOnShadowError": false,
+    "historicalBackfill": false,
+    "automaticPromotion": false
+  },
+  "rollbackProcedure": [
+    "Set BCA_V55_SHADOW_ENABLED=false and redeploy the approved runtime.",
+    "The existing Production strategy and paper path remain enabled and unchanged.",
+    "Do not delete evidence rows; retain them for audit and mark the experiment STOPPED in a later approved operation."
+  ]
+}
