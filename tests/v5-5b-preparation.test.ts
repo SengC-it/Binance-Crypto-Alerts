@@ -68,6 +68,16 @@ describe("V5.5B rollout preparation", () => {
     expect(route).toContain("productionHealth.productionAAllowed");
   });
 
+  it("filters source timestamps before the first V5.5 write", () => {
+    const route = file("app/api/scan/route.ts");
+    const filterIndex = route.indexOf("filterForwardEligibleSnapshots");
+    const universeWriteIndex = route.indexOf("persistV55UniverseSnapshot(supabase");
+    expect(filterIndex).toBeGreaterThan(-1);
+    expect(universeWriteIndex).toBeGreaterThan(filterIndex);
+    expect(route).toContain("forwardEligibleSnapshots.length > 0");
+    expect(route).toContain("SKIPPED_BEFORE_FORWARD_START");
+  });
+
   it("contains no Production email capability in V5.5 modules", () => {
     const v55Sources = [
       "lib/v5-5/canonical.ts",

@@ -37,6 +37,7 @@ import { evaluateV55Snapshot, type V55RuntimeContext } from "@/lib/v5-5/runtime"
 import { persistV55ShadowEvidence, persistV55UniverseSnapshot, v55WarningEvent } from "@/lib/v5-5/repository";
 import { buildUniverseSnapshot } from "@/lib/v5-5/universe";
 import { getFrozenStrategy } from "@/lib/v5-5/manifest";
+import { filterForwardEligibleSnapshots } from "@/lib/v5-5/forward-start";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -91,11 +92,11 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     };
     supabase = getSupabaseAdmin();
     const errors: Array<{ symbol?: string; stage: string; message: string }> = [];
-    let v55Context: V55RuntimeContext | null = null;
     let v55SnapshotsWritten = 0;
     let v55IdempotentSnapshots = 0;
     let v55IdempotentTradeSkips = 0;
     let v55ShadowTradesWritten = 0;
+    let v55ForwardStartTimestamp: number | null = null;
     const productionHealth = await loadProspectiveStrategyHealth(supabase, PRODUCTION_STRATEGY_VERSION);
     const productionHealthEvent = buildStrategyHealthEvent(productionHealth, batchNumber);
     if (productionHealthEvent) {
@@ -129,34 +130,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           reason: "universe_snapshot_unavailable",
         });
       } else {
-        try {
-          const universeSnapshot = buildUniverseSnapshot({
-            scanId: scanRunId,
-            scanGroupKey: scanGroupKey as string,
-            scanTimestamp: observedUniverse.retrievedAt,
-            observed: observedUniverse,
-            selectedForEvaluation: deepUniverse.map((instrument) => instrument.symbol),
-          });
-          const candidateContext: V55RuntimeContext = {
-            scanId: scanRunId,
-            scanGroupKey: scanGroupKey as string,
-            scanTimestamp: observedUniverse.retrievedAt,
-            forwardStartTimestamp,
-            experimentId: runtimeConfig.BCA_V55_FORWARD_EXPERIMENT_ID,
-            runtimeCommitSha: runtimeConfig.BCA_V55_RUNTIME_COMMIT_SHA
-              ?? process.env.VERCEL_GIT_COMMIT_SHA
-              ?? "unknown",
-            strategyManifestHash: getFrozenStrategy().manifestHash,
-            universeSnapshotHash: universeSnapshot.snapshotHash,
-          };
-          const persistedUniverse = await persistV55UniverseSnapshot(supabase, candidateContext, universeSnapshot);
-          v55Context = { ...candidateContext, universeSnapshotId: persistedUniverse.snapshotId };
-        } catch (error) {
-          await recordV55Warning(supabase, "V5.5 universe evidence write failed; this scan will not write Shadow evidence.", {
-            scanRunId,
-            message: errorMessage(error),
-          });
-        }
+        v55ForwardStartTimestamp = forwardStartTimestamp;
       }
     }
     const snapshots = await mapWithConcurrency(batch, runtimeConfig.CS_REQUEST_CONCURRENCY, async (instrument) => {
@@ -169,20 +143,44 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       }
     });
 
-    if (v55Context) {
+    const forwardEligibleSnapshots = v55ForwardStartTimestamp === null
+      ? []
+      : filterForwardEligibleSnapshots(snapshots, v55ForwardStartTimestamp);
+    if (v55ForwardStartTimestamp !== null && observedUniverse && forwardEligibleSnapshots.length > 0) {
       try {
-        const evaluations = snapshots
-          .filter((snapshot): snapshot is MarketSnapshot => snapshot !== null)
-          .map((snapshot) => evaluateV55Snapshot(snapshot, v55Context as V55RuntimeContext));
-        const v55Summary = await persistV55ShadowEvidence(supabase, v55Context, evaluations);
-        v55SnapshotsWritten = v55Summary.snapshotsWritten;
-        v55IdempotentSnapshots = v55Summary.idempotentSnapshots;
-        v55IdempotentTradeSkips = v55Summary.idempotentTradeSkips;
-        v55ShadowTradesWritten = v55Summary.shadowTradesWritten;
-        const warning = v55WarningEvent(v55Summary);
-        if (warning) await recordV55Warning(supabase, warning.message, warning.details);
+        const universeSnapshot = buildUniverseSnapshot({
+          scanId: scanRunId,
+          scanGroupKey: scanGroupKey as string,
+          scanTimestamp: observedUniverse.retrievedAt,
+          observed: observedUniverse,
+          selectedForEvaluation: deepUniverse.map((instrument) => instrument.symbol),
+        });
+        const candidateContext: V55RuntimeContext = {
+          scanId: scanRunId,
+          scanGroupKey: scanGroupKey as string,
+          scanTimestamp: observedUniverse.retrievedAt,
+          forwardStartTimestamp: v55ForwardStartTimestamp,
+          experimentId: runtimeConfig.BCA_V55_FORWARD_EXPERIMENT_ID,
+          runtimeCommitSha: runtimeConfig.BCA_V55_RUNTIME_COMMIT_SHA
+            ?? process.env.VERCEL_GIT_COMMIT_SHA
+            ?? "unknown",
+          strategyManifestHash: getFrozenStrategy().manifestHash,
+          universeSnapshotHash: universeSnapshot.snapshotHash,
+        };
+        const persistedUniverse = await persistV55UniverseSnapshot(supabase, candidateContext, universeSnapshot);
+        if (persistedUniverse.status !== "SKIPPED_BEFORE_FORWARD_START") {
+          const evidenceContext: V55RuntimeContext = { ...candidateContext, universeSnapshotId: persistedUniverse.snapshotId };
+          const evaluations = forwardEligibleSnapshots.map((snapshot) => evaluateV55Snapshot(snapshot, evidenceContext));
+          const v55Summary = await persistV55ShadowEvidence(supabase, evidenceContext, evaluations);
+          v55SnapshotsWritten = v55Summary.snapshotsWritten;
+          v55IdempotentSnapshots = v55Summary.idempotentSnapshots;
+          v55IdempotentTradeSkips = v55Summary.idempotentTradeSkips;
+          v55ShadowTradesWritten = v55Summary.shadowTradesWritten;
+          const warning = v55WarningEvent(v55Summary);
+          if (warning) await recordV55Warning(supabase, warning.message, warning.details);
+        }
       } catch (error) {
-        await recordV55Warning(supabase, "V5.5 Shadow evidence failed closed; Production scan continued.", {
+        await recordV55Warning(supabase, "V5.5 universe/evidence write failed; Production scan continued without Shadow evidence.", {
           scanRunId,
           message: errorMessage(error),
         });
