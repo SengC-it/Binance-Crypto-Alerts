@@ -6,8 +6,8 @@ create table if not exists public.bca_v55_forward_experiments (
   experiment_id text primary key,
   strategy_version text not null,
   strategy_manifest_hash text not null,
-  forward_start_timestamp timestamptz,
-  runtime_commit_sha text,
+  forward_start_timestamp timestamptz not null,
+  runtime_commit_sha text not null,
   status text not null default 'PLANNED'
     check (status in ('PLANNED', 'ACTIVE', 'STOPPED')),
   created_at timestamptz not null default now(),
@@ -23,7 +23,8 @@ create table if not exists public.bca_v55_universe_snapshots (
   snapshot_json jsonb not null,
   snapshot_hash text not null check (length(snapshot_hash) = 64),
   created_at timestamptz not null default now(),
-  unique (experiment_id, scan_group_key),
+  unique (experiment_id, scan_id),
+  unique (snapshot_id, snapshot_hash),
   unique (experiment_id, snapshot_hash)
 );
 
@@ -35,6 +36,8 @@ create table if not exists public.bca_v55_signal_feature_snapshots (
   experiment_id text not null references public.bca_v55_forward_experiments(experiment_id) on delete restrict,
   strategy_version text not null,
   strategy_manifest_hash text not null check (length(strategy_manifest_hash) = 64),
+  universe_snapshot_id uuid not null references public.bca_v55_universe_snapshots(snapshot_id) on delete restrict,
+  universe_snapshot_hash text not null check (length(universe_snapshot_hash) = 64),
   symbol text not null references public.bca_instruments(symbol) on delete restrict,
   side text not null check (side = 'SHORT'),
   source_data_timestamp timestamptz not null,
@@ -45,7 +48,10 @@ create table if not exists public.bca_v55_signal_feature_snapshots (
   snapshot_hash text not null check (length(snapshot_hash) = 64),
   created_at timestamptz not null default now(),
   unique (experiment_id, strategy_version, symbol, source_data_timestamp),
-  unique (experiment_id, snapshot_hash)
+  unique (experiment_id, snapshot_hash),
+  foreign key (universe_snapshot_id, universe_snapshot_hash)
+    references public.bca_v55_universe_snapshots(snapshot_id, snapshot_hash)
+    on delete restrict
 );
 
 create index if not exists bca_v55_feature_snapshots_experiment_time_idx
@@ -96,6 +102,36 @@ begin
 end;
 $$;
 
+create or replace function public.bca_v55_universe_snapshot_immutable()
+returns trigger
+language plpgsql
+security invoker
+set search_path = public
+as $$
+begin
+  raise exception 'V5.5 universe snapshots are immutable';
+end;
+$$;
+
+create or replace function public.bca_v55_forward_experiment_identity_guard()
+returns trigger
+language plpgsql
+security invoker
+set search_path = public
+as $$
+begin
+  if old.experiment_id is distinct from new.experiment_id
+    or old.strategy_version is distinct from new.strategy_version
+    or old.strategy_manifest_hash is distinct from new.strategy_manifest_hash
+    or old.forward_start_timestamp is distinct from new.forward_start_timestamp
+    or old.runtime_commit_sha is distinct from new.runtime_commit_sha
+  then
+    raise exception 'V5.5 forward experiment identity is immutable';
+  end if;
+  return new;
+end;
+$$;
+
 create or replace function public.bca_v55_guard_shadow_entry()
 returns trigger
 language plpgsql
@@ -142,11 +178,29 @@ begin
     for each row execute function public.bca_v55_snapshot_immutable();
   end if;
   if not exists (
+    select 1 from pg_trigger
+    where tgname = 'bca_v55_universe_snapshots_immutable'
+      and tgrelid = 'public.bca_v55_universe_snapshots'::regclass
+  ) then
+    create trigger bca_v55_universe_snapshots_immutable
+    before update or delete on public.bca_v55_universe_snapshots
+    for each row execute function public.bca_v55_universe_snapshot_immutable();
+  end if;
+  if not exists (
     select 1 from pg_trigger where tgname = 'bca_v55_shadow_entry_guard'
   ) then
     create trigger bca_v55_shadow_entry_guard
     before update on public.bca_shadow_paper_trades
     for each row execute function public.bca_v55_guard_shadow_entry();
+  end if;
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'bca_v55_forward_experiment_identity_guard'
+      and tgrelid = 'public.bca_v55_forward_experiments'::regclass
+  ) then
+    create trigger bca_v55_forward_experiment_identity_guard
+    before update on public.bca_v55_forward_experiments
+    for each row execute function public.bca_v55_forward_experiment_identity_guard();
   end if;
 end;
 $$;
@@ -173,7 +227,7 @@ revoke all on table
   public.bca_v55_forward_experiments,
   public.bca_v55_universe_snapshots,
   public.bca_v55_signal_feature_snapshots
-from anon, authenticated;
+from public, anon, authenticated;
 
 grant all on table
   public.bca_v55_forward_experiments,
@@ -182,4 +236,6 @@ grant all on table
 to service_role;
 
 revoke execute on function public.bca_v55_snapshot_immutable() from public, anon, authenticated;
+revoke execute on function public.bca_v55_universe_snapshot_immutable() from public, anon, authenticated;
+revoke execute on function public.bca_v55_forward_experiment_identity_guard() from public, anon, authenticated;
 revoke execute on function public.bca_v55_guard_shadow_entry() from public, anon, authenticated;

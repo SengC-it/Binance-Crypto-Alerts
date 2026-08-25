@@ -100,6 +100,7 @@ export const SignalFeatureSnapshotV2Schema = z.object({
   provenance: z.object({
     runtimeCommitSha: z.string().min(1),
     strategyManifestHash: z.string().length(64),
+    universeSnapshotHash: z.string().length(64),
     snapshotHash: z.string().length(64),
   }).strict(),
 }).strict();
@@ -121,6 +122,7 @@ export function buildSignalFeatureSnapshot(input: {
   decision: SignalFeatureSnapshotV2["decision"];
   tradePlan: SignalFeatureSnapshotV2["tradePlan"];
   runtimeCommitSha: string;
+  universeSnapshotHash: string;
   fundingInput?: number | null;
 }): SignalFeatureSnapshotV2 {
   const body = {
@@ -184,6 +186,7 @@ export function buildSignalFeatureSnapshot(input: {
     provenance: {
       runtimeCommitSha: input.runtimeCommitSha,
       strategyManifestHash: input.manifestHash,
+      universeSnapshotHash: input.universeSnapshotHash,
       snapshotHash: "pending",
     },
   };

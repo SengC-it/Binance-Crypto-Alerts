@@ -7,33 +7,70 @@ import type { V55ForwardTradeRow } from "./evaluator";
 
 export interface V55PersistSummary {
   snapshotsWritten: number;
+  idempotentSnapshots: number;
   shadowTradesWritten: number;
   errors: Array<{ symbol: string; stage: string; message: string }>;
+}
+
+export type V55PersistenceStatus = "CREATED" | "IDEMPOTENT_EXISTING";
+
+export interface V55UniversePersistResult {
+  snapshotId: string;
+  status: V55PersistenceStatus;
+}
+
+export interface V55SnapshotPersistResult {
+  snapshotId: string;
+  status: V55PersistenceStatus;
+}
+
+interface V55ForwardExperimentRow {
+  experiment_id: string;
+  strategy_version: string;
+  strategy_manifest_hash: string;
+  forward_start_timestamp: string;
+  runtime_commit_sha: string;
+  status: "PLANNED" | "ACTIVE" | "STOPPED";
 }
 
 export async function persistV55UniverseSnapshot(
   supabase: SupabaseClient,
   context: V55RuntimeContext,
   snapshot: V55UniverseSnapshot,
-): Promise<void> {
-  const { error: experimentError } = await supabase.from("bca_v55_forward_experiments").upsert({
-    experiment_id: context.experimentId,
-    strategy_version: V55_STRATEGY_VERSION,
-    strategy_manifest_hash: context.strategyManifestHash,
-    forward_start_timestamp: new Date(context.forwardStartTimestamp).toISOString(),
-    runtime_commit_sha: context.runtimeCommitSha,
-    status: "ACTIVE",
-  }, { onConflict: "experiment_id" });
-  if (experimentError) throw new Error(`V5.5 forward experiment write failed: ${experimentError.message}`);
-  const { error } = await supabase.from("bca_v55_universe_snapshots").upsert({
+): Promise<V55UniversePersistResult> {
+  await ensureV55ForwardExperiment(supabase, context);
+  const payload = {
     scan_id: context.scanId,
     scan_group_key: context.scanGroupKey,
     experiment_id: context.experimentId,
     scan_timestamp: snapshot.scanTimestamp,
     snapshot_json: snapshot,
     snapshot_hash: snapshot.snapshotHash,
-  }, { onConflict: "experiment_id,scan_group_key" });
-  if (error) throw new Error(`V5.5 universe snapshot write failed: ${error.message}`);
+  };
+  const inserted = await supabase
+    .from("bca_v55_universe_snapshots")
+    .insert(payload)
+    .select("snapshot_id, snapshot_hash")
+    .maybeSingle();
+  if (!inserted.error && inserted.data?.snapshot_id) {
+    return { snapshotId: String(inserted.data.snapshot_id), status: "CREATED" };
+  }
+  if (inserted.error?.code === "23505") {
+    const existing = await supabase
+      .from("bca_v55_universe_snapshots")
+      .select("snapshot_id, snapshot_hash")
+      .eq("experiment_id", context.experimentId)
+      .eq("scan_id", context.scanId)
+      .maybeSingle();
+    if (existing.error) throw new Error(`V5.5 universe idempotency lookup failed: ${existing.error.message}`);
+    if (existing.data?.snapshot_id) {
+      if (existing.data.snapshot_hash !== snapshot.snapshotHash) {
+        throw new Error("V5.5 universe snapshot identity collision has different content");
+      }
+      return { snapshotId: String(existing.data.snapshot_id), status: "IDEMPOTENT_EXISTING" };
+    }
+  }
+  throw new Error(`V5.5 universe snapshot write failed: ${inserted.error?.message ?? "empty response"}`);
 }
 
 export async function persistV55ShadowEvidence(
@@ -41,14 +78,15 @@ export async function persistV55ShadowEvidence(
   context: V55RuntimeContext,
   evaluations: V55Evaluation[],
 ): Promise<V55PersistSummary> {
-  const summary: V55PersistSummary = { snapshotsWritten: 0, shadowTradesWritten: 0, errors: [] };
+  const summary: V55PersistSummary = { snapshotsWritten: 0, idempotentSnapshots: 0, shadowTradesWritten: 0, errors: [] };
   for (const evaluation of evaluations) {
     const symbol = evaluation.snapshot.instrument.symbol;
     try {
-      const snapshotId = await persistSnapshot(supabase, context, evaluation);
-      summary.snapshotsWritten += 1;
+      const persistedSnapshot = await persistV55Snapshot(supabase, context, evaluation);
+      if (persistedSnapshot.status === "CREATED") summary.snapshotsWritten += 1;
+      else summary.idempotentSnapshots += 1;
       if (evaluation.finalEligible && evaluation.tradePlan && evaluation.shadowSignalId) {
-        const created = await persistShadowTrade(supabase, context, evaluation, snapshotId);
+        const created = await persistShadowTrade(supabase, context, evaluation, persistedSnapshot.snapshotId);
         if (created) summary.shadowTradesWritten += 1;
       }
     } catch (error) {
@@ -73,12 +111,18 @@ export async function loadV55ForwardRows(
   return (data ?? []) as V55ForwardTradeRow[];
 }
 
-async function persistSnapshot(
+export async function persistV55Snapshot(
   supabase: SupabaseClient,
   context: V55RuntimeContext,
   evaluation: V55Evaluation,
-): Promise<string> {
+): Promise<V55SnapshotPersistResult> {
   const snapshot = evaluation.snapshot;
+  if (!context.universeSnapshotId) {
+    throw new Error("V5.5 universe snapshot reference is required before feature evidence write");
+  }
+  if (snapshot.provenance.universeSnapshotHash !== context.universeSnapshotHash) {
+    throw new Error("V5.5 universe snapshot reference hash does not match feature provenance");
+  }
   const { data, error } = await supabase.from("bca_v55_signal_feature_snapshots").insert({
     snapshot_id: snapshot.snapshotId,
     scan_id: context.scanId,
@@ -89,23 +133,82 @@ async function persistSnapshot(
     strategy_manifest_hash: snapshot.strategy.manifestHash,
     symbol: snapshot.instrument.symbol,
     side: snapshot.strategy.side,
+    universe_snapshot_id: context.universeSnapshotId,
+    universe_snapshot_hash: snapshot.provenance.universeSnapshotHash,
     source_data_timestamp: snapshot.sourceDataTimestamp,
     decision_status: snapshot.decision.finalEligible ? "FINAL_ELIGIBLE" : snapshot.decision.rawTrigger ? "REJECTED" : "RAW_TRIGGER_FALSE",
     raw_trigger: snapshot.decision.rawTrigger,
     snapshot_json: snapshot,
     snapshot_hash: snapshot.provenance.snapshotHash,
   }).select("snapshot_id").maybeSingle();
-  if (!error && data?.snapshot_id) return data.snapshot_id as string;
+  if (!error && data?.snapshot_id) return { snapshotId: String(data.snapshot_id), status: "CREATED" };
   if (error?.code === "23505") {
     const existing = await supabase
       .from("bca_v55_signal_feature_snapshots")
       .select("snapshot_id")
       .eq("snapshot_id", snapshot.snapshotId)
+      .eq("experiment_id", context.experimentId)
+      .eq("strategy_version", snapshot.strategy.strategyVersion)
+      .eq("symbol", snapshot.instrument.symbol)
+      .eq("source_data_timestamp", snapshot.sourceDataTimestamp)
       .maybeSingle();
-    if (existing.error) throw new Error(`V5.5 snapshot idempotency lookup failed: ${existing.error.message}`);
-    if (existing.data?.snapshot_id) return existing.data.snapshot_id as string;
+    if (!existing.error && existing.data?.snapshot_id) {
+      return { snapshotId: String(existing.data.snapshot_id), status: "IDEMPOTENT_EXISTING" };
+    }
+    const naturalExisting = await supabase
+      .from("bca_v55_signal_feature_snapshots")
+      .select("snapshot_id")
+      .eq("experiment_id", context.experimentId)
+      .eq("strategy_version", snapshot.strategy.strategyVersion)
+      .eq("symbol", snapshot.instrument.symbol)
+      .eq("source_data_timestamp", snapshot.sourceDataTimestamp)
+      .maybeSingle();
+    if (naturalExisting.error) throw new Error(`V5.5 snapshot natural-key lookup failed: ${naturalExisting.error.message}`);
+    if (naturalExisting.data?.snapshot_id) {
+      return { snapshotId: String(naturalExisting.data.snapshot_id), status: "IDEMPOTENT_EXISTING" };
+    }
   }
   throw new Error(`V5.5 snapshot write failed: ${error?.message ?? "empty response"}`);
+}
+
+async function ensureV55ForwardExperiment(
+  supabase: SupabaseClient,
+  context: V55RuntimeContext,
+): Promise<V55ForwardExperimentRow> {
+  const payload = {
+    experiment_id: context.experimentId,
+    strategy_version: V55_STRATEGY_VERSION,
+    strategy_manifest_hash: context.strategyManifestHash,
+    forward_start_timestamp: new Date(context.forwardStartTimestamp).toISOString(),
+    runtime_commit_sha: context.runtimeCommitSha,
+    status: "ACTIVE" as const,
+  };
+  const inserted = await supabase
+    .from("bca_v55_forward_experiments")
+    .insert(payload)
+    .select("experiment_id, strategy_version, strategy_manifest_hash, forward_start_timestamp, runtime_commit_sha, status")
+    .maybeSingle();
+  if (!inserted.error && inserted.data?.experiment_id) return inserted.data as V55ForwardExperimentRow;
+  if (inserted.error?.code !== "23505") {
+    throw new Error(`V5.5 forward experiment write failed: ${inserted.error?.message ?? "empty response"}`);
+  }
+
+  const existing = await supabase
+    .from("bca_v55_forward_experiments")
+    .select("experiment_id, strategy_version, strategy_manifest_hash, forward_start_timestamp, runtime_commit_sha, status")
+    .eq("experiment_id", context.experimentId)
+    .maybeSingle();
+  if (existing.error) throw new Error(`V5.5 forward experiment lookup failed: ${existing.error.message}`);
+  if (!existing.data?.experiment_id) throw new Error("V5.5 forward experiment conflict could not be resolved");
+  const row = existing.data as V55ForwardExperimentRow;
+  const identityMatches = row.experiment_id === context.experimentId
+    && row.strategy_version === V55_STRATEGY_VERSION
+    && row.strategy_manifest_hash === context.strategyManifestHash
+    && Date.parse(row.forward_start_timestamp) === context.forwardStartTimestamp
+    && row.runtime_commit_sha === context.runtimeCommitSha;
+  if (!identityMatches) throw new Error("V5.5 forward experiment identity mismatch; evidence write failed closed");
+  if (row.status === "STOPPED") throw new Error("V5.5 forward experiment is STOPPED; evidence write failed closed");
+  return row;
 }
 
 async function persistShadowTrade(

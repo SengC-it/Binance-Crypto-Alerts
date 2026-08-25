@@ -20,6 +20,7 @@ export interface V55RuntimeContext {
   runtimeCommitSha: string;
   strategyManifestHash: string;
   universeSnapshotHash: string;
+  universeSnapshotId?: string;
 }
 
 export interface V55TradePlan extends TradePlan {
@@ -98,6 +99,7 @@ export function evaluateV55Snapshot(
       maxHoldUntil: new Date(tradePlan.validUntil).toISOString(),
     } : null,
     runtimeCommitSha: context.runtimeCommitSha,
+    universeSnapshotHash: context.universeSnapshotHash,
   });
   return { snapshot, shadowSignalId, tradePlan, finalEligible };
 }

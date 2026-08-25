@@ -63,6 +63,12 @@ async function main(): Promise<void> {
     requiredCronChanges: [
       "No new cron route; V5.5B must use the existing protected /api/scan and /api/paper/settle calls.",
     ],
+    experimentIdentityImmutable: true,
+    universeSnapshotsImmutable: true,
+    duplicateCronIdempotent: true,
+    featureSnapshotNaturalKey: "experiment_id|strategy_version|symbol|source_data_timestamp",
+    forwardStartImmutable: true,
+    runtimeShaPolicy: "one experiment ID maps to one approved runtime commit; a runtime commit change requires a new forward experiment version.",
     strategyManifestHash: frozen.manifestHash,
     expectedRuntimeBehavior: {
       shadowOnly: true,
@@ -105,7 +111,7 @@ async function writeText(name: string, value: string): Promise<void> {
 }
 
 function evidenceSchemaMarkdown(manifestHash: string): string {
-  return `# V5.5A Evidence Schema\n\n- Schema: \`SignalFeatureSnapshotV2\`\n- Strategy manifest hash: \`${manifestHash}\`\n- Snapshot rows are insert-only and carry a deterministic \`snapshotHash\`.\n- Captured inputs: scan/source timestamps, 15m/1h/4h close times, symbol status, quote volume, exchange filters, candle counts/timestamps/hashes, feature values, raw trigger, rejection reasons, decision flags, trade plan, cost assumptions, runtime SHA, and manifest hash.\n- Snapshot serializer is allow-listed. API secrets, SMTP passwords, Supabase keys, CRON secrets, authorization headers, and private Binance credentials are rejected from the persisted shape.\n- V5.5 shadow trades reuse \`public.bca_shadow_paper_trades\` with additive provenance columns. Entry-side fields are immutable after creation; settlement fields remain mutable only for the existing settlement lifecycle.\n- Legacy shadow rows are not forward evidence.\n`;
+  return `# V5.5A Evidence Schema\n\n- Schema: \`SignalFeatureSnapshotV2\`\n- Strategy manifest hash: \`${manifestHash}\`\n- Snapshot rows are insert-only and carry a deterministic \`snapshotHash\`.\n- Universe snapshots are insert-only per \`(experiment_id, scan_id)\`; \`scan_group_key\` is grouping metadata, not identity.\n- Each feature snapshot stores \`universeSnapshotId\` and \`universeSnapshotHash\`; the database requires the ID/hash pair to resolve to the immutable universe row.\n- The feature natural key is \`(experiment_id, strategy_version, symbol, source_data_timestamp)\`; duplicate cron writes return the existing snapshot.\n- Captured inputs: scan/source timestamps, 15m/1h/4h close times, symbol status, quote volume, exchange filters, candle counts/timestamps/hashes, feature values, raw trigger, rejection reasons, decision flags, trade plan, cost assumptions, runtime SHA, and manifest hash.\n- Snapshot serializer is allow-listed. API secrets, SMTP passwords, Supabase keys, CRON secrets, authorization headers, and private Binance credentials are rejected from the persisted shape.\n- V5.5 shadow trades reuse \`public.bca_shadow_paper_trades\` with additive provenance columns. Entry-side fields are immutable after creation; settlement fields remain mutable only for the existing settlement lifecycle.\n- Legacy shadow rows are not forward evidence.\n`;
 }
 
 function forwardGateMarkdown(evidence: ReturnType<typeof evaluateV55ForwardEvidence>): string {

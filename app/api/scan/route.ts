@@ -138,8 +138,8 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
             strategyManifestHash: getFrozenStrategy().manifestHash,
             universeSnapshotHash: universeSnapshot.snapshotHash,
           };
-          await persistV55UniverseSnapshot(supabase, candidateContext, universeSnapshot);
-          v55Context = candidateContext;
+          const persistedUniverse = await persistV55UniverseSnapshot(supabase, candidateContext, universeSnapshot);
+          v55Context = { ...candidateContext, universeSnapshotId: persistedUniverse.snapshotId };
         } catch (error) {
           await recordV55Warning(supabase, "V5.5 universe evidence write failed; this scan will not write Shadow evidence.", {
             scanRunId,
