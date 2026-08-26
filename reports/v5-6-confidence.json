@@ -1,0 +1,123 @@
+{
+  "reportVersion": "v5-6-research-v1",
+  "generatedAt": "2026-08-26T03:26:07.116Z",
+  "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "productionControl": "trend-rejection-short-v1",
+  "controlExecutionReference": "signal candle close -> next 15m candle open",
+  "controlReplayConfigSource": "research_defaults",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "pointInTimeUniverse": "PROXY",
+  "survivorBias": "PROXY / PIT manifest INCOMPLETE",
+  "methods": [
+    "naive_bootstrap",
+    "block_bootstrap",
+    "symbol_cluster_bootstrap",
+    "fold_cluster_bootstrap",
+    "selection_adjusted_bootstrap"
+  ],
+  "selectionAdjustment": "All 12 preregistered candidates are included in candidate-series adjustment; no candidate was added after observing results.",
+  "directions": {
+    "LONG": {
+      "selectedCandidate": "V56-LONG-REGIME-ENSEMBLE-01",
+      "observations": 6,
+      "methods": [
+        {
+          "method": "naive_bootstrap",
+          "lcb95": -0.6606,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": null,
+          "notes": "IID resampling; does not correct serial or cluster dependence."
+        },
+        {
+          "method": "block_bootstrap",
+          "lcb95": -0.1849,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": null,
+          "notes": "Circular blocks preserve short-range serial correlation and overlapping-trade dependence."
+        },
+        {
+          "method": "symbol_cluster_bootstrap",
+          "lcb95": -0.6576,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 6,
+          "notes": "Resamples complete symbol clusters with replacement."
+        },
+        {
+          "method": "fold_cluster_bootstrap",
+          "lcb95": -1.0993,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 3,
+          "notes": "Resamples complete outer-fold clusters with replacement."
+        },
+        {
+          "method": "selection_adjusted_bootstrap",
+          "lcb95": -0.1754,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": 3,
+          "notes": "Nested selection adjustment over 3 preregistered candidates; selected=V56-LONG-REGIME-ENSEMBLE-01."
+        }
+      ],
+      "promotionLcb95": -1.0993,
+      "promotionMethod": "minimum_available_lcb95"
+    },
+    "SHORT": {
+      "selectedCandidate": "V56-SHORT-FAILED_BREAKOUT-BALANCED-125",
+      "observations": 108,
+      "methods": [
+        {
+          "method": "naive_bootstrap",
+          "lcb95": 0.048,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": null,
+          "notes": "IID resampling; does not correct serial or cluster dependence."
+        },
+        {
+          "method": "block_bootstrap",
+          "lcb95": 0.0416,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": null,
+          "notes": "Circular blocks preserve short-range serial correlation and overlapping-trade dependence."
+        },
+        {
+          "method": "symbol_cluster_bootstrap",
+          "lcb95": 0.0437,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 38,
+          "notes": "Resamples complete symbol clusters with replacement."
+        },
+        {
+          "method": "fold_cluster_bootstrap",
+          "lcb95": -0.1658,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 9,
+          "notes": "Resamples complete outer-fold clusters with replacement."
+        },
+        {
+          "method": "selection_adjusted_bootstrap",
+          "lcb95": -0.088,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": 8,
+          "notes": "Nested selection adjustment over 8 preregistered candidates; selected=V56-SHORT-FAILED_BREAKOUT-BALANCED-125."
+        }
+      ],
+      "promotionLcb95": -0.1658,
+      "promotionMethod": "minimum_available_lcb95"
+    }
+  }
+}

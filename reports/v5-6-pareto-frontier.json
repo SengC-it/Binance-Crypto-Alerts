@@ -1,0 +1,107 @@
+{
+  "reportVersion": "v5-6-research-v1",
+  "generatedAt": "2026-08-26T03:26:07.116Z",
+  "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "productionControl": "trend-rejection-short-v1",
+  "controlExecutionReference": "signal candle close -> next 15m candle open",
+  "controlReplayConfigSource": "research_defaults",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "pointInTimeUniverse": "PROXY",
+  "survivorBias": "PROXY / PIT manifest INCOMPLETE",
+  "frontierDefinition": "non-dominated on purged OOS NetR (higher), alerts/week (higher), and max drawdown R (lower)",
+  "directions": {
+    "LONG": {
+      "frontier": [
+        {
+          "id": "V56-LONG-INDEPENDENT-LIQUIDITY-RECLAIM-01",
+          "netR": 0,
+          "alertsPerWeek": 0,
+          "maxDrawdownR": 0,
+          "cvar95": null
+        },
+        {
+          "id": "V56-LONG-INDEPENDENT-LIQUIDITY-RECLAIM-02",
+          "netR": 0,
+          "alertsPerWeek": 0,
+          "maxDrawdownR": 0,
+          "cvar95": null
+        },
+        {
+          "id": "V56-LONG-REGIME-ENSEMBLE-01",
+          "netR": 1.80779206035034,
+          "alertsPerWeek": 0.04610318331503842,
+          "maxDrawdownR": 2.2371734458041828,
+          "cvar95": -1.1563895119658718
+        }
+      ],
+      "selectedCandidate": "V56-LONG-REGIME-ENSEMBLE-01"
+    },
+    "SHORT": {
+      "frontier": [
+        {
+          "id": "V5.5-CONTROL-SHORT-FAILED_BREAKOUT_SHORT-02",
+          "netR": 34.41820597154703,
+          "alertsPerWeek": 0.699231613611416,
+          "maxDrawdownR": 11.35908671757364,
+          "cvar95": -1.2898380480046372
+        },
+        {
+          "id": "V56-SHORT-FAILED_BREAKOUT-BALANCED-105",
+          "netR": 36.205801495034464,
+          "alertsPerWeek": 1.0834248079034028,
+          "maxDrawdownR": 19.04060023436538,
+          "cvar95": -1.3070103890761764
+        },
+        {
+          "id": "V56-SHORT-FAILED_BREAKOUT-BALANCED-115",
+          "netR": 38.362462985858905,
+          "alertsPerWeek": 0.9220636663007684,
+          "maxDrawdownR": 14.975148347990258,
+          "cvar95": -1.295173793955448
+        },
+        {
+          "id": "V56-SHORT-FAILED_BREAKOUT-BALANCED-125",
+          "netR": 34.68766146968576,
+          "alertsPerWeek": 0.8298572996706916,
+          "maxDrawdownR": 12.887701699750988,
+          "cvar95": -1.295173793955448
+        },
+        {
+          "id": "V56-SHORT-WICK_REJECTION-01",
+          "netR": 39.36206920696789,
+          "alertsPerWeek": 1.3216245883644349,
+          "maxDrawdownR": 20.776680065892865,
+          "cvar95": -1.3815603594943149
+        },
+        {
+          "id": "V56-SHORT-BREAKDOWN-CONTINUATION-01",
+          "netR": -1.0561106497576551,
+          "alertsPerWeek": 0.007683863885839737,
+          "maxDrawdownR": 1.0561106497576551,
+          "cvar95": -1.0561106497576551
+        },
+        {
+          "id": "V56-SHORT-BREAKDOWN-CONTINUATION-02",
+          "netR": 0,
+          "alertsPerWeek": 0,
+          "maxDrawdownR": 0,
+          "cvar95": null
+        },
+        {
+          "id": "V56-SHORT-REGIME-ENSEMBLE-02",
+          "netR": -4.846514537873698,
+          "alertsPerWeek": 0.05378704720087816,
+          "maxDrawdownR": 5.45753862928491,
+          "cvar95": -1.144649912872111
+        }
+      ],
+      "selectedCandidate": "V56-SHORT-FAILED_BREAKOUT-BALANCED-125"
+    }
+  }
+}
