@@ -1,0 +1,202 @@
+{
+  "schema": "bca-v5-9-1-research-manifest-v1",
+  "status": "FROZEN_BEFORE_RETURN_READ",
+  "manifestId": "v591-expectancy-calibrated-meta-label-decision-rule-01",
+  "frozenAt": "2026-08-26T00:00:00.000Z",
+  "baselineCommit": "25f99797603b3500cd9e44bd6e3154e8d2475a0d",
+  "oldHoldout": {
+    "manifestId": "v59-binance-untouched-symbols-2023-01-01-2026-07-31",
+    "status": "BURNED_AFTER_ZERO_SIGNAL_REVIEW",
+    "role": "POST_HOC_DIAGNOSTIC_ONLY"
+  },
+  "primary": {
+    "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+    "frozen": true,
+    "parameterChange": "NO",
+    "role": "UNGATED_COMPARATOR_ONLY"
+  },
+  "candidateEvents": {
+    "families": [
+      {
+        "id": "FAILED_BREAKOUT_LIQUIDITY_REJECTION",
+        "side": "BOTH",
+        "hypothesis": "A closed-candle breakout failure exposes trapped directional liquidity.",
+        "economicLogic": "A failed acceptance beyond a recent range level can create forced exits and short-horizon reversal flow.",
+        "detector": "Prior closed candles probe and close beyond a 20-bar level; the current closed candle rejects back through that level."
+      },
+      {
+        "id": "SUPPORT_BREAKDOWN_RETEST",
+        "side": "SHORT",
+        "hypothesis": "A support breakdown followed by a bounded retest can expose overhead supply.",
+        "economicLogic": "Former support becomes an invalidation reference after trapped longs test it from below.",
+        "detector": "A prior closed candle breaks a 20-bar floor and the current closed candle retests and rejects that floor."
+      },
+      {
+        "id": "TREND_PULLBACK_CONTINUATION",
+        "side": "BOTH",
+        "hypothesis": "A bounded pullback inside an established higher-timeframe trend may resume the prevailing flow.",
+        "economicLogic": "A controlled reset can improve entry location while trend alignment supplies directional continuation pressure.",
+        "detector": "Closed-candle trend alignment, bounded pullback depth, and directional re-acceleration; no next-bar fields are read."
+      },
+      {
+        "id": "VOLATILITY_COMPRESSION_EXPANSION",
+        "side": "BOTH",
+        "hypothesis": "A measured release from compressed range can produce a directional event before late chasing.",
+        "economicLogic": "Stored range energy plus participation can create temporary order-flow imbalance.",
+        "detector": "Closed compression/range statistics followed by closed-candle range and participation expansion."
+      },
+      {
+        "id": "CROSS_MARKET_DOWNSIDE_MOMENTUM",
+        "side": "SHORT",
+        "hypothesis": "Synchronous benchmark weakness can improve the base rate of local downside momentum events.",
+        "economicLogic": "Cross-market risk reduction can reinforce local supply and reduce isolated-symbol mean reversion.",
+        "detector": "Already-closed BTC/ETH regime context, breadth, and local bearish momentum only."
+      }
+    ],
+    "minimumTarget": ">=500 candidate events",
+    "maxEventsPerFamily": 1000,
+    "capPolicy": "Frozen V5.9 chronological stride cap before labels and independent of returns."
+  },
+  "riskTemplates": {
+    "count": 3,
+    "max": 3,
+    "registry": [
+      {
+        "id": "V59-RISK-1.5R",
+        "rewardRisk": 1.5,
+        "stopStyle": "ATR",
+        "maxHoldHours": 36,
+        "parameters": {
+          "stopATRMultiplier": 1.25
+        }
+      },
+      {
+        "id": "V59-RISK-1.8R",
+        "rewardRisk": 1.8,
+        "stopStyle": "HYBRID",
+        "maxHoldHours": 48,
+        "parameters": {
+          "stopATRMultiplier": 1.25
+        }
+      },
+      {
+        "id": "V59-RISK-2.0R",
+        "rewardRisk": 2,
+        "stopStyle": "STRUCTURE",
+        "maxHoldHours": 72,
+        "parameters": {
+          "stopATRMultiplier": 1.25
+        }
+      }
+    ]
+  },
+  "featureContract": {
+    "maxCoreFeatures": 12,
+    "names": [
+      "local_regime",
+      "btc_regime",
+      "eth_regime",
+      "btc_eth_alignment",
+      "market_breadth",
+      "atr_percentile",
+      "volatility_percentile",
+      "volume_ratio",
+      "rsi_normalized",
+      "trend_age_normalized",
+      "entry_extension_atr",
+      "funding_percentile"
+    ],
+    "signalTimestampOnly": true
+  },
+  "modelRegistry": {
+    "count": 6,
+    "max": 6,
+    "configs": [
+      {
+        "id": "V591-LOGISTIC-L2-EV05",
+        "family": "LOGISTIC_L2",
+        "evThresholdR": 0.05,
+        "l2": 0.1
+      },
+      {
+        "id": "V591-LOGISTIC-L2-EV10",
+        "family": "LOGISTIC_L2",
+        "evThresholdR": 0.1,
+        "l2": 0.1
+      },
+      {
+        "id": "V591-LOGISTIC-L2-EV15",
+        "family": "LOGISTIC_L2",
+        "evThresholdR": 0.15,
+        "l2": 0.1
+      },
+      {
+        "id": "V591-SHALLOW-TREE-EV05",
+        "family": "SHALLOW_TREE",
+        "evThresholdR": 0.05,
+        "l2": 0
+      },
+      {
+        "id": "V591-SHALLOW-TREE-EV10",
+        "family": "SHALLOW_TREE",
+        "evThresholdR": 0.1,
+        "l2": 0
+      },
+      {
+        "id": "V591-SHALLOW-TREE-EV15",
+        "family": "SHALLOW_TREE",
+        "evThresholdR": 0.15,
+        "l2": 0
+      }
+    ],
+    "models": [
+      "LOGISTIC_L2",
+      "SHALLOW_TREE"
+    ]
+  },
+  "pools": {
+    "development": {
+      "start": "2020-01-01T00:00:00.000Z",
+      "end": "2026-07-31T23:59:59.999Z",
+      "use": "Training and purged nested walk-forward selection only."
+    },
+    "untouched": {
+      "manifestId": "v59-1-binance-untouched-symbols-2023-01-01-2026-07-31",
+      "manifestHash": "8284d3d185d1a3c1765adda3de06adabbee200087436508c9381ed3e2fe8c7be",
+      "use": "New final untouched-symbol validation only; excluded from selection."
+    }
+  },
+  "rules": {
+    "positiveLabel": "POSITIVE when fixed-cost net R > 0; HIGH_QUALITY when fixed-cost net R >= +0.5R",
+    "decision": "SEND when expectedNetR = pWin * avgWinR + (1 - pWin) * avgLossR is strictly greater than the preregistered EV margin.",
+    "probabilitySource": "Model probability is fit only on the outer-fold training rows for the selected risk template.",
+    "payoffSource": "avgWinR and avgLossR are calculated only from the same outer-fold training rows; validation and holdout outcomes never set the payoff.",
+    "theoreticalBreakeven": "Before costs p*=1/(1+rewardRisk): 1.5R=0.4000, 1.8R=0.3571, 2.0R=0.3333.",
+    "costMargin": "Net-R outcomes already include fixed fee, slippage, and funding; EV margins 0.05R/0.10R/0.15R add a preregistered positive-cost buffer.",
+    "oldHoldout": "The V5.9 20-symbol holdout is BURNED_AFTER_ZERO_SIGNAL_REVIEW and POST_HOC_DIAGNOSTIC_ONLY.",
+    "yieldGate": {
+      "alertsPerMonth": ">= 2",
+      "activeMonthRatio": ">= 0.65",
+      "medianAlertsPerMonth": ">= 1",
+      "p95DroughtDays": "<= 45",
+      "maxDroughtDays": "<= 60"
+    },
+    "newHoldout": {
+      "selection": "Archive availability, month-precision listing window, and a pre-registered static liquidity proxy only.",
+      "gate": ">=50 signals, >=10 symbols, NetR>0, AvgR>0, PF>=1.20, +10bps NetR>0, positive-symbol ratio>=0.60.",
+      "insufficient": "Fewer than 50 signals is INCONCLUSIVE and cannot promote email."
+    }
+  },
+  "productionBoundary": {
+    "researchOnly": true,
+    "noProductionChange": true,
+    "noV55Change": true,
+    "noEmailChange": true,
+    "noEnvironmentChange": true,
+    "noMigration": true,
+    "noDeployment": true,
+    "noMerge": true,
+    "noAutoTrading": true
+  },
+  "manifestHash": "e12eba6c00357f504e80b27d857d37f04bd76565701b483ab2da4735d62b9598"
+}

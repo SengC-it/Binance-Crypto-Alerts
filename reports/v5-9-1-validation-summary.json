@@ -1,0 +1,889 @@
+{
+  "schema": "bca-v5-9-1-validation-summary-v1",
+  "generatedAt": "2026-08-26T12:08:14.911Z",
+  "status": "VALIDATION_COMPLETE",
+  "researchOnly": true,
+  "baseline": "25f99797603b3500cd9e44bd6e3154e8d2475a0d",
+  "oldV59": {
+    "status": "FROZEN",
+    "holdoutState": "BURNED_AFTER_ZERO_SIGNAL_REVIEW",
+    "role": "POST_HOC_DIAGNOSTIC_ONLY",
+    "originalManifest": "reports/v5-9-untouched-symbol-manifest.json",
+    "originalProbabilityRule": "P(win) >= 0.55 / 0.60 / 0.65"
+  },
+  "researchManifest": {
+    "path": "reports/v5-9-1-research-manifest.json",
+    "hash": "e12eba6c00357f504e80b27d857d37f04bd76565701b483ab2da4735d62b9598"
+  },
+  "untouchedManifest": {
+    "path": "reports/v5-9-1-untouched-symbol-manifest.json",
+    "hash": "8284d3d185d1a3c1765adda3de06adabbee200087436508c9381ed3e2fe8c7be",
+    "symbols": [
+      "ARBUSDT",
+      "APTUSDT",
+      "ETCUSDT",
+      "CHZUSDT",
+      "COMPUSDT",
+      "DASHUSDT",
+      "ENJUSDT",
+      "FLOWUSDT",
+      "FTMUSDT",
+      "HBARUSDT",
+      "LDOUSDT",
+      "MANAUSDT",
+      "MKRUSDT",
+      "NEOUSDT",
+      "ROSEUSDT",
+      "SNXUSDT",
+      "STXUSDT",
+      "THETAUSDT",
+      "TIAUSDT",
+      "TONUSDT"
+    ],
+    "availableSymbols": [
+      "ARBUSDT",
+      "APTUSDT",
+      "ETCUSDT",
+      "CHZUSDT",
+      "COMPUSDT",
+      "DASHUSDT",
+      "ENJUSDT",
+      "FLOWUSDT",
+      "FTMUSDT",
+      "HBARUSDT",
+      "LDOUSDT",
+      "MANAUSDT",
+      "MKRUSDT",
+      "NEOUSDT",
+      "ROSEUSDT",
+      "SNXUSDT",
+      "STXUSDT",
+      "THETAUSDT",
+      "TIAUSDT",
+      "TONUSDT"
+    ],
+    "coverage": "20/20",
+    "validationReady": true
+  },
+  "candidateEvents": {
+    "total": 4983,
+    "minimum": 500,
+    "metMinimum": true,
+    "maxEventsPerFamily": 1000,
+    "capPolicy": "Frozen V5.9 deterministic chronological stride cap before labels; independent of returns.",
+    "families": [
+      "FAILED_BREAKOUT_LIQUIDITY_REJECTION",
+      "SUPPORT_BREAKDOWN_RETEST",
+      "TREND_PULLBACK_CONTINUATION",
+      "VOLATILITY_COMPRESSION_EXPANSION",
+      "CROSS_MARKET_DOWNSIDE_MOMENTUM"
+    ],
+    "outcomeRows": 14881
+  },
+  "modelRegistry": {
+    "path": "reports/v5-9-1-model-registry.json",
+    "count": 6,
+    "configs": [
+      {
+        "id": "V591-LOGISTIC-L2-EV05",
+        "family": "LOGISTIC_L2",
+        "evThresholdR": 0.05,
+        "l2": 0.1
+      },
+      {
+        "id": "V591-LOGISTIC-L2-EV10",
+        "family": "LOGISTIC_L2",
+        "evThresholdR": 0.1,
+        "l2": 0.1
+      },
+      {
+        "id": "V591-LOGISTIC-L2-EV15",
+        "family": "LOGISTIC_L2",
+        "evThresholdR": 0.15,
+        "l2": 0.1
+      },
+      {
+        "id": "V591-SHALLOW-TREE-EV05",
+        "family": "SHALLOW_TREE",
+        "evThresholdR": 0.05,
+        "l2": 0
+      },
+      {
+        "id": "V591-SHALLOW-TREE-EV10",
+        "family": "SHALLOW_TREE",
+        "evThresholdR": 0.1,
+        "l2": 0
+      },
+      {
+        "id": "V591-SHALLOW-TREE-EV15",
+        "family": "SHALLOW_TREE",
+        "evThresholdR": 0.15,
+        "l2": 0
+      }
+    ],
+    "decision": "expectedNetR > evThresholdR"
+  },
+  "zeroSignalRootCause": {
+    "oldRule": "Probability-only 0.55/0.60/0.65 thresholds",
+    "probabilityDistribution": {
+      "predictions": 2972,
+      "min": 0.1765257324471732,
+      "p10": 0.3093659866421947,
+      "p25": 0.3249488557149875,
+      "median": 0.3398618340538306,
+      "p75": 0.35508831302837723,
+      "p90": 0.37647343510651105,
+      "p95": 0.39157971889001936,
+      "max": 0.4367396206424959,
+      "alerts": 0,
+      "thresholdRule": "P(win) >= 0.55 / 0.60 / 0.65"
+    },
+    "basePositiveRateByTemplate": [
+      {
+        "scope": "RISK_TEMPLATE",
+        "id": "V59-RISK-1.5R",
+        "rewardRisk": 1.5,
+        "events": 4983,
+        "wins": 1943,
+        "losses": 3040,
+        "winRate": 0.38992574754164155,
+        "avgR": -0.18487835655351326,
+        "profitFactor": 0.7390801804385957,
+        "netR": -921.2488507061565
+      },
+      {
+        "scope": "RISK_TEMPLATE",
+        "id": "V59-RISK-1.8R",
+        "rewardRisk": 1.8,
+        "events": 4949,
+        "wins": 1811,
+        "losses": 3138,
+        "winRate": 0.3659325116185088,
+        "avgR": -0.09505271976005573,
+        "profitFactor": 0.8625310979127293,
+        "netR": -470.41591009251584
+      },
+      {
+        "scope": "RISK_TEMPLATE",
+        "id": "V59-RISK-2.0R",
+        "rewardRisk": 2,
+        "events": 4949,
+        "wins": 1679,
+        "losses": 3270,
+        "winRate": 0.3392604566579107,
+        "avgR": -0.10502287824341605,
+        "profitFactor": 0.8564903794309292,
+        "netR": -519.7582244266661
+      }
+    ],
+    "thresholdMismatchConfirmed": true,
+    "conclusion": "V5.9's zero-alert outcome is consistent with probability threshold mismatch; V5.9.1 therefore uses template-specific training payoff and expectedNetR, not a uniform probability threshold."
+  },
+  "nestedDevelopment": {
+    "signals": 14,
+    "metrics": {
+      "trades": 14,
+      "wins": 1,
+      "losses": 13,
+      "winRate": 0.0714,
+      "netR": -11.3996,
+      "avgR": -0.8143,
+      "profitFactor": 0.1462,
+      "maxDD": 11.3996,
+      "cvar95": -1.112,
+      "plus10BpsNetR": -12.3247,
+      "symbolBreadth": 8,
+      "positiveSymbolRatio": 0.125,
+      "totalNetPnlUsdt": -569.9787,
+      "totalFeesUsdt": 18.5018,
+      "totalFundingUsdt": -49.5748,
+      "totalSlippageUsdt": 9.2509
+    },
+    "yield": {
+      "calendarDays": 2404,
+      "calendarMonths": 79,
+      "alertsPerWeek": 0.04076539101497504,
+      "alertsPerMonth": 0.17721518987341772,
+      "activeMonthRatio": 0.10126582278481013,
+      "medianAlertsPerMonth": 1,
+      "p95DroughtDays": 1152.1979166550925,
+      "maxDroughtDays": 1152.1979166550925
+    },
+    "selectedConfig": {
+      "id": "V591-LOGISTIC-L2-EV15",
+      "family": "LOGISTIC_L2",
+      "evThresholdR": 0.15,
+      "l2": 0.1
+    },
+    "selectedTemplate": {
+      "id": "V59-RISK-1.8R",
+      "rewardRisk": 1.8,
+      "stopStyle": "HYBRID",
+      "maxHoldHours": 48,
+      "parameters": {
+        "stopATRMultiplier": 1.25
+      }
+    },
+    "selectionStatus": "SELECTED",
+    "folds": [
+      {
+        "fold": "fold-1",
+        "configId": null,
+        "templateId": null,
+        "selectionStatus": "NO_ELIGIBLE_MODEL",
+        "metrics": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "maxDD": 0,
+          "cvar95": null,
+          "plus10BpsNetR": 0,
+          "symbolBreadth": 0,
+          "positiveSymbolRatio": null,
+          "totalNetPnlUsdt": 0,
+          "totalFeesUsdt": 0,
+          "totalFundingUsdt": 0,
+          "totalSlippageUsdt": 0
+        }
+      },
+      {
+        "fold": "fold-2",
+        "configId": null,
+        "templateId": null,
+        "selectionStatus": "NO_ELIGIBLE_MODEL",
+        "metrics": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "maxDD": 0,
+          "cvar95": null,
+          "plus10BpsNetR": 0,
+          "symbolBreadth": 0,
+          "positiveSymbolRatio": null,
+          "totalNetPnlUsdt": 0,
+          "totalFeesUsdt": 0,
+          "totalFundingUsdt": 0,
+          "totalSlippageUsdt": 0
+        }
+      },
+      {
+        "fold": "fold-3",
+        "configId": null,
+        "templateId": null,
+        "selectionStatus": "NO_ELIGIBLE_MODEL",
+        "metrics": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "maxDD": 0,
+          "cvar95": null,
+          "plus10BpsNetR": 0,
+          "symbolBreadth": 0,
+          "positiveSymbolRatio": null,
+          "totalNetPnlUsdt": 0,
+          "totalFeesUsdt": 0,
+          "totalFundingUsdt": 0,
+          "totalSlippageUsdt": 0
+        }
+      },
+      {
+        "fold": "fold-4",
+        "configId": "V591-LOGISTIC-L2-EV15",
+        "templateId": "V59-RISK-2.0R",
+        "selectionStatus": "SELECTED",
+        "metrics": {
+          "trades": 12,
+          "wins": 1,
+          "losses": 11,
+          "winRate": 0.0833,
+          "netR": -9.2473,
+          "avgR": -0.7706,
+          "profitFactor": 0.1743,
+          "maxDD": 9.2473,
+          "cvar95": -1.0657,
+          "plus10BpsNetR": -9.9247,
+          "symbolBreadth": 8,
+          "positiveSymbolRatio": 0.125,
+          "totalNetPnlUsdt": -462.3647,
+          "totalFeesUsdt": 13.5482,
+          "totalFundingUsdt": -49.3912,
+          "totalSlippageUsdt": 6.7741
+        }
+      },
+      {
+        "fold": "fold-5",
+        "configId": "V591-LOGISTIC-L2-EV10",
+        "templateId": "V59-RISK-1.8R",
+        "selectionStatus": "SELECTED",
+        "metrics": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "winRate": 0,
+          "netR": -2.1523,
+          "avgR": -1.0761,
+          "profitFactor": 0,
+          "maxDD": 2.1523,
+          "cvar95": -1.112,
+          "plus10BpsNetR": -2.4,
+          "symbolBreadth": 2,
+          "positiveSymbolRatio": 0,
+          "totalNetPnlUsdt": -107.614,
+          "totalFeesUsdt": 4.9536,
+          "totalFundingUsdt": -0.1836,
+          "totalSlippageUsdt": 2.4768
+        }
+      },
+      {
+        "fold": "fold-6",
+        "configId": "V591-LOGISTIC-L2-EV10",
+        "templateId": "V59-RISK-1.8R",
+        "selectionStatus": "SELECTED",
+        "metrics": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "maxDD": 0,
+          "cvar95": null,
+          "plus10BpsNetR": 0,
+          "symbolBreadth": 0,
+          "positiveSymbolRatio": null,
+          "totalNetPnlUsdt": 0,
+          "totalFeesUsdt": 0,
+          "totalFundingUsdt": 0,
+          "totalSlippageUsdt": 0
+        }
+      },
+      {
+        "fold": "fold-7",
+        "configId": "V591-LOGISTIC-L2-EV10",
+        "templateId": "V59-RISK-1.8R",
+        "selectionStatus": "SELECTED",
+        "metrics": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "maxDD": 0,
+          "cvar95": null,
+          "plus10BpsNetR": 0,
+          "symbolBreadth": 0,
+          "positiveSymbolRatio": null,
+          "totalNetPnlUsdt": 0,
+          "totalFeesUsdt": 0,
+          "totalFundingUsdt": 0,
+          "totalSlippageUsdt": 0
+        }
+      },
+      {
+        "fold": "fold-8",
+        "configId": "V591-LOGISTIC-L2-EV15",
+        "templateId": "V59-RISK-1.8R",
+        "selectionStatus": "SELECTED",
+        "metrics": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "winRate": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "maxDD": 0,
+          "cvar95": null,
+          "plus10BpsNetR": 0,
+          "symbolBreadth": 0,
+          "positiveSymbolRatio": null,
+          "totalNetPnlUsdt": 0,
+          "totalFeesUsdt": 0,
+          "totalFundingUsdt": 0,
+          "totalSlippageUsdt": 0
+        }
+      }
+    ],
+    "positiveFoldRatio": 0,
+    "medianFoldNetR": 0,
+    "selectionAdjustedLCB": -0.6474,
+    "promotionLCB": -1.1355,
+    "promotionChecks": {
+      "signals": false,
+      "netR": false,
+      "avgR": false,
+      "profitFactor": false,
+      "plus10BpsNetR": false,
+      "positiveFoldRatio": false,
+      "medianFoldNetR": false,
+      "symbolBreadth": false,
+      "selectionAdjustedLCB": false,
+      "promotionLCB": false
+    },
+    "promotion": "FAIL",
+    "plus10Bps": {
+      "trades": 14,
+      "wins": 1,
+      "losses": 13,
+      "winRate": 0.0714,
+      "netR": -12.3247,
+      "avgR": -0.8803,
+      "profitFactor": 0.1318,
+      "maxDD": 12.3247,
+      "cvar95": -1.2924,
+      "plus10BpsNetR": -13.2498,
+      "symbolBreadth": 8,
+      "positiveSymbolRatio": 0.125,
+      "totalNetPnlUsdt": -616.2331,
+      "totalFeesUsdt": 18.5018,
+      "totalFundingUsdt": -49.5748,
+      "totalSlippageUsdt": 55.5053
+    }
+  },
+  "calibration": {
+    "status": "FAIL",
+    "failureCode": "EV_CALIBRATION_FAIL",
+    "buckets": [
+      {
+        "bucket": "EV<=0",
+        "lowerBound": null,
+        "upperBound": 0,
+        "predictions": 1934,
+        "trades": 1934,
+        "wins": 690,
+        "winRate": 0.35677352637021714,
+        "avgR": -0.1310429600873594,
+        "profitFactor": 0.8161753760617199
+      },
+      {
+        "bucket": "0-0.05",
+        "lowerBound": 0,
+        "upperBound": 0.05,
+        "predictions": 114,
+        "trades": 114,
+        "wins": 37,
+        "winRate": 0.32456140350877194,
+        "avgR": -0.13878131042567649,
+        "profitFactor": 0.800516801576928
+      },
+      {
+        "bucket": "0.05-0.10",
+        "lowerBound": 0.05,
+        "upperBound": 0.1,
+        "predictions": 60,
+        "trades": 60,
+        "wins": 16,
+        "winRate": 0.26666666666666666,
+        "avgR": -0.28336243950103174,
+        "profitFactor": 0.6349475333300164
+      },
+      {
+        "bucket": "0.10-0.20",
+        "lowerBound": 0.1,
+        "upperBound": 0.2,
+        "predictions": 27,
+        "trades": 27,
+        "wins": 5,
+        "winRate": 0.18518518518518517,
+        "avgR": -0.5170273790657807,
+        "profitFactor": 0.40872360244289063
+      },
+      {
+        "bucket": ">0.20",
+        "lowerBound": 0.2,
+        "upperBound": null,
+        "predictions": 2,
+        "trades": 2,
+        "wins": 0,
+        "winRate": 0,
+        "avgR": -0.9300378462608655,
+        "profitFactor": 0
+      }
+    ],
+    "monotonicExpectancy": false
+  },
+  "probabilityDiagnostics": {
+    "path": "reports/v5-9-1-probability-diagnostics.json",
+    "modelTemplatesPerFold": 18,
+    "requestedBuckets": [
+      "<0.25",
+      "0.25-0.30",
+      "0.30-0.35",
+      "0.35-0.40",
+      "0.40-0.45",
+      "0.45-0.50",
+      "0.50-0.55",
+      ">0.55"
+    ]
+  },
+  "baseRateDiagnostics": {
+    "path": "reports/v5-9-1-base-rate-diagnostics.json",
+    "byRiskTemplate": true,
+    "byEventFamily": true
+  },
+  "yieldGate": {
+    "thresholds": {
+      "alertsPerMonth": ">= 2",
+      "activeMonthRatio": ">= 0.65",
+      "medianAlertsPerMonth": ">= 1",
+      "p95DroughtDays": "<= 45",
+      "maxDroughtDays": "<= 60"
+    },
+    "passed": false,
+    "checks": {
+      "alertsPerMonth": false,
+      "activeMonthRatio": false,
+      "medianAlertsPerMonth": true,
+      "p95DroughtDays": false,
+      "maxDroughtDays": false
+    },
+    "selectedNested": {
+      "calendarDays": 2404,
+      "calendarMonths": 79,
+      "alertsPerWeek": 0.04076539101497504,
+      "alertsPerMonth": 0.17721518987341772,
+      "activeMonthRatio": 0.10126582278481013,
+      "medianAlertsPerMonth": 1,
+      "p95DroughtDays": 1152.1979166550925,
+      "maxDroughtDays": 1152.1979166550925
+    }
+  },
+  "old20SymbolDiagnostic": {
+    "role": "POST_HOC_DIAGNOSTIC_ONLY",
+    "holdoutState": "BURNED_AFTER_ZERO_SIGNAL_REVIEW",
+    "oldProbabilityRule": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "winRate": 0,
+      "netR": 0,
+      "avgR": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "cvar95": null,
+      "plus10BpsNetR": 0,
+      "symbolBreadth": 0,
+      "positiveSymbolRatio": null,
+      "totalNetPnlUsdt": 0,
+      "totalFeesUsdt": 0,
+      "totalFundingUsdt": 0,
+      "totalSlippageUsdt": 0
+    },
+    "newEvRule": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "winRate": 0,
+      "netR": 0,
+      "avgR": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "cvar95": null,
+      "plus10BpsNetR": 0,
+      "symbolBreadth": 0,
+      "positiveSymbolRatio": null,
+      "totalNetPnlUsdt": 0,
+      "totalFeesUsdt": 0,
+      "totalFundingUsdt": 0,
+      "totalSlippageUsdt": 0
+    },
+    "evSignals": 0,
+    "status": "INCONCLUSIVE",
+    "neverUsedForPromotion": true
+  },
+  "newUntouchedHoldout": {
+    "manifest": "v59-1-binance-untouched-symbols-2023-01-01-2026-07-31",
+    "symbols": [
+      "ARBUSDT",
+      "APTUSDT",
+      "ETCUSDT",
+      "CHZUSDT",
+      "COMPUSDT",
+      "DASHUSDT",
+      "ENJUSDT",
+      "FLOWUSDT",
+      "FTMUSDT",
+      "HBARUSDT",
+      "LDOUSDT",
+      "MANAUSDT",
+      "MKRUSDT",
+      "NEOUSDT",
+      "ROSEUSDT",
+      "SNXUSDT",
+      "STXUSDT",
+      "THETAUSDT",
+      "TIAUSDT",
+      "TONUSDT"
+    ],
+    "coverage": "20/20",
+    "signals": 0,
+    "signalSymbols": [],
+    "metrics": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "winRate": 0,
+      "netR": 0,
+      "avgR": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "cvar95": null,
+      "plus10BpsNetR": 0,
+      "symbolBreadth": 0,
+      "positiveSymbolRatio": null,
+      "totalNetPnlUsdt": 0,
+      "totalFeesUsdt": 0,
+      "totalFundingUsdt": 0,
+      "totalSlippageUsdt": 0
+    },
+    "yield": {
+      "calendarDays": 1308,
+      "calendarMonths": 43,
+      "alertsPerWeek": 0,
+      "alertsPerMonth": 0,
+      "activeMonthRatio": 0,
+      "medianAlertsPerMonth": 0,
+      "p95DroughtDays": 1308,
+      "maxDroughtDays": 1308
+    },
+    "gate": {
+      "signals": false,
+      "untouchedSymbols": false,
+      "netR": false,
+      "avgR": false,
+      "profitFactor": false,
+      "plus10BpsNetR": false,
+      "positiveSymbolRatio": false
+    },
+    "status": "INCONCLUSIVE"
+  },
+  "primaryOnNewUntouched": {
+    "trades": 82,
+    "wins": 37,
+    "losses": 45,
+    "winRate": 0.4512,
+    "netR": 12.6599,
+    "avgR": 0.1544,
+    "profitFactor": 1.2574,
+    "maxDD": 19.1866,
+    "cvar95": -1.1895,
+    "plus10BpsNetR": -0.3192,
+    "symbolBreadth": 20,
+    "positiveSymbolRatio": 0.75,
+    "totalNetPnlUsdt": 632.9959,
+    "totalFeesUsdt": 259.5832,
+    "totalFundingUsdt": -12.7284,
+    "totalSlippageUsdt": 129.7917
+  },
+  "comparison": {
+    "ungatedPrimary": {
+      "metrics": {
+        "trades": 82,
+        "wins": 37,
+        "losses": 45,
+        "winRate": 0.4512,
+        "netR": 12.6599,
+        "avgR": 0.1544,
+        "profitFactor": 1.2574,
+        "maxDD": 19.1866,
+        "cvar95": -1.1895,
+        "plus10BpsNetR": -0.3192,
+        "symbolBreadth": 20,
+        "positiveSymbolRatio": 0.75,
+        "totalNetPnlUsdt": 632.9959,
+        "totalFeesUsdt": 259.5832,
+        "totalFundingUsdt": -12.7284,
+        "totalSlippageUsdt": 129.7917
+      },
+      "yield": {
+        "calendarDays": 1308,
+        "calendarMonths": 43,
+        "alertsPerWeek": 0.4388379204892966,
+        "alertsPerMonth": 1.9069767441860466,
+        "activeMonthRatio": 0.6744186046511628,
+        "medianAlertsPerMonth": 2,
+        "p95DroughtDays": 67.66666666666667,
+        "maxDroughtDays": 100.45833333333333
+      }
+    },
+    "v59OldProbabilityRule": {
+      "metrics": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "winRate": 0,
+        "netR": 0,
+        "avgR": 0,
+        "profitFactor": 0,
+        "maxDD": 0,
+        "cvar95": null,
+        "plus10BpsNetR": 0,
+        "symbolBreadth": 0,
+        "positiveSymbolRatio": null,
+        "totalNetPnlUsdt": 0,
+        "totalFeesUsdt": 0,
+        "totalFundingUsdt": 0,
+        "totalSlippageUsdt": 0
+      },
+      "yield": {
+        "calendarDays": 1308,
+        "calendarMonths": 43,
+        "alertsPerWeek": 0,
+        "alertsPerMonth": 0,
+        "activeMonthRatio": 0,
+        "medianAlertsPerMonth": 0,
+        "p95DroughtDays": 1308,
+        "maxDroughtDays": 1308
+      },
+      "status": "INCONCLUSIVE",
+      "diagnosticOnly": true
+    },
+    "v591EvRule": {
+      "metrics": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "winRate": 0,
+        "netR": 0,
+        "avgR": 0,
+        "profitFactor": 0,
+        "maxDD": 0,
+        "cvar95": null,
+        "plus10BpsNetR": 0,
+        "symbolBreadth": 0,
+        "positiveSymbolRatio": null,
+        "totalNetPnlUsdt": 0,
+        "totalFeesUsdt": 0,
+        "totalFundingUsdt": 0,
+        "totalSlippageUsdt": 0
+      },
+      "yield": {
+        "calendarDays": 1308,
+        "calendarMonths": 43,
+        "alertsPerWeek": 0,
+        "alertsPerMonth": 0,
+        "activeMonthRatio": 0,
+        "medianAlertsPerMonth": 0,
+        "p95DroughtDays": 1308,
+        "maxDroughtDays": 1308
+      },
+      "status": "INCONCLUSIVE"
+    },
+    "v591VsPrimary": "INCONCLUSIVE",
+    "question": "Does V5.9.1 provide more usable email alerts with positive historical expectancy?"
+  },
+  "generalization": {
+    "development": {
+      "trades": 14,
+      "wins": 1,
+      "losses": 13,
+      "winRate": 0.0714,
+      "netR": -11.3996,
+      "avgR": -0.8143,
+      "profitFactor": 0.1462,
+      "maxDD": 11.3996,
+      "cvar95": -1.112,
+      "plus10BpsNetR": -12.3247,
+      "symbolBreadth": 8,
+      "positiveSymbolRatio": 0.125,
+      "totalNetPnlUsdt": -569.9787,
+      "totalFeesUsdt": 18.5018,
+      "totalFundingUsdt": -49.5748,
+      "totalSlippageUsdt": 9.2509
+    },
+    "newUntouched": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "winRate": 0,
+      "netR": 0,
+      "avgR": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "cvar95": null,
+      "plus10BpsNetR": 0,
+      "symbolBreadth": 0,
+      "positiveSymbolRatio": null,
+      "totalNetPnlUsdt": 0,
+      "totalFeesUsdt": 0,
+      "totalFundingUsdt": 0,
+      "totalSlippageUsdt": 0
+    },
+    "oldBurnedDiagnostic": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "winRate": 0,
+      "netR": 0,
+      "avgR": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "cvar95": null,
+      "plus10BpsNetR": 0,
+      "symbolBreadth": 0,
+      "positiveSymbolRatio": null,
+      "totalNetPnlUsdt": 0,
+      "totalFeesUsdt": 0,
+      "totalFundingUsdt": 0,
+      "totalSlippageUsdt": 0
+    },
+    "avgRDegradation": null,
+    "pfDegradation": null,
+    "signalRateDegradation": null,
+    "overfit": "INCONCLUSIVE"
+  },
+  "exactOldProduction": {
+    "status": "DATA_UNAVAILABLE",
+    "reason": "No exact non-sensitive Production configuration export; no fake replay."
+  },
+  "businessVerdict": "INCONCLUSIVE",
+  "emailPromotionCandidate": "FAIL",
+  "hardBoundaries": {
+    "productionChanged": false,
+    "v55Changed": false,
+    "forwardShadowChanged": false,
+    "productionEmailChanged": false,
+    "deployment": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "primaryChanged": false,
+    "strategyChanged": false,
+    "oldHoldoutUsedForPromotion": false,
+    "noLeakage": true,
+    "runtimeImplementable": true
+  },
+  "frozenRules": {
+    "developmentGate": {
+      "signals": false,
+      "netR": false,
+      "avgR": false,
+      "profitFactor": false,
+      "plus10BpsNetR": false,
+      "positiveFoldRatio": false,
+      "medianFoldNetR": false,
+      "symbolBreadth": false,
+      "selectionAdjustedLCB": false,
+      "promotionLCB": false
+    },
+    "oldProbabilityDiagnosticOnNew": {
+      "status": "INCONCLUSIVE",
+      "role": "DIAGNOSTIC_ONLY"
+    }
+  }
+}

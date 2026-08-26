@@ -1,0 +1,66 @@
+{
+  "schema": "bca-v5-9-1-calibration-v1",
+  "nestedOos": {
+    "status": "FAIL",
+    "failureCode": "EV_CALIBRATION_FAIL",
+    "buckets": [
+      {
+        "bucket": "EV<=0",
+        "lowerBound": null,
+        "upperBound": 0,
+        "predictions": 1934,
+        "trades": 1934,
+        "wins": 690,
+        "winRate": 0.35677352637021714,
+        "avgR": -0.1310429600873594,
+        "profitFactor": 0.8161753760617199
+      },
+      {
+        "bucket": "0-0.05",
+        "lowerBound": 0,
+        "upperBound": 0.05,
+        "predictions": 114,
+        "trades": 114,
+        "wins": 37,
+        "winRate": 0.32456140350877194,
+        "avgR": -0.13878131042567649,
+        "profitFactor": 0.800516801576928
+      },
+      {
+        "bucket": "0.05-0.10",
+        "lowerBound": 0.05,
+        "upperBound": 0.1,
+        "predictions": 60,
+        "trades": 60,
+        "wins": 16,
+        "winRate": 0.26666666666666666,
+        "avgR": -0.28336243950103174,
+        "profitFactor": 0.6349475333300164
+      },
+      {
+        "bucket": "0.10-0.20",
+        "lowerBound": 0.1,
+        "upperBound": 0.2,
+        "predictions": 27,
+        "trades": 27,
+        "wins": 5,
+        "winRate": 0.18518518518518517,
+        "avgR": -0.5170273790657807,
+        "profitFactor": 0.40872360244289063
+      },
+      {
+        "bucket": ">0.20",
+        "lowerBound": 0.2,
+        "upperBound": null,
+        "predictions": 2,
+        "trades": 2,
+        "wins": 0,
+        "winRate": 0,
+        "avgR": -0.9300378462608655,
+        "profitFactor": 0
+      }
+    ],
+    "monotonicExpectancy": false
+  },
+  "rule": "Higher predicted EV must correspond overall to higher realized AvgR."
+}

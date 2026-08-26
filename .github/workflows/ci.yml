@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, feat/v5-7-second-edge-data-completion, feat/v5-8-regime-reconstruction, feat/v5-9-meta-label-validation]
+    branches: [main, feat/v5-7-second-edge-data-completion, feat/v5-8-regime-reconstruction, feat/v5-9-meta-label-validation, feat/v5-9-1-expectancy-calibration]
   pull_request:
 
 jobs:
@@ -27,3 +27,4 @@ jobs:
       - run: pnpm validate:v5-7
       - run: pnpm validate:v5-8
       - run: pnpm validate:v5-9
+      - run: pnpm validate:v5-9-1

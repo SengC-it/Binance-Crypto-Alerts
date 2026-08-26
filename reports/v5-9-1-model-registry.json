@@ -1,0 +1,97 @@
+{
+  "schema": "bca-v5-9-1-model-registry-v1",
+  "status": "FROZEN_BEFORE_RETURN_READ",
+  "baseline": "25f99797603b3500cd9e44bd6e3154e8d2475a0d",
+  "models": [
+    "LOGISTIC_L2",
+    "SHALLOW_TREE"
+  ],
+  "configurations": [
+    {
+      "id": "V591-LOGISTIC-L2-EV05",
+      "family": "LOGISTIC_L2",
+      "evThresholdR": 0.05,
+      "l2": 0.1
+    },
+    {
+      "id": "V591-LOGISTIC-L2-EV10",
+      "family": "LOGISTIC_L2",
+      "evThresholdR": 0.1,
+      "l2": 0.1
+    },
+    {
+      "id": "V591-LOGISTIC-L2-EV15",
+      "family": "LOGISTIC_L2",
+      "evThresholdR": 0.15,
+      "l2": 0.1
+    },
+    {
+      "id": "V591-SHALLOW-TREE-EV05",
+      "family": "SHALLOW_TREE",
+      "evThresholdR": 0.05,
+      "l2": 0
+    },
+    {
+      "id": "V591-SHALLOW-TREE-EV10",
+      "family": "SHALLOW_TREE",
+      "evThresholdR": 0.1,
+      "l2": 0
+    },
+    {
+      "id": "V591-SHALLOW-TREE-EV15",
+      "family": "SHALLOW_TREE",
+      "evThresholdR": 0.15,
+      "l2": 0
+    }
+  ],
+  "count": 6,
+  "max": 6,
+  "riskTemplates": [
+    {
+      "id": "V59-RISK-1.5R",
+      "rewardRisk": 1.5,
+      "stopStyle": "ATR",
+      "maxHoldHours": 36,
+      "parameters": {
+        "stopATRMultiplier": 1.25
+      }
+    },
+    {
+      "id": "V59-RISK-1.8R",
+      "rewardRisk": 1.8,
+      "stopStyle": "HYBRID",
+      "maxHoldHours": 48,
+      "parameters": {
+        "stopATRMultiplier": 1.25
+      }
+    },
+    {
+      "id": "V59-RISK-2.0R",
+      "rewardRisk": 2,
+      "stopStyle": "STRUCTURE",
+      "maxHoldHours": 72,
+      "parameters": {
+        "stopATRMultiplier": 1.25
+      }
+    }
+  ],
+  "decision": "estimatedEV > evThresholdR",
+  "payoffSource": "Outer-fold training rows only; no validation or holdout payoff statistics.",
+  "theoreticalBreakeven": [
+    {
+      "templateId": "V59-RISK-1.5R",
+      "rewardRisk": 1.5,
+      "beforeCostsProbability": 0.4
+    },
+    {
+      "templateId": "V59-RISK-1.8R",
+      "rewardRisk": 1.8,
+      "beforeCostsProbability": 0.35714285714285715
+    },
+    {
+      "templateId": "V59-RISK-2.0R",
+      "rewardRisk": 2,
+      "beforeCostsProbability": 0.3333333333333333
+    }
+  ]
+}

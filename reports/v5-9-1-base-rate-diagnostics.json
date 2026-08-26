@@ -1,0 +1,105 @@
+{
+  "schema": "bca-v5-9-1-base-rate-diagnostics-v1",
+  "training": {
+    "byRiskTemplate": [
+      {
+        "scope": "RISK_TEMPLATE",
+        "id": "V59-RISK-1.5R",
+        "rewardRisk": 1.5,
+        "events": 4983,
+        "wins": 1943,
+        "losses": 3040,
+        "winRate": 0.38992574754164155,
+        "avgR": -0.18487835655351326,
+        "profitFactor": 0.7390801804385957,
+        "netR": -921.2488507061565
+      },
+      {
+        "scope": "RISK_TEMPLATE",
+        "id": "V59-RISK-1.8R",
+        "rewardRisk": 1.8,
+        "events": 4949,
+        "wins": 1811,
+        "losses": 3138,
+        "winRate": 0.3659325116185088,
+        "avgR": -0.09505271976005573,
+        "profitFactor": 0.8625310979127293,
+        "netR": -470.41591009251584
+      },
+      {
+        "scope": "RISK_TEMPLATE",
+        "id": "V59-RISK-2.0R",
+        "rewardRisk": 2,
+        "events": 4949,
+        "wins": 1679,
+        "losses": 3270,
+        "winRate": 0.3392604566579107,
+        "avgR": -0.10502287824341605,
+        "profitFactor": 0.8564903794309292,
+        "netR": -519.7582244266661
+      }
+    ],
+    "byEventFamily": [
+      {
+        "scope": "EVENT_FAMILY",
+        "id": "FAILED_BREAKOUT_LIQUIDITY_REJECTION",
+        "rewardRisk": null,
+        "events": 2979,
+        "wins": 1031,
+        "losses": 1948,
+        "winRate": 0.34608929170862707,
+        "avgR": -0.19933035681805275,
+        "profitFactor": 0.7336870703391821,
+        "netR": -593.8051329609791
+      },
+      {
+        "scope": "EVENT_FAMILY",
+        "id": "SUPPORT_BREAKDOWN_RETEST",
+        "rewardRisk": null,
+        "events": 2981,
+        "wins": 1095,
+        "losses": 1886,
+        "winRate": 0.36732640053673266,
+        "avgR": -0.10360069602257775,
+        "profitFactor": 0.8501738477956237,
+        "netR": -308.83367484330427
+      },
+      {
+        "scope": "EVENT_FAMILY",
+        "id": "TREND_PULLBACK_CONTINUATION",
+        "rewardRisk": null,
+        "events": 2965,
+        "wins": 1095,
+        "losses": 1870,
+        "winRate": 0.36930860033726814,
+        "avgR": -0.09258504732688543,
+        "profitFactor": 0.8655578444870774,
+        "netR": -274.5146653242153
+      },
+      {
+        "scope": "EVENT_FAMILY",
+        "id": "VOLATILITY_COMPRESSION_EXPANSION",
+        "rewardRisk": null,
+        "events": 2976,
+        "wins": 1103,
+        "losses": 1873,
+        "winRate": 0.3706317204301075,
+        "avgR": -0.11777312715760953,
+        "profitFactor": 0.8332753737049071,
+        "netR": -350.49282642104595
+      },
+      {
+        "scope": "EVENT_FAMILY",
+        "id": "CROSS_MARKET_DOWNSIDE_MOMENTUM",
+        "rewardRisk": null,
+        "events": 2980,
+        "wins": 1109,
+        "losses": 1871,
+        "winRate": 0.37214765100671143,
+        "avgR": -0.12878412270999698,
+        "profitFactor": 0.8206154412851931,
+        "netR": -383.776685675791
+      }
+    ]
+  }
+}

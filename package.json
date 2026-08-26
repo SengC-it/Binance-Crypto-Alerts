@@ -27,7 +27,9 @@
     "freeze:v5-8": "tsx scripts/freeze-v5-8-manifest.ts",
     "validate:v5-8": "tsx scripts/run-v5-8-validation.ts",
     "freeze:v5-9": "tsx scripts/freeze-v5-9-manifest.ts --download",
-    "validate:v5-9": "tsx scripts/run-v5-9-validation.ts"
+    "validate:v5-9": "tsx scripts/run-v5-9-validation.ts",
+    "freeze:v5-9-1": "tsx scripts/freeze-v5-9-1-manifest.ts --download",
+    "validate:v5-9-1": "tsx scripts/run-v5-9-1-validation.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
