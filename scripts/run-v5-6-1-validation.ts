@@ -429,7 +429,16 @@ async function loadUniverse(): Promise<string[]> {
 }
 
 async function loadCacheManifest(): Promise<CacheFile[]> {
-  const names = await readdir(CACHE_DIR);
+  let names: string[];
+  try {
+    names = await readdir(CACHE_DIR);
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
+      console.warn(JSON.stringify({ stage: "v5_6_1_cache_unavailable", cacheDirectory: "data/validation-cache", status: "DATA_UNAVAILABLE", reason: "No local immutable validation cache is present; no returns are fabricated." }));
+      return [];
+    }
+    throw error;
+  }
   return names
     .filter((name) => name.endsWith(".json"))
     .map((name) => {
