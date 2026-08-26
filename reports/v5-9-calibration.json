@@ -1,0 +1,53 @@
+{
+  "schema": "bca-v5-9-calibration-v1",
+  "nestedOos": {
+    "status": "INCONCLUSIVE",
+    "buckets": [
+      {
+        "bucket": "0.50-0.55",
+        "lowerBound": 0.5,
+        "upperBound": 0.55,
+        "predictions": 0,
+        "trades": 0,
+        "wins": 0,
+        "winRate": null,
+        "avgR": null,
+        "profitFactor": null
+      },
+      {
+        "bucket": "0.55-0.60",
+        "lowerBound": 0.55,
+        "upperBound": 0.6,
+        "predictions": 0,
+        "trades": 0,
+        "wins": 0,
+        "winRate": null,
+        "avgR": null,
+        "profitFactor": null
+      },
+      {
+        "bucket": "0.60-0.65",
+        "lowerBound": 0.6,
+        "upperBound": 0.65,
+        "predictions": 0,
+        "trades": 0,
+        "wins": 0,
+        "winRate": null,
+        "avgR": null,
+        "profitFactor": null
+      },
+      {
+        "bucket": ">0.65",
+        "lowerBound": 0.65,
+        "upperBound": 1.01,
+        "predictions": 0,
+        "trades": 0,
+        "wins": 0,
+        "winRate": null,
+        "avgR": null,
+        "profitFactor": null
+      }
+    ],
+    "monotonicExpectancy": null
+  }
+}

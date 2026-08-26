@@ -1,0 +1,97 @@
+{
+  "schema": "bca-v5-9-candidate-event-registry-v1",
+  "status": "FROZEN_BEFORE_RETURN_READ",
+  "minimumCandidateEvents": 500,
+  "totalCandidateEvents": 4983,
+  "fixedOutcomeRows": 14881,
+  "familyCount": 5,
+  "families": {
+    "FAILED_BREAKOUT_LIQUIDITY_REJECTION": {
+      "id": "FAILED_BREAKOUT_LIQUIDITY_REJECTION",
+      "side": "BOTH",
+      "hypothesis": "A closed-candle breakout failure exposes trapped directional liquidity.",
+      "economicLogic": "A failed acceptance beyond a recent range level can create forced exits and short-horizon reversal flow.",
+      "detector": "Prior closed candles probe and close beyond a 20-bar level; the current closed candle rejects back through that level.",
+      "candidateEvents": 993,
+      "fixedOutcomeRows": 2979
+    },
+    "SUPPORT_BREAKDOWN_RETEST": {
+      "id": "SUPPORT_BREAKDOWN_RETEST",
+      "side": "SHORT",
+      "hypothesis": "A support breakdown followed by a bounded retest can expose overhead supply.",
+      "economicLogic": "Former support becomes an invalidation reference after trapped longs test it from below.",
+      "detector": "A prior closed candle breaks a 20-bar floor and the current closed candle retests and rejects that floor.",
+      "candidateEvents": 999,
+      "fixedOutcomeRows": 2981
+    },
+    "TREND_PULLBACK_CONTINUATION": {
+      "id": "TREND_PULLBACK_CONTINUATION",
+      "side": "BOTH",
+      "hypothesis": "A bounded pullback inside an established higher-timeframe trend may resume the prevailing flow.",
+      "economicLogic": "A controlled reset can improve entry location while trend alignment supplies directional continuation pressure.",
+      "detector": "Closed-candle trend alignment, bounded pullback depth, and directional re-acceleration; no next-bar fields are read.",
+      "candidateEvents": 999,
+      "fixedOutcomeRows": 2965
+    },
+    "VOLATILITY_COMPRESSION_EXPANSION": {
+      "id": "VOLATILITY_COMPRESSION_EXPANSION",
+      "side": "BOTH",
+      "hypothesis": "A measured release from compressed range can produce a directional event before late chasing.",
+      "economicLogic": "Stored range energy plus participation can create temporary order-flow imbalance.",
+      "detector": "Closed compression/range statistics followed by closed-candle range and participation expansion.",
+      "candidateEvents": 996,
+      "fixedOutcomeRows": 2976
+    },
+    "CROSS_MARKET_DOWNSIDE_MOMENTUM": {
+      "id": "CROSS_MARKET_DOWNSIDE_MOMENTUM",
+      "side": "SHORT",
+      "hypothesis": "Synchronous benchmark weakness can improve the base rate of local downside momentum events.",
+      "economicLogic": "Cross-market risk reduction can reinforce local supply and reduce isolated-symbol mean reversion.",
+      "detector": "Already-closed BTC/ETH regime context, breadth, and local bearish momentum only.",
+      "candidateEvents": 996,
+      "fixedOutcomeRows": 2980
+    }
+  },
+  "eventDefinitions": [
+    {
+      "id": "FAILED_BREAKOUT_LIQUIDITY_REJECTION",
+      "side": "BOTH",
+      "hypothesis": "A closed-candle breakout failure exposes trapped directional liquidity.",
+      "economicLogic": "A failed acceptance beyond a recent range level can create forced exits and short-horizon reversal flow.",
+      "detector": "Prior closed candles probe and close beyond a 20-bar level; the current closed candle rejects back through that level."
+    },
+    {
+      "id": "SUPPORT_BREAKDOWN_RETEST",
+      "side": "SHORT",
+      "hypothesis": "A support breakdown followed by a bounded retest can expose overhead supply.",
+      "economicLogic": "Former support becomes an invalidation reference after trapped longs test it from below.",
+      "detector": "A prior closed candle breaks a 20-bar floor and the current closed candle retests and rejects that floor."
+    },
+    {
+      "id": "TREND_PULLBACK_CONTINUATION",
+      "side": "BOTH",
+      "hypothesis": "A bounded pullback inside an established higher-timeframe trend may resume the prevailing flow.",
+      "economicLogic": "A controlled reset can improve entry location while trend alignment supplies directional continuation pressure.",
+      "detector": "Closed-candle trend alignment, bounded pullback depth, and directional re-acceleration; no next-bar fields are read."
+    },
+    {
+      "id": "VOLATILITY_COMPRESSION_EXPANSION",
+      "side": "BOTH",
+      "hypothesis": "A measured release from compressed range can produce a directional event before late chasing.",
+      "economicLogic": "Stored range energy plus participation can create temporary order-flow imbalance.",
+      "detector": "Closed compression/range statistics followed by closed-candle range and participation expansion."
+    },
+    {
+      "id": "CROSS_MARKET_DOWNSIDE_MOMENTUM",
+      "side": "SHORT",
+      "hypothesis": "Synchronous benchmark weakness can improve the base rate of local downside momentum events.",
+      "economicLogic": "Cross-market risk reduction can reinforce local supply and reduce isolated-symbol mean reversion.",
+      "detector": "Already-closed BTC/ETH regime context, breadth, and local bearish momentum only."
+    }
+  ],
+  "noLegacyFinalFilters": true,
+  "labels": {
+    "positive": "net R > 0",
+    "highQuality": "net R >= 0.5R"
+  }
+}

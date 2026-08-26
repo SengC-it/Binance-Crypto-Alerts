@@ -1,0 +1,77 @@
+{
+  "schema": "bca-v5-9-model-registry-v1",
+  "status": "FROZEN_BEFORE_RETURN_READ",
+  "models": [
+    "LOGISTIC_L2",
+    "SHALLOW_TREE"
+  ],
+  "configurations": [
+    {
+      "id": "V59-LOGISTIC-L2-T55",
+      "family": "LOGISTIC_L2",
+      "probabilityThreshold": 0.55,
+      "l2": 0.1
+    },
+    {
+      "id": "V59-LOGISTIC-L2-T60",
+      "family": "LOGISTIC_L2",
+      "probabilityThreshold": 0.6,
+      "l2": 0.1
+    },
+    {
+      "id": "V59-LOGISTIC-L2-T65",
+      "family": "LOGISTIC_L2",
+      "probabilityThreshold": 0.65,
+      "l2": 0.1
+    },
+    {
+      "id": "V59-SHALLOW-TREE-T55",
+      "family": "SHALLOW_TREE",
+      "probabilityThreshold": 0.55,
+      "l2": 0
+    },
+    {
+      "id": "V59-SHALLOW-TREE-T60",
+      "family": "SHALLOW_TREE",
+      "probabilityThreshold": 0.6,
+      "l2": 0
+    },
+    {
+      "id": "V59-SHALLOW-TREE-T65",
+      "family": "SHALLOW_TREE",
+      "probabilityThreshold": 0.65,
+      "l2": 0
+    }
+  ],
+  "count": 6,
+  "max": 12,
+  "riskTemplates": [
+    {
+      "id": "V59-RISK-1.5R",
+      "rewardRisk": 1.5,
+      "stopStyle": "ATR",
+      "maxHoldHours": 36,
+      "parameters": {
+        "stopATRMultiplier": 1.25
+      }
+    },
+    {
+      "id": "V59-RISK-1.8R",
+      "rewardRisk": 1.8,
+      "stopStyle": "HYBRID",
+      "maxHoldHours": 48,
+      "parameters": {
+        "stopATRMultiplier": 1.25
+      }
+    },
+    {
+      "id": "V59-RISK-2.0R",
+      "rewardRisk": 2,
+      "stopStyle": "STRUCTURE",
+      "maxHoldHours": 72,
+      "parameters": {
+        "stopATRMultiplier": 1.25
+      }
+    }
+  ]
+}
