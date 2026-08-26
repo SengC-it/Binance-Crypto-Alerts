@@ -1,6 +1,6 @@
 {
   "schema": "bca-v5-7-validation-summary-v1",
-  "generatedAt": "2026-08-26T06:35:48.505Z",
+  "generatedAt": "2026-08-26T06:48:22.690Z",
   "status": "VALIDATION_COMPLETE",
   "researchOnly": true,
   "manifestId": "v57-second-edge-2021-01-01-2023-07-31",
@@ -337,7 +337,7 @@
       {
         "symbol": "ICPUSDT",
         "pitEligible": true,
-        "classification": "DOWNLOAD_FAILED",
+        "classification": "ARCHIVE_MISSING",
         "availableArchiveCount": 89,
         "expectedArchiveCount": 104
       },

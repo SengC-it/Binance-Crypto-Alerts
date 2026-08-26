@@ -1,7 +1,7 @@
 {
   "schema": "bca-v5-7-external-data-inventory-v1",
   "status": "AVAILABLE",
-  "queryTimestamp": "2026-08-26T06:33:30.392Z",
+  "queryTimestamp": "2026-08-26T06:46:17.397Z",
   "manifestId": "v57-second-edge-2021-01-01-2023-07-31",
   "period": {
     "start": "2021-01-01T00:00:00.000Z",
@@ -28645,7 +28645,7 @@
     {
       "symbol": "ICPUSDT",
       "pitEligible": true,
-      "classification": "DOWNLOAD_FAILED",
+      "classification": "ARCHIVE_MISSING",
       "effectiveStart": "2021-06-01T00:00:00.000Z",
       "effectiveEnd": "2023-07-31T23:59:59.999Z",
       "expectedPeriods": [
@@ -28729,12 +28729,12 @@
           "periodEnd": "2021-06-30T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-06.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -28786,12 +28786,12 @@
           "periodEnd": "2021-07-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-07.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -28843,12 +28843,12 @@
           "periodEnd": "2021-08-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-08.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -28900,12 +28900,12 @@
           "periodEnd": "2021-09-30T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-09.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -28957,12 +28957,12 @@
           "periodEnd": "2021-10-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-10.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29014,12 +29014,12 @@
           "periodEnd": "2021-11-30T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-11.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29071,12 +29071,12 @@
           "periodEnd": "2021-12-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-12.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29128,12 +29128,12 @@
           "periodEnd": "2022-01-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-01.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29185,12 +29185,12 @@
           "periodEnd": "2022-02-28T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-02.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29242,12 +29242,12 @@
           "periodEnd": "2022-03-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-03.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29299,12 +29299,12 @@
           "periodEnd": "2022-04-30T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-04.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29356,12 +29356,12 @@
           "periodEnd": "2022-05-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-05.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29413,12 +29413,12 @@
           "periodEnd": "2022-06-30T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-06.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29470,12 +29470,12 @@
           "periodEnd": "2022-07-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-07.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -29527,12 +29527,12 @@
           "periodEnd": "2022-08-31T23:59:59.999Z",
           "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-08.zip",
           "cachePath": null,
-          "status": "DOWNLOAD_FAILED",
-          "classification": "DOWNLOAD_FAILED",
+          "status": "ARCHIVE_MISSING",
+          "classification": "ARCHIVE_MISSING",
           "sizeBytes": null,
           "sha256": null,
           "rowCount": null,
-          "error": "not cached; downloader was run without --download"
+          "error": "HTTP 404"
         },
         {
           "symbol": "ICPUSDT",
@@ -63565,12 +63565,12 @@
       "periodEnd": "2021-06-30T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-06.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -63622,12 +63622,12 @@
       "periodEnd": "2021-07-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-07.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -63679,12 +63679,12 @@
       "periodEnd": "2021-08-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-08.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -63736,12 +63736,12 @@
       "periodEnd": "2021-09-30T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-09.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -63793,12 +63793,12 @@
       "periodEnd": "2021-10-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-10.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -63850,12 +63850,12 @@
       "periodEnd": "2021-11-30T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-11.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -63907,12 +63907,12 @@
       "periodEnd": "2021-12-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2021-12.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -63964,12 +63964,12 @@
       "periodEnd": "2022-01-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-01.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -64021,12 +64021,12 @@
       "periodEnd": "2022-02-28T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-02.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -64078,12 +64078,12 @@
       "periodEnd": "2022-03-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-03.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -64135,12 +64135,12 @@
       "periodEnd": "2022-04-30T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-04.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -64192,12 +64192,12 @@
       "periodEnd": "2022-05-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-05.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -64249,12 +64249,12 @@
       "periodEnd": "2022-06-30T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-06.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -64306,12 +64306,12 @@
       "periodEnd": "2022-07-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-07.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
@@ -64363,12 +64363,12 @@
       "periodEnd": "2022-08-31T23:59:59.999Z",
       "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/fundingRate/ICPUSDT/ICPUSDT-fundingRate-2022-08.zip",
       "cachePath": null,
-      "status": "DOWNLOAD_FAILED",
-      "classification": "DOWNLOAD_FAILED",
+      "status": "ARCHIVE_MISSING",
+      "classification": "ARCHIVE_MISSING",
       "sizeBytes": null,
       "sha256": null,
       "rowCount": null,
-      "error": "not cached; downloader was run without --download"
+      "error": "HTTP 404"
     },
     {
       "symbol": "ICPUSDT",
