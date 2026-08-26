@@ -1,0 +1,52 @@
+{
+  "reportVersion": "v5-6-1-research-v1",
+  "generatedAt": "2026-08-26T04:57:27.220Z",
+  "researchBaseline": "c94ad43ab7477a9c4d770ea234137425c174821f",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "controlStrategy": "trend-rejection-short-v1",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noProductionEmailChange": true,
+  "noProductionEnvironmentChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "noMerge": true,
+  "noDeployment": true,
+  "localPitCoverageComplete": false,
+  "manifest": {
+    "schema": "bca-v5-6-1-external-validation-manifest-v1",
+    "status": "FROZEN_BEFORE_DATA_READ",
+    "manifestId": "v561-external-2021-01-01-2023-07-31",
+    "period": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2023-07-31T23:59:59.999Z"
+    },
+    "source": "Binance Data Vision USDT-M futures 15m monthly archive",
+    "sourceUrl": "https://data.binance.vision/?prefix=data/futures/um/monthly/klines/",
+    "requestedSymbols": "data/validation-universe-50.json",
+    "expectedSymbolCount": 50,
+    "selectionUse": "EXTERNAL_VALIDATION_ONLY; NOT USED FOR CANDIDATE SELECTION",
+    "dataReadAfterManifest": true,
+    "coverageRule": "A symbol is eligible only when the immutable archive shows the month and both boundary months are excluded.",
+    "manifestHash": "8a7c2f2ea6aeafd458ed49197b15f6b48755432f445ec4ca62d14e10735a4c44"
+  },
+  "result": {
+    "status": "DATA_UNAVAILABLE",
+    "manifestFrozenBeforeData": true,
+    "manifestId": "v561-external-2021-01-01-2023-07-31",
+    "period": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2023-07-31T23:59:59.999Z"
+    },
+    "expectedSymbols": 50,
+    "loadedSymbols": [],
+    "coveragePercent": 0,
+    "trades": null,
+    "metrics": null,
+    "reason": "No complete local immutable cache covers the frozen external interval; no returns were fabricated.",
+    "manifestHash": "8a7c2f2ea6aeafd458ed49197b15f6b48755432f445ec4ca62d14e10735a4c44"
+  },
+  "dataReadAfterManifest": true
+}

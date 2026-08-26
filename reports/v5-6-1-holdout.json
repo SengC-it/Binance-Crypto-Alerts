@@ -1,0 +1,315 @@
+{
+  "reportVersion": "v5-6-1-research-v1",
+  "generatedAt": "2026-08-26T04:57:27.220Z",
+  "researchBaseline": "c94ad43ab7477a9c4d770ea234137425c174821f",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "controlStrategy": "trend-rejection-short-v1",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noProductionEmailChange": true,
+  "noProductionEnvironmentChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "noMerge": true,
+  "noDeployment": true,
+  "localPitCoverageComplete": false,
+  "status": "V56_HOLDOUT_BURNED_AFTER_RESEARCH_REVIEW",
+  "usage": "KNOWN_VALIDATION_DIAGNOSTIC only; not a new independent holdout and not used for selection or promotion",
+  "directions": {
+    "LONG": {
+      "selectedCandidate": {
+        "id": "V561-LONG-LIQUIDITY-RECLAIM-01",
+        "side": "LONG",
+        "family": "INDEPENDENT_LONG_LIQUIDITY_RECLAIM",
+        "variant": 1,
+        "hypothesis": "A bullish trend that sweeps value and reclaims the recent high can provide a distinct LONG continuation edge.",
+        "marketMechanism": "A downside liquidity sweep resets positioning before demand reclaims the local range.",
+        "expectedRegime": "BULL or RANGE-to-BULL",
+        "entryLogic": "Bull alignment, bounded liquidity sweep, bullish reclaim and next-open execution.",
+        "invalidationLogic": "The swept value area is lost on a closed candle.",
+        "expectedHoldingHorizonHours": 48,
+        "expectedFailureMode": "The sweep is distribution and the trend has already turned lower.",
+        "stopStyle": "HYBRID",
+        "rewardRisk": 1.8,
+        "parameters": {
+          "breakoutLookback": 20,
+          "volumeRatioMin": 1.05,
+          "retestDistanceATR": 0.75,
+          "maxExtensionATR": 0.85,
+          "pullbackMinATR": 0.4,
+          "pullbackMaxATR": 1.7,
+          "trendAgeMinBars": 18,
+          "compressionBarsMin": 8,
+          "compressionRangeMaxATR": 4.5,
+          "expansionVolumeMin": 1.25,
+          "expansionVolatilityMin": 1.15,
+          "stopATRMultiplier": 1.25,
+          "structureLookback": 8
+        }
+      },
+      "status": "V56_HOLDOUT_BURNED_AFTER_RESEARCH_REVIEW",
+      "usage": "KNOWN_VALIDATION_DIAGNOSTIC",
+      "rawRows": 0,
+      "uniqueRows": 0,
+      "metrics": null
+    },
+    "SHORT": {
+      "selectedCandidate": {
+        "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+        "side": "SHORT",
+        "family": "FAILED_BREAKOUT_REVERSAL",
+        "variant": 1,
+        "hypothesis": "A failed upside breakout followed by two closes below the level traps late buyers and creates a reversal edge.",
+        "marketMechanism": "Failed expansion leaves demand above invalidation while supply controls the reclaim failure.",
+        "expectedRegime": "BULL exhaustion or RANGE transition",
+        "entryLogic": "Closed failed-breakout frame, lower high, bearish confirmation and bounded next-open entry.",
+        "invalidationLogic": "Reclaim of the prior upside breakout level.",
+        "expectedHoldingHorizonHours": 48,
+        "expectedFailureMode": "The breakout resumes after a temporary shakeout.",
+        "stopStyle": "STRUCTURE",
+        "rewardRisk": 1.8,
+        "parameters": {
+          "breakoutLookback": 20,
+          "volumeRatioMin": 1.35,
+          "retestDistanceATR": 0.6,
+          "maxExtensionATR": 0.8,
+          "pullbackMinATR": 0.35,
+          "pullbackMaxATR": 1.6,
+          "trendAgeMinBars": 16,
+          "compressionBarsMin": 8,
+          "compressionRangeMaxATR": 4.5,
+          "expansionVolumeMin": 1.25,
+          "expansionVolatilityMin": 1.15,
+          "stopATRMultiplier": 1.25,
+          "structureLookback": 8
+        }
+      },
+      "status": "V56_HOLDOUT_BURNED_AFTER_RESEARCH_REVIEW",
+      "usage": "KNOWN_VALIDATION_DIAGNOSTIC",
+      "rawRows": 70,
+      "uniqueRows": 70,
+      "metrics": {
+        "trades": 70,
+        "wins": 37,
+        "losses": 33,
+        "winRate": 0.5286,
+        "netR": 27.7856,
+        "avgR": 0.3969,
+        "profitFactor": 1.7763,
+        "maxDrawdownR": 7.9053,
+        "lowerConfidenceBound95": 0.0351,
+        "positiveMonths": 5,
+        "months": 9,
+        "positiveMonthRatio": 0.5556,
+        "topSymbolProfitShare": 0.1094,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": 1389.2776,
+        "totalFeesUsdt": 200.0048,
+        "totalFundingUsdt": 9.2849,
+        "totalSlippageUsdt": 100.0025,
+        "monthly": [
+          {
+            "month": "2025-08",
+            "trades": 1,
+            "netR": 1.66,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2025-09",
+            "trades": 2,
+            "netR": 0.5756,
+            "profitFactor": 1.4886,
+            "maxDrawdownR": 1.1782
+          },
+          {
+            "month": "2025-10",
+            "trades": 22,
+            "netR": 10.1918,
+            "profitFactor": 1.9506,
+            "maxDrawdownR": 2.2064
+          },
+          {
+            "month": "2025-11",
+            "trades": 9,
+            "netR": -1.5402,
+            "profitFactor": 0.7717,
+            "maxDrawdownR": 3.5459
+          },
+          {
+            "month": "2025-12",
+            "trades": 4,
+            "netR": -1.4738,
+            "profitFactor": 0.546,
+            "maxDrawdownR": 3.2464
+          },
+          {
+            "month": "2026-01",
+            "trades": 5,
+            "netR": 8.026,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2026-02",
+            "trades": 15,
+            "netR": 15.0333,
+            "profitFactor": 4.4843,
+            "maxDrawdownR": 2.1921
+          },
+          {
+            "month": "2026-05",
+            "trades": 4,
+            "netR": -1.6864,
+            "profitFactor": 0.4795,
+            "maxDrawdownR": 2.1784
+          },
+          {
+            "month": "2026-06",
+            "trades": 8,
+            "netR": -3.0008,
+            "profitFactor": 0.5272,
+            "maxDrawdownR": 4.7532
+          }
+        ]
+      }
+    }
+  },
+  "auditOfV56Report11Holdout": {
+    "reportedTradeCount": 147,
+    "rawRows": 143,
+    "uniqueRows": 116,
+    "duplicateRows": 27,
+    "duplicateKeys": [
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|1000PEPEUSDT|SHORT|1779284699999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|AAVEUSDT|SHORT|1771832699999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|AAVEUSDT|SHORT|1781955899999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|AVAXUSDT|SHORT|1771249499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|BNBUSDT|SHORT|1771897499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|COTIUSDT|SHORT|1782578699999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|DOGEUSDT|SHORT|1779284699999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|ETHUSDT|SHORT|1779846299999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|ICPUSDT|SHORT|1770885899999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|ICPUSDT|SHORT|1771897499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|ICPUSDT|SHORT|1777560299999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|ICPUSDT|SHORT|1780595099999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|INJUSDT|SHORT|1774601099999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|INJUSDT|SHORT|1782751499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|IOTXUSDT|SHORT|1779029099999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|LTCUSDT|SHORT|1779237899999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|NEARUSDT|SHORT|1771249499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|NEARUSDT|SHORT|1780487099999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|SUIUSDT|SHORT|1782722699999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|UNIUSDT|SHORT|1782301499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|WLDUSDT|SHORT|1777509899999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|XLMUSDT|SHORT|1780047899999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|XLMUSDT|SHORT|1780580699999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|XLMUSDT|SHORT|1782265499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|XMRUSDT|SHORT|1777567499999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|XMRUSDT|SHORT|1779237899999",
+      "V56-SHORT-FAILED_BREAKOUT-BALANCED-125|XRPUSDT|SHORT|1780580699999"
+    ],
+    "metricsOnUniqueRows": {
+      "trades": 116,
+      "wins": 67,
+      "losses": 49,
+      "winRate": 0.5776,
+      "netR": 56.1685,
+      "avgR": 0.4842,
+      "profitFactor": 2.0421,
+      "maxDrawdownR": 6.6839,
+      "lowerConfidenceBound95": 0.2054,
+      "positiveMonths": 9,
+      "months": 11,
+      "positiveMonthRatio": 0.8182,
+      "topSymbolProfitShare": 0.0779,
+      "topFoldProfitShare": null,
+      "totalNetPnlUsdt": 2808.4264,
+      "totalFeesUsdt": 400.5408,
+      "totalFundingUsdt": 11.482,
+      "totalSlippageUsdt": 200.2706,
+      "monthly": [
+        {
+          "month": "2025-08",
+          "trades": 2,
+          "netR": 3.2532,
+          "profitFactor": null,
+          "maxDrawdownR": 0
+        },
+        {
+          "month": "2025-09",
+          "trades": 5,
+          "netR": -0.3357,
+          "profitFactor": 0.9038,
+          "maxDrawdownR": 3.4896
+        },
+        {
+          "month": "2025-10",
+          "trades": 15,
+          "netR": 3.3891,
+          "profitFactor": 1.3901,
+          "maxDrawdownR": 3.1943
+        },
+        {
+          "month": "2025-11",
+          "trades": 15,
+          "netR": 3.1655,
+          "profitFactor": 1.3572,
+          "maxDrawdownR": 3.3463
+        },
+        {
+          "month": "2025-12",
+          "trades": 4,
+          "netR": 3.8089,
+          "profitFactor": 4.4481,
+          "maxDrawdownR": 1.1047
+        },
+        {
+          "month": "2026-01",
+          "trades": 9,
+          "netR": 11.6299,
+          "profitFactor": 10.5511,
+          "maxDrawdownR": 1.2177
+        },
+        {
+          "month": "2026-02",
+          "trades": 24,
+          "netR": 27.7665,
+          "profitFactor": 7.3835,
+          "maxDrawdownR": 2.2205
+        },
+        {
+          "month": "2026-03",
+          "trades": 2,
+          "netR": 0.6096,
+          "profitFactor": 1.5725,
+          "maxDrawdownR": 1.0648
+        },
+        {
+          "month": "2026-04",
+          "trades": 3,
+          "netR": 2.0804,
+          "profitFactor": 2.6969,
+          "maxDrawdownR": 1.226
+        },
+        {
+          "month": "2026-05",
+          "trades": 13,
+          "netR": 1.5698,
+          "profitFactor": 1.2053,
+          "maxDrawdownR": 3.3845
+        },
+        {
+          "month": "2026-06",
+          "trades": 24,
+          "netR": -0.7688,
+          "profitFactor": 0.9527,
+          "maxDrawdownR": 4.8984
+        }
+      ]
+    },
+    "status": "V56_HOLDOUT_BURNED_AFTER_RESEARCH_REVIEW / KNOWN_VALIDATION_DIAGNOSTIC"
+  }
+}

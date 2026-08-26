@@ -1,0 +1,17 @@
+{
+  "schema": "bca-v5-6-1-external-validation-manifest-v1",
+  "status": "FROZEN_BEFORE_DATA_READ",
+  "manifestId": "v561-external-2021-01-01-2023-07-31",
+  "period": {
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2023-07-31T23:59:59.999Z"
+  },
+  "source": "Binance Data Vision USDT-M futures 15m monthly archive",
+  "sourceUrl": "https://data.binance.vision/?prefix=data/futures/um/monthly/klines/",
+  "requestedSymbols": "data/validation-universe-50.json",
+  "expectedSymbolCount": 50,
+  "selectionUse": "EXTERNAL_VALIDATION_ONLY; NOT USED FOR CANDIDATE SELECTION",
+  "dataReadAfterManifest": true,
+  "coverageRule": "A symbol is eligible only when the immutable archive shows the month and both boundary months are excluded.",
+  "manifestHash": "8a7c2f2ea6aeafd458ed49197b15f6b48755432f445ec4ca62d14e10735a4c44"
+}
