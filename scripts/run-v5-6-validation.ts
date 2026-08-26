@@ -1407,11 +1407,11 @@ function serializeControlComparison(analysis: DirectionAnalysis): Record<string,
 
 function buildRelaxedOnlyComparison(analysis: DirectionAnalysis): Record<string, unknown> | "DATA_UNAVAILABLE" {
   if (analysis.side !== "SHORT" || analysis.controlBOosTrades.length === 0) return "DATA_UNAVAILABLE";
-  const controlKeys = new Set(analysis.controlBOosTrades.map(canonicalResearchTradeKey));
+  const controlKeys = new Set(analysis.controlBOosTrades.map(canonicalSignalKey));
   const variants = analysis.rows
     .filter((row) => !row.candidate.isControl)
     .map((row) => {
-      const relaxedOnlyTrades = row.oosTrades.filter((trade) => !controlKeys.has(canonicalResearchTradeKey(trade)));
+      const relaxedOnlyTrades = row.oosTrades.filter((trade) => !controlKeys.has(canonicalSignalKey(trade)));
       return {
         candidate: row.candidate.id,
         candidateOosTrades: row.oosTrades.length,
@@ -1420,11 +1420,11 @@ function buildRelaxedOnlyComparison(analysis: DirectionAnalysis): Record<string,
         relaxedOnlyYield: serializeYield(calculateYieldMetrics(relaxedOnlyTrades, V56_CORE_START, V56_BROAD_HOLDOUT_START - 1)),
       };
     });
-  const controlHoldoutKeys = new Set(analysis.controlBHoldoutTrades.map(canonicalResearchTradeKey));
-  const selectedHoldoutRelaxedOnly = analysis.holdoutTrades.filter((trade) => !controlHoldoutKeys.has(canonicalResearchTradeKey(trade)));
+  const controlHoldoutKeys = new Set(analysis.controlBHoldoutTrades.map(canonicalSignalKey));
+  const selectedHoldoutRelaxedOnly = analysis.holdoutTrades.filter((trade) => !controlHoldoutKeys.has(canonicalSignalKey(trade)));
   return {
     baseline: V56_CONTROL_B_ID,
-    method: "same OOS/holdout window; canonical symbol|side|entryTime|exitTime key; descriptive overlap audit, not a causal attribution",
+    method: "same OOS/holdout window; canonical symbol|side|entryTime signal key; descriptive overlap audit, not a causal attribution",
     variants,
     selectedCandidateHoldout: analysis.finalCandidate
       ? {
@@ -1435,6 +1435,10 @@ function buildRelaxedOnlyComparison(analysis: DirectionAnalysis): Record<string,
       }
       : "DATA_UNAVAILABLE",
   };
+}
+
+function canonicalSignalKey(trade: ValidationTrade): string {
+  return [trade.symbol, trade.side ?? "UNKNOWN", trade.entryTime].join("|");
 }
 
 function buildBusinessComparison(analysis: DirectionAnalysis): Record<string, unknown> {
@@ -1481,6 +1485,7 @@ function buildBusinessRow(
       netR: roundResearchMetric(metrics.netR),
       avgR: roundResearchMetric(metrics.avgNetR),
       profitFactor: Number.isFinite(metrics.profitFactor) ? roundResearchMetric(metrics.profitFactor) : null,
+      lcb95: roundMetric(metrics.lowerConfidenceBound95),
       winRate: roundResearchMetric(metrics.winRate),
       stopRate: roundResearchMetric(calculateStopRate(trades)),
       maxDrawdownR: roundResearchMetric(metrics.maxDrawdownR),
@@ -1595,9 +1600,9 @@ function renderPromotionDecision(long: DirectionAnalysis, short: DirectionAnalys
     ...renderDirection(short),
     "",
     "## Old Production comparison (SHORT; same OOS window/universe/cost/next-open reference)",
-    `- Old Production: NetR ${String(businessRows[0]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[0]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[0]?.profitFactor ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[0]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
-    `- V5.5 Control B: NetR ${String(businessRows[1]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[1]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[1]?.profitFactor ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[1]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
-    `- V5.6 selected: NetR ${String(businessRows[2]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[2]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[2]?.profitFactor ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[2]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
+    `- Old Production: NetR ${String(businessRows[0]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[0]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[0]?.profitFactor ?? "DATA_UNAVAILABLE")}, LCB95 ${String(businessRows[0]?.lcb95 ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[0]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
+    `- V5.5 Control B: NetR ${String(businessRows[1]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[1]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[1]?.profitFactor ?? "DATA_UNAVAILABLE")}, LCB95 ${String(businessRows[1]?.lcb95 ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[1]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
+    `- V5.6 selected: NetR ${String(businessRows[2]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[2]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[2]?.profitFactor ?? "DATA_UNAVAILABLE")}, LCB95 ${String(businessRows[2]?.lcb95 ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[2]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
     `- Relaxed-only audit vs V5.5 Control B (descriptive canonical-key overlap): OOS ${String(selectedRelaxedOos?.trades ?? "DATA_UNAVAILABLE")} trades, NetR ${String(selectedRelaxedOos?.netR ?? "DATA_UNAVAILABLE")}; holdout ${String(selectedRelaxedHoldout?.trades ?? "DATA_UNAVAILABLE")} trades, NetR ${String(selectedRelaxedHoldout?.netR ?? "DATA_UNAVAILABLE")}`,
     `- Historical profitability verdict versus Old Production: **${String(businessComparison.verdict)}**`,
     "",

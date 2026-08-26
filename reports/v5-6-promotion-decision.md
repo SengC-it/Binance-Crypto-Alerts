@@ -29,9 +29,9 @@ This is a research-only evaluation. No V5.5 identity, manifest, runtime, Product
 - Gates: finite_preregistered_registry=PASS, point_in_time_universe=FAIL, historical_quality=PASS, frozen_holdout=PASS, realistic_cost_base_plus10=PASS, confidence_acceptable=FAIL, materially_beats_control_a=FAIL, risk_acceptable=PASS, yield_useful=PASS, no_leakage_or_backfill=PASS, historical_runtime_parity=PASS, short_prospective_smoke=PASS
 
 ## Old Production comparison (SHORT; same OOS window/universe/cost/next-open reference)
-- Old Production: NetR 122.5867, AvgR 0.23, PF 1.3801, alerts/week 4.0821
-- V5.5 Control B: NetR 34.4182, AvgR 0.3782, PF 1.7365, alerts/week 0.6969
-- V5.6 selected: NetR 34.6877, AvgR 0.3212, PF 1.5979, alerts/week 0.8271
+- Old Production: NetR 122.5867, AvgR 0.23, PF 1.3801, LCB95 0.0374, alerts/week 4.0821
+- V5.5 Control B: NetR 34.4182, AvgR 0.3782, PF 1.7365, LCB95 0.0067, alerts/week 0.6969
+- V5.6 selected: NetR 34.6877, AvgR 0.3212, PF 1.5979, LCB95 0.0022, alerts/week 0.8271
 - Relaxed-only audit vs V5.5 Control B (descriptive canonical-key overlap): OOS 17 trades, NetR 0.2695; holdout 36 trades, NetR 15.7837
 - Historical profitability verdict versus Old Production: **NO**
 
