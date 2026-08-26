@@ -1,0 +1,82 @@
+{
+  "schema": "bca-v5-8-research-manifest-v1",
+  "status": "FROZEN_BEFORE_DATA_READ",
+  "manifestId": "v58-regime-dependency-reconstruction-01",
+  "frozenAt": "2026-08-26T00:00:00.000Z",
+  "baselineCommit": "cc5d31e4e9984edafb7b077ef334e07a3f7391d4",
+  "priorFrozenStage": {
+    "branch": "feat/v5-7-second-edge-data-completion",
+    "head": "cc5d31e4e9984edafb7b077ef334e07a3f7391d4",
+    "manifestPath": "reports/v5-7-research-manifest.json",
+    "manifestHash": "c21ef22b190ebf44656e1a07c7c4a582c7db759b441a709cf29a744ea777b7cc",
+    "resultsPolicy": "V5.7 results remain unchanged; 2021-01-01 through 2023-07-31 is BURNED_EXTERNAL_DIAGNOSTIC, not fresh validation."
+  },
+  "primary": {
+    "role": "PRIMARY_EDGE_CONTROL",
+    "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+    "family": "FAILED_BREAKOUT_REVERSAL",
+    "frozen": true,
+    "parameterChange": "NO",
+    "tradePlan": "The existing runIndependentCandidate/buildStructuralPlan path is reused unchanged."
+  },
+  "pools": {
+    "development": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2026-08-09T02:14:59.999Z",
+      "burnedExternalStart": "2021-01-01T00:00:00.000Z",
+      "burnedExternalEnd": "2023-07-31T23:59:59.999Z",
+      "localStart": "2023-08-10T02:15:00.000Z",
+      "use": "Diagnosis, inner gate selection, and nested walk-forward only"
+    },
+    "fresh": {
+      "manifestId": "v58-fresh-binance-2020-01-01-2020-12-31",
+      "manifestHash": "f2121012171b641da27da7ed35757facd836adf4b105d951a408e19cb1af53c5",
+      "use": "Fresh validation only; never used for selection"
+    }
+  },
+  "regimeGateRegistry": {
+    "path": "reports/v5-8-regime-gate-registry.json",
+    "count": 8,
+    "maxCandidates": 8,
+    "hash": "185de7195a98bbe573545256798481fed00703a26ba31e60a3af875086776100",
+    "policy": "Gates filter the frozen Primary; they do not change signal, entry, stop, TP, risk, or costs."
+  },
+  "promotionGates": {
+    "nested": {
+      "trades": ">= 50",
+      "netR": "> 0",
+      "avgR": "> 0",
+      "profitFactor": ">= 1.30",
+      "positiveFoldRatio": ">= 0.67",
+      "medianFoldNetR": "> 0",
+      "plus10BpsNetR": "> 0",
+      "selectionAdjustedLcb95": ">= 0",
+      "promotionLcb95": ">= 0"
+    },
+    "fresh": {
+      "trades": ">= 20",
+      "netR": "> 0",
+      "avgR": "> 0",
+      "profitFactor": "> 1"
+    },
+    "yield": {
+      "alertsPerMonth": ">= 2",
+      "activeMonthRatio": ">= 0.65",
+      "medianAlertsPerMonth": ">= 1",
+      "p95DroughtDays": "<= 45",
+      "maxDroughtDays": "<= 60"
+    }
+  },
+  "productionBoundary": {
+    "researchOnly": true,
+    "noProductionChange": true,
+    "noV55Change": true,
+    "noProductionEmail": true,
+    "noEnvironmentChange": true,
+    "noMigration": true,
+    "noDeployment": true,
+    "noMerge": true,
+    "noAutoTrading": true
+  },
+  "manifestHash": "3a02995c63764d0fb154823b89da8b26424ad309e4f0c3c543783050ad2fbc8e"
+}

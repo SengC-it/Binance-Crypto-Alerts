@@ -1,0 +1,70 @@
+{
+  "schema": "bca-v5-8-fresh-validation-manifest-v1",
+  "status": "FROZEN_BEFORE_DATA_READ",
+  "manifestId": "v58-fresh-binance-2020-01-01-2020-12-31",
+  "frozenAt": "2026-08-26T00:00:00.000Z",
+  "source": "BINANCE_USDT_M_FUTURES_DATA_VISION",
+  "sourceRoot": "https://data.binance.vision/data/futures/um/monthly",
+  "exchange": "Binance USDT-M Futures",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "XRPUSDT",
+    "LTCUSDT"
+  ],
+  "contractEligibility": [
+    {
+      "symbol": "BTCUSDT",
+      "effectiveStart": "2020-01-01T00:00:00.000Z",
+      "effectiveEnd": "2020-12-31T23:59:59.999Z"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "effectiveStart": "2020-01-01T00:00:00.000Z",
+      "effectiveEnd": "2020-12-31T23:59:59.999Z"
+    },
+    {
+      "symbol": "BNBUSDT",
+      "effectiveStart": "2020-02-01T00:00:00.000Z",
+      "effectiveEnd": "2020-12-31T23:59:59.999Z"
+    },
+    {
+      "symbol": "XRPUSDT",
+      "effectiveStart": "2020-01-01T00:00:00.000Z",
+      "effectiveEnd": "2020-12-31T23:59:59.999Z"
+    },
+    {
+      "symbol": "LTCUSDT",
+      "effectiveStart": "2020-01-01T00:00:00.000Z",
+      "effectiveEnd": "2020-12-31T23:59:59.999Z"
+    }
+  ],
+  "period": {
+    "start": "2020-01-01T00:00:00.000Z",
+    "end": "2020-12-31T23:59:59.999Z"
+  },
+  "timeframes": [
+    "15m",
+    "1h",
+    "4h",
+    "funding"
+  ],
+  "pointInTimeRule": "Only contracts with a frozen 2020 listing window are pre-registered; no symbol is added after return data is read.",
+  "execution": {
+    "signal": "closed 15m candle only",
+    "entryReference": "next contiguous 15m candle open",
+    "contiguousBoundary": "execution.openTime == signal.closeTime + 1ms",
+    "source": "BINANCE_15M_NEXT_BAR_OPEN",
+    "noLookahead": "The next candle contributes only openTime and open to execution reference; its high/low/close/volume never affect signal detection."
+  },
+  "costs": {
+    "takerFeeRate": 0.0004,
+    "baseSlippageBps": 2,
+    "riskPerTradeUsdt": 50,
+    "cooldownHours": 8
+  },
+  "selectionUse": "VALIDATION_ONLY; excluded from diagnosis, gate selection, and parameter selection",
+  "rawCache": "data/raw/v5-8-fresh-cache/archives (ignored; never committed)",
+  "manifestHash": "f2121012171b641da27da7ed35757facd836adf4b105d951a408e19cb1af53c5"
+}

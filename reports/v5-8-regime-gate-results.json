@@ -1,0 +1,881 @@
+{
+  "schema": "bca-v5-8-regime-gate-results-v1",
+  "selectedGateForFresh": "V58-GATE-BREADTH-NOT-EXTREME",
+  "selectedGateTraining": {
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2024-06-27T23:59:59.999Z",
+    "trades": 16,
+    "score": 25.284858195400446
+  },
+  "nestedSelection": {
+    "method": "Each outer fold selects from training data only; validation is evaluated with that fold's selected fixed gate.",
+    "trades": 22,
+    "metrics": {
+      "trades": 22,
+      "wins": 6,
+      "losses": 16,
+      "netR": -7.2095,
+      "avgR": -0.3277,
+      "profitFactor": 0.5899,
+      "maxDrawdownR": 10.555,
+      "cvar95": -1.2313,
+      "stopRate": 0.7273,
+      "positivePeriods": 2,
+      "periods": 10,
+      "positivePeriodRatio": 0.2,
+      "totalNetPnlUsdt": -360.4774,
+      "totalFeesUsdt": 71.908,
+      "totalFundingUsdt": 7.3845,
+      "totalSlippageUsdt": 35.954
+    },
+    "outerFolds": [
+      {
+        "fold": "fold-1",
+        "trades": 9,
+        "netR": 1.5767,
+        "avgR": 0.1752,
+        "profitFactor": 1.2983,
+        "positive": true,
+        "selectedGate": "V58-GATE-ATR-MID-RANGE"
+      },
+      {
+        "fold": "fold-2",
+        "trades": 7,
+        "netR": -5.241,
+        "avgR": -0.7487,
+        "profitFactor": 0.2523,
+        "positive": false,
+        "selectedGate": "V58-GATE-ATR-MID-RANGE"
+      },
+      {
+        "fold": "fold-3",
+        "trades": 0,
+        "netR": 0,
+        "avgR": 0,
+        "profitFactor": 0,
+        "positive": false,
+        "selectedGate": "V58-GATE-BREADTH-NOT-EXTREME"
+      },
+      {
+        "fold": "fold-4",
+        "trades": 3,
+        "netR": -3.1597,
+        "avgR": -1.0532,
+        "profitFactor": 0,
+        "positive": false,
+        "selectedGate": "V58-GATE-BREADTH-NOT-EXTREME"
+      },
+      {
+        "fold": "fold-5",
+        "trades": 1,
+        "netR": 1.7385,
+        "avgR": 1.7385,
+        "profitFactor": null,
+        "positive": true,
+        "selectedGate": "V58-GATE-BREADTH-NOT-EXTREME"
+      },
+      {
+        "fold": "fold-6",
+        "trades": 2,
+        "netR": -2.1241,
+        "avgR": -1.0621,
+        "profitFactor": 0,
+        "positive": false,
+        "selectedGate": "V58-GATE-BREADTH-NOT-EXTREME"
+      }
+    ],
+    "positiveFoldRatio": 0.3333,
+    "medianFold": {
+      "fold": "fold-2",
+      "trades": 7,
+      "netR": -5.241,
+      "avgR": -0.7487,
+      "profitFactor": 0.2523,
+      "positive": false,
+      "selectedGate": "V58-GATE-ATR-MID-RANGE"
+    },
+    "worstFold": {
+      "fold": "fold-6",
+      "trades": 2,
+      "netR": -2.1241,
+      "avgR": -1.0621,
+      "profitFactor": 0,
+      "positive": false,
+      "selectedGate": "V58-GATE-BREADTH-NOT-EXTREME"
+    },
+    "plus10Bps": {
+      "trades": 22,
+      "wins": 6,
+      "losses": 16,
+      "netR": -10.8049,
+      "avgR": -0.4911,
+      "profitFactor": 0.468,
+      "maxDrawdownR": 12.8866,
+      "cvar95": -1.6168,
+      "stopRate": 0.7273,
+      "positivePeriods": 2,
+      "periods": 10,
+      "positivePeriodRatio": 0.2,
+      "totalNetPnlUsdt": -540.2473,
+      "totalFeesUsdt": 71.908,
+      "totalFundingUsdt": 7.3845,
+      "totalSlippageUsdt": 215.7239
+    },
+    "foldLcb95": -0.4759,
+    "selectionAdjustedLcb95": -0.8234,
+    "promotionLcb95": -0.9842,
+    "gateChecks": {
+      "nestedTrades": false,
+      "netR": false,
+      "avgR": false,
+      "profitFactor": false,
+      "positiveFoldRatio": false,
+      "medianFoldNetR": false,
+      "plus10BpsNetR": false,
+      "selectionAdjustedLcb95": false,
+      "promotionLcb95": false
+    },
+    "promotion": "FAIL"
+  },
+  "candidates": [
+    {
+      "id": "V58-GATE-BTC-ETH-NON-CONFLICT",
+      "hypothesis": "The failed-breakout reversal is less exposed when BTC and ETH do not disagree on direction.",
+      "economicLogic": "Cross-market disagreement increases false reversals and continuation risk; agreement reduces that conflict.",
+      "conditions": [
+        {
+          "dimension": "btcEthAlignment",
+          "allowedValues": [
+            "ALIGNED_BULL",
+            "ALIGNED_BEAR",
+            "ALIGNED_RANGE"
+          ]
+        }
+      ],
+      "selectionCount": 0,
+      "fixedNestedOos": {
+        "trades": 71,
+        "wins": 23,
+        "losses": 48,
+        "netR": -14.7682,
+        "avgR": -0.208,
+        "profitFactor": 0.7201,
+        "maxDrawdownR": 16.1169,
+        "cvar95": -1.2153,
+        "stopRate": 0.6761,
+        "positivePeriods": 8,
+        "periods": 25,
+        "positivePeriodRatio": 0.32,
+        "totalNetPnlUsdt": -738.4116,
+        "totalFeesUsdt": 236.2123,
+        "totalFundingUsdt": 7.8872,
+        "totalSlippageUsdt": 118.1061
+      },
+      "selectionAdjustedLcb95": -1.126,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 14,
+          "netR": -1.0392,
+          "avgR": -0.0742,
+          "profitFactor": 0.8925,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 15,
+          "netR": -2.5015,
+          "avgR": -0.1668,
+          "profitFactor": 0.7792,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 8,
+          "netR": 1.9049,
+          "avgR": 0.2381,
+          "profitFactor": 1.4089,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 19,
+          "netR": -10.8713,
+          "avgR": -0.5722,
+          "profitFactor": 0.3399,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 10,
+          "netR": 0.264,
+          "avgR": 0.0264,
+          "profitFactor": 1.0414,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 5,
+          "netR": -2.525,
+          "avgR": -0.505,
+          "profitFactor": 0.4058,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-BTC-ETH-BEAR-ALIGNMENT",
+      "hypothesis": "A short reversal is more credible when both benchmark assets are already in a bearish regime.",
+      "economicLogic": "Broad risk reduction can provide follow-through after a failed upside breakout instead of a single-asset squeeze.",
+      "conditions": [
+        {
+          "dimension": "btcEthAlignment",
+          "allowedValues": [
+            "ALIGNED_BEAR"
+          ]
+        }
+      ],
+      "selectionCount": 0,
+      "fixedNestedOos": {
+        "trades": 71,
+        "wins": 23,
+        "losses": 48,
+        "netR": -14.7682,
+        "avgR": -0.208,
+        "profitFactor": 0.7201,
+        "maxDrawdownR": 16.1169,
+        "cvar95": -1.2153,
+        "stopRate": 0.6761,
+        "positivePeriods": 8,
+        "periods": 25,
+        "positivePeriodRatio": 0.32,
+        "totalNetPnlUsdt": -738.4116,
+        "totalFeesUsdt": 236.2123,
+        "totalFundingUsdt": 7.8872,
+        "totalSlippageUsdt": 118.1061
+      },
+      "selectionAdjustedLcb95": -1.126,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 14,
+          "netR": -1.0392,
+          "avgR": -0.0742,
+          "profitFactor": 0.8925,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 15,
+          "netR": -2.5015,
+          "avgR": -0.1668,
+          "profitFactor": 0.7792,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 8,
+          "netR": 1.9049,
+          "avgR": 0.2381,
+          "profitFactor": 1.4089,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 19,
+          "netR": -10.8713,
+          "avgR": -0.5722,
+          "profitFactor": 0.3399,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 10,
+          "netR": 0.264,
+          "avgR": 0.0264,
+          "profitFactor": 1.0414,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 5,
+          "netR": -2.525,
+          "avgR": -0.505,
+          "profitFactor": 0.4058,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-PRIMARY-CONTEXT-BULL-RANGE",
+      "hypothesis": "The frozen failed-breakout setup is most specific during local bullish exhaustion or range transition.",
+      "economicLogic": "The signal requires trapped upside demand; a confirmed bear trend can instead make the setup a late continuation entry.",
+      "conditions": [
+        {
+          "dimension": "marketRegime",
+          "allowedValues": [
+            "BULL",
+            "RANGE"
+          ]
+        }
+      ],
+      "selectionCount": 0,
+      "fixedNestedOos": {
+        "trades": 71,
+        "wins": 23,
+        "losses": 48,
+        "netR": -14.7682,
+        "avgR": -0.208,
+        "profitFactor": 0.7201,
+        "maxDrawdownR": 16.1169,
+        "cvar95": -1.2153,
+        "stopRate": 0.6761,
+        "positivePeriods": 8,
+        "periods": 25,
+        "positivePeriodRatio": 0.32,
+        "totalNetPnlUsdt": -738.4116,
+        "totalFeesUsdt": 236.2123,
+        "totalFundingUsdt": 7.8872,
+        "totalSlippageUsdt": 118.1061
+      },
+      "selectionAdjustedLcb95": -1.126,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 14,
+          "netR": -1.0392,
+          "avgR": -0.0742,
+          "profitFactor": 0.8925,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 15,
+          "netR": -2.5015,
+          "avgR": -0.1668,
+          "profitFactor": 0.7792,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 8,
+          "netR": 1.9049,
+          "avgR": 0.2381,
+          "profitFactor": 1.4089,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 19,
+          "netR": -10.8713,
+          "avgR": -0.5722,
+          "profitFactor": 0.3399,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 10,
+          "netR": 0.264,
+          "avgR": 0.0264,
+          "profitFactor": 1.0414,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 5,
+          "netR": -2.525,
+          "avgR": -0.505,
+          "profitFactor": 0.4058,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-BREADTH-NOT-EXTREME",
+      "hypothesis": "Moderate breadth avoids both broad capitulation and indiscriminate risk-on conditions.",
+      "economicLogic": "A balanced cross-section leaves room for a local failed breakout to mean-revert without requiring a market-wide reversal.",
+      "conditions": [
+        {
+          "dimension": "breadthBucket",
+          "allowedValues": [
+            "25_50",
+            "50_75"
+          ]
+        }
+      ],
+      "selectionCount": 4,
+      "fixedNestedOos": {
+        "trades": 12,
+        "wins": 5,
+        "losses": 7,
+        "netR": 1.1297,
+        "avgR": 0.0941,
+        "profitFactor": 1.1506,
+        "maxDrawdownR": 4.6831,
+        "cvar95": -1.1378,
+        "stopRate": 0.5833,
+        "positivePeriods": 3,
+        "periods": 8,
+        "positivePeriodRatio": 0.375,
+        "totalNetPnlUsdt": 56.4828,
+        "totalFeesUsdt": 33.607,
+        "totalFundingUsdt": 6.8932,
+        "totalSlippageUsdt": 16.8035
+      },
+      "selectionAdjustedLcb95": -0.8234,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 4,
+          "netR": 4.044,
+          "avgR": 1.011,
+          "profitFactor": 4.7479,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 2,
+          "netR": 0.6309,
+          "avgR": 0.3155,
+          "profitFactor": 1.5545,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 3,
+          "netR": -3.1597,
+          "avgR": -1.0532,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 1,
+          "netR": 1.7385,
+          "avgR": 1.7385,
+          "profitFactor": null,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 2,
+          "netR": -2.1241,
+          "avgR": -1.0621,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-ATR-MID-RANGE",
+      "hypothesis": "Mid-range ATR percentile avoids fragile signals in both compressed and shock-volatility conditions.",
+      "economicLogic": "Moderate range expansion supports executable stops while reducing noise and gap-like stop risk.",
+      "conditions": [
+        {
+          "dimension": "atrPercentileBucket",
+          "allowedValues": [
+            "MID"
+          ]
+        }
+      ],
+      "selectionCount": 2,
+      "fixedNestedOos": {
+        "trades": 40,
+        "wins": 12,
+        "losses": 28,
+        "netR": -12.0702,
+        "avgR": -0.3018,
+        "profitFactor": 0.6112,
+        "maxDrawdownR": 15.4581,
+        "cvar95": -1.2313,
+        "stopRate": 0.7,
+        "positivePeriods": 5,
+        "periods": 16,
+        "positivePeriodRatio": 0.3125,
+        "totalNetPnlUsdt": -603.5095,
+        "totalFeesUsdt": 153.5345,
+        "totalFundingUsdt": 8.7725,
+        "totalSlippageUsdt": 76.7673
+      },
+      "selectionAdjustedLcb95": -1.2232,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 9,
+          "netR": 1.5767,
+          "avgR": 0.1752,
+          "profitFactor": 1.2983,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 7,
+          "netR": -5.241,
+          "avgR": -0.7487,
+          "profitFactor": 0.2523,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 6,
+          "netR": 1.482,
+          "avgR": 0.247,
+          "profitFactor": 1.4297,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 12,
+          "netR": -8.8846,
+          "avgR": -0.7404,
+          "profitFactor": 0.1954,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 4,
+          "netR": 1.1561,
+          "avgR": 0.289,
+          "profitFactor": 1.5507,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 2,
+          "netR": -2.1594,
+          "avgR": -1.0797,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-VOLATILITY-NOT-EXTREME",
+      "hypothesis": "Non-extreme realized volatility makes the frozen structural plan less sensitive to immediate shock moves.",
+      "economicLogic": "The plan assumes a bounded reversal; volatility shocks can invalidate both stop distance and follow-through assumptions.",
+      "conditions": [
+        {
+          "dimension": "volatilityPercentileBucket",
+          "allowedValues": [
+            "LOW",
+            "MID"
+          ]
+        }
+      ],
+      "selectionCount": 0,
+      "fixedNestedOos": {
+        "trades": 47,
+        "wins": 15,
+        "losses": 32,
+        "netR": -11.7874,
+        "avgR": -0.2508,
+        "profitFactor": 0.6706,
+        "maxDrawdownR": 16.2238,
+        "cvar95": -1.2242,
+        "stopRate": 0.6809,
+        "positivePeriods": 7,
+        "periods": 20,
+        "positivePeriodRatio": 0.35,
+        "totalNetPnlUsdt": -589.3693,
+        "totalFeesUsdt": 191.3954,
+        "totalFundingUsdt": 9.704,
+        "totalSlippageUsdt": 95.6977
+      },
+      "selectionAdjustedLcb95": -1.1683,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 10,
+          "netR": 0.3898,
+          "avgR": 0.039,
+          "profitFactor": 1.0602,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 8,
+          "netR": -6.3937,
+          "avgR": -0.7992,
+          "profitFactor": 0.2167,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 8,
+          "netR": 1.9049,
+          "avgR": 0.2381,
+          "profitFactor": 1.4089,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 13,
+          "netR": -10.073,
+          "avgR": -0.7748,
+          "profitFactor": 0.1764,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 5,
+          "netR": 2.8197,
+          "avgR": 0.5639,
+          "profitFactor": 2.3433,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 3,
+          "netR": -0.4351,
+          "avgR": -0.145,
+          "profitFactor": 0.7985,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-FUNDING-NOT-EXTREME",
+      "hypothesis": "Avoiding extreme funding regimes reduces forced-positioning distortions around the reversal.",
+      "economicLogic": "Moderate funding is a proxy for less crowded positioning and fewer liquidation-driven false signals.",
+      "conditions": [
+        {
+          "dimension": "fundingPercentileBucket",
+          "allowedValues": [
+            "MID"
+          ]
+        }
+      ],
+      "selectionCount": 0,
+      "fixedNestedOos": {
+        "trades": 27,
+        "wins": 6,
+        "losses": 21,
+        "netR": -13.0352,
+        "avgR": -0.4828,
+        "profitFactor": 0.4366,
+        "maxDrawdownR": 15.4075,
+        "cvar95": -1.2313,
+        "stopRate": 0.7778,
+        "positivePeriods": 6,
+        "periods": 17,
+        "positivePeriodRatio": 0.3529,
+        "totalNetPnlUsdt": -651.7603,
+        "totalFeesUsdt": 95.7994,
+        "totalFundingUsdt": 1.9387,
+        "totalSlippageUsdt": 47.8997
+      },
+      "selectionAdjustedLcb95": -1.4003,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 4,
+          "netR": 1.3192,
+          "avgR": 0.3298,
+          "profitFactor": 1.6237,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 8,
+          "netR": -6.1213,
+          "avgR": -0.7652,
+          "profitFactor": 0.2222,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 1,
+          "netR": -1.1588,
+          "avgR": -1.1588,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 5,
+          "netR": -5.5446,
+          "avgR": -1.1089,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 6,
+          "netR": 1.6635,
+          "avgR": 0.2773,
+          "profitFactor": 1.511,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 3,
+          "netR": -3.1932,
+          "avgR": -1.0644,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-COMBINED-MARKET-STATE",
+      "hypothesis": "A fixed combination of agreement, moderate breadth, volatility, and funding captures the full structural context.",
+      "economicLogic": "The combined gate requires a non-conflicting market, executable breadth, and non-extreme positioning without altering the signal itself.",
+      "conditions": [
+        {
+          "dimension": "btcEthAlignment",
+          "allowedValues": [
+            "ALIGNED_BULL",
+            "ALIGNED_BEAR",
+            "ALIGNED_RANGE"
+          ]
+        },
+        {
+          "dimension": "breadthBucket",
+          "allowedValues": [
+            "25_50",
+            "50_75"
+          ]
+        },
+        {
+          "dimension": "volatilityPercentileBucket",
+          "allowedValues": [
+            "LOW",
+            "MID"
+          ]
+        },
+        {
+          "dimension": "fundingPercentileBucket",
+          "allowedValues": [
+            "MID"
+          ]
+        }
+      ],
+      "selectionCount": 0,
+      "fixedNestedOos": {
+        "trades": 3,
+        "wins": 2,
+        "losses": 1,
+        "netR": 2.3399,
+        "avgR": 0.78,
+        "profitFactor": 3.1913,
+        "maxDrawdownR": 1.0678,
+        "cvar95": -1.0678,
+        "stopRate": 0.3333,
+        "positivePeriods": 2,
+        "periods": 3,
+        "positivePeriodRatio": 0.6667,
+        "totalNetPnlUsdt": 116.9942,
+        "totalFeesUsdt": 9.4036,
+        "totalFundingUsdt": 1.0996,
+        "totalSlippageUsdt": 4.7018
+      },
+      "selectionAdjustedLcb95": -0.1353,
+      "outerFolds": [
+        {
+          "fold": "fold-1",
+          "trades": 1,
+          "netR": 1.6691,
+          "avgR": 1.6691,
+          "profitFactor": null,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-2",
+          "trades": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-3",
+          "trades": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-4",
+          "trades": 0,
+          "netR": 0,
+          "avgR": 0,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-5",
+          "trades": 1,
+          "netR": 1.7385,
+          "avgR": 1.7385,
+          "profitFactor": null,
+          "positive": true,
+          "selectedGate": null
+        },
+        {
+          "fold": "fold-6",
+          "trades": 1,
+          "netR": -1.0678,
+          "avgR": -1.0678,
+          "profitFactor": 0,
+          "positive": false,
+          "selectedGate": null
+        }
+      ]
+    }
+  ]
+}

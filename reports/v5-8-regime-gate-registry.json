@@ -1,0 +1,149 @@
+{
+  "schema": "bca-v5-8-regime-gate-registry-v1",
+  "status": "FROZEN_BEFORE_DATA_READ",
+  "manifestId": "v58-regime-gate-registry-01",
+  "frozenAt": "2026-08-26T00:00:00.000Z",
+  "maxCandidates": 8,
+  "candidateCount": 8,
+  "registryHash": "185de7195a98bbe573545256798481fed00703a26ba31e60a3af875086776100",
+  "candidates": [
+    {
+      "id": "V58-GATE-BTC-ETH-NON-CONFLICT",
+      "hypothesis": "The failed-breakout reversal is less exposed when BTC and ETH do not disagree on direction.",
+      "economicLogic": "Cross-market disagreement increases false reversals and continuation risk; agreement reduces that conflict.",
+      "conditions": [
+        {
+          "dimension": "btcEthAlignment",
+          "allowedValues": [
+            "ALIGNED_BULL",
+            "ALIGNED_BEAR",
+            "ALIGNED_RANGE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-BTC-ETH-BEAR-ALIGNMENT",
+      "hypothesis": "A short reversal is more credible when both benchmark assets are already in a bearish regime.",
+      "economicLogic": "Broad risk reduction can provide follow-through after a failed upside breakout instead of a single-asset squeeze.",
+      "conditions": [
+        {
+          "dimension": "btcEthAlignment",
+          "allowedValues": [
+            "ALIGNED_BEAR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-PRIMARY-CONTEXT-BULL-RANGE",
+      "hypothesis": "The frozen failed-breakout setup is most specific during local bullish exhaustion or range transition.",
+      "economicLogic": "The signal requires trapped upside demand; a confirmed bear trend can instead make the setup a late continuation entry.",
+      "conditions": [
+        {
+          "dimension": "marketRegime",
+          "allowedValues": [
+            "BULL",
+            "RANGE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-BREADTH-NOT-EXTREME",
+      "hypothesis": "Moderate breadth avoids both broad capitulation and indiscriminate risk-on conditions.",
+      "economicLogic": "A balanced cross-section leaves room for a local failed breakout to mean-revert without requiring a market-wide reversal.",
+      "conditions": [
+        {
+          "dimension": "breadthBucket",
+          "allowedValues": [
+            "25_50",
+            "50_75"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-ATR-MID-RANGE",
+      "hypothesis": "Mid-range ATR percentile avoids fragile signals in both compressed and shock-volatility conditions.",
+      "economicLogic": "Moderate range expansion supports executable stops while reducing noise and gap-like stop risk.",
+      "conditions": [
+        {
+          "dimension": "atrPercentileBucket",
+          "allowedValues": [
+            "MID"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-VOLATILITY-NOT-EXTREME",
+      "hypothesis": "Non-extreme realized volatility makes the frozen structural plan less sensitive to immediate shock moves.",
+      "economicLogic": "The plan assumes a bounded reversal; volatility shocks can invalidate both stop distance and follow-through assumptions.",
+      "conditions": [
+        {
+          "dimension": "volatilityPercentileBucket",
+          "allowedValues": [
+            "LOW",
+            "MID"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-FUNDING-NOT-EXTREME",
+      "hypothesis": "Avoiding extreme funding regimes reduces forced-positioning distortions around the reversal.",
+      "economicLogic": "Moderate funding is a proxy for less crowded positioning and fewer liquidation-driven false signals.",
+      "conditions": [
+        {
+          "dimension": "fundingPercentileBucket",
+          "allowedValues": [
+            "MID"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V58-GATE-COMBINED-MARKET-STATE",
+      "hypothesis": "A fixed combination of agreement, moderate breadth, volatility, and funding captures the full structural context.",
+      "economicLogic": "The combined gate requires a non-conflicting market, executable breadth, and non-extreme positioning without altering the signal itself.",
+      "conditions": [
+        {
+          "dimension": "btcEthAlignment",
+          "allowedValues": [
+            "ALIGNED_BULL",
+            "ALIGNED_BEAR",
+            "ALIGNED_RANGE"
+          ]
+        },
+        {
+          "dimension": "breadthBucket",
+          "allowedValues": [
+            "25_50",
+            "50_75"
+          ]
+        },
+        {
+          "dimension": "volatilityPercentileBucket",
+          "allowedValues": [
+            "LOW",
+            "MID"
+          ]
+        },
+        {
+          "dimension": "fundingPercentileBucket",
+          "allowedValues": [
+            "MID"
+          ]
+        }
+      ]
+    }
+  ],
+  "primaryControl": {
+    "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+    "family": "FAILED_BREAKOUT_REVERSAL",
+    "frozen": true
+  },
+  "selectionPolicy": "Finite eight-gate registry is frozen before gated or fresh results; no Cartesian search and no result-based gate changes.",
+  "reportHash": "c6d87efc5ffd419b589777a9d1e9dfee52f3e390f84abdb906aecda03c35a41f"
+}
