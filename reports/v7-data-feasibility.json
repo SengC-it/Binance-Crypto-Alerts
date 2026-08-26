@@ -1,0 +1,120 @@
+{
+  "schema": "bca-v7-data-feasibility-v1",
+  "generatedAt": "2026-08-26T16:55:48.477Z",
+  "status": "PASS",
+  "requirements": {
+    "minimumYears": 2,
+    "minimumSymbols": 20,
+    "minimumCoverage": 0.9,
+    "requiredFeatures": [
+      "OHLCV",
+      "Open Interest",
+      "Taker buy/sell flow"
+    ]
+  },
+  "historyYears": 3.0005703855806525,
+  "symbols": 20,
+  "minimumDerivativesCoverage": 0.9977950121654501,
+  "minimumOhlcvCoverage": 1,
+  "sources": [
+    {
+      "field": "OHLCV",
+      "source": "Binance Data Vision public USDⓈ-M Futures monthly kline archives",
+      "access": "PUBLIC",
+      "historicalStart": "2023-01-01T00:00:00.000Z",
+      "frequency": "1h research bars; 4h context; 15m execution bars",
+      "symbolCoverage": "20/20 symbols at >=90%",
+      "rateLimits": "Public object archive; downloader caps concurrency at 16",
+      "archiveAvailability": "V7 immutable monthly market ZIP cache plus byte-identical prior archives",
+      "missingRate": 0,
+      "reproducibility": "Exact URL, symbol, timeframe, period, row count, byte size and SHA-256 recorded per file",
+      "status": "AVAILABLE"
+    },
+    {
+      "field": "Open Interest",
+      "source": "Binance Data Vision data/futures/um/daily/metrics/{SYMBOL}/{SYMBOL}-metrics-YYYY-MM-DD.zip",
+      "access": "PUBLIC",
+      "historicalStart": "2020-09-01 BTCUSDT; 2021-12-01 for the other registered symbols",
+      "frequency": "5m raw, reduced to 1h last-observation",
+      "symbolCoverage": "20/20 registered symbols",
+      "rateLimits": "Public object archive; no REST weight; downloader caps concurrency at 16",
+      "archiveAvailability": "Daily ZIP plus direct URL for every date in the fixed research window",
+      "missingRate": 0.0022049878345499208,
+      "reproducibility": "Exact URL, local immutable ZIP, row count, byte size and SHA-256 recorded per file",
+      "status": "AVAILABLE"
+    },
+    {
+      "field": "Taker buy/sell flow",
+      "source": "Binance Data Vision metrics field sum_taker_long_short_vol_ratio",
+      "access": "PUBLIC",
+      "historicalStart": "2020-09-01 BTCUSDT; 2021-12-01 for the other registered symbols",
+      "frequency": "5m raw, reduced to 1h last-observation",
+      "symbolCoverage": "20/20 registered symbols",
+      "rateLimits": "Same immutable public archive as OI",
+      "archiveAvailability": "Present in the same daily metrics CSV",
+      "missingRate": 0.0022049878345499208,
+      "reproducibility": "Field name and source archive bytes are recorded; no proxy",
+      "status": "AVAILABLE"
+    },
+    {
+      "field": "Long/short positioning ratio",
+      "source": "Binance Data Vision metrics field count_long_short_ratio",
+      "access": "PUBLIC",
+      "historicalStart": "2020-09-01 BTCUSDT; 2021-12-01 for the other registered symbols",
+      "frequency": "5m raw, reduced to 1h last-observation",
+      "symbolCoverage": "20/20 registered symbols",
+      "rateLimits": "Same immutable public archive as OI",
+      "archiveAvailability": "Present in the same daily metrics CSV",
+      "missingRate": 0.0022049878345499208,
+      "reproducibility": "Field name and source archive bytes are recorded; no proxy",
+      "status": "AVAILABLE"
+    },
+    {
+      "field": "Funding / basis",
+      "source": "Binance Data Vision public USDⓈ-M Futures fundingRate monthly archives",
+      "access": "PUBLIC",
+      "historicalStart": "2023-01-01T00:00:00.000Z",
+      "frequency": "Funding event interval, normally 8h",
+      "symbolCoverage": "20/20 registered symbols; optional cost/context feature",
+      "rateLimits": "Public object archive; downloader caps concurrency at 16",
+      "archiveAvailability": "V7 immutable monthly market ZIP cache",
+      "missingRate": null,
+      "reproducibility": "Exact URL, symbol, timeframe, period, row count, byte size and SHA-256 recorded per file; no imputation",
+      "status": "AVAILABLE"
+    },
+    {
+      "field": "Liquidation flow",
+      "source": "No complete reliable historical liquidation archive is present in the frozen workspace",
+      "access": "NOT_USED",
+      "historicalStart": null,
+      "frequency": "N/A",
+      "symbolCoverage": "0",
+      "rateLimits": "N/A",
+      "archiveAvailability": "Not available; Family D is removed",
+      "missingRate": null,
+      "reproducibility": "No proxy is substituted",
+      "status": "NOT_AVAILABLE"
+    },
+    {
+      "field": "Order-book imbalance",
+      "source": "No complete reliable historical order-book archive is present in the frozen workspace",
+      "access": "NOT_USED",
+      "historicalStart": null,
+      "frequency": "N/A",
+      "symbolCoverage": "0",
+      "rateLimits": "N/A",
+      "archiveAvailability": "Not available; not used",
+      "missingRate": null,
+      "reproducibility": "No proxy is substituted",
+      "status": "NOT_AVAILABLE"
+    }
+  ],
+  "reasons": [],
+  "methodology": [
+    "Derivatives metrics are read from public Binance Data Vision daily ZIPs; no private endpoint, account data or API secret is used.",
+    "Raw 5m observations are deduplicated by source timestamp and reduced to the last valid observation in each UTC hour without forward-looking values.",
+    "Coverage is the fraction of expected UTC hourly buckets with all required OI, taker-flow and global long/short fields present.",
+    "OHLCV is read from the V7 immutable monthly market cache; pre-existing frozen public archives are copied byte-for-byte into that cache when available.",
+    "If the hard gate is not PASS, no V7 strategy search is permitted."
+  ]
+}

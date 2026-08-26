@@ -1,0 +1,205 @@
+import type { V7Configuration, V7Family, V7RiskTemplate } from "@/lib/v7/types";
+
+export const V7_BASELINE_COMMIT = "ea5c77f4ab15077953d161540574446ce66b67f6";
+export const V7_RESEARCH_START = Date.UTC(2023, 0, 1, 0, 0, 0, 0);
+export const V7_RESEARCH_END = Date.UTC(2025, 11, 31, 23, 59, 59, 999);
+export const V7_DEVELOPMENT_START = V7_RESEARCH_START;
+export const V7_DEVELOPMENT_END = Date.UTC(2025, 5, 30, 23, 59, 59, 999);
+export const V7_TEMPORAL_START = Date.UTC(2025, 6, 1, 0, 0, 0, 0);
+export const V7_TEMPORAL_END = V7_RESEARCH_END;
+export const V7_EMBARGO_HOURS = 24;
+export const V7_PURGE_HOURS = 24;
+export const V7_SIGNAL_INTERVAL_MS = 60 * 60 * 1_000;
+export const V7_EXECUTION_INTERVAL_MS = 15 * 60 * 1_000;
+
+export const V7_UNIVERSE = [
+  "AAVEUSDT",
+  "ADAUSDT",
+  "AVAXUSDT",
+  "BNBUSDT",
+  "BTCUSDT",
+  "COTIUSDT",
+  "DOGEUSDT",
+  "ETHUSDT",
+  "FILUSDT",
+  "ICPUSDT",
+  "INJUSDT",
+  "LINKUSDT",
+  "LTCUSDT",
+  "NEARUSDT",
+  "SOLUSDT",
+  "UNIUSDT",
+  "XLMUSDT",
+  "XMRUSDT",
+  "XRPUSDT",
+  "ZECUSDT",
+] as const;
+
+export const V7_SYMBOL_HOLDOUT = [
+  "AAVEUSDT",
+  "ADAUSDT",
+  "AVAXUSDT",
+  "COTIUSDT",
+  "FILUSDT",
+  "ICPUSDT",
+  "INJUSDT",
+  "NEARUSDT",
+  "XMRUSDT",
+  "ZECUSDT",
+] as const;
+export const V7_DEVELOPMENT_SYMBOLS = V7_UNIVERSE.filter((symbol) => !V7_SYMBOL_HOLDOUT.includes(symbol as never));
+
+export const V7_FEATURE_DEFINITIONS = [
+  "price_return_1h",
+  "price_return_4h",
+  "realized_volatility",
+  "atr",
+  "oi_level_percentile",
+  "oi_change_1h",
+  "oi_change_4h",
+  "oi_acceleration",
+  "price_oi_divergence",
+  "taker_buy_ratio",
+  "taker_imbalance_change",
+  "funding",
+  "funding_percentile",
+  "global_long_short_ratio",
+  "long_short_ratio_change",
+  "execution_next_15m_open",
+] as const;
+
+export const V7_CONFIGURATIONS: readonly V7Configuration[] = [
+  {
+    id: "V7-A-NEW-LONG",
+    family: "OI_PRICE_DIVERGENCE",
+    side: "LONG",
+    hypothesis: "Rising price with rising OI indicates new long leverage and continuation.",
+    invalidation: "The closed 1h price/OI impulse reverses before execution.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { priceDirection: 1, oiDirection: 1, minPriceReturn1h: 0.003, minOiChange1h: 0.002 },
+  },
+  {
+    id: "V7-A-SHORT-COVER-LONG",
+    family: "OI_PRICE_DIVERGENCE",
+    side: "LONG",
+    hypothesis: "Rising price with falling OI indicates short covering and continuation.",
+    invalidation: "The closed 1h price impulse fails or OI expands against the covering move.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { priceDirection: 1, oiDirection: -1, minPriceReturn1h: 0.003, minOiChange1h: 0.002 },
+  },
+  {
+    id: "V7-A-NEW-SHORT",
+    family: "OI_PRICE_DIVERGENCE",
+    side: "SHORT",
+    hypothesis: "Falling price with rising OI indicates new short leverage and continuation.",
+    invalidation: "The closed 1h price/OI impulse reverses before execution.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { priceDirection: -1, oiDirection: 1, minPriceReturn1h: 0.003, minOiChange1h: 0.002 },
+  },
+  {
+    id: "V7-A-LONG-LIQUIDATION-SHORT",
+    family: "OI_PRICE_DIVERGENCE",
+    side: "SHORT",
+    hypothesis: "Falling price with falling OI indicates long liquidation and continuation.",
+    invalidation: "The closed 1h liquidation impulse reverses before execution.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { priceDirection: -1, oiDirection: -1, minPriceReturn1h: 0.003, minOiChange1h: 0.002 },
+  },
+  {
+    id: "V7-B-ACCEL-SHORT",
+    family: "OI_TAKER_FLOW",
+    side: "SHORT",
+    hypothesis: "OI acceleration with aggressive selling and a breakdown identifies new short pressure.",
+    invalidation: "The closed 1h breakdown or aggressive sell imbalance is absent.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { minOiAcceleration: 0.001, maxTakerImbalance: -0.08, maxPriceReturn1h: -0.002 },
+  },
+  {
+    id: "V7-B-ACCEL-LONG",
+    family: "OI_TAKER_FLOW",
+    side: "LONG",
+    hypothesis: "OI acceleration with aggressive buying and a breakout identifies new long pressure.",
+    invalidation: "The closed 1h breakout or aggressive buy imbalance is absent.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { minOiAcceleration: 0.001, minTakerImbalance: 0.08, minPriceReturn1h: 0.002 },
+  },
+  {
+    id: "V7-B-FLOW-BREAKDOWN-SHORT",
+    family: "OI_TAKER_FLOW",
+    side: "SHORT",
+    hypothesis: "A breakdown confirmed by expanding OI and aggressive selling captures flow-led continuation.",
+    invalidation: "The closed candle does not break its prior 4h range or flow is not net selling.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { minOiChange4h: 0.004, maxTakerImbalance: -0.12, breakoutLookbackHours: 4 },
+  },
+  {
+    id: "V7-B-FLOW-BREAKOUT-LONG",
+    family: "OI_TAKER_FLOW",
+    side: "LONG",
+    hypothesis: "A breakout confirmed by expanding OI and aggressive buying captures flow-led continuation.",
+    invalidation: "The closed candle does not break its prior 4h range or flow is not net buying.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { minOiChange4h: 0.004, minTakerImbalance: 0.12, breakoutLookbackHours: 4 },
+  },
+  {
+    id: "V7-C-CROWDED-LONG-REVERSAL",
+    family: "CROWDING_REVERSAL",
+    side: "SHORT",
+    hypothesis: "Crowded longs with positive funding, high OI and price exhaustion can unwind lower.",
+    invalidation: "Crowding is not jointly confirmed by funding, global ratio, OI and exhaustion.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { minFunding: 0.0005, minLongShortRatio: 1.2, minOiPercentile: 0.8, maxPriceReturn1h: -0.001 },
+  },
+  {
+    id: "V7-C-CROWDED-SHORT-REVERSAL",
+    family: "CROWDING_REVERSAL",
+    side: "LONG",
+    hypothesis: "Crowded shorts with negative funding, low global ratio, high OI and price exhaustion can unwind higher.",
+    invalidation: "Crowding is not jointly confirmed by funding, global ratio, OI and exhaustion.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { maxFunding: -0.0005, maxLongShortRatio: 0.83, minOiPercentile: 0.8, minPriceReturn1h: 0.001 },
+  },
+  {
+    id: "V7-C-EXHAUSTION-LONG-REVERSAL",
+    family: "CROWDING_REVERSAL",
+    side: "SHORT",
+    hypothesis: "An exhausted upward move with crowded long positioning is vulnerable to reversal.",
+    invalidation: "The closed 4h move is not extreme relative to its realized volatility.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { minFunding: 0.0003, minLongShortRatio: 1.1, minOiPercentile: 0.9, minPriceReturn4h: 0.02 },
+  },
+  {
+    id: "V7-C-EXHAUSTION-SHORT-REVERSAL",
+    family: "CROWDING_REVERSAL",
+    side: "LONG",
+    hypothesis: "An exhausted downward move with crowded short positioning is vulnerable to reversal.",
+    invalidation: "The closed 4h move is not extreme relative to its realized volatility.",
+    exit: "ATR risk template target, trailing trend exit, or time stop.",
+    parameters: { maxFunding: -0.0003, maxLongShortRatio: 0.9, minOiPercentile: 0.9, maxPriceReturn4h: -0.02 },
+  },
+] as const;
+
+export const V7_RISK_TEMPLATES: readonly V7RiskTemplate[] = [
+  { id: "V7-RISK-ATR-1.5R", stopAtrMultiplier: 1.5, rewardRisk: 1.5, maxHoldBars: 16 },
+  { id: "V7-RISK-TRAIL-2.0R", stopAtrMultiplier: 1.5, rewardRisk: 2, maxHoldBars: 24, trailingAtrMultiplier: 2 },
+  { id: "V7-RISK-TIME-1.0R", stopAtrMultiplier: 1.5, rewardRisk: 1, maxHoldBars: 8 },
+];
+
+export const V7_FAMILIES: readonly V7Family[] = ["OI_PRICE_DIVERGENCE", "OI_TAKER_FLOW", "CROWDING_REVERSAL"];
+
+export const V7_COST_MODEL = {
+  takerFeeBpsPerSide: 4,
+  baseSlippageBpsPerSide: 2,
+  stressSlippageBpsPerSide: [7, 12, 17],
+  riskUsdt: 50,
+} as const;
+
+export const V7_RESEARCH_RULES = [
+  "Derivatives-flow data must be public, immutable and frozen before any out-of-sample return is read.",
+  "Signal timeframe is closed 1h; 4h is context; 15m supplies only the next executable open.",
+  "Every feature timestamp must be at or before the closed 1h signal timestamp.",
+  "Only the 3 preregistered families and 12 configurations are evaluated; liquidation family is removed without reliable history.",
+  "Nested purged walk-forward uses 24h purge and 24h embargo; outer OOS is primary.",
+  "Validation A is a frozen temporal segment and Validation B is a pre-registered symbol holdout.",
+  "No family can be promoted without nested, temporal and symbol validation gates plus cost and yield gates.",
+] as const;

@@ -1,0 +1,27 @@
+{
+  "metrics": {
+    "trades": 312,
+    "wins": 128,
+    "losses": 184,
+    "winRate": 0.4103,
+    "netR": -3.9721,
+    "avgR": -0.0127,
+    "profitFactor": 0.9765,
+    "maxDD": 18.769,
+    "cvar95": -1.0934,
+    "positiveMonthRatio": 0.625,
+    "symbolBreadth": 20,
+    "positiveSymbolRatio": 0.5,
+    "totalNetPnlUsdt": -198.6043,
+    "totalFeesUsdt": 504.9281,
+    "totalFundingUsdt": 290.4095,
+    "totalSlippageUsdt": 252.4641
+  },
+  "maxConcurrent": 4,
+  "maxSymbolConcentration": 1,
+  "maxClusterConcentration": 3,
+  "rejectedForCapacity": 0,
+  "rejectedForSymbolConcentration": 0,
+  "rejectedForClusterConcentration": 200,
+  "concentrationProxy": "BTCUSDT is its own cluster; all other symbols are conservatively treated as BTC_BETA. This is a capacity proxy, not measured return correlation."
+}
