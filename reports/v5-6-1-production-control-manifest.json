@@ -1,0 +1,33 @@
+{
+  "schema": "bca-v5-6-1-production-control-manifest-v1",
+  "status": "DATA_UNAVAILABLE",
+  "productionCommit": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "strategyVersion": "trend-rejection-short-v1",
+  "nonSensitiveStrategyConfig": {
+    "strategyVersion": "trend-rejection-short-v1",
+    "entryMode": "TREND_REJECTION",
+    "scoreThreshold": "DATA_UNAVAILABLE",
+    "atrStopConfig": "DATA_UNAVAILABLE",
+    "rewardRisk": "DATA_UNAVAILABLE",
+    "side": "SHORT",
+    "family": "TREND",
+    "regimeRule": "DATA_UNAVAILABLE",
+    "cooldownHours": "DATA_UNAVAILABLE",
+    "maxHoldHours": "DATA_UNAVAILABLE",
+    "entryIntervalHours": "DATA_UNAVAILABLE",
+    "riskLimits": "DATA_UNAVAILABLE",
+    "fee": "DATA_UNAVAILABLE",
+    "slippage": "DATA_UNAVAILABLE",
+    "executionModel": "closed 15m signal candle -> next 15m candle open"
+  },
+  "provenance": {
+    "source": "NO_INDEPENDENT_CURRENT_PRODUCTION_CONFIGURATION_EXPORT",
+    "sourceCommit": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+    "capturedAt": "2026-08-26T00:00:00.000Z",
+    "independent": false,
+    "exactProductionParity": false,
+    "query": null,
+    "notes": "The repository does not contain an independent current Production environment/config export. Defaults and an older parity report are not used as an exact replay substitute."
+  },
+  "manifestHash": "3681000526ba6b78a6362737c9481813873ec3b6e04c74018e61479b088eed34"
+}

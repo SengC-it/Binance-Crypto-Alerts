@@ -1,0 +1,59 @@
+{
+  "reportVersion": "v5-6-1-research-v1",
+  "generatedAt": "2026-08-26T04:57:27.220Z",
+  "researchBaseline": "c94ad43ab7477a9c4d770ea234137425c174821f",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "controlStrategy": "trend-rejection-short-v1",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noProductionEmailChange": true,
+  "noProductionEnvironmentChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "noMerge": true,
+  "noDeployment": true,
+  "localPitCoverageComplete": false,
+  "definition": "non-dominated on nested outer OOS NetR, signal yield, and max drawdown",
+  "directions": {
+    "LONG": {
+      "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+      "frontier": [
+        {
+          "id": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "netR": -1.065357116133952,
+          "alertsPerWeek": 0.01098901098901099,
+          "maxDrawdownR": 1.065357116133952,
+          "cvar95": -1.065357116133952
+        }
+      ]
+    },
+    "SHORT": {
+      "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+      "frontier": [
+        {
+          "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "netR": 23.937508814264746,
+          "alertsPerWeek": 0.46153846153846156,
+          "maxDrawdownR": 6.275917288241616,
+          "cvar95": -1.2722923395263073
+        },
+        {
+          "id": "V561-SHORT-BREAKDOWN-RETEST-CONTINUATION-V2-01",
+          "netR": 0,
+          "alertsPerWeek": 0,
+          "maxDrawdownR": 0,
+          "cvar95": null
+        },
+        {
+          "id": "V561-SHORT-VOLATILITY-COMPRESSION-BREAKDOWN-01",
+          "netR": -2.173323943108876,
+          "alertsPerWeek": 0.02197802197802198,
+          "maxDrawdownR": 2.173323943108876,
+          "cvar95": -1.1205643193252166
+        }
+      ]
+    }
+  }
+}

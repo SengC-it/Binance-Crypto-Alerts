@@ -1,0 +1,5073 @@
+{
+  "reportVersion": "v5-6-1-research-v1",
+  "generatedAt": "2026-08-26T04:57:27.220Z",
+  "researchBaseline": "c94ad43ab7477a9c4d770ea234137425c174821f",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "controlStrategy": "trend-rejection-short-v1",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noProductionEmailChange": true,
+  "noProductionEnvironmentChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "noMerge": true,
+  "noDeployment": true,
+  "localPitCoverageComplete": false,
+  "split": {
+    "developmentInnerSelection": true,
+    "nestedOuterOos": true,
+    "externalValidation": "DATA_UNAVAILABLE",
+    "oosStart": "2024-05-10T02:15:00.000Z",
+    "oosEnd": "2026-02-06T02:14:59.999Z",
+    "purgeHours": 72,
+    "holdoutExcluded": true
+  },
+  "groups": [
+    {
+      "id": "3Y_CORE",
+      "label": "3-year Core (conservative monthly PIT membership)",
+      "start": "2023-08-10T02:15:00.000Z",
+      "developmentEnd": "2025-08-06T02:14:59.999Z",
+      "holdoutStart": "2025-08-09T02:15:00.000Z",
+      "end": "2026-08-09T02:14:59.999Z",
+      "expectedSymbols": 50,
+      "loadedSymbols": 24,
+      "missingSymbols": [
+        "1000BONKUSDT",
+        "1000CATUSDT",
+        "ACEUSDT",
+        "ARCUSDT",
+        "BANKUSDT",
+        "BICOUSDT",
+        "COOKIEUSDT",
+        "DEXEUSDT",
+        "DODOXUSDT",
+        "ENAUSDT",
+        "EPICUSDT",
+        "HEIUSDT",
+        "HOMEUSDT",
+        "HYPEUSDT",
+        "KAITOUSDT",
+        "ONDOUSDT",
+        "PAXGUSDT",
+        "PENGUUSDT",
+        "PUMPUSDT",
+        "SAGAUSDT",
+        "SIRENUSDT",
+        "SKYAIUSDT",
+        "SYNUSDT",
+        "TAOUSDT",
+        "TSTUSDT",
+        "TUTUSDT"
+      ],
+      "pitEligibleSymbolsAtStart": [
+        "1000PEPEUSDT",
+        "AAVEUSDT",
+        "ADAUSDT",
+        "AVAXUSDT",
+        "BNBUSDT",
+        "BTCUSDT",
+        "COTIUSDT",
+        "DOGEUSDT",
+        "ETHUSDT",
+        "FILUSDT",
+        "ICPUSDT",
+        "INJUSDT",
+        "IOTXUSDT",
+        "LINKUSDT",
+        "LTCUSDT",
+        "NEARUSDT",
+        "SOLUSDT",
+        "SUIUSDT",
+        "UNIUSDT",
+        "WLDUSDT",
+        "XLMUSDT",
+        "XMRUSDT",
+        "XRPUSDT",
+        "ZECUSDT"
+      ],
+      "pitEligibleSymbolCount": 24,
+      "localLoadedCoveragePercent": 48,
+      "localPitEligibleCoveragePercent": 100,
+      "folds": [
+        {
+          "id": "fold-1",
+          "trainStart": "2023-08-10T02:15:00.000Z",
+          "trainEnd": "2024-05-07T02:14:59.999Z",
+          "purgeStart": "2024-05-07T02:15:00.000Z",
+          "purgeEnd": "2024-05-10T02:14:59.999Z",
+          "validationStart": "2024-05-10T02:15:00.000Z",
+          "validationEnd": "2024-07-10T02:14:59.999Z"
+        },
+        {
+          "id": "fold-2",
+          "trainStart": "2023-08-10T02:15:00.000Z",
+          "trainEnd": "2024-07-07T02:14:59.999Z",
+          "purgeStart": "2024-07-07T02:15:00.000Z",
+          "purgeEnd": "2024-07-10T02:14:59.999Z",
+          "validationStart": "2024-07-10T02:15:00.000Z",
+          "validationEnd": "2024-09-10T02:14:59.999Z"
+        },
+        {
+          "id": "fold-3",
+          "trainStart": "2023-08-10T02:15:00.000Z",
+          "trainEnd": "2024-09-07T02:14:59.999Z",
+          "purgeStart": "2024-09-07T02:15:00.000Z",
+          "purgeEnd": "2024-09-10T02:14:59.999Z",
+          "validationStart": "2024-09-10T02:15:00.000Z",
+          "validationEnd": "2024-11-10T02:14:59.999Z"
+        },
+        {
+          "id": "fold-4",
+          "trainStart": "2023-08-10T02:15:00.000Z",
+          "trainEnd": "2024-11-07T02:14:59.999Z",
+          "purgeStart": "2024-11-07T02:15:00.000Z",
+          "purgeEnd": "2024-11-10T02:14:59.999Z",
+          "validationStart": "2024-11-10T02:15:00.000Z",
+          "validationEnd": "2025-01-10T02:14:59.999Z"
+        },
+        {
+          "id": "fold-5",
+          "trainStart": "2023-08-10T02:15:00.000Z",
+          "trainEnd": "2025-01-07T02:14:59.999Z",
+          "purgeStart": "2025-01-07T02:15:00.000Z",
+          "purgeEnd": "2025-01-10T02:14:59.999Z",
+          "validationStart": "2025-01-10T02:15:00.000Z",
+          "validationEnd": "2025-03-10T02:14:59.999Z"
+        },
+        {
+          "id": "fold-6",
+          "trainStart": "2023-08-10T02:15:00.000Z",
+          "trainEnd": "2025-03-07T02:14:59.999Z",
+          "purgeStart": "2025-03-07T02:15:00.000Z",
+          "purgeEnd": "2025-03-10T02:14:59.999Z",
+          "validationStart": "2025-03-10T02:15:00.000Z",
+          "validationEnd": "2025-05-10T02:14:59.999Z"
+        }
+      ],
+      "breadthInput": {
+        "timestamps": 26280,
+        "source": "local historical cache 1h candles"
+      }
+    },
+    {
+      "id": "1Y_BROAD",
+      "label": "1-year Broad (conservative monthly PIT membership)",
+      "start": "2025-08-09T02:15:00.000Z",
+      "developmentEnd": "2026-02-06T02:14:59.999Z",
+      "holdoutStart": "2026-02-09T02:15:00.000Z",
+      "end": "2026-08-09T02:14:59.999Z",
+      "expectedSymbols": 50,
+      "loadedSymbols": 45,
+      "missingSymbols": [
+        "ACEUSDT",
+        "BICOUSDT",
+        "KAITOUSDT",
+        "TUTUSDT",
+        "ZECUSDT"
+      ],
+      "pitEligibleSymbolsAtStart": [
+        "1000BONKUSDT",
+        "1000CATUSDT",
+        "1000PEPEUSDT",
+        "AAVEUSDT",
+        "ACEUSDT",
+        "ADAUSDT",
+        "ARCUSDT",
+        "AVAXUSDT",
+        "BANKUSDT",
+        "BICOUSDT",
+        "BNBUSDT",
+        "BTCUSDT",
+        "COOKIEUSDT",
+        "COTIUSDT",
+        "DEXEUSDT",
+        "DODOXUSDT",
+        "DOGEUSDT",
+        "ENAUSDT",
+        "EPICUSDT",
+        "ETHUSDT",
+        "FILUSDT",
+        "HEIUSDT",
+        "HOMEUSDT",
+        "HYPEUSDT",
+        "ICPUSDT",
+        "INJUSDT",
+        "IOTXUSDT",
+        "KAITOUSDT",
+        "LINKUSDT",
+        "LTCUSDT",
+        "NEARUSDT",
+        "ONDOUSDT",
+        "PAXGUSDT",
+        "PENGUUSDT",
+        "PUMPUSDT",
+        "SAGAUSDT",
+        "SIRENUSDT",
+        "SKYAIUSDT",
+        "SOLUSDT",
+        "SUIUSDT",
+        "SYNUSDT",
+        "TAOUSDT",
+        "TSTUSDT",
+        "TUTUSDT",
+        "UNIUSDT",
+        "WLDUSDT",
+        "XLMUSDT",
+        "XMRUSDT",
+        "XRPUSDT",
+        "ZECUSDT"
+      ],
+      "pitEligibleSymbolCount": 50,
+      "localLoadedCoveragePercent": 90,
+      "localPitEligibleCoveragePercent": 90,
+      "folds": [
+        {
+          "id": "fold-1",
+          "trainStart": "2025-08-09T02:15:00.000Z",
+          "trainEnd": "2025-11-06T02:14:59.999Z",
+          "purgeStart": "2025-11-06T02:15:00.000Z",
+          "purgeEnd": "2025-11-09T02:14:59.999Z",
+          "validationStart": "2025-11-09T02:15:00.000Z",
+          "validationEnd": "2025-12-09T02:14:59.999Z"
+        },
+        {
+          "id": "fold-2",
+          "trainStart": "2025-08-09T02:15:00.000Z",
+          "trainEnd": "2025-12-06T02:14:59.999Z",
+          "purgeStart": "2025-12-06T02:15:00.000Z",
+          "purgeEnd": "2025-12-09T02:14:59.999Z",
+          "validationStart": "2025-12-09T02:15:00.000Z",
+          "validationEnd": "2026-01-09T02:14:59.999Z"
+        },
+        {
+          "id": "fold-3",
+          "trainStart": "2025-08-09T02:15:00.000Z",
+          "trainEnd": "2026-01-06T02:14:59.999Z",
+          "purgeStart": "2026-01-06T02:15:00.000Z",
+          "purgeEnd": "2026-01-09T02:14:59.999Z",
+          "validationStart": "2026-01-09T02:15:00.000Z",
+          "validationEnd": "2026-02-06T02:14:59.999Z"
+        }
+      ],
+      "breadthInput": {
+        "timestamps": 8760,
+        "source": "local historical cache 1h candles"
+      }
+    }
+  ],
+  "directions": {
+    "LONG": {
+      "selectedCandidate": {
+        "id": "V561-LONG-LIQUIDITY-RECLAIM-01",
+        "side": "LONG",
+        "family": "INDEPENDENT_LONG_LIQUIDITY_RECLAIM",
+        "variant": 1,
+        "hypothesis": "A bullish trend that sweeps value and reclaims the recent high can provide a distinct LONG continuation edge.",
+        "marketMechanism": "A downside liquidity sweep resets positioning before demand reclaims the local range.",
+        "expectedRegime": "BULL or RANGE-to-BULL",
+        "entryLogic": "Bull alignment, bounded liquidity sweep, bullish reclaim and next-open execution.",
+        "invalidationLogic": "The swept value area is lost on a closed candle.",
+        "expectedHoldingHorizonHours": 48,
+        "expectedFailureMode": "The sweep is distribution and the trend has already turned lower.",
+        "stopStyle": "HYBRID",
+        "rewardRisk": 1.8,
+        "parameters": {
+          "breakoutLookback": 20,
+          "volumeRatioMin": 1.05,
+          "retestDistanceATR": 0.75,
+          "maxExtensionATR": 0.85,
+          "pullbackMinATR": 0.4,
+          "pullbackMaxATR": 1.7,
+          "trendAgeMinBars": 18,
+          "compressionBarsMin": 8,
+          "compressionRangeMaxATR": 4.5,
+          "expansionVolumeMin": 1.25,
+          "expansionVolatilityMin": 1.15,
+          "stopATRMultiplier": 1.25,
+          "structureLookback": 8
+        }
+      },
+      "candidateRows": [
+        {
+          "candidate": {
+            "id": "V561-LONG-LIQUIDITY-RECLAIM-01",
+            "side": "LONG",
+            "family": "INDEPENDENT_LONG_LIQUIDITY_RECLAIM",
+            "variant": 1,
+            "hypothesis": "A bullish trend that sweeps value and reclaims the recent high can provide a distinct LONG continuation edge.",
+            "marketMechanism": "A downside liquidity sweep resets positioning before demand reclaims the local range.",
+            "expectedRegime": "BULL or RANGE-to-BULL",
+            "entryLogic": "Bull alignment, bounded liquidity sweep, bullish reclaim and next-open execution.",
+            "invalidationLogic": "The swept value area is lost on a closed candle.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "The sweep is distribution and the trend has already turned lower.",
+            "stopStyle": "HYBRID",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.05,
+              "retestDistanceATR": 0.75,
+              "maxExtensionATR": 0.85,
+              "pullbackMinATR": 0.4,
+              "pullbackMaxATR": 1.7,
+              "trendAgeMinBars": 18,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "development": {
+            "trades": 5,
+            "wins": 0,
+            "losses": 5,
+            "winRate": 0,
+            "netR": -5.2793,
+            "avgR": -1.0559,
+            "profitFactor": 0,
+            "maxDrawdownR": 5.2793,
+            "lowerConfidenceBound95": -1.0559,
+            "positiveMonths": 0,
+            "months": 3,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -263.9641,
+            "totalFeesUsdt": 9.1809,
+            "totalFundingUsdt": -0.1928,
+            "totalSlippageUsdt": 4.5904,
+            "monthly": [
+              {
+                "month": "2024-11",
+                "trades": 1,
+                "netR": -1.0654,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0654
+              },
+              {
+                "month": "2025-05",
+                "trades": 1,
+                "netR": -1.0587,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0587
+              },
+              {
+                "month": "2025-07",
+                "trades": 3,
+                "netR": -3.1552,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.1552
+              }
+            ]
+          },
+          "nestedOuterOos": {
+            "trades": 1,
+            "wins": 0,
+            "losses": 1,
+            "winRate": 0,
+            "netR": -1.0654,
+            "avgR": -1.0654,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0654,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -53.2679,
+            "totalFeesUsdt": 2.1786,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 1.0893,
+            "monthly": [
+              {
+                "month": "2024-11",
+                "trades": 1,
+                "netR": -1.0654,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0654
+              }
+            ]
+          },
+          "postSelectionDiagnosticOos": {
+            "trades": 1,
+            "wins": 0,
+            "losses": 1,
+            "winRate": 0,
+            "netR": -1.0654,
+            "avgR": -1.0654,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0654,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -53.2679,
+            "totalFeesUsdt": 2.1786,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 1.0893,
+            "monthly": [
+              {
+                "month": "2024-11",
+                "trades": 1,
+                "netR": -1.0654,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0654
+              }
+            ]
+          },
+          "deduplication": {
+            "all": {
+              "rawRows": 5,
+              "uniqueRows": 5,
+              "duplicateRows": 0
+            },
+            "nestedOuterOos": {
+              "rawRows": 1,
+              "uniqueRows": 1,
+              "duplicateRows": 0
+            },
+            "holdout": {
+              "rawRows": 0,
+              "uniqueRows": 0,
+              "duplicateRows": 0
+            }
+          },
+          "yield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.0016,
+            "alertsPerWeek": 0.011,
+            "alertsPerMonth": 0.0478,
+            "activeMonthRatio": 0.0455,
+            "medianAlertsPerMonth": 1,
+            "p90SignalDroughtDays": 446.0312,
+            "p95SignalDroughtDays": 446.0312,
+            "maxSignalDroughtDays": 446.0312,
+            "symbolBreadth": 1,
+            "regimeBreadth": 1,
+            "signalsBySymbol": {
+              "AVAXUSDT": 1
+            },
+            "signalsByRegime": {
+              "BULL": 1
+            },
+            "positiveMonthRatio": 0
+          },
+          "holdout": "KNOWN_VALIDATION_DIAGNOSTIC",
+          "foldMetrics": [
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-4",
+              "metrics": {
+                "trades": 1,
+                "wins": 0,
+                "losses": 1,
+                "winRate": 0,
+                "netR": -1.0654,
+                "avgR": -1.0654,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0654,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -53.2679,
+                "totalFeesUsdt": 2.1786,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 1.0893,
+                "monthly": [
+                  {
+                    "month": "2024-11",
+                    "trades": 1,
+                    "netR": -1.0654,
+                    "profitFactor": 0,
+                    "maxDrawdownR": 1.0654
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-5",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-6",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            }
+          ]
+        }
+      ],
+      "nestedSelectionRecords": [
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-1",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 0,
+          "validationTrades": 0
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-2",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 0,
+          "validationTrades": 0
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-3",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 0,
+          "validationTrades": 0
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-4",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 0,
+          "validationTrades": 1
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-5",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 1,
+          "validationTrades": 0
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-6",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 1,
+          "validationTrades": 0
+        },
+        {
+          "group": "1Y_BROAD",
+          "fold": "fold-1",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 0,
+          "validationTrades": 0
+        },
+        {
+          "group": "1Y_BROAD",
+          "fold": "fold-2",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 0,
+          "validationTrades": 0
+        },
+        {
+          "group": "1Y_BROAD",
+          "fold": "fold-3",
+          "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+          "trainTrades": 0,
+          "validationTrades": 0
+        }
+      ],
+      "nestedSelectionDedupe": {
+        "rawRows": 1,
+        "uniqueRows": 1,
+        "duplicateRows": 0
+      },
+      "nestedSelectionAggregate": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": 0,
+        "netR": -1.0654,
+        "avgR": -1.0654,
+        "profitFactor": 0,
+        "maxDrawdownR": 1.0654,
+        "lowerConfidenceBound95": null,
+        "positiveMonths": 0,
+        "months": 1,
+        "positiveMonthRatio": 0,
+        "topSymbolProfitShare": null,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": -53.2679,
+        "totalFeesUsdt": 2.1786,
+        "totalFundingUsdt": 0,
+        "totalSlippageUsdt": 1.0893,
+        "monthly": [
+          {
+            "month": "2024-11",
+            "trades": 1,
+            "netR": -1.0654,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0654
+          }
+        ]
+      },
+      "selectedNestedOuterOos": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": 0,
+        "netR": -1.0654,
+        "avgR": -1.0654,
+        "profitFactor": 0,
+        "maxDrawdownR": 1.0654,
+        "lowerConfidenceBound95": null,
+        "positiveMonths": 0,
+        "months": 1,
+        "positiveMonthRatio": 0,
+        "topSymbolProfitShare": null,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": -53.2679,
+        "totalFeesUsdt": 2.1786,
+        "totalFundingUsdt": 0,
+        "totalSlippageUsdt": 1.0893,
+        "monthly": [
+          {
+            "month": "2024-11",
+            "trades": 1,
+            "netR": -1.0654,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0654
+          }
+        ]
+      },
+      "drift": [
+        {
+          "label": "6M",
+          "start": "2026-02-09T02:14:59.999Z",
+          "end": "2026-08-09T02:14:59.999Z",
+          "metrics": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          }
+        },
+        {
+          "label": "12M",
+          "start": "2025-08-09T02:14:59.999Z",
+          "end": "2026-08-09T02:14:59.999Z",
+          "metrics": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          }
+        },
+        {
+          "label": "18M",
+          "start": "2025-02-09T02:14:59.999Z",
+          "end": "2026-08-09T02:14:59.999Z",
+          "metrics": {
+            "trades": 4,
+            "wins": 0,
+            "losses": 4,
+            "winRate": 0,
+            "netR": -4.2139,
+            "avgR": -1.0535,
+            "profitFactor": 0,
+            "maxDrawdownR": 4.2139,
+            "lowerConfidenceBound95": -1.0535,
+            "positiveMonths": 0,
+            "months": 2,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -210.6962,
+            "totalFeesUsdt": 7.0023,
+            "totalFundingUsdt": -0.1928,
+            "totalSlippageUsdt": 3.5011,
+            "monthly": [
+              {
+                "month": "2025-05",
+                "trades": 1,
+                "netR": -1.0587,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0587
+              },
+              {
+                "month": "2025-07",
+                "trades": 3,
+                "netR": -3.1552,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.1552
+              }
+            ]
+          }
+        }
+      ],
+      "familyRows": [
+        {
+          "family": "INDEPENDENT_LONG_LIQUIDITY_RECLAIM",
+          "candidate": {
+            "id": "V561-LONG-LIQUIDITY-RECLAIM-01",
+            "side": "LONG",
+            "family": "INDEPENDENT_LONG_LIQUIDITY_RECLAIM",
+            "variant": 1,
+            "hypothesis": "A bullish trend that sweeps value and reclaims the recent high can provide a distinct LONG continuation edge.",
+            "marketMechanism": "A downside liquidity sweep resets positioning before demand reclaims the local range.",
+            "expectedRegime": "BULL or RANGE-to-BULL",
+            "entryLogic": "Bull alignment, bounded liquidity sweep, bullish reclaim and next-open execution.",
+            "invalidationLogic": "The swept value area is lost on a closed candle.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "The sweep is distribution and the trend has already turned lower.",
+            "stopStyle": "HYBRID",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.05,
+              "retestDistanceATR": 0.75,
+              "maxExtensionATR": 0.85,
+              "pullbackMinATR": 0.4,
+              "pullbackMaxATR": 1.7,
+              "trendAgeMinBars": 18,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "developmentMetrics": {
+            "trades": 5,
+            "wins": 0,
+            "losses": 5,
+            "winRate": 0,
+            "netR": -5.2793,
+            "avgR": -1.0559,
+            "profitFactor": 0,
+            "maxDrawdownR": 5.2793,
+            "lowerConfidenceBound95": -1.0559,
+            "positiveMonths": 0,
+            "months": 3,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -263.9641,
+            "totalFeesUsdt": 9.1809,
+            "totalFundingUsdt": -0.1928,
+            "totalSlippageUsdt": 4.5904,
+            "monthly": [
+              {
+                "month": "2024-11",
+                "trades": 1,
+                "netR": -1.0654,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0654
+              },
+              {
+                "month": "2025-05",
+                "trades": 1,
+                "netR": -1.0587,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0587
+              },
+              {
+                "month": "2025-07",
+                "trades": 3,
+                "netR": -3.1552,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.1552
+              }
+            ]
+          },
+          "nestedOosMetrics": {
+            "trades": 1,
+            "wins": 0,
+            "losses": 1,
+            "winRate": 0,
+            "netR": -1.0654,
+            "avgR": -1.0654,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0654,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -53.2679,
+            "totalFeesUsdt": 2.1786,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 1.0893,
+            "monthly": [
+              {
+                "month": "2024-11",
+                "trades": 1,
+                "netR": -1.0654,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0654
+              }
+            ]
+          },
+          "externalValidation": "DATA_UNAVAILABLE",
+          "positiveHistoricalExpectancy": false,
+          "eligibleForEnsemble": false,
+          "nestedOosDedupe": {
+            "rawRows": 1,
+            "uniqueRows": 1,
+            "duplicateRows": 0
+          },
+          "nestedOosYield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.0016,
+            "alertsPerWeek": 0.011,
+            "alertsPerMonth": 0.0478,
+            "activeMonthRatio": 0.0455,
+            "medianAlertsPerMonth": 1,
+            "p90SignalDroughtDays": 446.0312,
+            "p95SignalDroughtDays": 446.0312,
+            "maxSignalDroughtDays": 446.0312,
+            "symbolBreadth": 1,
+            "regimeBreadth": 1,
+            "signalsBySymbol": {
+              "AVAXUSDT": 1
+            },
+            "signalsByRegime": {
+              "BULL": 1
+            },
+            "positiveMonthRatio": 0
+          },
+          "nestedOosCvar95": -1.0654,
+          "nestedOosPlus10Bps": {
+            "trades": 1,
+            "wins": 0,
+            "losses": 1,
+            "winRate": 0,
+            "netR": -1.1743,
+            "avgR": -1.1743,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.1743,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -58.7143,
+            "totalFeesUsdt": 2.1786,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 6.5357,
+            "monthly": [
+              {
+                "month": "2024-11",
+                "trades": 1,
+                "netR": -1.1743,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.1743
+              }
+            ]
+          },
+          "nestedOosPlus15Bps": {
+            "trades": 1,
+            "wins": 0,
+            "losses": 1,
+            "winRate": 0,
+            "netR": -1.2288,
+            "avgR": -1.2288,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.2288,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -61.4375,
+            "totalFeesUsdt": 2.1786,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 9.2589,
+            "monthly": [
+              {
+                "month": "2024-11",
+                "trades": 1,
+                "netR": -1.2288,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.2288
+              }
+            ]
+          },
+          "symbolBreadth": 1,
+          "regimeBreadth": 1
+        }
+      ]
+    },
+    "SHORT": {
+      "selectedCandidate": {
+        "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+        "side": "SHORT",
+        "family": "FAILED_BREAKOUT_REVERSAL",
+        "variant": 1,
+        "hypothesis": "A failed upside breakout followed by two closes below the level traps late buyers and creates a reversal edge.",
+        "marketMechanism": "Failed expansion leaves demand above invalidation while supply controls the reclaim failure.",
+        "expectedRegime": "BULL exhaustion or RANGE transition",
+        "entryLogic": "Closed failed-breakout frame, lower high, bearish confirmation and bounded next-open entry.",
+        "invalidationLogic": "Reclaim of the prior upside breakout level.",
+        "expectedHoldingHorizonHours": 48,
+        "expectedFailureMode": "The breakout resumes after a temporary shakeout.",
+        "stopStyle": "STRUCTURE",
+        "rewardRisk": 1.8,
+        "parameters": {
+          "breakoutLookback": 20,
+          "volumeRatioMin": 1.35,
+          "retestDistanceATR": 0.6,
+          "maxExtensionATR": 0.8,
+          "pullbackMinATR": 0.35,
+          "pullbackMaxATR": 1.6,
+          "trendAgeMinBars": 16,
+          "compressionBarsMin": 8,
+          "compressionRangeMaxATR": 4.5,
+          "expansionVolumeMin": 1.25,
+          "expansionVolatilityMin": 1.15,
+          "stopATRMultiplier": 1.25,
+          "structureLookback": 8
+        }
+      },
+      "candidateRows": [
+        {
+          "candidate": {
+            "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+            "side": "SHORT",
+            "family": "FAILED_BREAKOUT_REVERSAL",
+            "variant": 1,
+            "hypothesis": "A failed upside breakout followed by two closes below the level traps late buyers and creates a reversal edge.",
+            "marketMechanism": "Failed expansion leaves demand above invalidation while supply controls the reclaim failure.",
+            "expectedRegime": "BULL exhaustion or RANGE transition",
+            "entryLogic": "Closed failed-breakout frame, lower high, bearish confirmation and bounded next-open entry.",
+            "invalidationLogic": "Reclaim of the prior upside breakout level.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "The breakout resumes after a temporary shakeout.",
+            "stopStyle": "STRUCTURE",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.35,
+              "retestDistanceATR": 0.6,
+              "maxExtensionATR": 0.8,
+              "pullbackMinATR": 0.35,
+              "pullbackMaxATR": 1.6,
+              "trendAgeMinBars": 16,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "development": {
+            "trades": 97,
+            "wins": 46,
+            "losses": 51,
+            "winRate": 0.4742,
+            "netR": 22.0438,
+            "avgR": 0.2273,
+            "profitFactor": 1.3962,
+            "maxDrawdownR": 12.4908,
+            "lowerConfidenceBound95": -0.106,
+            "positiveMonths": 11,
+            "months": 22,
+            "positiveMonthRatio": 0.5,
+            "topSymbolProfitShare": 0.0882,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 1102.1893,
+            "totalFeesUsdt": 288.2731,
+            "totalFundingUsdt": 6.5792,
+            "totalSlippageUsdt": 144.1366,
+            "monthly": [
+              {
+                "month": "2023-08",
+                "trades": 11,
+                "netR": -4.9421,
+                "profitFactor": 0.4381,
+                "maxDrawdownR": 4.9421
+              },
+              {
+                "month": "2023-09",
+                "trades": 1,
+                "netR": -1.0975,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0975
+              },
+              {
+                "month": "2023-12",
+                "trades": 2,
+                "netR": -2.1246,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1246
+              },
+              {
+                "month": "2024-01",
+                "trades": 1,
+                "netR": -1.0459,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0459
+              },
+              {
+                "month": "2024-03",
+                "trades": 1,
+                "netR": 1.7385,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-04",
+                "trades": 3,
+                "netR": -0.5406,
+                "profitFactor": 0.7547,
+                "maxDrawdownR": 2.2043
+              },
+              {
+                "month": "2024-05",
+                "trades": 2,
+                "netR": -2.0795,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.0795
+              },
+              {
+                "month": "2024-06",
+                "trades": 3,
+                "netR": 2.1915,
+                "profitFactor": 3.0806,
+                "maxDrawdownR": 1.0533
+              },
+              {
+                "month": "2024-08",
+                "trades": 1,
+                "netR": 1.7244,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-11",
+                "trades": 2,
+                "netR": -2.09,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.09
+              },
+              {
+                "month": "2024-12",
+                "trades": 2,
+                "netR": -2.1594,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1594
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": 1.2179,
+                "profitFactor": 1.5324,
+                "maxDrawdownR": 1.2458
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": 0.5469,
+                "profitFactor": 1.49,
+                "maxDrawdownR": 1.1162
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.6535,
+                "profitFactor": 1.6083,
+                "maxDrawdownR": 1.0744
+              },
+              {
+                "month": "2025-06",
+                "trades": 3,
+                "netR": -3.3661,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.3661
+              },
+              {
+                "month": "2025-08",
+                "trades": 4,
+                "netR": 1.1382,
+                "profitFactor": 1.5151,
+                "maxDrawdownR": 1.1179
+              },
+              {
+                "month": "2025-09",
+                "trades": 2,
+                "netR": 0.5756,
+                "profitFactor": 1.4886,
+                "maxDrawdownR": 1.1782
+              },
+              {
+                "month": "2025-10",
+                "trades": 22,
+                "netR": 10.1918,
+                "profitFactor": 1.9506,
+                "maxDrawdownR": 2.2064
+              },
+              {
+                "month": "2025-11",
+                "trades": 9,
+                "netR": -1.5402,
+                "profitFactor": 0.7717,
+                "maxDrawdownR": 3.5459
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.4738,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 8.026,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 11,
+                "netR": 16.499,
+                "profitFactor": 16.7734,
+                "maxDrawdownR": 1.046
+              }
+            ]
+          },
+          "nestedOuterOos": {
+            "trades": 42,
+            "wins": 25,
+            "losses": 17,
+            "winRate": 0.5952,
+            "netR": 23.9375,
+            "avgR": 0.5699,
+            "profitFactor": 2.2785,
+            "maxDrawdownR": 6.2759,
+            "lowerConfidenceBound95": -0.0025,
+            "positiveMonths": 7,
+            "months": 11,
+            "positiveMonthRatio": 0.6364,
+            "topSymbolProfitShare": 0.1208,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 1196.8754,
+            "totalFeesUsdt": 138.3534,
+            "totalFundingUsdt": 4.4056,
+            "totalSlippageUsdt": 69.1768,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 3,
+                "netR": 2.1915,
+                "profitFactor": 3.0806,
+                "maxDrawdownR": 1.0533
+              },
+              {
+                "month": "2024-08",
+                "trades": 1,
+                "netR": 1.7244,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-11",
+                "trades": 2,
+                "netR": -2.09,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.09
+              },
+              {
+                "month": "2024-12",
+                "trades": 2,
+                "netR": -2.1594,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1594
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": 1.2179,
+                "profitFactor": 1.5324,
+                "maxDrawdownR": 1.2458
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": 0.5469,
+                "profitFactor": 1.49,
+                "maxDrawdownR": 1.1162
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.6535,
+                "profitFactor": 1.6083,
+                "maxDrawdownR": 1.0744
+              },
+              {
+                "month": "2025-11",
+                "trades": 6,
+                "netR": -1.1985,
+                "profitFactor": 0.7423,
+                "maxDrawdownR": 2.4865
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.4738,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 8.026,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 11,
+                "netR": 16.499,
+                "profitFactor": 16.7734,
+                "maxDrawdownR": 1.046
+              }
+            ]
+          },
+          "postSelectionDiagnosticOos": {
+            "trades": 42,
+            "wins": 25,
+            "losses": 17,
+            "winRate": 0.5952,
+            "netR": 23.9375,
+            "avgR": 0.5699,
+            "profitFactor": 2.2785,
+            "maxDrawdownR": 6.2759,
+            "lowerConfidenceBound95": -0.0025,
+            "positiveMonths": 7,
+            "months": 11,
+            "positiveMonthRatio": 0.6364,
+            "topSymbolProfitShare": 0.1208,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 1196.8754,
+            "totalFeesUsdt": 138.3534,
+            "totalFundingUsdt": 4.4056,
+            "totalSlippageUsdt": 69.1768,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 3,
+                "netR": 2.1915,
+                "profitFactor": 3.0806,
+                "maxDrawdownR": 1.0533
+              },
+              {
+                "month": "2024-08",
+                "trades": 1,
+                "netR": 1.7244,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-11",
+                "trades": 2,
+                "netR": -2.09,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.09
+              },
+              {
+                "month": "2024-12",
+                "trades": 2,
+                "netR": -2.1594,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1594
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": 1.2179,
+                "profitFactor": 1.5324,
+                "maxDrawdownR": 1.2458
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": 0.5469,
+                "profitFactor": 1.49,
+                "maxDrawdownR": 1.1162
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.6535,
+                "profitFactor": 1.6083,
+                "maxDrawdownR": 1.0744
+              },
+              {
+                "month": "2025-11",
+                "trades": 6,
+                "netR": -1.1985,
+                "profitFactor": 0.7423,
+                "maxDrawdownR": 2.4865
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.4738,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 8.026,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 11,
+                "netR": 16.499,
+                "profitFactor": 16.7734,
+                "maxDrawdownR": 1.046
+              }
+            ]
+          },
+          "deduplication": {
+            "all": {
+              "rawRows": 149,
+              "uniqueRows": 113,
+              "duplicateRows": 36
+            },
+            "nestedOuterOos": {
+              "rawRows": 59,
+              "uniqueRows": 42,
+              "duplicateRows": 17
+            },
+            "holdout": {
+              "rawRows": 106,
+              "uniqueRows": 70,
+              "duplicateRows": 36
+            }
+          },
+          "yield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.0659,
+            "alertsPerWeek": 0.4615,
+            "alertsPerMonth": 2.0069,
+            "activeMonthRatio": 0.5,
+            "medianAlertsPerMonth": 3,
+            "p90SignalDroughtDays": 36.375,
+            "p95SignalDroughtDays": 51.6667,
+            "maxSignalDroughtDays": 224.0417,
+            "symbolBreadth": 28,
+            "regimeBreadth": 2,
+            "signalsBySymbol": {
+              "1000PEPEUSDT": 2,
+              "ADAUSDT": 3,
+              "AVAXUSDT": 1,
+              "BNBUSDT": 1,
+              "COTIUSDT": 1,
+              "DOGEUSDT": 3,
+              "ETHUSDT": 1,
+              "FILUSDT": 1,
+              "ICPUSDT": 2,
+              "INJUSDT": 1,
+              "IOTXUSDT": 1,
+              "LTCUSDT": 2,
+              "NEARUSDT": 3,
+              "SOLUSDT": 3,
+              "SUIUSDT": 2,
+              "UNIUSDT": 2,
+              "WLDUSDT": 1,
+              "XLMUSDT": 1,
+              "XMRUSDT": 1,
+              "ZECUSDT": 1,
+              "DEXEUSDT": 1,
+              "HOMEUSDT": 1,
+              "ONDOUSDT": 1,
+              "PAXGUSDT": 2,
+              "SAGAUSDT": 1,
+              "SIRENUSDT": 1,
+              "SKYAIUSDT": 1,
+              "TAOUSDT": 1
+            },
+            "signalsByRegime": {
+              "BULL": 22,
+              "RANGE": 20
+            },
+            "positiveMonthRatio": 0.6364
+          },
+          "holdout": "KNOWN_VALIDATION_DIAGNOSTIC",
+          "foldMetrics": [
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 3,
+                "wins": 2,
+                "losses": 1,
+                "winRate": 0.6667,
+                "netR": 2.1915,
+                "avgR": 0.7305,
+                "profitFactor": 3.0806,
+                "maxDrawdownR": 1.0533,
+                "lowerConfidenceBound95": 0.7305,
+                "positiveMonths": 1,
+                "months": 1,
+                "positiveMonthRatio": 1,
+                "topSymbolProfitShare": 0.5326,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 109.573,
+                "totalFeesUsdt": 14.7009,
+                "totalFundingUsdt": 1.6244,
+                "totalSlippageUsdt": 7.3505,
+                "monthly": [
+                  {
+                    "month": "2024-06",
+                    "trades": 3,
+                    "netR": 2.1915,
+                    "profitFactor": 3.0806,
+                    "maxDrawdownR": 1.0533
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 1,
+                "wins": 1,
+                "losses": 0,
+                "winRate": 1,
+                "netR": 1.7244,
+                "avgR": 1.7244,
+                "profitFactor": null,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 1,
+                "months": 1,
+                "positiveMonthRatio": 1,
+                "topSymbolProfitShare": 1,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 86.2196,
+                "totalFeesUsdt": 2.5203,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 1.2601,
+                "monthly": [
+                  {
+                    "month": "2024-08",
+                    "trades": 1,
+                    "netR": 1.7244,
+                    "profitFactor": null,
+                    "maxDrawdownR": 0
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 2,
+                "wins": 0,
+                "losses": 2,
+                "winRate": 0,
+                "netR": -2.09,
+                "avgR": -1.045,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.09,
+                "lowerConfidenceBound95": -1.045,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -104.4996,
+                "totalFeesUsdt": 3.3709,
+                "totalFundingUsdt": 0.5568,
+                "totalSlippageUsdt": 1.6854,
+                "monthly": [
+                  {
+                    "month": "2024-11",
+                    "trades": 2,
+                    "netR": -2.09,
+                    "profitFactor": 0,
+                    "maxDrawdownR": 2.09
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-4",
+              "metrics": {
+                "trades": 2,
+                "wins": 0,
+                "losses": 2,
+                "winRate": 0,
+                "netR": -2.1594,
+                "avgR": -1.0797,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1594,
+                "lowerConfidenceBound95": -1.0797,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -107.9725,
+                "totalFeesUsdt": 5.2997,
+                "totalFundingUsdt": -0.0229,
+                "totalSlippageUsdt": 2.6499,
+                "monthly": [
+                  {
+                    "month": "2024-12",
+                    "trades": 2,
+                    "netR": -2.1594,
+                    "profitFactor": 0,
+                    "maxDrawdownR": 2.1594
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-5",
+              "metrics": {
+                "trades": 6,
+                "wins": 3,
+                "losses": 3,
+                "winRate": 0.5,
+                "netR": 1.7649,
+                "avgR": 0.2941,
+                "profitFactor": 1.5185,
+                "maxDrawdownR": 1.2458,
+                "lowerConfidenceBound95": -0.2049,
+                "positiveMonths": 2,
+                "months": 2,
+                "positiveMonthRatio": 1,
+                "topSymbolProfitShare": 0.3399,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 88.2426,
+                "totalFeesUsdt": 21.1314,
+                "totalFundingUsdt": -0.0603,
+                "totalSlippageUsdt": 10.5657,
+                "monthly": [
+                  {
+                    "month": "2025-02",
+                    "trades": 4,
+                    "netR": 1.2179,
+                    "profitFactor": 1.5324,
+                    "maxDrawdownR": 1.2458
+                  },
+                  {
+                    "month": "2025-03",
+                    "trades": 2,
+                    "netR": 0.5469,
+                    "profitFactor": 1.49,
+                    "maxDrawdownR": 1.1162
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-6",
+              "metrics": {
+                "trades": 2,
+                "wins": 1,
+                "losses": 1,
+                "winRate": 0.5,
+                "netR": 0.6535,
+                "avgR": 0.3268,
+                "profitFactor": 1.6083,
+                "maxDrawdownR": 1.0744,
+                "lowerConfidenceBound95": 0.3268,
+                "positiveMonths": 1,
+                "months": 1,
+                "positiveMonthRatio": 1,
+                "topSymbolProfitShare": 1,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 32.6771,
+                "totalFeesUsdt": 5.1055,
+                "totalFundingUsdt": 0.3354,
+                "totalSlippageUsdt": 2.5528,
+                "monthly": [
+                  {
+                    "month": "2025-04",
+                    "trades": 2,
+                    "netR": 0.6535,
+                    "profitFactor": 1.6083,
+                    "maxDrawdownR": 1.0744
+                  }
+                ]
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 6,
+                "wins": 2,
+                "losses": 4,
+                "winRate": 0.3333,
+                "netR": -1.1985,
+                "avgR": -0.1997,
+                "profitFactor": 0.7423,
+                "maxDrawdownR": 2.4865,
+                "lowerConfidenceBound95": -0.7304,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": 0.501,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -59.9248,
+                "totalFeesUsdt": 28.0425,
+                "totalFundingUsdt": 2.1389,
+                "totalSlippageUsdt": 14.0212,
+                "monthly": [
+                  {
+                    "month": "2025-11",
+                    "trades": 6,
+                    "netR": -1.1985,
+                    "profitFactor": 0.7423,
+                    "maxDrawdownR": 2.4865
+                  }
+                ]
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 4,
+                "wins": 1,
+                "losses": 3,
+                "winRate": 0.25,
+                "netR": -1.4738,
+                "avgR": -0.3684,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464,
+                "lowerConfidenceBound95": -0.3684,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": 1,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -73.6886,
+                "totalFeesUsdt": 9.0065,
+                "totalFundingUsdt": -0.1787,
+                "totalSlippageUsdt": 4.5033,
+                "monthly": [
+                  {
+                    "month": "2025-12",
+                    "trades": 4,
+                    "netR": -1.4738,
+                    "profitFactor": 0.546,
+                    "maxDrawdownR": 3.2464
+                  }
+                ]
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 16,
+                "wins": 15,
+                "losses": 1,
+                "winRate": 0.9375,
+                "netR": 24.525,
+                "avgR": 1.5328,
+                "profitFactor": 24.4464,
+                "maxDrawdownR": 1.046,
+                "lowerConfidenceBound95": 1.1738,
+                "positiveMonths": 2,
+                "months": 2,
+                "positiveMonthRatio": 1,
+                "topSymbolProfitShare": 0.1338,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 1226.2485,
+                "totalFeesUsdt": 49.1757,
+                "totalFundingUsdt": 0.0122,
+                "totalSlippageUsdt": 24.5879,
+                "monthly": [
+                  {
+                    "month": "2026-01",
+                    "trades": 5,
+                    "netR": 8.026,
+                    "profitFactor": null,
+                    "maxDrawdownR": 0
+                  },
+                  {
+                    "month": "2026-02",
+                    "trades": 11,
+                    "netR": 16.499,
+                    "profitFactor": 16.7734,
+                    "maxDrawdownR": 1.046
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "id": "V561-SHORT-BREAKDOWN-RETEST-CONTINUATION-V2-01",
+            "side": "SHORT",
+            "family": "BREAKDOWN_RETEST_CONTINUATION_V2",
+            "variant": 1,
+            "hypothesis": "A support breakdown, bounded retest from below, rejection and continuation confirmation should improve short entry location.",
+            "marketMechanism": "Former support becomes overhead supply after trapped longs test the broken level.",
+            "expectedRegime": "BEAR or RANGE-to-BEAR",
+            "entryLogic": "Closed support break, below-level retest, rejection close and lower continuation close.",
+            "invalidationLogic": "The broken support is reclaimed on a closed candle.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "Absorption turns the breakdown into a bear trap.",
+            "stopStyle": "HYBRID",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.1,
+              "retestDistanceATR": 0.8,
+              "maxExtensionATR": 0.9,
+              "pullbackMinATR": 0.35,
+              "pullbackMaxATR": 1.6,
+              "trendAgeMinBars": 16,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "development": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          },
+          "nestedOuterOos": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          },
+          "postSelectionDiagnosticOos": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          },
+          "deduplication": {
+            "all": {
+              "rawRows": 0,
+              "uniqueRows": 0,
+              "duplicateRows": 0
+            },
+            "nestedOuterOos": {
+              "rawRows": 0,
+              "uniqueRows": 0,
+              "duplicateRows": 0
+            },
+            "holdout": {
+              "rawRows": 0,
+              "uniqueRows": 0,
+              "duplicateRows": 0
+            }
+          },
+          "yield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0,
+            "alertsPerWeek": 0,
+            "alertsPerMonth": 0,
+            "activeMonthRatio": 0,
+            "medianAlertsPerMonth": null,
+            "p90SignalDroughtDays": 637,
+            "p95SignalDroughtDays": 637,
+            "maxSignalDroughtDays": 637,
+            "symbolBreadth": 0,
+            "regimeBreadth": 0,
+            "signalsBySymbol": {},
+            "signalsByRegime": {},
+            "positiveMonthRatio": null
+          },
+          "holdout": "KNOWN_VALIDATION_DIAGNOSTIC",
+          "foldMetrics": [
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-4",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-5",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-6",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "id": "V561-SHORT-VOLATILITY-COMPRESSION-BREAKDOWN-01",
+            "side": "SHORT",
+            "family": "VOLATILITY_COMPRESSION_BREAKDOWN",
+            "variant": 1,
+            "hypothesis": "Compression followed by downside range expansion and participation confirmation can expose a controlled continuation edge.",
+            "marketMechanism": "Stored range energy resolves lower when volume and realized volatility expand together.",
+            "expectedRegime": "RANGE-to-BEAR or BEAR",
+            "entryLogic": "Closed compression, downside range expansion below the prior floor, volume and volatility confirmation.",
+            "invalidationLogic": "The compression floor is reclaimed after the expansion.",
+            "expectedHoldingHorizonHours": 36,
+            "expectedFailureMode": "A one-bar volatility shock mean reverts inside the range.",
+            "stopStyle": "ATR",
+            "rewardRisk": 1.7,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.15,
+              "retestDistanceATR": 0.75,
+              "maxExtensionATR": 0.9,
+              "pullbackMinATR": 0.35,
+              "pullbackMaxATR": 1.6,
+              "trendAgeMinBars": 16,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "development": {
+            "trades": 2,
+            "wins": 0,
+            "losses": 2,
+            "winRate": 0,
+            "netR": -2.1733,
+            "avgR": -1.0867,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.1733,
+            "lowerConfidenceBound95": -1.0867,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -108.6662,
+            "totalFeesUsdt": 5.9113,
+            "totalFundingUsdt": 0.2008,
+            "totalSlippageUsdt": 2.9557,
+            "monthly": [
+              {
+                "month": "2024-08",
+                "trades": 2,
+                "netR": -2.1733,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1733
+              }
+            ]
+          },
+          "nestedOuterOos": {
+            "trades": 2,
+            "wins": 0,
+            "losses": 2,
+            "winRate": 0,
+            "netR": -2.1733,
+            "avgR": -1.0867,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.1733,
+            "lowerConfidenceBound95": -1.0867,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -108.6662,
+            "totalFeesUsdt": 5.9113,
+            "totalFundingUsdt": 0.2008,
+            "totalSlippageUsdt": 2.9557,
+            "monthly": [
+              {
+                "month": "2024-08",
+                "trades": 2,
+                "netR": -2.1733,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1733
+              }
+            ]
+          },
+          "postSelectionDiagnosticOos": {
+            "trades": 2,
+            "wins": 0,
+            "losses": 2,
+            "winRate": 0,
+            "netR": -2.1733,
+            "avgR": -1.0867,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.1733,
+            "lowerConfidenceBound95": -1.0867,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -108.6662,
+            "totalFeesUsdt": 5.9113,
+            "totalFundingUsdt": 0.2008,
+            "totalSlippageUsdt": 2.9557,
+            "monthly": [
+              {
+                "month": "2024-08",
+                "trades": 2,
+                "netR": -2.1733,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1733
+              }
+            ]
+          },
+          "deduplication": {
+            "all": {
+              "rawRows": 2,
+              "uniqueRows": 2,
+              "duplicateRows": 0
+            },
+            "nestedOuterOos": {
+              "rawRows": 2,
+              "uniqueRows": 2,
+              "duplicateRows": 0
+            },
+            "holdout": {
+              "rawRows": 0,
+              "uniqueRows": 0,
+              "duplicateRows": 0
+            }
+          },
+          "yield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.0031,
+            "alertsPerWeek": 0.022,
+            "alertsPerMonth": 0.0956,
+            "activeMonthRatio": 0.0455,
+            "medianAlertsPerMonth": 2,
+            "p90SignalDroughtDays": 548.1562,
+            "p95SignalDroughtDays": 548.1562,
+            "maxSignalDroughtDays": 548.1562,
+            "symbolBreadth": 2,
+            "regimeBreadth": 1,
+            "signalsBySymbol": {
+              "1000PEPEUSDT": 1,
+              "BTCUSDT": 1
+            },
+            "signalsByRegime": {
+              "RANGE": 2
+            },
+            "positiveMonthRatio": 0
+          },
+          "holdout": "KNOWN_VALIDATION_DIAGNOSTIC",
+          "foldMetrics": [
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 2,
+                "wins": 0,
+                "losses": 2,
+                "winRate": 0,
+                "netR": -2.1733,
+                "avgR": -1.0867,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1733,
+                "lowerConfidenceBound95": -1.0867,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -108.6662,
+                "totalFeesUsdt": 5.9113,
+                "totalFundingUsdt": 0.2008,
+                "totalSlippageUsdt": 2.9557,
+                "monthly": [
+                  {
+                    "month": "2024-08",
+                    "trades": 2,
+                    "netR": -2.1733,
+                    "profitFactor": 0,
+                    "maxDrawdownR": 2.1733
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-4",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-5",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-6",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            }
+          ]
+        },
+        {
+          "candidate": {
+            "id": "V561-SHORT-TREND-PULLBACK-V2-01",
+            "side": "SHORT",
+            "family": "TREND_PULLBACK_SHORT_V2",
+            "variant": 1,
+            "hypothesis": "In a mature bear trend, a rebound into value followed by a fresh lower-low rejection can offer continuation without shorting the initial impulse.",
+            "marketMechanism": "Counter-trend liquidity is absorbed near value before the dominant supply regime resumes.",
+            "expectedRegime": "BEAR on 1h and 4h",
+            "entryLogic": "Bear alignment, bounded rebound into EMA/value, bearish rejection and fresh lower-low confirmation.",
+            "invalidationLogic": "A closed reclaim above the rebound value zone.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "The rebound is a true trend reversal rather than a pullback.",
+            "stopStyle": "HYBRID",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.05,
+              "retestDistanceATR": 0.75,
+              "maxExtensionATR": 0.85,
+              "pullbackMinATR": 0.45,
+              "pullbackMaxATR": 1.8,
+              "trendAgeMinBars": 20,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "development": {
+            "trades": 39,
+            "wins": 9,
+            "losses": 30,
+            "winRate": 0.2308,
+            "netR": -16.4527,
+            "avgR": -0.4219,
+            "profitFactor": 0.4868,
+            "maxDrawdownR": 24.3256,
+            "lowerConfidenceBound95": -0.8476,
+            "positiveMonths": 2,
+            "months": 11,
+            "positiveMonthRatio": 0.1818,
+            "topSymbolProfitShare": 0.1125,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -822.6361,
+            "totalFeesUsdt": 88.2535,
+            "totalFundingUsdt": -0.2559,
+            "totalSlippageUsdt": 44.1267,
+            "monthly": [
+              {
+                "month": "2024-03",
+                "trades": 1,
+                "netR": 1.6813,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-04",
+                "trades": 3,
+                "netR": -3.2353,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.2353
+              },
+              {
+                "month": "2024-06",
+                "trades": 1,
+                "netR": -1.0847,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0847
+              },
+              {
+                "month": "2024-08",
+                "trades": 3,
+                "netR": -0.4233,
+                "profitFactor": 0.8034,
+                "maxDrawdownR": 2.1533
+              },
+              {
+                "month": "2024-10",
+                "trades": 8,
+                "netR": -8.6321,
+                "profitFactor": 0,
+                "maxDrawdownR": 8.6321
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": -1.4171,
+                "profitFactor": 0.5492,
+                "maxDrawdownR": 3.1434
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -2.1172,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1172
+              },
+              {
+                "month": "2025-08",
+                "trades": 2,
+                "netR": -2.1404,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1404
+              },
+              {
+                "month": "2025-09",
+                "trades": 1,
+                "netR": -1.0446,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0446
+              },
+              {
+                "month": "2025-10",
+                "trades": 4,
+                "netR": -4.231,
+                "profitFactor": 0,
+                "maxDrawdownR": 4.231
+              },
+              {
+                "month": "2025-11",
+                "trades": 10,
+                "netR": 6.1916,
+                "profitFactor": 2.4471,
+                "maxDrawdownR": 2.1558
+              }
+            ]
+          },
+          "nestedOuterOos": {
+            "trades": 28,
+            "wins": 8,
+            "losses": 20,
+            "winRate": 0.2857,
+            "netR": -7.4827,
+            "avgR": -0.2672,
+            "profitFactor": 0.6505,
+            "maxDrawdownR": 14.3197,
+            "lowerConfidenceBound95": -0.7801,
+            "positiveMonths": 1,
+            "months": 6,
+            "positiveMonthRatio": 0.1667,
+            "topSymbolProfitShare": 0.1261,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -374.1368,
+            "totalFeesUsdt": 62.3131,
+            "totalFundingUsdt": -0.6672,
+            "totalSlippageUsdt": 31.1565,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 1,
+                "netR": -1.0847,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0847
+              },
+              {
+                "month": "2024-08",
+                "trades": 3,
+                "netR": -0.4233,
+                "profitFactor": 0.8034,
+                "maxDrawdownR": 2.1533
+              },
+              {
+                "month": "2024-10",
+                "trades": 8,
+                "netR": -8.6321,
+                "profitFactor": 0,
+                "maxDrawdownR": 8.6321
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": -1.4171,
+                "profitFactor": 0.5492,
+                "maxDrawdownR": 3.1434
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -2.1172,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1172
+              },
+              {
+                "month": "2025-11",
+                "trades": 10,
+                "netR": 6.1916,
+                "profitFactor": 2.4471,
+                "maxDrawdownR": 2.1558
+              }
+            ]
+          },
+          "postSelectionDiagnosticOos": {
+            "trades": 28,
+            "wins": 8,
+            "losses": 20,
+            "winRate": 0.2857,
+            "netR": -7.4827,
+            "avgR": -0.2672,
+            "profitFactor": 0.6505,
+            "maxDrawdownR": 14.3197,
+            "lowerConfidenceBound95": -0.7801,
+            "positiveMonths": 1,
+            "months": 6,
+            "positiveMonthRatio": 0.1667,
+            "topSymbolProfitShare": 0.1261,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -374.1368,
+            "totalFeesUsdt": 62.3131,
+            "totalFundingUsdt": -0.6672,
+            "totalSlippageUsdt": 31.1565,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 1,
+                "netR": -1.0847,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0847
+              },
+              {
+                "month": "2024-08",
+                "trades": 3,
+                "netR": -0.4233,
+                "profitFactor": 0.8034,
+                "maxDrawdownR": 2.1533
+              },
+              {
+                "month": "2024-10",
+                "trades": 8,
+                "netR": -8.6321,
+                "profitFactor": 0,
+                "maxDrawdownR": 8.6321
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": -1.4171,
+                "profitFactor": 0.5492,
+                "maxDrawdownR": 3.1434
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -2.1172,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1172
+              },
+              {
+                "month": "2025-11",
+                "trades": 10,
+                "netR": 6.1916,
+                "profitFactor": 2.4471,
+                "maxDrawdownR": 2.1558
+              }
+            ]
+          },
+          "deduplication": {
+            "all": {
+              "rawRows": 58,
+              "uniqueRows": 48,
+              "duplicateRows": 10
+            },
+            "nestedOuterOos": {
+              "rawRows": 33,
+              "uniqueRows": 28,
+              "duplicateRows": 5
+            },
+            "holdout": {
+              "rawRows": 34,
+              "uniqueRows": 24,
+              "duplicateRows": 10
+            }
+          },
+          "yield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.044,
+            "alertsPerWeek": 0.3077,
+            "alertsPerMonth": 1.3379,
+            "activeMonthRatio": 0.2727,
+            "medianAlertsPerMonth": 4,
+            "p90SignalDroughtDays": 75.6562,
+            "p95SignalDroughtDays": 121.75,
+            "maxSignalDroughtDays": 254,
+            "symbolBreadth": 19,
+            "regimeBreadth": 1,
+            "signalsBySymbol": {
+              "1000PEPEUSDT": 2,
+              "ADAUSDT": 1,
+              "AVAXUSDT": 2,
+              "BTCUSDT": 2,
+              "COTIUSDT": 2,
+              "DOGEUSDT": 1,
+              "ETHUSDT": 1,
+              "INJUSDT": 3,
+              "IOTXUSDT": 1,
+              "LINKUSDT": 2,
+              "LTCUSDT": 1,
+              "NEARUSDT": 1,
+              "WLDUSDT": 2,
+              "XRPUSDT": 1,
+              "ZECUSDT": 1,
+              "1000CATUSDT": 1,
+              "ENAUSDT": 1,
+              "PENGUUSDT": 1,
+              "PUMPUSDT": 2
+            },
+            "signalsByRegime": {
+              "BEAR": 28
+            },
+            "positiveMonthRatio": 0.1667
+          },
+          "holdout": "KNOWN_VALIDATION_DIAGNOSTIC",
+          "foldMetrics": [
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 1,
+                "wins": 0,
+                "losses": 1,
+                "winRate": 0,
+                "netR": -1.0847,
+                "avgR": -1.0847,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0847,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -54.2333,
+                "totalFeesUsdt": 3.0769,
+                "totalFundingUsdt": 0.382,
+                "totalSlippageUsdt": 1.5384,
+                "monthly": [
+                  {
+                    "month": "2024-06",
+                    "trades": 1,
+                    "netR": -1.0847,
+                    "profitFactor": 0,
+                    "maxDrawdownR": 1.0847
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 3,
+                "wins": 1,
+                "losses": 2,
+                "winRate": 0.3333,
+                "netR": -0.4233,
+                "avgR": -0.1411,
+                "profitFactor": 0.8034,
+                "maxDrawdownR": 2.1533,
+                "lowerConfidenceBound95": -0.1411,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": 1,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -21.1633,
+                "totalFeesUsdt": 7.1511,
+                "totalFundingUsdt": -0.4366,
+                "totalSlippageUsdt": 3.5756,
+                "monthly": [
+                  {
+                    "month": "2024-08",
+                    "trades": 3,
+                    "netR": -0.4233,
+                    "profitFactor": 0.8034,
+                    "maxDrawdownR": 2.1533
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 8,
+                "wins": 0,
+                "losses": 8,
+                "winRate": 0,
+                "netR": -8.6321,
+                "avgR": -1.079,
+                "profitFactor": 0,
+                "maxDrawdownR": 8.6321,
+                "lowerConfidenceBound95": -1.0932,
+                "positiveMonths": 0,
+                "months": 1,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -431.6055,
+                "totalFeesUsdt": 20.0676,
+                "totalFundingUsdt": -1.5042,
+                "totalSlippageUsdt": 10.0338,
+                "monthly": [
+                  {
+                    "month": "2024-10",
+                    "trades": 8,
+                    "netR": -8.6321,
+                    "profitFactor": 0,
+                    "maxDrawdownR": 8.6321
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-4",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-5",
+              "metrics": {
+                "trades": 6,
+                "wins": 1,
+                "losses": 5,
+                "winRate": 0.1667,
+                "netR": -3.5343,
+                "avgR": -0.589,
+                "profitFactor": 0.3282,
+                "maxDrawdownR": 5.2605,
+                "lowerConfidenceBound95": -1.0569,
+                "positiveMonths": 0,
+                "months": 2,
+                "positiveMonthRatio": 0,
+                "topSymbolProfitShare": 1,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": -176.713,
+                "totalFeesUsdt": 11.741,
+                "totalFundingUsdt": 0.8985,
+                "totalSlippageUsdt": 5.8705,
+                "monthly": [
+                  {
+                    "month": "2025-02",
+                    "trades": 4,
+                    "netR": -1.4171,
+                    "profitFactor": 0.5492,
+                    "maxDrawdownR": 3.1434
+                  },
+                  {
+                    "month": "2025-03",
+                    "trades": 2,
+                    "netR": -2.1172,
+                    "profitFactor": 0,
+                    "maxDrawdownR": 2.1172
+                  }
+                ]
+              }
+            },
+            {
+              "group": "3Y_CORE",
+              "fold": "fold-6",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-1",
+              "metrics": {
+                "trades": 10,
+                "wins": 6,
+                "losses": 4,
+                "winRate": 0.6,
+                "netR": 6.1916,
+                "avgR": 0.6192,
+                "profitFactor": 2.4471,
+                "maxDrawdownR": 2.1558,
+                "lowerConfidenceBound95": 0.0591,
+                "positiveMonths": 1,
+                "months": 1,
+                "positiveMonthRatio": 1,
+                "topSymbolProfitShare": 0.1677,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 309.5783,
+                "totalFeesUsdt": 20.2765,
+                "totalFundingUsdt": -0.007,
+                "totalSlippageUsdt": 10.1382,
+                "monthly": [
+                  {
+                    "month": "2025-11",
+                    "trades": 10,
+                    "netR": 6.1916,
+                    "profitFactor": 2.4471,
+                    "maxDrawdownR": 2.1558
+                  }
+                ]
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-2",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            },
+            {
+              "group": "1Y_BROAD",
+              "fold": "fold-3",
+              "metrics": {
+                "trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "winRate": 0,
+                "netR": 0,
+                "avgR": 0,
+                "profitFactor": 0,
+                "maxDrawdownR": 0,
+                "lowerConfidenceBound95": null,
+                "positiveMonths": 0,
+                "months": 0,
+                "positiveMonthRatio": null,
+                "topSymbolProfitShare": null,
+                "topFoldProfitShare": null,
+                "totalNetPnlUsdt": 0,
+                "totalFeesUsdt": 0,
+                "totalFundingUsdt": 0,
+                "totalSlippageUsdt": 0,
+                "monthly": []
+              }
+            }
+          ]
+        }
+      ],
+      "nestedSelectionRecords": [
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-1",
+          "selectedCandidate": "V561-SHORT-TREND-PULLBACK-V2-01",
+          "trainTrades": 4,
+          "validationTrades": 1
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-2",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 24,
+          "validationTrades": 1
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-3",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 25,
+          "validationTrades": 2
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-4",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 27,
+          "validationTrades": 2
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-5",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 29,
+          "validationTrades": 6
+        },
+        {
+          "group": "3Y_CORE",
+          "fold": "fold-6",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 34,
+          "validationTrades": 2
+        },
+        {
+          "group": "1Y_BROAD",
+          "fold": "fold-1",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 28,
+          "validationTrades": 6
+        },
+        {
+          "group": "1Y_BROAD",
+          "fold": "fold-2",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 34,
+          "validationTrades": 4
+        },
+        {
+          "group": "1Y_BROAD",
+          "fold": "fold-3",
+          "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+          "trainTrades": 38,
+          "validationTrades": 16
+        }
+      ],
+      "nestedSelectionDedupe": {
+        "rawRows": 40,
+        "uniqueRows": 40,
+        "duplicateRows": 0
+      },
+      "nestedSelectionAggregate": {
+        "trades": 40,
+        "wins": 23,
+        "losses": 17,
+        "winRate": 0.575,
+        "netR": 20.6614,
+        "avgR": 0.5165,
+        "profitFactor": 2.1017,
+        "maxDrawdownR": 6.2759,
+        "lowerConfidenceBound95": -0.0497,
+        "positiveMonths": 6,
+        "months": 11,
+        "positiveMonthRatio": 0.5455,
+        "topSymbolProfitShare": 0.1308,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": 1033.0691,
+        "totalFeesUsdt": 126.7294,
+        "totalFundingUsdt": 3.1633,
+        "totalSlippageUsdt": 63.3648,
+        "monthly": [
+          {
+            "month": "2024-06",
+            "trades": 1,
+            "netR": -1.0847,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0847
+          },
+          {
+            "month": "2024-08",
+            "trades": 1,
+            "netR": 1.7244,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2024-11",
+            "trades": 2,
+            "netR": -2.09,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.09
+          },
+          {
+            "month": "2024-12",
+            "trades": 2,
+            "netR": -2.1594,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.1594
+          },
+          {
+            "month": "2025-02",
+            "trades": 4,
+            "netR": 1.2179,
+            "profitFactor": 1.5324,
+            "maxDrawdownR": 1.2458
+          },
+          {
+            "month": "2025-03",
+            "trades": 2,
+            "netR": 0.5469,
+            "profitFactor": 1.49,
+            "maxDrawdownR": 1.1162
+          },
+          {
+            "month": "2025-04",
+            "trades": 2,
+            "netR": 0.6535,
+            "profitFactor": 1.6083,
+            "maxDrawdownR": 1.0744
+          },
+          {
+            "month": "2025-11",
+            "trades": 6,
+            "netR": -1.1985,
+            "profitFactor": 0.7423,
+            "maxDrawdownR": 2.4865
+          },
+          {
+            "month": "2025-12",
+            "trades": 4,
+            "netR": -1.4738,
+            "profitFactor": 0.546,
+            "maxDrawdownR": 3.2464
+          },
+          {
+            "month": "2026-01",
+            "trades": 5,
+            "netR": 8.026,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2026-02",
+            "trades": 11,
+            "netR": 16.499,
+            "profitFactor": 16.7734,
+            "maxDrawdownR": 1.046
+          }
+        ]
+      },
+      "selectedNestedOuterOos": {
+        "trades": 40,
+        "wins": 23,
+        "losses": 17,
+        "winRate": 0.575,
+        "netR": 20.6614,
+        "avgR": 0.5165,
+        "profitFactor": 2.1017,
+        "maxDrawdownR": 6.2759,
+        "lowerConfidenceBound95": -0.0497,
+        "positiveMonths": 6,
+        "months": 11,
+        "positiveMonthRatio": 0.5455,
+        "topSymbolProfitShare": 0.1308,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": 1033.0691,
+        "totalFeesUsdt": 126.7294,
+        "totalFundingUsdt": 3.1633,
+        "totalSlippageUsdt": 63.3648,
+        "monthly": [
+          {
+            "month": "2024-06",
+            "trades": 1,
+            "netR": -1.0847,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0847
+          },
+          {
+            "month": "2024-08",
+            "trades": 1,
+            "netR": 1.7244,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2024-11",
+            "trades": 2,
+            "netR": -2.09,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.09
+          },
+          {
+            "month": "2024-12",
+            "trades": 2,
+            "netR": -2.1594,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.1594
+          },
+          {
+            "month": "2025-02",
+            "trades": 4,
+            "netR": 1.2179,
+            "profitFactor": 1.5324,
+            "maxDrawdownR": 1.2458
+          },
+          {
+            "month": "2025-03",
+            "trades": 2,
+            "netR": 0.5469,
+            "profitFactor": 1.49,
+            "maxDrawdownR": 1.1162
+          },
+          {
+            "month": "2025-04",
+            "trades": 2,
+            "netR": 0.6535,
+            "profitFactor": 1.6083,
+            "maxDrawdownR": 1.0744
+          },
+          {
+            "month": "2025-11",
+            "trades": 6,
+            "netR": -1.1985,
+            "profitFactor": 0.7423,
+            "maxDrawdownR": 2.4865
+          },
+          {
+            "month": "2025-12",
+            "trades": 4,
+            "netR": -1.4738,
+            "profitFactor": 0.546,
+            "maxDrawdownR": 3.2464
+          },
+          {
+            "month": "2026-01",
+            "trades": 5,
+            "netR": 8.026,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2026-02",
+            "trades": 11,
+            "netR": 16.499,
+            "profitFactor": 16.7734,
+            "maxDrawdownR": 1.046
+          }
+        ]
+      },
+      "drift": [
+        {
+          "label": "6M",
+          "start": "2026-02-09T02:14:59.999Z",
+          "end": "2026-08-09T02:14:59.999Z",
+          "metrics": {
+            "trades": 16,
+            "wins": 4,
+            "losses": 12,
+            "winRate": 0.25,
+            "netR": -6.1529,
+            "avgR": -0.3846,
+            "profitFactor": 0.5214,
+            "maxDrawdownR": 7.9053,
+            "lowerConfidenceBound95": -0.5719,
+            "positiveMonths": 0,
+            "months": 3,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": 0.269,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -307.6428,
+            "totalFeesUsdt": 47.8165,
+            "totalFundingUsdt": 4.0818,
+            "totalSlippageUsdt": 23.9082,
+            "monthly": [
+              {
+                "month": "2026-02",
+                "trades": 4,
+                "netR": -1.4656,
+                "profitFactor": 0.5516,
+                "maxDrawdownR": 2.1921
+              },
+              {
+                "month": "2026-05",
+                "trades": 4,
+                "netR": -1.6864,
+                "profitFactor": 0.4795,
+                "maxDrawdownR": 2.1784
+              },
+              {
+                "month": "2026-06",
+                "trades": 8,
+                "netR": -3.0008,
+                "profitFactor": 0.5272,
+                "maxDrawdownR": 4.7532
+              }
+            ]
+          }
+        },
+        {
+          "label": "12M",
+          "start": "2025-08-09T02:14:59.999Z",
+          "end": "2026-08-09T02:14:59.999Z",
+          "metrics": {
+            "trades": 70,
+            "wins": 37,
+            "losses": 33,
+            "winRate": 0.5286,
+            "netR": 27.7856,
+            "avgR": 0.3969,
+            "profitFactor": 1.7763,
+            "maxDrawdownR": 7.9053,
+            "lowerConfidenceBound95": 0.0351,
+            "positiveMonths": 5,
+            "months": 9,
+            "positiveMonthRatio": 0.5556,
+            "topSymbolProfitShare": 0.1094,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 1389.2776,
+            "totalFeesUsdt": 200.0048,
+            "totalFundingUsdt": 9.2849,
+            "totalSlippageUsdt": 100.0025,
+            "monthly": [
+              {
+                "month": "2025-08",
+                "trades": 1,
+                "netR": 1.66,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2025-09",
+                "trades": 2,
+                "netR": 0.5756,
+                "profitFactor": 1.4886,
+                "maxDrawdownR": 1.1782
+              },
+              {
+                "month": "2025-10",
+                "trades": 22,
+                "netR": 10.1918,
+                "profitFactor": 1.9506,
+                "maxDrawdownR": 2.2064
+              },
+              {
+                "month": "2025-11",
+                "trades": 9,
+                "netR": -1.5402,
+                "profitFactor": 0.7717,
+                "maxDrawdownR": 3.5459
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.4738,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 8.026,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 15,
+                "netR": 15.0333,
+                "profitFactor": 4.4843,
+                "maxDrawdownR": 2.1921
+              },
+              {
+                "month": "2026-05",
+                "trades": 4,
+                "netR": -1.6864,
+                "profitFactor": 0.4795,
+                "maxDrawdownR": 2.1784
+              },
+              {
+                "month": "2026-06",
+                "trades": 8,
+                "netR": -3.0008,
+                "profitFactor": 0.5272,
+                "maxDrawdownR": 4.7532
+              }
+            ]
+          }
+        },
+        {
+          "label": "18M",
+          "start": "2025-02-09T02:14:59.999Z",
+          "end": "2026-08-09T02:14:59.999Z",
+          "metrics": {
+            "trades": 80,
+            "wins": 40,
+            "losses": 40,
+            "winRate": 0.5,
+            "netR": 25.0982,
+            "avgR": 0.3137,
+            "profitFactor": 1.5762,
+            "maxDrawdownR": 7.9053,
+            "lowerConfidenceBound95": -0.034,
+            "positiveMonths": 7,
+            "months": 12,
+            "positiveMonthRatio": 0.5833,
+            "topSymbolProfitShare": 0.1013,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 1254.9087,
+            "totalFeesUsdt": 236.9873,
+            "totalFundingUsdt": 10.3897,
+            "totalSlippageUsdt": 118.4937,
+            "monthly": [
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": 0.5469,
+                "profitFactor": 1.49,
+                "maxDrawdownR": 1.1162
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.6535,
+                "profitFactor": 1.6083,
+                "maxDrawdownR": 1.0744
+              },
+              {
+                "month": "2025-06",
+                "trades": 3,
+                "netR": -3.3661,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.3661
+              },
+              {
+                "month": "2025-08",
+                "trades": 4,
+                "netR": 1.1382,
+                "profitFactor": 1.5151,
+                "maxDrawdownR": 1.1179
+              },
+              {
+                "month": "2025-09",
+                "trades": 2,
+                "netR": 0.5756,
+                "profitFactor": 1.4886,
+                "maxDrawdownR": 1.1782
+              },
+              {
+                "month": "2025-10",
+                "trades": 22,
+                "netR": 10.1918,
+                "profitFactor": 1.9506,
+                "maxDrawdownR": 2.2064
+              },
+              {
+                "month": "2025-11",
+                "trades": 9,
+                "netR": -1.5402,
+                "profitFactor": 0.7717,
+                "maxDrawdownR": 3.5459
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.4738,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 8.026,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 15,
+                "netR": 15.0333,
+                "profitFactor": 4.4843,
+                "maxDrawdownR": 2.1921
+              },
+              {
+                "month": "2026-05",
+                "trades": 4,
+                "netR": -1.6864,
+                "profitFactor": 0.4795,
+                "maxDrawdownR": 2.1784
+              },
+              {
+                "month": "2026-06",
+                "trades": 8,
+                "netR": -3.0008,
+                "profitFactor": 0.5272,
+                "maxDrawdownR": 4.7532
+              }
+            ]
+          }
+        }
+      ],
+      "familyRows": [
+        {
+          "family": "FAILED_BREAKOUT_REVERSAL",
+          "candidate": {
+            "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+            "side": "SHORT",
+            "family": "FAILED_BREAKOUT_REVERSAL",
+            "variant": 1,
+            "hypothesis": "A failed upside breakout followed by two closes below the level traps late buyers and creates a reversal edge.",
+            "marketMechanism": "Failed expansion leaves demand above invalidation while supply controls the reclaim failure.",
+            "expectedRegime": "BULL exhaustion or RANGE transition",
+            "entryLogic": "Closed failed-breakout frame, lower high, bearish confirmation and bounded next-open entry.",
+            "invalidationLogic": "Reclaim of the prior upside breakout level.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "The breakout resumes after a temporary shakeout.",
+            "stopStyle": "STRUCTURE",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.35,
+              "retestDistanceATR": 0.6,
+              "maxExtensionATR": 0.8,
+              "pullbackMinATR": 0.35,
+              "pullbackMaxATR": 1.6,
+              "trendAgeMinBars": 16,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "developmentMetrics": {
+            "trades": 97,
+            "wins": 46,
+            "losses": 51,
+            "winRate": 0.4742,
+            "netR": 22.0438,
+            "avgR": 0.2273,
+            "profitFactor": 1.3962,
+            "maxDrawdownR": 12.4908,
+            "lowerConfidenceBound95": -0.106,
+            "positiveMonths": 11,
+            "months": 22,
+            "positiveMonthRatio": 0.5,
+            "topSymbolProfitShare": 0.0882,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 1102.1893,
+            "totalFeesUsdt": 288.2731,
+            "totalFundingUsdt": 6.5792,
+            "totalSlippageUsdt": 144.1366,
+            "monthly": [
+              {
+                "month": "2023-08",
+                "trades": 11,
+                "netR": -4.9421,
+                "profitFactor": 0.4381,
+                "maxDrawdownR": 4.9421
+              },
+              {
+                "month": "2023-09",
+                "trades": 1,
+                "netR": -1.0975,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0975
+              },
+              {
+                "month": "2023-12",
+                "trades": 2,
+                "netR": -2.1246,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1246
+              },
+              {
+                "month": "2024-01",
+                "trades": 1,
+                "netR": -1.0459,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0459
+              },
+              {
+                "month": "2024-03",
+                "trades": 1,
+                "netR": 1.7385,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-04",
+                "trades": 3,
+                "netR": -0.5406,
+                "profitFactor": 0.7547,
+                "maxDrawdownR": 2.2043
+              },
+              {
+                "month": "2024-05",
+                "trades": 2,
+                "netR": -2.0795,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.0795
+              },
+              {
+                "month": "2024-06",
+                "trades": 3,
+                "netR": 2.1915,
+                "profitFactor": 3.0806,
+                "maxDrawdownR": 1.0533
+              },
+              {
+                "month": "2024-08",
+                "trades": 1,
+                "netR": 1.7244,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-11",
+                "trades": 2,
+                "netR": -2.09,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.09
+              },
+              {
+                "month": "2024-12",
+                "trades": 2,
+                "netR": -2.1594,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1594
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": 1.2179,
+                "profitFactor": 1.5324,
+                "maxDrawdownR": 1.2458
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": 0.5469,
+                "profitFactor": 1.49,
+                "maxDrawdownR": 1.1162
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.6535,
+                "profitFactor": 1.6083,
+                "maxDrawdownR": 1.0744
+              },
+              {
+                "month": "2025-06",
+                "trades": 3,
+                "netR": -3.3661,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.3661
+              },
+              {
+                "month": "2025-08",
+                "trades": 4,
+                "netR": 1.1382,
+                "profitFactor": 1.5151,
+                "maxDrawdownR": 1.1179
+              },
+              {
+                "month": "2025-09",
+                "trades": 2,
+                "netR": 0.5756,
+                "profitFactor": 1.4886,
+                "maxDrawdownR": 1.1782
+              },
+              {
+                "month": "2025-10",
+                "trades": 22,
+                "netR": 10.1918,
+                "profitFactor": 1.9506,
+                "maxDrawdownR": 2.2064
+              },
+              {
+                "month": "2025-11",
+                "trades": 9,
+                "netR": -1.5402,
+                "profitFactor": 0.7717,
+                "maxDrawdownR": 3.5459
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.4738,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 8.026,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 11,
+                "netR": 16.499,
+                "profitFactor": 16.7734,
+                "maxDrawdownR": 1.046
+              }
+            ]
+          },
+          "nestedOosMetrics": {
+            "trades": 42,
+            "wins": 25,
+            "losses": 17,
+            "winRate": 0.5952,
+            "netR": 23.9375,
+            "avgR": 0.5699,
+            "profitFactor": 2.2785,
+            "maxDrawdownR": 6.2759,
+            "lowerConfidenceBound95": -0.0025,
+            "positiveMonths": 7,
+            "months": 11,
+            "positiveMonthRatio": 0.6364,
+            "topSymbolProfitShare": 0.1208,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 1196.8754,
+            "totalFeesUsdt": 138.3534,
+            "totalFundingUsdt": 4.4056,
+            "totalSlippageUsdt": 69.1768,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 3,
+                "netR": 2.1915,
+                "profitFactor": 3.0806,
+                "maxDrawdownR": 1.0533
+              },
+              {
+                "month": "2024-08",
+                "trades": 1,
+                "netR": 1.7244,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-11",
+                "trades": 2,
+                "netR": -2.09,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.09
+              },
+              {
+                "month": "2024-12",
+                "trades": 2,
+                "netR": -2.1594,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1594
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": 1.2179,
+                "profitFactor": 1.5324,
+                "maxDrawdownR": 1.2458
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": 0.5469,
+                "profitFactor": 1.49,
+                "maxDrawdownR": 1.1162
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.6535,
+                "profitFactor": 1.6083,
+                "maxDrawdownR": 1.0744
+              },
+              {
+                "month": "2025-11",
+                "trades": 6,
+                "netR": -1.1985,
+                "profitFactor": 0.7423,
+                "maxDrawdownR": 2.4865
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.4738,
+                "profitFactor": 0.546,
+                "maxDrawdownR": 3.2464
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 8.026,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 11,
+                "netR": 16.499,
+                "profitFactor": 16.7734,
+                "maxDrawdownR": 1.046
+              }
+            ]
+          },
+          "externalValidation": "DATA_UNAVAILABLE",
+          "positiveHistoricalExpectancy": true,
+          "eligibleForEnsemble": true,
+          "nestedOosDedupe": {
+            "rawRows": 59,
+            "uniqueRows": 42,
+            "duplicateRows": 17
+          },
+          "nestedOosYield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.0659,
+            "alertsPerWeek": 0.4615,
+            "alertsPerMonth": 2.0069,
+            "activeMonthRatio": 0.5,
+            "medianAlertsPerMonth": 3,
+            "p90SignalDroughtDays": 36.375,
+            "p95SignalDroughtDays": 51.6667,
+            "maxSignalDroughtDays": 224.0417,
+            "symbolBreadth": 28,
+            "regimeBreadth": 2,
+            "signalsBySymbol": {
+              "1000PEPEUSDT": 2,
+              "ADAUSDT": 3,
+              "AVAXUSDT": 1,
+              "BNBUSDT": 1,
+              "COTIUSDT": 1,
+              "DOGEUSDT": 3,
+              "ETHUSDT": 1,
+              "FILUSDT": 1,
+              "ICPUSDT": 2,
+              "INJUSDT": 1,
+              "IOTXUSDT": 1,
+              "LTCUSDT": 2,
+              "NEARUSDT": 3,
+              "SOLUSDT": 3,
+              "SUIUSDT": 2,
+              "UNIUSDT": 2,
+              "WLDUSDT": 1,
+              "XLMUSDT": 1,
+              "XMRUSDT": 1,
+              "ZECUSDT": 1,
+              "DEXEUSDT": 1,
+              "HOMEUSDT": 1,
+              "ONDOUSDT": 1,
+              "PAXGUSDT": 2,
+              "SAGAUSDT": 1,
+              "SIRENUSDT": 1,
+              "SKYAIUSDT": 1,
+              "TAOUSDT": 1
+            },
+            "signalsByRegime": {
+              "BULL": 22,
+              "RANGE": 20
+            },
+            "positiveMonthRatio": 0.6364
+          },
+          "nestedOosCvar95": -1.2723,
+          "nestedOosPlus10Bps": {
+            "trades": 42,
+            "wins": 25,
+            "losses": 17,
+            "winRate": 0.5952,
+            "netR": 17.0198,
+            "avgR": 0.4052,
+            "profitFactor": 1.7855,
+            "maxDrawdownR": 9.8281,
+            "lowerConfidenceBound95": -0.1636,
+            "positiveMonths": 7,
+            "months": 11,
+            "positiveMonthRatio": 0.6364,
+            "topSymbolProfitShare": 0.1222,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 850.9919,
+            "totalFeesUsdt": 138.3534,
+            "totalFundingUsdt": 4.4056,
+            "totalSlippageUsdt": 415.0604,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 3,
+                "netR": 1.4564,
+                "profitFactor": 2.2753,
+                "maxDrawdownR": 1.142
+              },
+              {
+                "month": "2024-08",
+                "trades": 1,
+                "netR": 1.5984,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-11",
+                "trades": 2,
+                "netR": -2.2585,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.2585
+              },
+              {
+                "month": "2024-12",
+                "trades": 2,
+                "netR": -2.4244,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.4244
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": 0.5831,
+                "profitFactor": 1.2107,
+                "maxDrawdownR": 1.6555
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": 0.1251,
+                "profitFactor": 1.0955,
+                "maxDrawdownR": 1.3098
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.3983,
+                "profitFactor": 1.3293,
+                "maxDrawdownR": 1.2096
+              },
+              {
+                "month": "2025-11",
+                "trades": 6,
+                "netR": -2.6006,
+                "profitFactor": 0.5503,
+                "maxDrawdownR": 3.3445
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -1.9241,
+                "profitFactor": 0.473,
+                "maxDrawdownR": 3.651
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 6.4037,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 11,
+                "netR": 15.6625,
+                "profitFactor": 14.9511,
+                "maxDrawdownR": 1.1227
+              }
+            ]
+          },
+          "nestedOosPlus15Bps": {
+            "trades": 42,
+            "wins": 25,
+            "losses": 17,
+            "winRate": 0.5952,
+            "netR": 13.561,
+            "avgR": 0.3229,
+            "profitFactor": 1.586,
+            "maxDrawdownR": 11.6042,
+            "lowerConfidenceBound95": -0.2399,
+            "positiveMonths": 6,
+            "months": 11,
+            "positiveMonthRatio": 0.5455,
+            "topSymbolProfitShare": 0.1232,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 678.0501,
+            "totalFeesUsdt": 138.3534,
+            "totalFundingUsdt": 4.4056,
+            "totalSlippageUsdt": 588.0022,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 3,
+                "netR": 1.0889,
+                "profitFactor": 1.9178,
+                "maxDrawdownR": 1.1864
+              },
+              {
+                "month": "2024-08",
+                "trades": 1,
+                "netR": 1.5354,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-11",
+                "trades": 2,
+                "netR": -2.3428,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.3428
+              },
+              {
+                "month": "2024-12",
+                "trades": 2,
+                "netR": -2.5569,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.5569
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": 0.2657,
+                "profitFactor": 1.0884,
+                "maxDrawdownR": 1.8603
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -0.0858,
+                "profitFactor": 0.939,
+                "maxDrawdownR": 1.4066
+              },
+              {
+                "month": "2025-04",
+                "trades": 2,
+                "netR": 0.2706,
+                "profitFactor": 1.2119,
+                "maxDrawdownR": 1.2772
+              },
+              {
+                "month": "2025-11",
+                "trades": 6,
+                "netR": -3.3017,
+                "profitFactor": 0.48,
+                "maxDrawdownR": 3.7735
+              },
+              {
+                "month": "2025-12",
+                "trades": 4,
+                "netR": -2.1493,
+                "profitFactor": 0.4422,
+                "maxDrawdownR": 3.8534
+              },
+              {
+                "month": "2026-01",
+                "trades": 5,
+                "netR": 5.5926,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2026-02",
+                "trades": 11,
+                "netR": 15.2442,
+                "profitFactor": 14.1302,
+                "maxDrawdownR": 1.161
+              }
+            ]
+          },
+          "symbolBreadth": 28,
+          "regimeBreadth": 2
+        },
+        {
+          "family": "BREAKDOWN_RETEST_CONTINUATION_V2",
+          "candidate": {
+            "id": "V561-SHORT-BREAKDOWN-RETEST-CONTINUATION-V2-01",
+            "side": "SHORT",
+            "family": "BREAKDOWN_RETEST_CONTINUATION_V2",
+            "variant": 1,
+            "hypothesis": "A support breakdown, bounded retest from below, rejection and continuation confirmation should improve short entry location.",
+            "marketMechanism": "Former support becomes overhead supply after trapped longs test the broken level.",
+            "expectedRegime": "BEAR or RANGE-to-BEAR",
+            "entryLogic": "Closed support break, below-level retest, rejection close and lower continuation close.",
+            "invalidationLogic": "The broken support is reclaimed on a closed candle.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "Absorption turns the breakdown into a bear trap.",
+            "stopStyle": "HYBRID",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.1,
+              "retestDistanceATR": 0.8,
+              "maxExtensionATR": 0.9,
+              "pullbackMinATR": 0.35,
+              "pullbackMaxATR": 1.6,
+              "trendAgeMinBars": 16,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "developmentMetrics": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          },
+          "nestedOosMetrics": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          },
+          "externalValidation": "DATA_UNAVAILABLE",
+          "positiveHistoricalExpectancy": false,
+          "eligibleForEnsemble": false,
+          "nestedOosDedupe": {
+            "rawRows": 0,
+            "uniqueRows": 0,
+            "duplicateRows": 0
+          },
+          "nestedOosYield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0,
+            "alertsPerWeek": 0,
+            "alertsPerMonth": 0,
+            "activeMonthRatio": 0,
+            "medianAlertsPerMonth": null,
+            "p90SignalDroughtDays": 637,
+            "p95SignalDroughtDays": 637,
+            "maxSignalDroughtDays": 637,
+            "symbolBreadth": 0,
+            "regimeBreadth": 0,
+            "signalsBySymbol": {},
+            "signalsByRegime": {},
+            "positiveMonthRatio": null
+          },
+          "nestedOosCvar95": null,
+          "nestedOosPlus10Bps": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          },
+          "nestedOosPlus15Bps": {
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "winRate": 0,
+            "netR": 0,
+            "avgR": 0,
+            "profitFactor": 0,
+            "maxDrawdownR": 0,
+            "lowerConfidenceBound95": null,
+            "positiveMonths": 0,
+            "months": 0,
+            "positiveMonthRatio": null,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": 0,
+            "totalFeesUsdt": 0,
+            "totalFundingUsdt": 0,
+            "totalSlippageUsdt": 0,
+            "monthly": []
+          },
+          "symbolBreadth": 0,
+          "regimeBreadth": 0
+        },
+        {
+          "family": "VOLATILITY_COMPRESSION_BREAKDOWN",
+          "candidate": {
+            "id": "V561-SHORT-VOLATILITY-COMPRESSION-BREAKDOWN-01",
+            "side": "SHORT",
+            "family": "VOLATILITY_COMPRESSION_BREAKDOWN",
+            "variant": 1,
+            "hypothesis": "Compression followed by downside range expansion and participation confirmation can expose a controlled continuation edge.",
+            "marketMechanism": "Stored range energy resolves lower when volume and realized volatility expand together.",
+            "expectedRegime": "RANGE-to-BEAR or BEAR",
+            "entryLogic": "Closed compression, downside range expansion below the prior floor, volume and volatility confirmation.",
+            "invalidationLogic": "The compression floor is reclaimed after the expansion.",
+            "expectedHoldingHorizonHours": 36,
+            "expectedFailureMode": "A one-bar volatility shock mean reverts inside the range.",
+            "stopStyle": "ATR",
+            "rewardRisk": 1.7,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.15,
+              "retestDistanceATR": 0.75,
+              "maxExtensionATR": 0.9,
+              "pullbackMinATR": 0.35,
+              "pullbackMaxATR": 1.6,
+              "trendAgeMinBars": 16,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "developmentMetrics": {
+            "trades": 2,
+            "wins": 0,
+            "losses": 2,
+            "winRate": 0,
+            "netR": -2.1733,
+            "avgR": -1.0867,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.1733,
+            "lowerConfidenceBound95": -1.0867,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -108.6662,
+            "totalFeesUsdt": 5.9113,
+            "totalFundingUsdt": 0.2008,
+            "totalSlippageUsdt": 2.9557,
+            "monthly": [
+              {
+                "month": "2024-08",
+                "trades": 2,
+                "netR": -2.1733,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1733
+              }
+            ]
+          },
+          "nestedOosMetrics": {
+            "trades": 2,
+            "wins": 0,
+            "losses": 2,
+            "winRate": 0,
+            "netR": -2.1733,
+            "avgR": -1.0867,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.1733,
+            "lowerConfidenceBound95": -1.0867,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -108.6662,
+            "totalFeesUsdt": 5.9113,
+            "totalFundingUsdt": 0.2008,
+            "totalSlippageUsdt": 2.9557,
+            "monthly": [
+              {
+                "month": "2024-08",
+                "trades": 2,
+                "netR": -2.1733,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1733
+              }
+            ]
+          },
+          "externalValidation": "DATA_UNAVAILABLE",
+          "positiveHistoricalExpectancy": false,
+          "eligibleForEnsemble": false,
+          "nestedOosDedupe": {
+            "rawRows": 2,
+            "uniqueRows": 2,
+            "duplicateRows": 0
+          },
+          "nestedOosYield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.0031,
+            "alertsPerWeek": 0.022,
+            "alertsPerMonth": 0.0956,
+            "activeMonthRatio": 0.0455,
+            "medianAlertsPerMonth": 2,
+            "p90SignalDroughtDays": 548.1562,
+            "p95SignalDroughtDays": 548.1562,
+            "maxSignalDroughtDays": 548.1562,
+            "symbolBreadth": 2,
+            "regimeBreadth": 1,
+            "signalsBySymbol": {
+              "1000PEPEUSDT": 1,
+              "BTCUSDT": 1
+            },
+            "signalsByRegime": {
+              "RANGE": 2
+            },
+            "positiveMonthRatio": 0
+          },
+          "nestedOosCvar95": -1.1206,
+          "nestedOosPlus10Bps": {
+            "trades": 2,
+            "wins": 0,
+            "losses": 2,
+            "winRate": 0,
+            "netR": -2.4689,
+            "avgR": -1.2344,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.4689,
+            "lowerConfidenceBound95": -1.2344,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -123.4445,
+            "totalFeesUsdt": 5.9113,
+            "totalFundingUsdt": 0.2008,
+            "totalSlippageUsdt": 17.7339,
+            "monthly": [
+              {
+                "month": "2024-08",
+                "trades": 2,
+                "netR": -2.4689,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.4689
+              }
+            ]
+          },
+          "nestedOosPlus15Bps": {
+            "trades": 2,
+            "wins": 0,
+            "losses": 2,
+            "winRate": 0,
+            "netR": -2.6167,
+            "avgR": -1.3083,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.6167,
+            "lowerConfidenceBound95": -1.3083,
+            "positiveMonths": 0,
+            "months": 1,
+            "positiveMonthRatio": 0,
+            "topSymbolProfitShare": null,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -130.8336,
+            "totalFeesUsdt": 5.9113,
+            "totalFundingUsdt": 0.2008,
+            "totalSlippageUsdt": 25.1231,
+            "monthly": [
+              {
+                "month": "2024-08",
+                "trades": 2,
+                "netR": -2.6167,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.6167
+              }
+            ]
+          },
+          "symbolBreadth": 2,
+          "regimeBreadth": 1
+        },
+        {
+          "family": "TREND_PULLBACK_SHORT_V2",
+          "candidate": {
+            "id": "V561-SHORT-TREND-PULLBACK-V2-01",
+            "side": "SHORT",
+            "family": "TREND_PULLBACK_SHORT_V2",
+            "variant": 1,
+            "hypothesis": "In a mature bear trend, a rebound into value followed by a fresh lower-low rejection can offer continuation without shorting the initial impulse.",
+            "marketMechanism": "Counter-trend liquidity is absorbed near value before the dominant supply regime resumes.",
+            "expectedRegime": "BEAR on 1h and 4h",
+            "entryLogic": "Bear alignment, bounded rebound into EMA/value, bearish rejection and fresh lower-low confirmation.",
+            "invalidationLogic": "A closed reclaim above the rebound value zone.",
+            "expectedHoldingHorizonHours": 48,
+            "expectedFailureMode": "The rebound is a true trend reversal rather than a pullback.",
+            "stopStyle": "HYBRID",
+            "rewardRisk": 1.8,
+            "parameters": {
+              "breakoutLookback": 20,
+              "volumeRatioMin": 1.05,
+              "retestDistanceATR": 0.75,
+              "maxExtensionATR": 0.85,
+              "pullbackMinATR": 0.45,
+              "pullbackMaxATR": 1.8,
+              "trendAgeMinBars": 20,
+              "compressionBarsMin": 8,
+              "compressionRangeMaxATR": 4.5,
+              "expansionVolumeMin": 1.25,
+              "expansionVolatilityMin": 1.15,
+              "stopATRMultiplier": 1.25,
+              "structureLookback": 8
+            }
+          },
+          "developmentMetrics": {
+            "trades": 39,
+            "wins": 9,
+            "losses": 30,
+            "winRate": 0.2308,
+            "netR": -16.4527,
+            "avgR": -0.4219,
+            "profitFactor": 0.4868,
+            "maxDrawdownR": 24.3256,
+            "lowerConfidenceBound95": -0.8476,
+            "positiveMonths": 2,
+            "months": 11,
+            "positiveMonthRatio": 0.1818,
+            "topSymbolProfitShare": 0.1125,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -822.6361,
+            "totalFeesUsdt": 88.2535,
+            "totalFundingUsdt": -0.2559,
+            "totalSlippageUsdt": 44.1267,
+            "monthly": [
+              {
+                "month": "2024-03",
+                "trades": 1,
+                "netR": 1.6813,
+                "profitFactor": null,
+                "maxDrawdownR": 0
+              },
+              {
+                "month": "2024-04",
+                "trades": 3,
+                "netR": -3.2353,
+                "profitFactor": 0,
+                "maxDrawdownR": 3.2353
+              },
+              {
+                "month": "2024-06",
+                "trades": 1,
+                "netR": -1.0847,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0847
+              },
+              {
+                "month": "2024-08",
+                "trades": 3,
+                "netR": -0.4233,
+                "profitFactor": 0.8034,
+                "maxDrawdownR": 2.1533
+              },
+              {
+                "month": "2024-10",
+                "trades": 8,
+                "netR": -8.6321,
+                "profitFactor": 0,
+                "maxDrawdownR": 8.6321
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": -1.4171,
+                "profitFactor": 0.5492,
+                "maxDrawdownR": 3.1434
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -2.1172,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1172
+              },
+              {
+                "month": "2025-08",
+                "trades": 2,
+                "netR": -2.1404,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1404
+              },
+              {
+                "month": "2025-09",
+                "trades": 1,
+                "netR": -1.0446,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0446
+              },
+              {
+                "month": "2025-10",
+                "trades": 4,
+                "netR": -4.231,
+                "profitFactor": 0,
+                "maxDrawdownR": 4.231
+              },
+              {
+                "month": "2025-11",
+                "trades": 10,
+                "netR": 6.1916,
+                "profitFactor": 2.4471,
+                "maxDrawdownR": 2.1558
+              }
+            ]
+          },
+          "nestedOosMetrics": {
+            "trades": 28,
+            "wins": 8,
+            "losses": 20,
+            "winRate": 0.2857,
+            "netR": -7.4827,
+            "avgR": -0.2672,
+            "profitFactor": 0.6505,
+            "maxDrawdownR": 14.3197,
+            "lowerConfidenceBound95": -0.7801,
+            "positiveMonths": 1,
+            "months": 6,
+            "positiveMonthRatio": 0.1667,
+            "topSymbolProfitShare": 0.1261,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -374.1368,
+            "totalFeesUsdt": 62.3131,
+            "totalFundingUsdt": -0.6672,
+            "totalSlippageUsdt": 31.1565,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 1,
+                "netR": -1.0847,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.0847
+              },
+              {
+                "month": "2024-08",
+                "trades": 3,
+                "netR": -0.4233,
+                "profitFactor": 0.8034,
+                "maxDrawdownR": 2.1533
+              },
+              {
+                "month": "2024-10",
+                "trades": 8,
+                "netR": -8.6321,
+                "profitFactor": 0,
+                "maxDrawdownR": 8.6321
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": -1.4171,
+                "profitFactor": 0.5492,
+                "maxDrawdownR": 3.1434
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -2.1172,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.1172
+              },
+              {
+                "month": "2025-11",
+                "trades": 10,
+                "netR": 6.1916,
+                "profitFactor": 2.4471,
+                "maxDrawdownR": 2.1558
+              }
+            ]
+          },
+          "externalValidation": "DATA_UNAVAILABLE",
+          "positiveHistoricalExpectancy": false,
+          "eligibleForEnsemble": false,
+          "nestedOosDedupe": {
+            "rawRows": 33,
+            "uniqueRows": 28,
+            "duplicateRows": 5
+          },
+          "nestedOosYield": {
+            "calendarDays": 637,
+            "calendarMonths": 22,
+            "alertsPerDay": 0.044,
+            "alertsPerWeek": 0.3077,
+            "alertsPerMonth": 1.3379,
+            "activeMonthRatio": 0.2727,
+            "medianAlertsPerMonth": 4,
+            "p90SignalDroughtDays": 75.6562,
+            "p95SignalDroughtDays": 121.75,
+            "maxSignalDroughtDays": 254,
+            "symbolBreadth": 19,
+            "regimeBreadth": 1,
+            "signalsBySymbol": {
+              "1000PEPEUSDT": 2,
+              "ADAUSDT": 1,
+              "AVAXUSDT": 2,
+              "BTCUSDT": 2,
+              "COTIUSDT": 2,
+              "DOGEUSDT": 1,
+              "ETHUSDT": 1,
+              "INJUSDT": 3,
+              "IOTXUSDT": 1,
+              "LINKUSDT": 2,
+              "LTCUSDT": 1,
+              "NEARUSDT": 1,
+              "WLDUSDT": 2,
+              "XRPUSDT": 1,
+              "ZECUSDT": 1,
+              "1000CATUSDT": 1,
+              "ENAUSDT": 1,
+              "PENGUUSDT": 1,
+              "PUMPUSDT": 2
+            },
+            "signalsByRegime": {
+              "BEAR": 28
+            },
+            "positiveMonthRatio": 0.1667
+          },
+          "nestedOosCvar95": -1.1101,
+          "nestedOosPlus10Bps": {
+            "trades": 28,
+            "wins": 8,
+            "losses": 20,
+            "winRate": 0.2857,
+            "netR": -10.5984,
+            "avgR": -0.3785,
+            "profitFactor": 0.5535,
+            "maxDrawdownR": 16.151,
+            "lowerConfidenceBound95": -0.9086,
+            "positiveMonths": 1,
+            "months": 6,
+            "positiveMonthRatio": 0.1667,
+            "topSymbolProfitShare": 0.1281,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -529.9194,
+            "totalFeesUsdt": 62.3131,
+            "totalFundingUsdt": -0.6672,
+            "totalSlippageUsdt": 186.9392,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 1,
+                "netR": -1.2385,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.2385
+              },
+              {
+                "month": "2024-08",
+                "trades": 3,
+                "netR": -0.7808,
+                "profitFactor": 0.6739,
+                "maxDrawdownR": 2.3942
+              },
+              {
+                "month": "2024-10",
+                "trades": 8,
+                "netR": -9.6355,
+                "profitFactor": 0,
+                "maxDrawdownR": 9.6355
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": -1.7966,
+                "profitFactor": 0.4718,
+                "maxDrawdownR": 3.4013
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -2.3247,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.3247
+              },
+              {
+                "month": "2025-11",
+                "trades": 10,
+                "netR": 5.1777,
+                "profitFactor": 2.0922,
+                "maxDrawdownR": 2.4154
+              }
+            ]
+          },
+          "nestedOosPlus15Bps": {
+            "trades": 28,
+            "wins": 8,
+            "losses": 20,
+            "winRate": 0.2857,
+            "netR": -12.1562,
+            "avgR": -0.4342,
+            "profitFactor": 0.5118,
+            "maxDrawdownR": 17.0667,
+            "lowerConfidenceBound95": -0.9728,
+            "positiveMonths": 1,
+            "months": 6,
+            "positiveMonthRatio": 0.1667,
+            "topSymbolProfitShare": 0.1292,
+            "topFoldProfitShare": null,
+            "totalNetPnlUsdt": -607.8108,
+            "totalFeesUsdt": 62.3131,
+            "totalFundingUsdt": -0.6672,
+            "totalSlippageUsdt": 264.8305,
+            "monthly": [
+              {
+                "month": "2024-06",
+                "trades": 1,
+                "netR": -1.3154,
+                "profitFactor": 0,
+                "maxDrawdownR": 1.3154
+              },
+              {
+                "month": "2024-08",
+                "trades": 3,
+                "netR": -0.9596,
+                "profitFactor": 0.6184,
+                "maxDrawdownR": 2.5147
+              },
+              {
+                "month": "2024-10",
+                "trades": 8,
+                "netR": -10.1372,
+                "profitFactor": 0,
+                "maxDrawdownR": 10.1372
+              },
+              {
+                "month": "2025-02",
+                "trades": 4,
+                "netR": -1.9863,
+                "profitFactor": 0.4373,
+                "maxDrawdownR": 3.5302
+              },
+              {
+                "month": "2025-03",
+                "trades": 2,
+                "netR": -2.4285,
+                "profitFactor": 0,
+                "maxDrawdownR": 2.4285
+              },
+              {
+                "month": "2025-11",
+                "trades": 10,
+                "netR": 4.6708,
+                "profitFactor": 1.9394,
+                "maxDrawdownR": 2.5452
+              }
+            ]
+          },
+          "symbolBreadth": 19,
+          "regimeBreadth": 1
+        }
+      ]
+    }
+  }
+}

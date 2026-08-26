@@ -1,0 +1,125 @@
+{
+  "reportVersion": "v5-6-1-research-v1",
+  "generatedAt": "2026-08-26T04:57:27.220Z",
+  "researchBaseline": "c94ad43ab7477a9c4d770ea234137425c174821f",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "controlStrategy": "trend-rejection-short-v1",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noProductionEmailChange": true,
+  "noProductionEnvironmentChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "noMerge": true,
+  "noDeployment": true,
+  "localPitCoverageComplete": false,
+  "distinction": "raw, block, symbol-cluster, fold-cluster, selection-adjusted and promotion LCB are separate fields",
+  "directions": {
+    "LONG": {
+      "selectedCandidate": "V561-LONG-LIQUIDITY-RECLAIM-01",
+      "rawLcb95": null,
+      "blockBootstrapLcb95": null,
+      "symbolClusterLcb95": null,
+      "foldClusterLcb95": null,
+      "selectionAdjustedLcb95": null,
+      "promotionLcb95": null,
+      "promotionMethod": "DATA_UNAVAILABLE",
+      "methods": [
+        {
+          "method": "naive_bootstrap",
+          "lcb95": null,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": null,
+          "notes": "IID resampling; does not correct serial or cluster dependence. Fewer than two observations."
+        },
+        {
+          "method": "block_bootstrap",
+          "lcb95": null,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": null,
+          "notes": "Circular blocks preserve short-range serial correlation and overlapping-trade dependence. Fewer than two observations."
+        },
+        {
+          "method": "symbol_cluster_bootstrap",
+          "lcb95": null,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 1,
+          "notes": "Resamples complete symbol clusters with replacement. Fewer than two clusters."
+        },
+        {
+          "method": "fold_cluster_bootstrap",
+          "lcb95": null,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 1,
+          "notes": "Resamples complete outer-fold clusters with replacement. Fewer than two clusters."
+        },
+        {
+          "method": "selection_adjusted_bootstrap",
+          "lcb95": null,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": 1,
+          "notes": "Nested selection adjustment over 1 preregistered candidates; selected=V561-LONG-LIQUIDITY-RECLAIM-01."
+        }
+      ]
+    },
+    "SHORT": {
+      "selectedCandidate": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+      "rawLcb95": 0.0791,
+      "blockBootstrapLcb95": -0.0359,
+      "symbolClusterLcb95": 0.0234,
+      "foldClusterLcb95": -0.4497,
+      "selectionAdjustedLcb95": 0.0172,
+      "promotionLcb95": -0.4497,
+      "promotionMethod": "minimum_available_robust_lcb95",
+      "methods": [
+        {
+          "method": "naive_bootstrap",
+          "lcb95": 0.0791,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": null,
+          "notes": "IID resampling; does not correct serial or cluster dependence."
+        },
+        {
+          "method": "block_bootstrap",
+          "lcb95": -0.0359,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": null,
+          "notes": "Circular blocks preserve short-range serial correlation and overlapping-trade dependence."
+        },
+        {
+          "method": "symbol_cluster_bootstrap",
+          "lcb95": 0.0234,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 27,
+          "notes": "Resamples complete symbol clusters with replacement."
+        },
+        {
+          "method": "fold_cluster_bootstrap",
+          "lcb95": -0.4497,
+          "repetitions": 2000,
+          "blockLength": null,
+          "clusterCount": 9,
+          "notes": "Resamples complete outer-fold clusters with replacement."
+        },
+        {
+          "method": "selection_adjusted_bootstrap",
+          "lcb95": 0.0172,
+          "repetitions": 2000,
+          "blockLength": 5,
+          "clusterCount": 4,
+          "notes": "Nested selection adjustment over 4 preregistered candidates; selected=V561-SHORT-FAILED-BREAKOUT-REVERSAL-01."
+        }
+      ]
+    }
+  }
+}
