@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/v5-7-second-edge-data-completion]
   pull_request:
 
 jobs:
@@ -24,3 +24,4 @@ jobs:
       - run: pnpm build
       - run: pnpm validate:v5-5
       - run: pnpm validate:v5-6-1
+      - run: pnpm validate:v5-7

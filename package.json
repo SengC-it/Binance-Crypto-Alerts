@@ -20,7 +20,9 @@
     "validate:v5-4": "tsx scripts/run-v5-4-validation.ts",
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
     "validate:v5-6": "tsx scripts/run-v5-6-validation.ts",
-    "validate:v5-6-1": "tsx scripts/run-v5-6-1-validation.ts"
+    "validate:v5-6-1": "tsx scripts/run-v5-6-1-validation.ts",
+    "data:v5-7:download": "tsx scripts/download-v5-7-external-data.ts --download",
+    "validate:v5-7": "tsx scripts/run-v5-7-validation.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
