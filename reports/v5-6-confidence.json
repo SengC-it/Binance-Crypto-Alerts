@@ -1,6 +1,6 @@
 {
   "reportVersion": "v5-6-research-v1",
-  "generatedAt": "2026-08-26T02:20:52.400Z",
+  "generatedAt": "2026-08-26T02:42:23.679Z",
   "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
   "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
   "productionControl": "trend-rejection-short-v1",
@@ -72,12 +72,12 @@
       "promotionMethod": "minimum_available_lcb95"
     },
     "SHORT": {
-      "selectedCandidate": "V5.5-CONTROL-SHORT-FAILED_BREAKOUT_SHORT-02",
-      "observations": 91,
+      "selectedCandidate": "V56-SHORT-FAILED_BREAKOUT-BALANCED-125",
+      "observations": 108,
       "methods": [
         {
           "method": "naive_bootstrap",
-          "lcb95": 0.0891,
+          "lcb95": 0.048,
           "repetitions": 2000,
           "blockLength": null,
           "clusterCount": null,
@@ -85,7 +85,7 @@
         },
         {
           "method": "block_bootstrap",
-          "lcb95": 0.0679,
+          "lcb95": 0.0416,
           "repetitions": 2000,
           "blockLength": 5,
           "clusterCount": null,
@@ -93,15 +93,15 @@
         },
         {
           "method": "symbol_cluster_bootstrap",
-          "lcb95": 0.0522,
+          "lcb95": 0.0437,
           "repetitions": 2000,
           "blockLength": null,
-          "clusterCount": 35,
+          "clusterCount": 38,
           "notes": "Resamples complete symbol clusters with replacement."
         },
         {
           "method": "fold_cluster_bootstrap",
-          "lcb95": -0.1727,
+          "lcb95": -0.1658,
           "repetitions": 2000,
           "blockLength": null,
           "clusterCount": 9,
@@ -109,14 +109,14 @@
         },
         {
           "method": "selection_adjusted_bootstrap",
-          "lcb95": -0.0334,
+          "lcb95": -0.088,
           "repetitions": 2000,
           "blockLength": 5,
-          "clusterCount": 9,
-          "notes": "Nested selection adjustment over 9 preregistered candidates; selected=V5.5-CONTROL-SHORT-FAILED_BREAKOUT_SHORT-02."
+          "clusterCount": 8,
+          "notes": "Nested selection adjustment over 8 preregistered candidates; selected=V56-SHORT-FAILED_BREAKOUT-BALANCED-125."
         }
       ],
-      "promotionLcb95": -0.1727,
+      "promotionLcb95": -0.1658,
       "promotionMethod": "minimum_available_lcb95"
     }
   }

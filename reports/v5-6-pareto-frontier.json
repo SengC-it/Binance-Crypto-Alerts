@@ -1,6 +1,6 @@
 {
   "reportVersion": "v5-6-research-v1",
-  "generatedAt": "2026-08-26T02:20:52.400Z",
+  "generatedAt": "2026-08-26T02:42:23.679Z",
   "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
   "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
   "productionControl": "trend-rejection-short-v1",
@@ -101,7 +101,7 @@
           "cvar95": -1.144649912872111
         }
       ],
-      "selectedCandidate": "V5.5-CONTROL-SHORT-FAILED_BREAKOUT_SHORT-02"
+      "selectedCandidate": "V56-SHORT-FAILED_BREAKOUT-BALANCED-125"
     }
   }
 }

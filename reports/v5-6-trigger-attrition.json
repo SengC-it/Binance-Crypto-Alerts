@@ -1,6 +1,6 @@
 {
   "reportVersion": "v5-6-research-v1",
-  "generatedAt": "2026-08-26T02:20:52.400Z",
+  "generatedAt": "2026-08-26T02:42:23.679Z",
   "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
   "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
   "productionControl": "trend-rejection-short-v1",
@@ -32,7 +32,81 @@
           "momentum": 841,
           "validRiskPlan": 168,
           "finalEligibleTrades": 167
-        }
+        },
+        "stages": [
+          {
+            "stage": "eligibleFrames",
+            "count": 630720,
+            "passRate": 1,
+            "incrementalAttritionRate": 0
+          },
+          {
+            "stage": "attemptedBreakout",
+            "count": 56102,
+            "passRate": 0.08894913749365804,
+            "incrementalAttritionRate": 0.9110508625063419
+          },
+          {
+            "stage": "failedClose",
+            "count": 19365,
+            "passRate": 0.3451748600762896,
+            "incrementalAttritionRate": 0.6548251399237104
+          },
+          {
+            "stage": "secondFailedClose",
+            "count": 7454,
+            "passRate": 0.3849212496772528,
+            "incrementalAttritionRate": 0.6150787503227473
+          },
+          {
+            "stage": "lowerHigh",
+            "count": 7024,
+            "passRate": 0.9423128521599141,
+            "incrementalAttritionRate": 0.057687147840085884
+          },
+          {
+            "stage": "marketRegime",
+            "count": 7020,
+            "passRate": 0.9994305239179955,
+            "incrementalAttritionRate": 0.0005694760820045275
+          },
+          {
+            "stage": "rsi",
+            "count": 4098,
+            "passRate": 0.5837606837606838,
+            "incrementalAttritionRate": 0.4162393162393162
+          },
+          {
+            "stage": "volume",
+            "count": 980,
+            "passRate": 0.23914104441190825,
+            "incrementalAttritionRate": 0.7608589555880918
+          },
+          {
+            "stage": "extension",
+            "count": 876,
+            "passRate": 0.8938775510204081,
+            "incrementalAttritionRate": 0.10612244897959189
+          },
+          {
+            "stage": "momentum",
+            "count": 841,
+            "passRate": 0.9600456621004566,
+            "incrementalAttritionRate": 0.03995433789954339
+          },
+          {
+            "stage": "validRiskPlan",
+            "count": 168,
+            "passRate": 0.19976218787158145,
+            "incrementalAttritionRate": 0.8002378121284186
+          },
+          {
+            "stage": "finalEligibleTrades",
+            "count": 167,
+            "passRate": 0.9940476190476191,
+            "incrementalAttritionRate": 0.005952380952380931
+          }
+        ]
       },
       {
         "group": "1Y_BROAD",
@@ -49,22 +123,172 @@
           "momentum": 462,
           "validRiskPlan": 139,
           "finalEligibleTrades": 138
-        }
+        },
+        "stages": [
+          {
+            "stage": "eligibleFrames",
+            "count": 394200,
+            "passRate": 1,
+            "incrementalAttritionRate": 0
+          },
+          {
+            "stage": "attemptedBreakout",
+            "count": 32656,
+            "passRate": 0.0828411973617453,
+            "incrementalAttritionRate": 0.9171588026382547
+          },
+          {
+            "stage": "failedClose",
+            "count": 10824,
+            "passRate": 0.3314551690347869,
+            "incrementalAttritionRate": 0.6685448309652131
+          },
+          {
+            "stage": "secondFailedClose",
+            "count": 4006,
+            "passRate": 0.37010347376201036,
+            "incrementalAttritionRate": 0.6298965262379896
+          },
+          {
+            "stage": "lowerHigh",
+            "count": 3787,
+            "passRate": 0.9453320019970045,
+            "incrementalAttritionRate": 0.05466799800299549
+          },
+          {
+            "stage": "marketRegime",
+            "count": 3786,
+            "passRate": 0.9997359387377872,
+            "incrementalAttritionRate": 0.00026406126221278914
+          },
+          {
+            "stage": "rsi",
+            "count": 2203,
+            "passRate": 0.5818806127839409,
+            "incrementalAttritionRate": 0.4181193872160591
+          },
+          {
+            "stage": "volume",
+            "count": 539,
+            "passRate": 0.24466636404902406,
+            "incrementalAttritionRate": 0.7553336359509759
+          },
+          {
+            "stage": "extension",
+            "count": 477,
+            "passRate": 0.8849721706864564,
+            "incrementalAttritionRate": 0.1150278293135436
+          },
+          {
+            "stage": "momentum",
+            "count": 462,
+            "passRate": 0.9685534591194969,
+            "incrementalAttritionRate": 0.03144654088050314
+          },
+          {
+            "stage": "validRiskPlan",
+            "count": 139,
+            "passRate": 0.3008658008658009,
+            "incrementalAttritionRate": 0.699134199134199
+          },
+          {
+            "stage": "finalEligibleTrades",
+            "count": 138,
+            "passRate": 0.9928057553956835,
+            "incrementalAttritionRate": 0.007194244604316502
+          }
+        ]
       }
     ],
     "aggregate": {
-      "eligibleFrames": 1024920,
-      "attemptedBreakout": 88758,
-      "failedClose": 30189,
-      "secondFailedClose": 11460,
-      "lowerHigh": 10811,
-      "marketRegime": 10806,
-      "rsi": 6301,
-      "volume": 1519,
-      "extension": 1353,
-      "momentum": 1303,
-      "validRiskPlan": 307,
-      "finalEligibleTrades": 305
+      "counts": {
+        "eligibleFrames": 1024920,
+        "attemptedBreakout": 88758,
+        "failedClose": 30189,
+        "secondFailedClose": 11460,
+        "lowerHigh": 10811,
+        "marketRegime": 10806,
+        "rsi": 6301,
+        "volume": 1519,
+        "extension": 1353,
+        "momentum": 1303,
+        "validRiskPlan": 307,
+        "finalEligibleTrades": 305
+      },
+      "stages": [
+        {
+          "stage": "eligibleFrames",
+          "count": 1024920,
+          "passRate": 1,
+          "incrementalAttritionRate": 0
+        },
+        {
+          "stage": "attemptedBreakout",
+          "count": 88758,
+          "passRate": 0.08659992975061469,
+          "incrementalAttritionRate": 0.9134000702493853
+        },
+        {
+          "stage": "failedClose",
+          "count": 30189,
+          "passRate": 0.34012708713580747,
+          "incrementalAttritionRate": 0.6598729128641925
+        },
+        {
+          "stage": "secondFailedClose",
+          "count": 11460,
+          "passRate": 0.3796084666600417,
+          "incrementalAttritionRate": 0.6203915333399583
+        },
+        {
+          "stage": "lowerHigh",
+          "count": 10811,
+          "passRate": 0.9433682373472949,
+          "incrementalAttritionRate": 0.05663176265270509
+        },
+        {
+          "stage": "marketRegime",
+          "count": 10806,
+          "passRate": 0.9995375080936083,
+          "incrementalAttritionRate": 0.00046249190639169324
+        },
+        {
+          "stage": "rsi",
+          "count": 6301,
+          "passRate": 0.5831019803812697,
+          "incrementalAttritionRate": 0.4168980196187303
+        },
+        {
+          "stage": "volume",
+          "count": 1519,
+          "passRate": 0.24107284558006667,
+          "incrementalAttritionRate": 0.7589271544199333
+        },
+        {
+          "stage": "extension",
+          "count": 1353,
+          "passRate": 0.8907175773535221,
+          "incrementalAttritionRate": 0.10928242264647792
+        },
+        {
+          "stage": "momentum",
+          "count": 1303,
+          "passRate": 0.9630450849963045,
+          "incrementalAttritionRate": 0.03695491500369552
+        },
+        {
+          "stage": "validRiskPlan",
+          "count": 307,
+          "passRate": 0.2356101304681504,
+          "incrementalAttritionRate": 0.7643898695318496
+        },
+        {
+          "stage": "finalEligibleTrades",
+          "count": 305,
+          "passRate": 0.993485342019544,
+          "incrementalAttritionRate": 0.006514657980456029
+        }
+      ]
     },
     "stageOrder": [
       "eligibleFrames",
@@ -85,7 +309,7 @@
   "forwardFeature": {
     "status": "DATA_UNAVAILABLE",
     "sourceTable": "public.bca_v55_signal_feature_snapshots + public.bca_shadow_paper_trades",
-    "queryTimestamp": "2026-08-26T02:20:52.397Z",
+    "queryTimestamp": "2026-08-26T02:42:23.677Z",
     "experimentId": "v55-fbos02-forward-002",
     "calendarDays": null,
     "featureSnapshots": null,

@@ -1,6 +1,6 @@
 {
   "reportVersion": "v5-6-research-v1",
-  "generatedAt": "2026-08-26T02:20:52.400Z",
+  "generatedAt": "2026-08-26T02:42:23.679Z",
   "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
   "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
   "productionControl": "trend-rejection-short-v1",
@@ -87,10 +87,10 @@
     },
     "SHORT": {
       "selectedCandidate": {
-        "id": "V5.5-CONTROL-SHORT-FAILED_BREAKOUT_SHORT-02",
+        "id": "V56-SHORT-FAILED_BREAKOUT-BALANCED-125",
         "side": "SHORT",
         "family": "FAILED_BREAKOUT_SHORT",
-        "variant": 0,
+        "variant": 125,
         "hypothesis": "Requiring a stronger failed reclaim should reduce false reversals at the expense of sample size.",
         "marketMechanism": "Repeated inability to hold the breakout level creates asymmetric downside once trapped demand capitulates.",
         "expectedRegime": "BULL exhaustion",
@@ -102,9 +102,9 @@
         "rewardRisk": 1.8,
         "parameters": {
           "breakoutLookback": 20,
-          "volumeRatioMin": 1.35,
+          "volumeRatioMin": 1.25,
           "retestDistanceATR": 0.6,
-          "maxExtensionATR": 0.8,
+          "maxExtensionATR": 0.85,
           "pullbackMinATR": 0.35,
           "pullbackMaxATR": 1.6,
           "trendAgeMinBars": 16,
@@ -115,31 +115,31 @@
           "stopATRMultiplier": 1.25,
           "structureLookback": 8
         },
-        "researchFamily": "FROZEN_CONTROL",
+        "researchFamily": "FAILED_BREAKOUT_BALANCED",
         "sourceCandidateId": "SHORT-FAILED_BREAKOUT_SHORT-02",
-        "isControl": true,
-        "preregisteredHypothesis": "V5.5 frozen SHORT-FAILED_BREAKOUT_SHORT-02; parameters and execution model are held fixed as Control B."
+        "isControl": false,
+        "preregisteredHypothesis": "A slightly relaxed extension cap with still-high participation tests entry yield around the failed reclaim."
       },
       "metrics": {
-        "trades": 111,
-        "wins": 64,
-        "losses": 47,
-        "winRate": 0.5766,
-        "netR": 51.8437,
-        "avgR": 0.4671,
-        "avgNetR": 0.4671,
-        "profitFactor": 2.0053,
-        "maxDrawdownR": 6.5204,
-        "lowerConfidenceBound95": 0.1862,
-        "positiveMonths": 9,
+        "trades": 147,
+        "wins": 84,
+        "losses": 63,
+        "winRate": 0.5714,
+        "netR": 67.6274,
+        "avgR": 0.4601,
+        "avgNetR": 0.4601,
+        "profitFactor": 1.9749,
+        "maxDrawdownR": 6.6839,
+        "lowerConfidenceBound95": 0.2031,
+        "positiveMonths": 10,
         "months": 12,
-        "positiveMonthRatio": 0.75,
-        "topSymbolProfitShare": 0.0907,
+        "positiveMonthRatio": 0.8333,
+        "topSymbolProfitShare": 0.0876,
         "topFoldProfitShare": null,
-        "totalNetPnlUsdt": 2592.1851,
-        "totalFeesUsdt": 379.3527,
-        "totalFundingUsdt": 5.252,
-        "totalSlippageUsdt": 189.6765,
+        "totalNetPnlUsdt": 3381.3714,
+        "totalFeesUsdt": 519.131,
+        "totalFundingUsdt": 4.1059,
+        "totalSlippageUsdt": 259.5657,
         "monthly": [
           {
             "month": "2025-08",
@@ -150,73 +150,73 @@
           },
           {
             "month": "2025-09",
-            "trades": 2,
-            "netR": -2.3065,
-            "profitFactor": 0,
-            "maxDrawdownR": 2.3065
+            "trades": 5,
+            "netR": -0.3357,
+            "profitFactor": 0.9038,
+            "maxDrawdownR": 3.4896
           },
           {
             "month": "2025-10",
-            "trades": 12,
-            "netR": 3.9106,
-            "profitFactor": 1.6013,
-            "maxDrawdownR": 2.2064
+            "trades": 15,
+            "netR": 3.3891,
+            "profitFactor": 1.3901,
+            "maxDrawdownR": 3.1943
           },
           {
             "month": "2025-11",
-            "trades": 9,
-            "netR": -1.5081,
-            "profitFactor": 0.7754,
-            "maxDrawdownR": 3.2754
+            "trades": 15,
+            "netR": 3.1655,
+            "profitFactor": 1.3572,
+            "maxDrawdownR": 3.3463
           },
           {
             "month": "2025-12",
-            "trades": 3,
-            "netR": 2.2039,
-            "profitFactor": 2.9951,
+            "trades": 4,
+            "netR": 3.8089,
+            "profitFactor": 4.4481,
             "maxDrawdownR": 1.1047
           },
           {
             "month": "2026-01",
-            "trades": 7,
-            "netR": 8.2527,
-            "profitFactor": 7.7776,
+            "trades": 9,
+            "netR": 11.6299,
+            "profitFactor": 10.5511,
             "maxDrawdownR": 1.2177
           },
           {
             "month": "2026-02",
-            "trades": 29,
-            "netR": 29.1848,
-            "profitFactor": 5.4849,
-            "maxDrawdownR": 4.3543
+            "trades": 30,
+            "netR": 30.93,
+            "profitFactor": 5.7531,
+            "maxDrawdownR": 3.3016
           },
           {
             "month": "2026-03",
-            "trades": 1,
-            "netR": -1.0648,
-            "profitFactor": 0,
+            "trades": 3,
+            "netR": 2.2841,
+            "profitFactor": 3.1451,
             "maxDrawdownR": 1.0648
           },
           {
             "month": "2026-04",
-            "trades": 2,
-            "netR": 3.3666,
-            "profitFactor": null,
-            "maxDrawdownR": 0
+            "trades": 6,
+            "netR": 4.1609,
+            "profitFactor": 2.6969,
+            "maxDrawdownR": 2.452
           },
           {
             "month": "2026-05",
-            "trades": 12,
-            "netR": 2.4044,
-            "profitFactor": 1.3658,
-            "maxDrawdownR": 3.3653
+            "trades": 20,
+            "netR": -0.763,
+            "profitFactor": 0.9421,
+            "maxDrawdownR": 5.6688
           },
           {
             "month": "2026-06",
-            "trades": 28,
-            "netR": 0.3251,
-            "profitFactor": 1.0177,
-            "maxDrawdownR": 6.5204
+            "trades": 34,
+            "netR": 2.2829,
+            "profitFactor": 1.1056,
+            "maxDrawdownR": 5.3945
           },
           {
             "month": "2026-08",
@@ -227,7 +227,7 @@
           }
         ]
       },
-      "tradeCount": 111,
+      "tradeCount": 147,
       "controlA": {
         "trades": 490,
         "wins": 187,

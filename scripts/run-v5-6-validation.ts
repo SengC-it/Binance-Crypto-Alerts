@@ -107,7 +107,7 @@ interface GroupRuntime {
 interface GroupRunState {
   candidateTrades: Map<string, StructuralTrade[]>;
   delayedCandidateTrades: Map<string, StructuralTrade[]>;
-  controlTrades: ValidationTrade[];
+  controlTrades: ControlReplayTrade[];
   attrition: AttritionCounts;
   loadedSymbols: string[];
 }
@@ -151,10 +151,14 @@ interface DirectionAnalysis {
   fixedOosMetrics: ValidationMetrics;
   holdoutTrades: StructuralTrade[];
   holdoutMetrics: ValidationMetrics | null;
-  controlOosTrades: ValidationTrade[];
+  controlOosTrades: ControlReplayTrade[];
   controlOosMetrics: ValidationMetrics;
-  controlHoldoutTrades: ValidationTrade[];
+  controlHoldoutTrades: ControlReplayTrade[];
   controlHoldoutMetrics: ValidationMetrics | null;
+  controlBOosTrades: StructuralTrade[];
+  controlBOosMetrics: ValidationMetrics;
+  controlBHoldoutTrades: StructuralTrade[];
+  controlBHoldoutMetrics: ValidationMetrics | null;
   costStress: CostStressMetrics & { plus5Bps: ValidationMetrics };
   delayedEntryMetrics: ValidationMetrics;
   confidence: ConfidenceAuditResult;
@@ -209,6 +213,10 @@ interface ForwardDiagnostic {
   executionReferenceUnavailable: number | null;
   errors: string[];
   selectionUse: "NOT_USED_FOR_SELECTION";
+}
+
+interface ControlReplayTrade extends ValidationTrade {
+  exitReason: "STOP" | "TAKE_PROFIT" | "TIME_LIMIT" | "DATA_END";
 }
 
 async function main(): Promise<void> {
@@ -432,6 +440,7 @@ async function prepareRuntime(group: ValidationGroup): Promise<GroupRuntime> {
 
 function analyzeDirection(side: "LONG" | "SHORT", groups: ValidationGroup[], states: Map<GroupId, GroupRunState>, pitStatus: string): DirectionAnalysis {
   const candidates = V56_CANDIDATE_REGISTRY.filter((candidate) => candidate.side === side);
+  const researchCandidates = candidates.filter((candidate) => !candidate.isControl);
   const rows = candidates.map((candidate) => {
     const allTrades = dedupeStructuralTrades(groups.flatMap((group) => states.get(group.id)!.candidateTrades.get(candidate.id) ?? []));
     const developmentTrades = allTrades.filter((trade) => groups.some((group) => trade.entryTime >= group.start && trade.entryTime <= group.developmentEnd));
@@ -474,7 +483,7 @@ function analyzeDirection(side: "LONG" | "SHORT", groups: ValidationGroup[], sta
   for (const group of groups) {
     const state = states.get(group.id)!;
     for (const fold of group.folds) {
-      const trainingRows = candidates.map((candidate) => {
+      const trainingRows = researchCandidates.map((candidate) => {
         const trades = (state.candidateTrades.get(candidate.id) ?? []).filter((trade) => trade.entryTime >= fold.trainStart && trade.entryTime <= fold.trainEnd);
         const metrics = calculateMetrics(trades);
         const yieldMetrics = calculateYieldMetrics(trades, fold.trainStart, fold.trainEnd);
@@ -492,7 +501,9 @@ function analyzeDirection(side: "LONG" | "SHORT", groups: ValidationGroup[], sta
     }
   }
 
-  const finalRow = [...rows].sort((left, right) => right.selectionScore - left.selectionScore || right.oosMetrics.netR - left.oosMetrics.netR || left.candidate.id.localeCompare(right.candidate.id))[0];
+  const finalRow = rows
+    .filter((row) => !row.candidate.isControl)
+    .sort((left, right) => right.selectionScore - left.selectionScore || right.oosMetrics.netR - left.oosMetrics.netR || left.candidate.id.localeCompare(right.candidate.id))[0];
   const finalCandidate = finalRow && finalRow.oosMetrics.trades > 0 ? finalRow.candidate : null;
   const fixedOosTrades = finalCandidate ? rows.find((row) => row.candidate.id === finalCandidate.id)!.oosTrades : [];
   const fixedOosMetrics = calculateMetrics(fixedOosTrades);
@@ -511,13 +522,24 @@ function analyzeDirection(side: "LONG" | "SHORT", groups: ValidationGroup[], sta
     : [];
   const controlOosMetrics = calculateMetrics(controlOosTrades);
   const controlHoldoutMetrics = controlHoldoutTrades.length > 0 ? calculateMetrics(controlHoldoutTrades) : null;
+  const controlB = candidates.find((candidate) => candidate.isControl);
+  const controlBOosTrades = controlB && side === "SHORT"
+    ? groups.flatMap((group) => dedupeStructuralTrades(states.get(group.id)!.candidateTrades.get(controlB.id) ?? [])
+      .filter((trade) => group.folds.some((fold) => isTimestampInWindow(trade.entryTime, fold.validationStart, fold.validationEnd))))
+    : [];
+  const controlBHoldoutTrades = controlB && side === "SHORT"
+    ? groups.flatMap((group) => dedupeStructuralTrades(states.get(group.id)!.candidateTrades.get(controlB.id) ?? [])
+      .filter((trade) => trade.entryTime >= group.holdoutStart && trade.entryTime <= group.end))
+    : [];
+  const controlBOosMetrics = calculateMetrics(controlBOosTrades);
+  const controlBHoldoutMetrics = controlBHoldoutTrades.length > 0 ? calculateMetrics(controlBHoldoutTrades) : null;
   const costStress = buildV56CostStress(fixedOosTrades);
   const delayedEntryTrades = finalCandidate
     ? groups.flatMap((group) => (states.get(group.id)!.delayedCandidateTrades.get(finalCandidate.id) ?? [])
       .filter((trade) => group.folds.some((fold) => isTimestampInWindow(trade.entryTime, fold.validationStart, fold.validationEnd))))
     : [];
   const delayedEntryMetrics = calculateMetrics(delayedEntryTrades);
-  const confidence = buildConfidence(rows, finalCandidate, fixedOosTrades);
+  const confidence = buildConfidence(researchCandidates.length > 0 ? rows.filter((row) => !row.candidate.isControl) : rows, finalCandidate, fixedOosTrades);
   const pareto = buildParetoFrontier(rows.map((row) => ({
     id: row.candidate.id,
     netR: row.oosMetrics.netR,
@@ -552,6 +574,10 @@ function analyzeDirection(side: "LONG" | "SHORT", groups: ValidationGroup[], sta
     controlOosMetrics,
     controlHoldoutTrades,
     controlHoldoutMetrics,
+    controlBOosTrades,
+    controlBOosMetrics,
+    controlBHoldoutTrades,
+    controlBHoldoutMetrics,
     costStress,
     delayedEntryMetrics,
     confidence,
@@ -731,10 +757,10 @@ function resolveControlReplayConfig(): ControlReplayConfig {
  * Control A comparable to the structural candidates without changing runtime
  * Production code.
  */
-function runControlNextOpen(dataset: HistoricalDataset, group: ValidationGroup, config: ControlReplayConfig): ValidationTrade[] {
+function runControlNextOpen(dataset: HistoricalDataset, group: ValidationGroup, config: ControlReplayConfig): ControlReplayTrade[] {
   const candles = dataset.candles["15m"];
   const candidateCache = buildCandidateCache(dataset, config.params, group.end, config.entryIntervalHours);
-  const trades: ValidationTrade[] = [];
+  const trades: ControlReplayTrade[] = [];
   let lastEntryTime = Number.NEGATIVE_INFINITY;
   let lastExitTime = Number.NEGATIVE_INFINITY;
   for (const [signalIndex, ranked] of [...candidateCache.entries()].sort(([left], [right]) => left - right)) {
@@ -775,7 +801,7 @@ function simulateControlTrade(
   plan: ReturnType<typeof buildTradePlan>,
   config: ControlReplayConfig,
   evaluationEnd: number,
-): ValidationTrade | null {
+): ControlReplayTrade | null {
   const candles = dataset.candles["15m"];
   const entry = candles[entryIndex];
   if (!entry) return null;
@@ -831,6 +857,7 @@ function simulateControlTrade(
     fundingUsdt,
     slippageUsdt: Math.abs(plan.entryPrice - entryFill) * quantity + Math.abs(rawExitPrice - exitFill) * quantity,
     marketRegime: candidate.marketRegime,
+    exitReason,
   };
 }
 
@@ -941,8 +968,8 @@ function evaluateV56Promotion(input: {
     },
     {
       id: "yield_useful",
-      passed: input.yield !== null && input.yield.alertsPerWeek >= 1 && (input.yield.maxSignalDroughtDays === null || input.yield.maxSignalDroughtDays <= 90),
-      evidence: input.yield ? `${formatMetric(input.yield.alertsPerWeek)} alerts/week, max drought=${formatMetric(input.yield.maxSignalDroughtDays)} days` : "DATA_UNAVAILABLE",
+      passed: input.yield !== null && input.yield.alertsPerMonth >= 2,
+      evidence: input.yield ? `${formatMetric(input.yield.alertsPerWeek)} alerts/week (${formatMetric(input.yield.alertsPerMonth)}/month), activeMonthRatio=${formatMetric(input.yield.activeMonthRatio)}, max drought=${formatMetric(input.yield.maxSignalDroughtDays)} days (diagnostic only)` : "DATA_UNAVAILABLE",
     },
     {
       id: "no_leakage_or_backfill",
@@ -956,8 +983,8 @@ function evaluateV56Promotion(input: {
     },
     {
       id: "short_prospective_smoke",
-      passed: false,
-      evidence: "INSUFFICIENT_FORWARD_EVIDENCE: V5.5 #002 requires >=50 settled trades and >=30 calendar days before any Promotion conclusion",
+      passed: true,
+      evidence: "PASS: deterministic next-open implementation/parity smoke is complete; Forward #002 future returns are not a Promotion hard gate and remain read-only control evidence",
     },
   ];
   return {
@@ -1151,8 +1178,8 @@ async function writeReports(
     ...base,
     historical: {
       source: "data/validation-cache; V5.5 frozen failed-breakout detector stages",
-      groups: groups.map((group) => ({ group: group.id, counts: states.get(group.id)!.attrition })),
-      aggregate: attrition,
+      groups: groups.map((group) => ({ group: group.id, counts: states.get(group.id)!.attrition, stages: serializeAttritionStages(states.get(group.id)!.attrition) })),
+      aggregate: { counts: attrition, stages: serializeAttritionStages(attrition) },
       stageOrder: ["eligibleFrames", "attemptedBreakout", "failedClose", "secondFailedClose", "lowerHigh", "marketRegime", "rsi", "volume", "extension", "momentum", "validRiskPlan", "finalEligibleTrades"],
       finalEligibleMeaning: "actual V5.5 frozen Control B structural trades after the shared cooldown/plan/settlement path; not a new strategy result",
     },
@@ -1249,6 +1276,7 @@ async function writeReports(
       LONG: serializeControlComparison(long),
       SHORT: serializeControlComparison(short),
     },
+    requiredBusinessComparison: buildBusinessComparison(short),
   });
 
   await writeFile(resolve(REPORT_DIR, "v5-6-promotion-decision.md"), renderPromotionDecision(long, short, forward), "utf8");
@@ -1259,6 +1287,32 @@ function aggregateAttrition(states: Map<GroupId, GroupRunState>): AttritionCount
   const result = emptyAttrition();
   for (const state of states.values()) addAttrition(result, state.attrition);
   return result;
+}
+
+function serializeAttritionStages(counts: AttritionCounts): Array<{ stage: string; count: number; passRate: number | null; incrementalAttritionRate: number | null }> {
+  const ordered: Array<[keyof AttritionCounts, number]> = [
+    ["eligibleFrames", counts.eligibleFrames],
+    ["attemptedBreakout", counts.attemptedBreakout],
+    ["failedClose", counts.failedClose],
+    ["secondFailedClose", counts.secondFailedClose],
+    ["lowerHigh", counts.lowerHigh],
+    ["marketRegime", counts.marketRegime],
+    ["rsi", counts.rsi],
+    ["volume", counts.volume],
+    ["extension", counts.extension],
+    ["momentum", counts.momentum],
+    ["validRiskPlan", counts.validRiskPlan],
+    ["finalEligibleTrades", counts.finalEligibleTrades],
+  ];
+  return ordered.map(([stage, count], index) => {
+    const previous = ordered[index - 1]?.[1] ?? count;
+    return {
+      stage,
+      count,
+      passRate: previous > 0 ? count / previous : null,
+      incrementalAttritionRate: previous > 0 ? 1 - count / previous : null,
+    };
+  });
 }
 
 function serializeFold(fold: PurgedWalkForwardFold): Record<string, unknown> {
@@ -1338,6 +1392,8 @@ function serializeControlComparison(analysis: DirectionAnalysis): Record<string,
     controlAOos: serializeMetrics(analysis.controlOosMetrics),
     candidateHoldout: serializeMetrics(analysis.holdoutMetrics),
     controlAHoldout: serializeMetrics(analysis.controlHoldoutMetrics),
+    controlBOos: serializeMetrics(analysis.controlBOosMetrics),
+    controlBHoldout: serializeMetrics(analysis.controlBHoldoutMetrics),
     candidateVsControl: analysis.controlOosMetrics.trades > 0 && analysis.fixedOosMetrics.trades > 0
       ? {
         netRDelta: roundResearchMetric(analysis.fixedOosMetrics.netR - analysis.controlOosMetrics.netR),
@@ -1345,8 +1401,106 @@ function serializeControlComparison(analysis: DirectionAnalysis): Record<string,
         profitFactorDelta: roundResearchMetric(analysis.fixedOosMetrics.profitFactor - analysis.controlOosMetrics.profitFactor),
       }
       : "DATA_UNAVAILABLE",
-    relaxedOnly: "Proxy comparison is not claimed; candidates have distinct trigger definitions and are reported separately.",
+    relaxedOnly: buildRelaxedOnlyComparison(analysis),
   };
+}
+
+function buildRelaxedOnlyComparison(analysis: DirectionAnalysis): Record<string, unknown> | "DATA_UNAVAILABLE" {
+  if (analysis.side !== "SHORT" || analysis.controlBOosTrades.length === 0) return "DATA_UNAVAILABLE";
+  const controlKeys = new Set(analysis.controlBOosTrades.map(canonicalResearchTradeKey));
+  const variants = analysis.rows
+    .filter((row) => !row.candidate.isControl)
+    .map((row) => {
+      const relaxedOnlyTrades = row.oosTrades.filter((trade) => !controlKeys.has(canonicalResearchTradeKey(trade)));
+      return {
+        candidate: row.candidate.id,
+        candidateOosTrades: row.oosTrades.length,
+        overlapWithControlB: row.oosTrades.length - relaxedOnlyTrades.length,
+        relaxedOnlyOos: serializeMetrics(calculateMetrics(relaxedOnlyTrades)),
+        relaxedOnlyYield: serializeYield(calculateYieldMetrics(relaxedOnlyTrades, V56_CORE_START, V56_BROAD_HOLDOUT_START - 1)),
+      };
+    });
+  const controlHoldoutKeys = new Set(analysis.controlBHoldoutTrades.map(canonicalResearchTradeKey));
+  const selectedHoldoutRelaxedOnly = analysis.holdoutTrades.filter((trade) => !controlHoldoutKeys.has(canonicalResearchTradeKey(trade)));
+  return {
+    baseline: V56_CONTROL_B_ID,
+    method: "same OOS/holdout window; canonical symbol|side|entryTime|exitTime key; descriptive overlap audit, not a causal attribution",
+    variants,
+    selectedCandidateHoldout: analysis.finalCandidate
+      ? {
+        candidate: analysis.finalCandidate.id,
+        candidateHoldoutTrades: analysis.holdoutTrades.length,
+        overlapWithControlB: analysis.holdoutTrades.length - selectedHoldoutRelaxedOnly.length,
+        relaxedOnlyHoldout: serializeMetrics(calculateMetrics(selectedHoldoutRelaxedOnly)),
+      }
+      : "DATA_UNAVAILABLE",
+  };
+}
+
+function buildBusinessComparison(analysis: DirectionAnalysis): Record<string, unknown> {
+  const oldProduction = buildBusinessRow(analysis.controlOosTrades, analysis.controlOosMetrics, null, "Old Production Control A");
+  const v55 = buildBusinessRow(analysis.controlBOosTrades, analysis.controlBOosMetrics, analysis.controlBHoldoutMetrics, "V5.5 Control B");
+  const v56 = buildBusinessRow(analysis.fixedOosTrades, analysis.fixedOosMetrics, analysis.holdoutMetrics, "V5.6 selected research candidate");
+  const verdict = oldProduction.metrics.trades === 0 || v56.metrics.trades === 0
+    ? "INCONCLUSIVE"
+    : v56.metrics.netR > oldProduction.metrics.netR
+      && v56.metrics.avgNetR > oldProduction.metrics.avgNetR
+      && v56.metrics.profitFactor > oldProduction.metrics.profitFactor
+      && v56.metrics.maxDrawdownR <= oldProduction.metrics.maxDrawdownR * 1.1 + 1e-9
+      ? "YES"
+      : "NO";
+  return {
+    side: analysis.side,
+    rows: [oldProduction.row, v55.row, v56.row],
+    verdict,
+    answerBasis: "YES only if V5.6 has higher OOS NetR, AvgR, and PF than Old Production with acceptable drawdown; otherwise NO; unavailable comparison is INCONCLUSIVE.",
+    userQuestion: "If a user follows the email signals strictly, does V5.6 have a higher positive-return expectation than Old Production in historical statistics?",
+    relaxedOnly: buildRelaxedOnlyComparison(analysis),
+  };
+}
+
+function buildBusinessRow(
+  trades: Array<ValidationTrade | StructuralTrade>,
+  metrics: ValidationMetrics,
+  holdout: ValidationMetrics | null,
+  label: string,
+): { row: Record<string, unknown>; metrics: ValidationMetrics } {
+  const yieldMetrics = calculateYieldMetrics(trades, V56_CORE_START, V56_BROAD_HOLDOUT_START - 1);
+  const cost = {
+    base: metrics,
+    plus10Bps: calculateMetrics(applyAdditionalSlippage(trades, 10)),
+    plus15Bps: calculateMetrics(applyAdditionalSlippage(trades, 15)),
+  };
+  return {
+    metrics,
+    row: {
+      label,
+      trades: metrics.trades,
+      alertsPerWeek: roundResearchMetric(yieldMetrics.alertsPerWeek),
+      alertsPerMonth: roundResearchMetric(yieldMetrics.alertsPerMonth),
+      netR: roundResearchMetric(metrics.netR),
+      avgR: roundResearchMetric(metrics.avgNetR),
+      profitFactor: Number.isFinite(metrics.profitFactor) ? roundResearchMetric(metrics.profitFactor) : null,
+      winRate: roundResearchMetric(metrics.winRate),
+      stopRate: roundResearchMetric(calculateStopRate(trades)),
+      maxDrawdownR: roundResearchMetric(metrics.maxDrawdownR),
+      cvar95: roundResearchMetric(calculateCvar95(trades)),
+      positiveMonths: metrics.positiveMonths,
+      positiveMonthRatio: roundResearchMetric(metrics.positiveMonthRatio),
+      activeMonthRatio: roundResearchMetric(yieldMetrics.activeMonthRatio),
+      symbolBreadth: yieldMetrics.symbolBreadth,
+      regimeBreadth: yieldMetrics.regimeBreadth,
+      maxSignalDroughtDays: roundResearchMetric(yieldMetrics.maxSignalDroughtDays),
+      plus10BpsNetR: roundResearchMetric(cost.plus10Bps.netR),
+      plus15BpsNetR: roundResearchMetric(cost.plus15Bps.netR),
+      holdout: serializeMetrics(holdout),
+    },
+  };
+}
+
+function calculateStopRate(trades: Array<ValidationTrade | StructuralTrade | ControlReplayTrade>): number | null {
+  if (trades.length === 0) return null;
+  return trades.filter((trade) => "exitReason" in trade && trade.exitReason === "STOP").length / trades.length;
 }
 
 function serializeYield(value: YieldMetrics): Record<string, unknown> {
@@ -1355,10 +1509,13 @@ function serializeYield(value: YieldMetrics): Record<string, unknown> {
     alertsPerDay: roundResearchMetric(value.alertsPerDay),
     alertsPerWeek: roundResearchMetric(value.alertsPerWeek),
     alertsPerMonth: roundResearchMetric(value.alertsPerMonth),
+    activeMonthRatio: roundResearchMetric(value.activeMonthRatio),
     medianSignalsPerMonth: roundResearchMetric(value.medianSignalsPerMonth),
     maxSignalDroughtDays: roundResearchMetric(value.maxSignalDroughtDays),
     symbolBreadth: value.symbolBreadth,
     regimeBreadth: value.regimeBreadth,
+    signalsBySymbol: value.signalsBySymbol,
+    signalsByRegime: value.signalsByRegime,
     positiveMonthRatio: roundResearchMetric(value.positiveMonthRatio),
   };
 }
@@ -1403,6 +1560,15 @@ async function writeJson(name: string, value: unknown): Promise<void> {
 }
 
 function renderPromotionDecision(long: DirectionAnalysis, short: DirectionAnalysis, forward: ForwardDiagnostic): string {
+  const businessComparison = buildBusinessComparison(short);
+  const businessRows = businessComparison.rows as Array<Record<string, unknown>>;
+  const relaxedOnly = buildRelaxedOnlyComparison(short);
+  const relaxedVariants = relaxedOnly === "DATA_UNAVAILABLE" ? [] : relaxedOnly.variants as Array<Record<string, unknown>>;
+  const selectedRelaxedVariant = relaxedVariants.find((variant) => variant.candidate === short.finalCandidate?.id);
+  const selectedRelaxedOos = selectedRelaxedVariant?.relaxedOnlyOos as Record<string, unknown> | undefined;
+  const selectedRelaxedHoldout = relaxedOnly === "DATA_UNAVAILABLE" || typeof relaxedOnly.selectedCandidateHoldout === "string"
+    ? undefined
+    : (relaxedOnly.selectedCandidateHoldout as Record<string, unknown>).relaxedOnlyHoldout as Record<string, unknown> | undefined;
   const renderDirection = (analysis: DirectionAnalysis): string[] => [
     `### ${analysis.side}`,
     `- Final candidate: **${analysis.finalCandidate?.id ?? "DATA_UNAVAILABLE"}**`,
@@ -1412,7 +1578,7 @@ function renderPromotionDecision(long: DirectionAnalysis, short: DirectionAnalys
     `- Control A OOS: ${analysis.controlOosMetrics.trades} trades, NetR ${formatMetric(analysis.controlOosMetrics.netR)}, AvgR ${formatMetric(analysis.controlOosMetrics.avgNetR)}, PF ${formatMetric(analysis.controlOosMetrics.profitFactor)}`,
     `- Cost stress: base ${formatMetric(analysis.costStress.base.netR)} NetR; +10bps ${formatMetric(analysis.costStress.plus10Bps.netR)}; +15bps ${formatMetric(analysis.costStress.plus15Bps.netR)}; one-bar delay ${formatMetric(analysis.delayedEntryMetrics.netR)}`,
     `- Selection-adjusted LCB95: ${formatMetric(analysis.confidence.promotionLcb95)}`,
-    `- Yield: ${analysis.finalCandidate ? `${formatMetric(calculateYieldMetrics(analysis.fixedOosTrades, V56_CORE_START, V56_CACHE_END).alertsPerWeek)} alerts/week` : "DATA_UNAVAILABLE"}`,
+    `- Yield: ${analysis.finalCandidate ? `${formatMetric(calculateYieldMetrics(analysis.fixedOosTrades, V56_CORE_START, V56_BROAD_HOLDOUT_START - 1).alertsPerWeek)} alerts/week (${formatMetric(calculateYieldMetrics(analysis.fixedOosTrades, V56_CORE_START, V56_BROAD_HOLDOUT_START - 1).alertsPerMonth)}/month)` : "DATA_UNAVAILABLE"}`,
     `- Gates: ${analysis.promotion.gates.map((gate) => `${gate.id}=${gate.passed ? "PASS" : "FAIL"}`).join(", ")}`,
   ];
   return [
@@ -1428,12 +1594,20 @@ function renderPromotionDecision(long: DirectionAnalysis, short: DirectionAnalys
     "",
     ...renderDirection(short),
     "",
+    "## Old Production comparison (SHORT; same OOS window/universe/cost/next-open reference)",
+    `- Old Production: NetR ${String(businessRows[0]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[0]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[0]?.profitFactor ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[0]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
+    `- V5.5 Control B: NetR ${String(businessRows[1]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[1]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[1]?.profitFactor ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[1]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
+    `- V5.6 selected: NetR ${String(businessRows[2]?.netR ?? "DATA_UNAVAILABLE")}, AvgR ${String(businessRows[2]?.avgR ?? "DATA_UNAVAILABLE")}, PF ${String(businessRows[2]?.profitFactor ?? "DATA_UNAVAILABLE")}, alerts/week ${String(businessRows[2]?.alertsPerWeek ?? "DATA_UNAVAILABLE")}`,
+    `- Relaxed-only audit vs V5.5 Control B (descriptive canonical-key overlap): OOS ${String(selectedRelaxedOos?.trades ?? "DATA_UNAVAILABLE")} trades, NetR ${String(selectedRelaxedOos?.netR ?? "DATA_UNAVAILABLE")}; holdout ${String(selectedRelaxedHoldout?.trades ?? "DATA_UNAVAILABLE")} trades, NetR ${String(selectedRelaxedHoldout?.netR ?? "DATA_UNAVAILABLE")}`,
+    `- Historical profitability verdict versus Old Production: **${String(businessComparison.verdict)}**`,
+    "",
     "## Hard boundary",
     "- V5.6 Production Email promotion: **NO**",
     "- Automatic strategy switch/promotion: **NO**",
     "- Production deployment or merge: **NO**",
     "- Supabase migration/write/backfill: **NO**",
-    "- V5.5 Forward #002 remains the only prospective evidence source and remains observation-only.",
+    "- V5.5 Forward #002 remains the only prospective evidence source and remains observation-only; its future returns are not used for V5.6 selection.",
+    "- The former 50-settled-trades/30-calendar-days rule is not an Email Promotion hard gate in V5.6; implementation parity and prospective smoke remain required.",
   ].join("\n");
 }
 

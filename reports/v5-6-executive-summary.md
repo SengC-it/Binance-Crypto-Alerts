@@ -5,7 +5,7 @@ A finite, preregistered research registry evaluates failed-breakout balance, wic
 
 ## Results
 LONG: candidate=V56-LONG-REGIME-ENSEMBLE-01; purged OOS=6 trades, AvgR=0.3013, PF=1.5418, NetR=1.8078; holdout=1 trades; decision=SHADOW_ONLY.
-SHORT: candidate=V5.5-CONTROL-SHORT-FAILED_BREAKOUT_SHORT-02; purged OOS=91 trades, AvgR=0.3782, PF=1.7365, NetR=34.4182; holdout=111 trades; decision=SHADOW_ONLY.
+SHORT: candidate=V56-SHORT-FAILED_BREAKOUT-BALANCED-125; purged OOS=108 trades, AvgR=0.3212, PF=1.5979, NetR=34.6877; holdout=147 trades; decision=SHADOW_ONLY.
 Forward #002 evidence: DATA_UNAVAILABLE; feature snapshots=DATA_UNAVAILABLE, settled trades=DATA_UNAVAILABLE, calendar days=DATA_UNAVAILABLE.
 
 ## Evidence limits

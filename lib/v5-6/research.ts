@@ -165,10 +165,13 @@ export interface YieldMetrics {
   alertsPerDay: number;
   alertsPerWeek: number;
   alertsPerMonth: number;
+  activeMonthRatio: number | null;
   medianSignalsPerMonth: number | null;
   maxSignalDroughtDays: number | null;
   symbolBreadth: number;
   regimeBreadth: number;
+  signalsBySymbol: Record<string, number>;
+  signalsByRegime: Record<string, number>;
   positiveMonthRatio: number | null;
 }
 
@@ -177,11 +180,15 @@ export function calculateYieldMetrics(trades: ValidationTrade[], start: number, 
   const monthCounts = new Map<string, number>();
   const symbols = new Set<string>();
   const regimes = new Set<string>();
+  const signalsBySymbol: Record<string, number> = {};
+  const signalsByRegime: Record<string, number> = {};
   const timestamps = [...trades].sort((left, right) => left.entryTime - right.entryTime).map((trade) => trade.entryTime);
   for (const trade of trades) {
     monthCounts.set(new Date(trade.entryTime).toISOString().slice(0, 7), (monthCounts.get(new Date(trade.entryTime).toISOString().slice(0, 7)) ?? 0) + 1);
     symbols.add(trade.symbol);
+    signalsBySymbol[trade.symbol] = (signalsBySymbol[trade.symbol] ?? 0) + 1;
     if (trade.marketRegime) regimes.add(trade.marketRegime);
+    if (trade.marketRegime) signalsByRegime[trade.marketRegime] = (signalsByRegime[trade.marketRegime] ?? 0) + 1;
   }
   const monthlyCounts = [...monthCounts.values()].sort((left, right) => left - right);
   const medianSignalsPerMonth = monthlyCounts.length === 0
@@ -195,15 +202,21 @@ export function calculateYieldMetrics(trades: ValidationTrade[], start: number, 
     maxSignalDroughtDays = maxSignalDroughtDays === null ? gap : Math.max(maxSignalDroughtDays, gap);
   }
   const metrics = calculateMetricsWithoutCircularImport(trades);
+  const firstMonth = new Date(start);
+  const lastMonth = new Date(end);
+  const calendarMonths = Math.max(1, (lastMonth.getUTCFullYear() - firstMonth.getUTCFullYear()) * 12 + lastMonth.getUTCMonth() - firstMonth.getUTCMonth() + 1);
   return {
     calendarDays,
     alertsPerDay: trades.length / calendarDays,
     alertsPerWeek: trades.length / calendarDays * 7,
     alertsPerMonth: trades.length / calendarDays * 30.4375,
+    activeMonthRatio: calendarMonths > 0 ? monthCounts.size / calendarMonths : null,
     medianSignalsPerMonth,
     maxSignalDroughtDays,
     symbolBreadth: symbols.size,
     regimeBreadth: regimes.size,
+    signalsBySymbol,
+    signalsByRegime,
     positiveMonthRatio: metrics.positiveMonthRatio,
   };
 }
