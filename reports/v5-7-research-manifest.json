@@ -1,0 +1,77 @@
+{
+  "schema": "bca-v5-7-research-manifest-v1",
+  "status": "FROZEN_BEFORE_DATA_READ",
+  "manifestId": "v57-second-edge-2021-01-01-2023-07-31",
+  "frozenAt": "2026-08-26T00:00:00.000Z",
+  "researchBaseline": "75227fc91ce0c3cc29f0ec3df1862ff38131dec4",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "primaryEdge": {
+    "role": "PRIMARY_EDGE_CONTROL",
+    "id": "V561-SHORT-FAILED-BREAKOUT-REVERSAL-01",
+    "family": "FAILED_BREAKOUT_REVERSAL",
+    "frozenNestedOos": {
+      "trades": 40,
+      "netR": 20.6614,
+      "avgR": 0.5165,
+      "profitFactor": 2.1017
+    },
+    "source": "reports/v5-6-1-promotion-decision.md",
+    "sourceSha256": "83c860946661e09146d54bf4c032690d467af42c82baf04170a9c6a74200d50b",
+    "parameterChangePolicy": "FROZEN; no V5.7 result may alter the Primary definition"
+  },
+  "externalDataset": {
+    "manifestId": "v561-external-2021-01-01-2023-07-31",
+    "manifestSha256": "001e1c77de9055ebfff3aee4a8772c432e589ce3f8debfa9f282bf952910965d",
+    "source": "Binance Data Vision USDT-M Futures monthly archives",
+    "sourceRoot": "https://data.binance.vision/data/futures/um/monthly",
+    "period": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2023-07-31T23:59:59.999Z"
+    },
+    "timeframes": [
+      "15m",
+      "1h",
+      "4h",
+      "funding"
+    ],
+    "selectionUse": "EXTERNAL_VALIDATION_ONLY; NOT USED FOR CANDIDATE SELECTION",
+    "pitManifest": "data/pit-universe/binance-um-monthly-15m-index.json",
+    "pitManifestSha256": "595f97bfaa83f2161c5aea26153a2e8bb9775370e662307c2d09233110ffb6df"
+  },
+  "secondEdgeRegistry": {
+    "maxCandidates": 12,
+    "count": 8,
+    "hash": "e475d7905121ea13445615f00405063c457c0164dc3920cfc721bcb73cabd7c8",
+    "families": [
+      "BEAR_TREND_CONTINUATION",
+      "RANGE_BREAKDOWN",
+      "LIQUIDITY_SWEEP_SHORT",
+      "MOMENTUM_CASCADE"
+    ],
+    "selectionPolicy": "Complete finite registry is frozen before data read; no candidate is added, removed, or tuned after results.",
+    "prohibitedFamily": "FAILED_BREAKOUT_REVERSAL"
+  },
+  "execution": {
+    "signalData": "Only the closed 15m signal candle and already-closed higher-timeframe features may affect a trigger.",
+    "entryReference": "The next contiguous 15m candle open is the only execution reference; no signal-close fallback.",
+    "contiguousBoundary": "execution.openTime == signal.closeTime + 1ms",
+    "source": "BINANCE_15M_NEXT_BAR_OPEN"
+  },
+  "costs": {
+    "takerFeeRate": 0.0004,
+    "baseSlippageBps": 2,
+    "riskPerTradeUsdt": 50,
+    "cooldownHours": 8
+  },
+  "productionBoundary": {
+    "researchOnly": true,
+    "noProductionChange": true,
+    "noProductionEmail": true,
+    "noEnvironmentChange": true,
+    "noMigration": true,
+    "noDeployment": true,
+    "noMerge": true,
+    "noAutoTrading": true
+  },
+  "manifestHash": "c21ef22b190ebf44656e1a07c7c4a582c7db759b441a709cf29a744ea777b7cc"
+}
