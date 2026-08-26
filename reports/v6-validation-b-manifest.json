@@ -1,0 +1,30 @@
+{
+  "schema": "bca-v6-validation-b-manifest-v1",
+  "status": "DATA_INSUFFICIENT",
+  "manifestId": "v6-cross-exchange-transferability-bybit-okx-2020-01-01-2026-07-31",
+  "frozenAt": "2026-08-26T00:00:00.000Z",
+  "baselineCommit": "4925d1b819770149a98c7014ef984fd1dba1a89c",
+  "exchange": "Bybit or OKX perpetual",
+  "period": {
+    "start": "2020-01-01T00:00:00.000Z",
+    "end": "2026-07-31T23:59:59.999Z"
+  },
+  "symbols": [],
+  "execution": {
+    "signal": "closed 4h",
+    "entry": "next contiguous 4h open",
+    "sameBar": false
+  },
+  "costs": {
+    "takerFeeRate": 0.0004,
+    "baseSlippageBps": 2,
+    "stressTotalBps": [
+      5,
+      10,
+      15
+    ]
+  },
+  "selectionRule": "Independent exchange and symbol manifest must be frozen before returns are read; no Bybit/OKX immutable archive is present in the workspace.",
+  "dataInsufficientReason": "No immutable Bybit/OKX historical archive or manifest is present; no online return read was performed and Binance data is not substituted.",
+  "manifestHash": "4005e0847007f2326273fd5d84435101926700f925aab503a925df0f09310980"
+}

@@ -1,0 +1,2675 @@
+{
+  "schema": "bca-v6-candidate-registry-v1",
+  "status": "FROZEN_BEFORE_RETURN_READ",
+  "baseline": "4925d1b819770149a98c7014ef984fd1dba1a89c",
+  "configurationCount": 12,
+  "riskTemplateCount": 3,
+  "developmentSymbols": 91,
+  "runs": [
+    {
+      "id": "V6-A-TS-20-10|V6-RISK-ATR-1.5R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 14823,
+      "trades": 7838,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1777694399999,
+          "entryPrice": 0.06081216,
+          "riskPrice": 0.002100000000000023,
+          "rMultiple": 1.6706286345965717
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-10|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 19415,
+      "trades": 10207,
+      "minimumRiskPrice": 0.00003064285714285631,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "FILUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1620547199999,
+          "entryPrice": 144.74704480000003,
+          "riskPrice": 6.191035714285713,
+          "rMultiple": 1.5728680466127754
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-10|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 14823,
+      "trades": 6991,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1601308799999,
+          "entryPrice": 27.235446,
+          "riskPrice": 1.0940357142857149,
+          "rMultiple": 2.2381595512389705
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1777694399999,
+          "entryPrice": 0.06081216,
+          "riskPrice": 0.002100000000000023,
+          "rMultiple": 2.17032867459657
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-10|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 19415,
+      "trades": 8979,
+      "minimumRiskPrice": 0.000034499999999999145,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "FILUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1620547199999,
+          "entryPrice": 144.74704480000003,
+          "riskPrice": 6.191035714285713,
+          "rMultiple": 2.073168086612776
+        },
+        {
+          "symbol": "EGLDUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711843199999,
+          "entryPrice": 59.058186,
+          "riskPrice": 1.7496428571428577,
+          "rMultiple": 2.051372395947929
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-10|V6-RISK-TIME-1.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 14823,
+      "trades": 9414,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1757865599999,
+          "entryPrice": 3656.28111,
+          "riskPrice": 13.463571428571365,
+          "rMultiple": -1.346266316318658
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-10|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 19415,
+      "trades": 12340,
+      "minimumRiskPrice": 0.00003064285714285631,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1726286399999,
+          "entryPrice": 0.148060382,
+          "riskPrice": 0.0013746428571428581,
+          "rMultiple": -1.3464383637361808
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-20|V6-RISK-ATR-1.5R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 14823,
+      "trades": 7829,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1777694399999,
+          "entryPrice": 0.06081216,
+          "riskPrice": 0.002100000000000023,
+          "rMultiple": 1.6706286345965717
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-20|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 19415,
+      "trades": 10199,
+      "minimumRiskPrice": 0.00003064285714285631,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "FILUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1620547199999,
+          "entryPrice": 144.74704480000003,
+          "riskPrice": 6.191035714285713,
+          "rMultiple": 1.5728680466127754
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-20|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 14823,
+      "trades": 6983,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1601308799999,
+          "entryPrice": 27.235446,
+          "riskPrice": 1.0940357142857149,
+          "rMultiple": 2.2381595512389705
+        },
+        {
+          "symbol": "XMRUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1670515199999,
+          "entryPrice": 146.50929599999998,
+          "riskPrice": 2.8414285714285437,
+          "rMultiple": 2.2076194372535984
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-20|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 19415,
+      "trades": 8937,
+      "minimumRiskPrice": 0.000034499999999999145,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "MATICUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711699199999,
+          "entryPrice": 0.9832033200000001,
+          "riskPrice": 0.03627857142857137,
+          "rMultiple": 2.099594013168047
+        },
+        {
+          "symbol": "FILUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1620547199999,
+          "entryPrice": 144.74704480000003,
+          "riskPrice": 6.191035714285713,
+          "rMultiple": 2.073168086612776
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-20|V6-RISK-TIME-1.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 14823,
+      "trades": 9414,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1757865599999,
+          "entryPrice": 3656.28111,
+          "riskPrice": 13.463571428571365,
+          "rMultiple": -1.346266316318658
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-20-20|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-20-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 19415,
+      "trades": 12340,
+      "minimumRiskPrice": 0.00003064285714285631,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1726286399999,
+          "entryPrice": 0.148060382,
+          "riskPrice": 0.0013746428571428581,
+          "rMultiple": -1.3464383637361808
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-10|V6-RISK-ATR-1.5R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 11874,
+      "trades": 6369,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "COTIUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1664812799999,
+          "entryPrice": 0.12128425200000001,
+          "riskPrice": 0.0054117857142857665,
+          "rMultiple": 1.6402956385111824
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-10|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 13929,
+      "trades": 7633,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 1.5438561292494433
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-10|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 11874,
+      "trades": 5683,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1601308799999,
+          "entryPrice": 27.235446,
+          "riskPrice": 1.0940357142857149,
+          "rMultiple": 2.2381595512389705
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1683892799999,
+          "entryPrice": 0.9110821800000001,
+          "riskPrice": 0.05628214285714288,
+          "rMultiple": 2.1090971242375094
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-10|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 13929,
+      "trades": 6738,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 2.044156169249436
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 2.022280988951236
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-10|V6-RISK-TIME-1.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 11874,
+      "trades": 7612,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1758009599999,
+          "entryPrice": 3694.778808,
+          "riskPrice": 21.17571428571442,
+          "rMultiple": -1.2476599113122866
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-10|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 13929,
+      "trades": 9110,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1726286399999,
+          "entryPrice": 0.148060382,
+          "riskPrice": 0.0013746428571428581,
+          "rMultiple": -1.3464383637361808
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-20|V6-RISK-ATR-1.5R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 11874,
+      "trades": 6362,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "COTIUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1664812799999,
+          "entryPrice": 0.12128425200000001,
+          "riskPrice": 0.0054117857142857665,
+          "rMultiple": 1.6402956385111824
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-20|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 13929,
+      "trades": 7628,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 1.5438561292494433
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-20|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 11874,
+      "trades": 5679,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1601308799999,
+          "entryPrice": 27.235446,
+          "riskPrice": 1.0940357142857149,
+          "rMultiple": 2.2381595512389705
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1683892799999,
+          "entryPrice": 0.9110821800000001,
+          "riskPrice": 0.05628214285714288,
+          "rMultiple": 2.1090971242375094
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-20|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 13929,
+      "trades": 6719,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 2.044156169249436
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 2.022280988951236
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-20|V6-RISK-TIME-1.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 11874,
+      "trades": 7612,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1758009599999,
+          "entryPrice": 3694.778808,
+          "riskPrice": 21.17571428571442,
+          "rMultiple": -1.2476599113122866
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-40-20|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-40-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 13929,
+      "trades": 9110,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1726286399999,
+          "entryPrice": 0.148060382,
+          "riskPrice": 0.0013746428571428581,
+          "rMultiple": -1.3464383637361808
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-10|V6-RISK-ATR-1.5R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 10762,
+      "trades": 5795,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "COTIUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1664812799999,
+          "entryPrice": 0.12128425200000001,
+          "riskPrice": 0.0054117857142857665,
+          "rMultiple": 1.6402956385111824
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-10|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 12117,
+      "trades": 6730,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 1.5219809489512373
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-10|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 10762,
+      "trades": 5179,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1683892799999,
+          "entryPrice": 0.9110821800000001,
+          "riskPrice": 0.05628214285714288,
+          "rMultiple": 2.1090971242375094
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1779998399999,
+          "entryPrice": 0.027605519999999998,
+          "riskPrice": 0.0015086785714285723,
+          "rMultiple": 2.103693659157846
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-10|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 12117,
+      "trades": 5953,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 2.022280988951236
+        },
+        {
+          "symbol": "BTCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1621195199999,
+          "entryPrice": 45563.565464,
+          "riskPrice": 2536.7421428571433,
+          "rMultiple": 2.0217541640647796
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-10|V6-RISK-TIME-1.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 10762,
+      "trades": 6916,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1758009599999,
+          "entryPrice": 3694.778808,
+          "riskPrice": 21.17571428571442,
+          "rMultiple": -1.2476599113122866
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-10|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 12117,
+      "trades": 7993,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1766836799999,
+          "entryPrice": 0.10197959999999999,
+          "riskPrice": 0.013499999999999974,
+          "rMultiple": -1.2884804083351113
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-20|V6-RISK-ATR-1.5R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 10762,
+      "trades": 5788,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "COTIUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1664812799999,
+          "entryPrice": 0.12128425200000001,
+          "riskPrice": 0.0054117857142857665,
+          "rMultiple": 1.6402956385111824
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-20|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 12117,
+      "trades": 6725,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 1.5219809489512373
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-20|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 10762,
+      "trades": 5175,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1683892799999,
+          "entryPrice": 0.9110821800000001,
+          "riskPrice": 0.05628214285714288,
+          "rMultiple": 2.1090971242375094
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1779998399999,
+          "entryPrice": 0.027605519999999998,
+          "riskPrice": 0.0015086785714285723,
+          "rMultiple": 2.103693659157846
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-20|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 12117,
+      "trades": 5935,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 2.022280988951236
+        },
+        {
+          "symbol": "BTCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1621195199999,
+          "entryPrice": 45563.565464,
+          "riskPrice": 2536.7421428571433,
+          "rMultiple": 2.0217541640647796
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-20|V6-RISK-TIME-1.0R|LONG",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 10762,
+      "trades": 6916,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1758009599999,
+          "entryPrice": 3694.778808,
+          "riskPrice": 21.17571428571442,
+          "rMultiple": -1.2476599113122866
+        }
+      ]
+    },
+    {
+      "id": "V6-A-TS-60-20|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TIME_SERIES_TREND",
+      "configId": "V6-A-TS-60-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 12117,
+      "trades": 7993,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1766836799999,
+          "entryPrice": 0.10197959999999999,
+          "riskPrice": 0.013499999999999974,
+          "rMultiple": -1.2884804083351113
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-5|V6-RISK-ATR-1.5R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-5",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 29467,
+      "trades": 5811,
+      "minimumRiskPrice": 0.00006572142857142858,
+      "maximumAbsoluteR": 2.591657909211508,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 2.591657909211508
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 2.2485168311166412
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-5|V6-RISK-ATR-1.5R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-5",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 29464,
+      "trades": 5821,
+      "minimumRiskPrice": 0.000040285714285713433,
+      "maximumAbsoluteR": 1.7643779111733273,
+      "extremeTrades": [
+        {
+          "symbol": "ADAUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1617364799999,
+          "entryPrice": 1.213027346,
+          "riskPrice": 0.03966321428571443,
+          "rMultiple": 1.7643779111733273
+        },
+        {
+          "symbol": "ETHUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1613159999999,
+          "entryPrice": 1845.0109240000002,
+          "riskPrice": 83.02821428571424,
+          "rMultiple": 1.6936366872939035
+        },
+        {
+          "symbol": "TIAUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1709179199999,
+          "entryPrice": 17.371125080000002,
+          "riskPrice": 1.1382107142857136,
+          "rMultiple": 1.6433171273601237
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-5|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-5",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 29467,
+      "trades": 5148,
+      "minimumRiskPrice": 0.00006572142857142858,
+      "maximumAbsoluteR": 3.0913579492115106,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 3.0913579492115106
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 2.748216871116641
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-5|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-5",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 29464,
+      "trades": 5190,
+      "minimumRiskPrice": 0.000040285714285713433,
+      "maximumAbsoluteR": 2.381036983059737,
+      "extremeTrades": [
+        {
+          "symbol": "NEARUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1618300799999,
+          "entryPrice": 6.64237126,
+          "riskPrice": 0.503539285714286,
+          "rMultiple": 2.381036983059737
+        },
+        {
+          "symbol": "ETHUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1613159999999,
+          "entryPrice": 1845.0109240000002,
+          "riskPrice": 83.02821428571424,
+          "rMultiple": 2.193936727293904
+        },
+        {
+          "symbol": "XLMUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1615305599999,
+          "entryPrice": 0.425894804,
+          "riskPrice": 0.016581428571428584,
+          "rMultiple": 2.1896256776348633
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-5|V6-RISK-TIME-1.0R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-5",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 29467,
+      "trades": 7710,
+      "minimumRiskPrice": 0.00006572142857142858,
+      "maximumAbsoluteR": 2.091957869211509,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 2.091957869211509
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 1.7488167911166417
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-5|V6-RISK-TIME-1.0R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-5",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 29464,
+      "trades": 7736,
+      "minimumRiskPrice": 0.00004001785714285718,
+      "maximumAbsoluteR": 1.4200930699342198,
+      "extremeTrades": [
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1777247999999,
+          "entryPrice": 4669.7658599999995,
+          "riskPrice": 13.700357142857328,
+          "rMultiple": -1.4058297686818884
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1727251199999,
+          "entryPrice": 0.15016996,
+          "riskPrice": 0.0011924999999999972,
+          "rMultiple": -1.3071218453215985
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-10|V6-RISK-ATR-1.5R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 54357,
+      "trades": 10193,
+      "minimumRiskPrice": 0.000046392857142856284,
+      "maximumAbsoluteR": 2.591657909211508,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 2.591657909211508
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 2.2485168311166412
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-10|V6-RISK-ATR-1.5R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 54358,
+      "trades": 9933,
+      "minimumRiskPrice": 0.00003117857142857052,
+      "maximumAbsoluteR": 1.735894271696045,
+      "extremeTrades": [
+        {
+          "symbol": "ADAUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1617350399999,
+          "entryPrice": 1.228464258,
+          "riskPrice": 0.040155000000000156,
+          "rMultiple": 1.735894271696045
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616918399999,
+          "entryPrice": 0.0545580862,
+          "riskPrice": 0.0015323571428571651,
+          "rMultiple": 1.7162888202591078
+        },
+        {
+          "symbol": "UNIUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1617019199999,
+          "entryPrice": 29.046889460000003,
+          "riskPrice": 1.1083499999999984,
+          "rMultiple": 1.6870662156418417
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-10|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 54357,
+      "trades": 9113,
+      "minimumRiskPrice": 0.000046392857142856284,
+      "maximumAbsoluteR": 3.0913579492115106,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 3.0913579492115106
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 2.748216871116641
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-10|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 54358,
+      "trades": 8811,
+      "minimumRiskPrice": 0.00003117857142857052,
+      "maximumAbsoluteR": 2.381036983059737,
+      "extremeTrades": [
+        {
+          "symbol": "NEARUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1618300799999,
+          "entryPrice": 6.64237126,
+          "riskPrice": 0.503539285714286,
+          "rMultiple": 2.381036983059737
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1709294399999,
+          "entryPrice": 0.141101774,
+          "riskPrice": 0.0023164285714285656,
+          "rMultiple": 2.3069140539430837
+        },
+        {
+          "symbol": "XLMUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1615262399999,
+          "entryPrice": 0.426974588,
+          "riskPrice": 0.015505714285714303,
+          "rMultiple": 2.298740787327069
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-10|V6-RISK-TIME-1.0R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-10",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 54357,
+      "trades": 13773,
+      "minimumRiskPrice": 0.000046392857142856284,
+      "maximumAbsoluteR": 2.091957869211509,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 2.091957869211509
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 1.7488167911166417
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-10|V6-RISK-TIME-1.0R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-10",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 54358,
+      "trades": 13447,
+      "minimumRiskPrice": 0.00003117857142857052,
+      "maximumAbsoluteR": 1.4200930699342198,
+      "extremeTrades": [
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1777247999999,
+          "entryPrice": 4669.7658599999995,
+          "riskPrice": 13.700357142857328,
+          "rMultiple": -1.4058297686818884
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1727251199999,
+          "entryPrice": 0.15016996,
+          "riskPrice": 0.0011924999999999972,
+          "rMultiple": -1.3071218453215985
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-20|V6-RISK-ATR-1.5R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 105483,
+      "trades": 18620,
+      "minimumRiskPrice": 0.000032142857142856277,
+      "maximumAbsoluteR": 2.591657909211508,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 2.591657909211508
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 2.2485168311166412
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-20|V6-RISK-ATR-1.5R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 105486,
+      "trades": 17687,
+      "minimumRiskPrice": 0.00002882142857142768,
+      "maximumAbsoluteR": 1.7769861335473263,
+      "extremeTrades": [
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1613102399999,
+          "entryPrice": 511.33971160000004,
+          "riskPrice": 53.91267857142857,
+          "rMultiple": 1.7769861335473263
+        },
+        {
+          "symbol": "ADAUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1617350399999,
+          "entryPrice": 1.228464258,
+          "riskPrice": 0.040155000000000156,
+          "rMultiple": 1.735894271696045
+        },
+        {
+          "symbol": "ETHUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1613174399999,
+          "entryPrice": 1842.711384,
+          "riskPrice": 74.99142857142853,
+          "rMultiple": 1.714026185409408
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-20|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 105483,
+      "trades": 16558,
+      "minimumRiskPrice": 0.000032142857142856277,
+      "maximumAbsoluteR": 3.0913579492115106,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 3.0913579492115106
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775750399999,
+          "entryPrice": 0.7049209559999999,
+          "riskPrice": 0.09154071428571456,
+          "rMultiple": 2.8771529245387693
+        },
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-20|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 105486,
+      "trades": 15503,
+      "minimumRiskPrice": 0.000030749999999999135,
+      "maximumAbsoluteR": 2.298740787327069,
+      "extremeTrades": [
+        {
+          "symbol": "XLMUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1615262399999,
+          "entryPrice": 0.426974588,
+          "riskPrice": 0.015505714285714303,
+          "rMultiple": 2.298740787327069
+        },
+        {
+          "symbol": "BTCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1618415999999,
+          "entryPrice": 63119.853504000006,
+          "riskPrice": 1924.721785714286,
+          "rMultiple": 2.2887403523542575
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1613102399999,
+          "entryPrice": 511.33971160000004,
+          "riskPrice": 53.91267857142857,
+          "rMultiple": 2.277286173547326
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-20|V6-RISK-TIME-1.0R|LONG",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-20",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 105483,
+      "trades": 25394,
+      "minimumRiskPrice": 0.000032142857142856277,
+      "maximumAbsoluteR": 2.091957869211509,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775663999999,
+          "entryPrice": 0.024874973999999998,
+          "riskPrice": 0.0010864285714285208,
+          "rMultiple": 2.091957869211509
+        },
+        {
+          "symbol": "SIRENUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1775764799999,
+          "entryPrice": 0.716653302,
+          "riskPrice": 0.10708392857142886,
+          "rMultiple": 1.7488167911166417
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1756123199999,
+          "entryPrice": 3360.4519560000003,
+          "riskPrice": 6.829285714285739,
+          "rMultiple": -1.638966409237533
+        }
+      ]
+    },
+    {
+      "id": "V6-B-CSM-20|V6-RISK-TIME-1.0R|SHORT",
+      "family": "CROSS_SECTIONAL_MOMENTUM",
+      "configId": "V6-B-CSM-20",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 105486,
+      "trades": 24529,
+      "minimumRiskPrice": 0.000029035714285713404,
+      "maximumAbsoluteR": 1.5267829186744797,
+      "extremeTrades": [
+        {
+          "symbol": "DODOXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1784620799999,
+          "entryPrice": 0.016403718600000002,
+          "riskPrice": 0.0013976785714285727,
+          "rMultiple": -1.5267829186744797
+        },
+        {
+          "symbol": "SOLUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1668009599999,
+          "entryPrice": 12.917416,
+          "riskPrice": 5.841428571428593,
+          "rMultiple": -1.4200930699342198
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1777247999999,
+          "entryPrice": 4669.7658599999995,
+          "riskPrice": 13.700357142857328,
+          "rMultiple": -1.4058297686818884
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-AVOID|V6-RISK-ATR-1.5R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-AVOID",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 10609,
+      "trades": 5753,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "COTIUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1664812799999,
+          "entryPrice": 0.12128425200000001,
+          "riskPrice": 0.0054117857142857665,
+          "rMultiple": 1.6402956385111824
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-AVOID|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-AVOID",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 13483,
+      "trades": 7471,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 1.5438561292494433
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-AVOID|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-AVOID",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 10609,
+      "trades": 5155,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1601308799999,
+          "entryPrice": 27.235446,
+          "riskPrice": 1.0940357142857149,
+          "rMultiple": 2.2381595512389705
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1683892799999,
+          "entryPrice": 0.9110821800000001,
+          "riskPrice": 0.05628214285714288,
+          "rMultiple": 2.1090971242375094
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-AVOID|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-AVOID",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 13483,
+      "trades": 6592,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 2.044156169249436
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 2.022280988951236
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-AVOID|V6-RISK-TIME-1.0R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-AVOID",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 10609,
+      "trades": 6832,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        },
+        {
+          "symbol": "BTCUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1581220799999,
+          "entryPrice": 10061.791956000001,
+          "riskPrice": 170.68714285714285,
+          "rMultiple": -1.248271051108245
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-AVOID|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-AVOID",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 13483,
+      "trades": 8897,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1766836799999,
+          "entryPrice": 0.10197959999999999,
+          "riskPrice": 0.013499999999999974,
+          "rMultiple": -1.2884804083351113
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755662399999,
+          "entryPrice": 3305.58875,
+          "riskPrice": 14.765357142857184,
+          "rMultiple": -1.2581096360312491
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-PREFERENCE|V6-RISK-ATR-1.5R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-PREFERENCE",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 1359,
+      "trades": 885,
+      "minimumRiskPrice": 0.00010202142857142845,
+      "maximumAbsoluteR": 2.077645693734949,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.077645693734949
+        },
+        {
+          "symbol": "HOMEUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1780315199999,
+          "entryPrice": 0.0443948772,
+          "riskPrice": 0.005783678571428573,
+          "rMultiple": 1.7224148475123942
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1683892799999,
+          "entryPrice": 0.9110821800000001,
+          "riskPrice": 0.05628214285714288,
+          "rMultiple": 1.609397084237511
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-PREFERENCE|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-PREFERENCE",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 8528,
+      "trades": 5297,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 1.5438561292494433
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-PREFERENCE|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-PREFERENCE",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 1359,
+      "trades": 831,
+      "minimumRiskPrice": 0.00010202142857142845,
+      "maximumAbsoluteR": 2.5773457337349495,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 2.5773457337349495
+        },
+        {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1601308799999,
+          "entryPrice": 27.235446,
+          "riskPrice": 1.0940357142857149,
+          "rMultiple": 2.2381595512389705
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1683892799999,
+          "entryPrice": 0.9110821800000001,
+          "riskPrice": 0.05628214285714288,
+          "rMultiple": 2.1090971242375094
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-PREFERENCE|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-PREFERENCE",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 8528,
+      "trades": 4803,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 2.044156169249436
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1616457599999,
+          "entryPrice": 336.15075640000003,
+          "riskPrice": 16.945285714285696,
+          "rMultiple": 2.022280988951236
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-PREFERENCE|V6-RISK-TIME-1.0R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-PREFERENCE",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 1359,
+      "trades": 995,
+      "minimumRiskPrice": 0.00010202142857142845,
+      "maximumAbsoluteR": 1.5779456537349492,
+      "extremeTrades": [
+        {
+          "symbol": "ENJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1773820799999,
+          "entryPrice": 0.026045208,
+          "riskPrice": 0.001617857142857091,
+          "rMultiple": 1.5779456537349492
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1758009599999,
+          "entryPrice": 3694.778808,
+          "riskPrice": 21.17571428571442,
+          "rMultiple": -1.2476599113122866
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-PREFERENCE|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-PREFERENCE",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 8528,
+      "trades": 6116,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1766836799999,
+          "entryPrice": 0.10197959999999999,
+          "riskPrice": 0.013499999999999974,
+          "rMultiple": -1.2884804083351113
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1773619199999,
+          "entryPrice": 4986.442512,
+          "riskPrice": 27.4746428571425,
+          "rMultiple": -1.2184346859353412
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-NEUTRAL|V6-RISK-ATR-1.5R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-NEUTRAL",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 11246,
+      "trades": 6064,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.6720564505822233,
+      "extremeTrades": [
+        {
+          "symbol": "INJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1681228799999,
+          "entryPrice": 6.5133024,
+          "riskPrice": 0.3286071428571429,
+          "rMultiple": 1.6720564505822233
+        },
+        {
+          "symbol": "COTIUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1664812799999,
+          "entryPrice": 0.12128425200000001,
+          "riskPrice": 0.0054117857142857665,
+          "rMultiple": 1.6402956385111824
+        },
+        {
+          "symbol": "SYNUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1782115199999,
+          "entryPrice": 0.24780955200000002,
+          "riskPrice": 0.04643892857142856,
+          "rMultiple": 1.6304138770625314
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-NEUTRAL|V6-RISK-ATR-1.5R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-NEUTRAL",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-ATR-1.5R",
+      "signals": 13692,
+      "trades": 7549,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 1.6248013150364893
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 1.5438561292494433
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-NEUTRAL|V6-RISK-TRAIL-2.0R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-NEUTRAL",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 11246,
+      "trades": 5428,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 2.2381595512389705,
+      "extremeTrades": [
+        {
+          "symbol": "BNBUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1601308799999,
+          "entryPrice": 27.235446,
+          "riskPrice": 1.0940357142857149,
+          "rMultiple": 2.2381595512389705
+        },
+        {
+          "symbol": "INJUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1681228799999,
+          "entryPrice": 6.5133024,
+          "riskPrice": 0.3286071428571429,
+          "rMultiple": 2.171756490582224
+        },
+        {
+          "symbol": "COMPUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1689091199999,
+          "entryPrice": 66.31326,
+          "riskPrice": 5.11392857142857,
+          "rMultiple": 2.1072643114782137
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-NEUTRAL|V6-RISK-TRAIL-2.0R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-NEUTRAL",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TRAIL-2.0R",
+      "signals": 13692,
+      "trades": 6653,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 2.125101355036488,
+      "extremeTrades": [
+        {
+          "symbol": "ARCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1767139199999,
+          "entryPrice": 0.035022994,
+          "riskPrice": 0.002044285714285711,
+          "rMultiple": 2.125101355036488
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1711828799999,
+          "entryPrice": 0.13648269799999999,
+          "riskPrice": 0.003938571428571436,
+          "rMultiple": 2.044156169249436
+        },
+        {
+          "symbol": "BTCUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1621195199999,
+          "entryPrice": 45563.565464,
+          "riskPrice": 2536.7421428571433,
+          "rMultiple": 2.0217541640647796
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-NEUTRAL|V6-RISK-TIME-1.0R|LONG",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-NEUTRAL",
+      "side": "LONG",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 11246,
+      "trades": 7232,
+      "minimumRiskPrice": 0.000049285714285713395,
+      "maximumAbsoluteR": 1.2614873163769236,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1759147199999,
+          "entryPrice": 3839.877822,
+          "riskPrice": 17.577857142857088,
+          "rMultiple": -1.2614873163769236
+        },
+        {
+          "symbol": "PAXGUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1758009599999,
+          "entryPrice": 3694.778808,
+          "riskPrice": 21.17571428571442,
+          "rMultiple": -1.2476599113122866
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "LONG",
+          "signalTimestamp": 1784663999999,
+          "entryPrice": 0.329325852,
+          "riskPrice": 0.0018085714285713875,
+          "rMultiple": -1.242820277733526
+        }
+      ]
+    },
+    {
+      "id": "V6-C-CARRY-NEUTRAL|V6-RISK-TIME-1.0R|SHORT",
+      "family": "TREND_CARRY",
+      "configId": "V6-C-CARRY-NEUTRAL",
+      "side": "SHORT",
+      "riskTemplateId": "V6-RISK-TIME-1.0R",
+      "signals": 13692,
+      "trades": 9002,
+      "minimumRiskPrice": 0.00003032142857142774,
+      "maximumAbsoluteR": 1.6696339527076702,
+      "extremeTrades": [
+        {
+          "symbol": "PAXGUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1755475199999,
+          "entryPrice": 3321.8055059999997,
+          "riskPrice": 5.959285714285654,
+          "rMultiple": -1.6696339527076702
+        },
+        {
+          "symbol": "TRXUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1726286399999,
+          "entryPrice": 0.148060382,
+          "riskPrice": 0.0013746428571428581,
+          "rMultiple": -1.3464383637361808
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "side": "SHORT",
+          "signalTimestamp": 1766836799999,
+          "entryPrice": 0.10197959999999999,
+          "riskPrice": 0.013499999999999974,
+          "rMultiple": -1.2884804083351113
+        }
+      ]
+    }
+  ],
+  "selection": "Inner purged walk-forward Pareto frontier over profitability, risk, robustness, signal frequency and breadth; highest NetR alone is not selected."
+}

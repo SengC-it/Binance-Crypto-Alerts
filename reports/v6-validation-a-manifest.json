@@ -1,0 +1,152 @@
+{
+  "schema": "bca-v6-validation-a-manifest-v1",
+  "status": "DATA_INSUFFICIENT",
+  "manifestId": "v6-binance-usdtm-remaining-symbols-2020-01-01-2026-07-31",
+  "frozenAt": "2026-08-26T00:00:00.000Z",
+  "baselineCommit": "4925d1b819770149a98c7014ef984fd1dba1a89c",
+  "exchange": "Binance USDT-M Futures",
+  "source": "Immutable local Binance research cache; selection uses PIT root membership, listing-window metadata and data availability only.",
+  "period": {
+    "start": "2023-01-01T00:00:00.000Z",
+    "end": "2026-07-31T23:59:59.999Z"
+  },
+  "targetSymbols": 20,
+  "minimumSymbols": 15,
+  "candidateSymbols": [
+    "0GUSDT",
+    "1000FLOKIUSDT",
+    "1000LUNCUSDT",
+    "1000RATSUSDT",
+    "1000SATSUSDT",
+    "1000SHIBUSDT",
+    "1000WHYUSDT",
+    "1000XECUSDT",
+    "APEUSDT",
+    "ACHUSDT",
+    "ANKRUSDT",
+    "API3USDT",
+    "ALICEUSDT",
+    "ALPHAUSDT",
+    "ARPAUSDT",
+    "AUDIOUSDT",
+    "AUCTIONUSDT",
+    "AXSUSDT",
+    "BADGERUSDT",
+    "BAKEUSDT",
+    "BALUSDT",
+    "BANDUSDT",
+    "BEATUSDT",
+    "BLUAIUSDT",
+    "BTWUSDT",
+    "CYSUSDT",
+    "GWEIUSDT",
+    "MMTUSDT"
+  ],
+  "symbols": [
+    "1000SHIBUSDT",
+    "BEATUSDT",
+    "BLUAIUSDT",
+    "BTWUSDT",
+    "CYSUSDT",
+    "GWEIUSDT",
+    "MMTUSDT"
+  ],
+  "coverage": "7/28",
+  "listingWindowRule": "Cache filename window and PIT archive membership; minimum 30-day listing age; no returns or strategy outcomes read for selection.",
+  "selectionRule": "Static pre-registered candidates, excluding data/validation-universe-50.json, V5.7 observed symbols, V5.9 burned holdout, V5.9.1 holdout, and known Production symbols; select only complete immutable local cache records.",
+  "execution": {
+    "signal": "closed 4h",
+    "entry": "next contiguous 4h open",
+    "sameBar": false
+  },
+  "costs": {
+    "takerFeeRate": 0.0004,
+    "baseSlippageBps": 2,
+    "stressTotalBps": [
+      5,
+      10,
+      15
+    ]
+  },
+  "cacheRecords": [
+    {
+      "symbol": "1000SHIBUSDT",
+      "path": "data/validation-cache/1000SHIBUSDT-1754705700000-1786241699999.json",
+      "sizeBytes": 6506805,
+      "sha256": "b5fe9b7abed13561c2cf5979d2afa2a59fd972753c948ba2495789a826a19365",
+      "source": "BINANCE_USDT_M_VALIDATION_CACHE",
+      "availableWindow": {
+        "start": "2025-08-09T02:15:00.000Z",
+        "end": "2026-08-09T02:14:59.999Z"
+      }
+    },
+    {
+      "symbol": "BEATUSDT",
+      "path": "data/validation-cache/BEATUSDT-1754705700000-1786241699999.json",
+      "sizeBytes": 4329592,
+      "sha256": "f5e480cd30579cf261c6e0a14fba6ef64cc9bbe0829b9d4f28389b0088f3c7c9",
+      "source": "BINANCE_USDT_M_VALIDATION_CACHE",
+      "availableWindow": {
+        "start": "2025-08-09T02:15:00.000Z",
+        "end": "2026-08-09T02:14:59.999Z"
+      }
+    },
+    {
+      "symbol": "BLUAIUSDT",
+      "path": "data/validation-cache/BLUAIUSDT-1754704800000-1786240799999.json",
+      "sizeBytes": 4987360,
+      "sha256": "6751e2aebb77919c6f26d37f543761850fb7436fc7ef64870e9143de39216c7a",
+      "source": "BINANCE_USDT_M_VALIDATION_CACHE",
+      "availableWindow": {
+        "start": "2025-08-09T02:00:00.000Z",
+        "end": "2026-08-09T01:59:59.999Z"
+      }
+    },
+    {
+      "symbol": "BTWUSDT",
+      "path": "data/validation-cache/BTWUSDT-1754704800000-1786240799999.json",
+      "sizeBytes": 1094186,
+      "sha256": "3b0d96409808ae9fca803fe803244203183618e9b27635cdf1bf91613495fd76",
+      "source": "BINANCE_USDT_M_VALIDATION_CACHE",
+      "availableWindow": {
+        "start": "2025-08-09T02:00:00.000Z",
+        "end": "2026-08-09T01:59:59.999Z"
+      }
+    },
+    {
+      "symbol": "CYSUSDT",
+      "path": "data/validation-cache/CYSUSDT-1754704800000-1786240799999.json",
+      "sizeBytes": 3829195,
+      "sha256": "d3bc4ec9994a6178b1d5689427b9cc28a8fdeb45e5b0b91918bdb61709803d1c",
+      "source": "BINANCE_USDT_M_VALIDATION_CACHE",
+      "availableWindow": {
+        "start": "2025-08-09T02:00:00.000Z",
+        "end": "2026-08-09T01:59:59.999Z"
+      }
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "path": "data/validation-cache/GWEIUSDT-1754705700000-1786241699999.json",
+      "sizeBytes": 3219696,
+      "sha256": "022d842bd234e8b0b2719866d564cab3d656aa9ad272b3f0baf6f221129ef0bc",
+      "source": "BINANCE_USDT_M_VALIDATION_CACHE",
+      "availableWindow": {
+        "start": "2025-08-09T02:15:00.000Z",
+        "end": "2026-08-09T02:14:59.999Z"
+      }
+    },
+    {
+      "symbol": "MMTUSDT",
+      "path": "data/validation-cache/MMTUSDT-1754704800000-1786240799999.json",
+      "sizeBytes": 4455935,
+      "sha256": "5cd07c4e330a1b18b7f7b68d0fa76914e89477ceb008239dd7e61b94bc5d6b9d",
+      "source": "BINANCE_USDT_M_VALIDATION_CACHE",
+      "availableWindow": {
+        "start": "2025-08-09T02:00:00.000Z",
+        "end": "2026-08-09T01:59:59.999Z"
+      }
+    }
+  ],
+  "dataInsufficientReason": "Only 7 immutable unused Binance symbol caches are present; need >=15. No old holdout is reused and no zero-row PASS is emitted.",
+  "manifestHash": "e414a23cbf4e25a684e10a50e469087ea8d4b02668f25a0dbe250c3471144364"
+}

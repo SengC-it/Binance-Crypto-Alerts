@@ -1,0 +1,27 @@
+{
+  "metrics": {
+    "trades": 2926,
+    "wins": 1252,
+    "losses": 1674,
+    "winRate": 0.4279,
+    "netR": 39.7927,
+    "avgR": 0.0136,
+    "profitFactor": 1.0251,
+    "maxDD": 75.4609,
+    "cvar95": -1.0771,
+    "positiveMonthRatio": 0.5167,
+    "symbolBreadth": 90,
+    "positiveSymbolRatio": 0.4889,
+    "totalNetPnlUsdt": 1989.6374,
+    "totalFeesUsdt": 2540.4172,
+    "totalFundingUsdt": 193.2368,
+    "totalSlippageUsdt": 1270.2088
+  },
+  "maxConcurrent": 5,
+  "maxSymbolConcentration": 1,
+  "maxClusterConcentration": 3,
+  "rejectedForCapacity": 0,
+  "rejectedForSymbolConcentration": 0,
+  "rejectedForClusterConcentration": 2131,
+  "concentrationProxy": "BTC_ETH are their own cluster; every other symbol is conservatively treated as BTC_BETA. This is a capacity/concentration proxy, not a measured return correlation."
+}
