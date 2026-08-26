@@ -1,0 +1,114 @@
+{
+  "reportVersion": "v5-6-research-v1",
+  "generatedAt": "2026-08-26T02:20:52.400Z",
+  "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "productionControl": "trend-rejection-short-v1",
+  "controlExecutionReference": "signal candle close -> next 15m candle open",
+  "controlReplayConfigSource": "research_defaults",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "pointInTimeUniverse": "PROXY",
+  "survivorBias": "PROXY / PIT manifest INCOMPLETE",
+  "historical": {
+    "source": "data/validation-cache; V5.5 frozen failed-breakout detector stages",
+    "groups": [
+      {
+        "group": "3Y_CORE",
+        "counts": {
+          "eligibleFrames": 630720,
+          "attemptedBreakout": 56102,
+          "failedClose": 19365,
+          "secondFailedClose": 7454,
+          "lowerHigh": 7024,
+          "marketRegime": 7020,
+          "rsi": 4098,
+          "volume": 980,
+          "extension": 876,
+          "momentum": 841,
+          "validRiskPlan": 168,
+          "finalEligibleTrades": 167
+        }
+      },
+      {
+        "group": "1Y_BROAD",
+        "counts": {
+          "eligibleFrames": 394200,
+          "attemptedBreakout": 32656,
+          "failedClose": 10824,
+          "secondFailedClose": 4006,
+          "lowerHigh": 3787,
+          "marketRegime": 3786,
+          "rsi": 2203,
+          "volume": 539,
+          "extension": 477,
+          "momentum": 462,
+          "validRiskPlan": 139,
+          "finalEligibleTrades": 138
+        }
+      }
+    ],
+    "aggregate": {
+      "eligibleFrames": 1024920,
+      "attemptedBreakout": 88758,
+      "failedClose": 30189,
+      "secondFailedClose": 11460,
+      "lowerHigh": 10811,
+      "marketRegime": 10806,
+      "rsi": 6301,
+      "volume": 1519,
+      "extension": 1353,
+      "momentum": 1303,
+      "validRiskPlan": 307,
+      "finalEligibleTrades": 305
+    },
+    "stageOrder": [
+      "eligibleFrames",
+      "attemptedBreakout",
+      "failedClose",
+      "secondFailedClose",
+      "lowerHigh",
+      "marketRegime",
+      "rsi",
+      "volume",
+      "extension",
+      "momentum",
+      "validRiskPlan",
+      "finalEligibleTrades"
+    ],
+    "finalEligibleMeaning": "actual V5.5 frozen Control B structural trades after the shared cooldown/plan/settlement path; not a new strategy result"
+  },
+  "forwardFeature": {
+    "status": "DATA_UNAVAILABLE",
+    "sourceTable": "public.bca_v55_signal_feature_snapshots + public.bca_shadow_paper_trades",
+    "queryTimestamp": "2026-08-26T02:20:52.397Z",
+    "experimentId": "v55-fbos02-forward-002",
+    "calendarDays": null,
+    "featureSnapshots": null,
+    "rawTriggers": null,
+    "rejected": null,
+    "finalEligible": null,
+    "openedShadowTrades": null,
+    "settledTrades": null,
+    "wins": null,
+    "losses": null,
+    "avgR": null,
+    "profitFactor": null,
+    "netR": null,
+    "maxDrawdownR": null,
+    "positiveMonthRatio": null,
+    "symbolBreadth": null,
+    "regimeBreadth": null,
+    "nextBarOpenValid": null,
+    "executionReferenceUnavailable": null,
+    "errors": [
+      "READ_ONLY_FORWARD_QUERY_UNAVAILABLE"
+    ],
+    "selectionUse": "NOT_USED_FOR_SELECTION"
+  },
+  "interpretation": "Historical attrition is diagnostic only. Forward #002 feature telemetry is read-only and is never used for candidate selection or parameter tuning."
+}

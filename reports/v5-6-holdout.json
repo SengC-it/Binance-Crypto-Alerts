@@ -1,0 +1,348 @@
+{
+  "reportVersion": "v5-6-research-v1",
+  "generatedAt": "2026-08-26T02:20:52.400Z",
+  "researchBaseline": "6033fa1095bfae6f8b2f20c70cbc543221741bc8",
+  "productionBaseline": "a7e55bc3ba865c50ef0ff7988ec41f28c7e6749d",
+  "productionControl": "trend-rejection-short-v1",
+  "controlExecutionReference": "signal candle close -> next 15m candle open",
+  "controlReplayConfigSource": "research_defaults",
+  "forwardExperiment": "v55-fbos02-forward-002",
+  "frozenV55ManifestHash": "ff1cfc01a2ccd706fa0ddfbfcc6e60e3c598eab0b3604e9aad473f8932b34305",
+  "researchOnly": true,
+  "noProductionCodeChange": true,
+  "noDatabaseWrite": true,
+  "noBackfill": true,
+  "pointInTimeUniverse": "PROXY",
+  "survivorBias": "PROXY / PIT manifest INCOMPLETE",
+  "holdoutPolicy": "Only the final candidate chosen from development/purged OOS is evaluated here; no holdout metric participates in selection or confidence.",
+  "directions": {
+    "LONG": {
+      "selectedCandidate": {
+        "id": "V56-LONG-REGIME-ENSEMBLE-01",
+        "side": "LONG",
+        "family": "TREND_PULLBACK_LONG",
+        "variant": 3,
+        "hypothesis": "A mature higher-timeframe uptrend should reward controlled pullbacks that re-accelerate from EMA/structure.",
+        "marketMechanism": "Continuation buyers defend a known value area after weak counter-trend supply is absorbed.",
+        "expectedRegime": "BULL on 1h and 4h",
+        "entryLogic": "Bull trend age, one-to-four ATR pullback, close above EMA with positive momentum acceleration.",
+        "invalidationLogic": "Trend alignment breaks or the pullback exceeds the structural risk band.",
+        "expectedHoldingHorizonHours": 48,
+        "expectedFailureMode": "Trend exhaustion and a deeper regime transition masked as a pullback.",
+        "stopStyle": "HYBRID",
+        "rewardRisk": 1.8,
+        "parameters": {
+          "breakoutLookback": 20,
+          "volumeRatioMin": 1.15,
+          "retestDistanceATR": 0.75,
+          "maxExtensionATR": 0.9,
+          "pullbackMinATR": 0.35,
+          "pullbackMaxATR": 1.6,
+          "trendAgeMinBars": 16,
+          "compressionBarsMin": 8,
+          "compressionRangeMaxATR": 4.5,
+          "expansionVolumeMin": 1.25,
+          "expansionVolatilityMin": 1.15,
+          "stopATRMultiplier": 1.25,
+          "structureLookback": 8
+        },
+        "researchFamily": "REGIME_ENSEMBLE",
+        "sourceCandidateId": "LONG-TREND_PULLBACK_LONG-01",
+        "isControl": false,
+        "preregisteredHypothesis": "A mature bull pullback is evaluated as a complementary LONG regime component under the same next-open and cost model."
+      },
+      "metrics": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": 0,
+        "netR": -1.0993,
+        "avgR": -1.0993,
+        "avgNetR": -1.0993,
+        "profitFactor": 0,
+        "maxDrawdownR": 1.0993,
+        "lowerConfidenceBound95": null,
+        "positiveMonths": 0,
+        "months": 1,
+        "positiveMonthRatio": 0,
+        "topSymbolProfitShare": null,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": -54.9666,
+        "totalFeesUsdt": 3.3111,
+        "totalFundingUsdt": 0,
+        "totalSlippageUsdt": 1.6555,
+        "monthly": [
+          {
+            "month": "2026-01",
+            "trades": 1,
+            "netR": -1.0993,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0993
+          }
+        ]
+      },
+      "tradeCount": 1,
+      "controlA": null,
+      "selectionExcludedHoldout": true
+    },
+    "SHORT": {
+      "selectedCandidate": {
+        "id": "V5.5-CONTROL-SHORT-FAILED_BREAKOUT_SHORT-02",
+        "side": "SHORT",
+        "family": "FAILED_BREAKOUT_SHORT",
+        "variant": 0,
+        "hypothesis": "Requiring a stronger failed reclaim should reduce false reversals at the expense of sample size.",
+        "marketMechanism": "Repeated inability to hold the breakout level creates asymmetric downside once trapped demand capitulates.",
+        "expectedRegime": "BULL exhaustion",
+        "entryLogic": "High-volume upside break, two-bar failure, failed reclaim and momentum turn below the level.",
+        "invalidationLogic": "Clean reclaim with renewed volume.",
+        "expectedHoldingHorizonHours": 48,
+        "expectedFailureMode": "The market is trending and the failed breakout is only a pause.",
+        "stopStyle": "STRUCTURE",
+        "rewardRisk": 1.8,
+        "parameters": {
+          "breakoutLookback": 20,
+          "volumeRatioMin": 1.35,
+          "retestDistanceATR": 0.6,
+          "maxExtensionATR": 0.8,
+          "pullbackMinATR": 0.35,
+          "pullbackMaxATR": 1.6,
+          "trendAgeMinBars": 16,
+          "compressionBarsMin": 8,
+          "compressionRangeMaxATR": 4.5,
+          "expansionVolumeMin": 1.25,
+          "expansionVolatilityMin": 1.15,
+          "stopATRMultiplier": 1.25,
+          "structureLookback": 8
+        },
+        "researchFamily": "FROZEN_CONTROL",
+        "sourceCandidateId": "SHORT-FAILED_BREAKOUT_SHORT-02",
+        "isControl": true,
+        "preregisteredHypothesis": "V5.5 frozen SHORT-FAILED_BREAKOUT_SHORT-02; parameters and execution model are held fixed as Control B."
+      },
+      "metrics": {
+        "trades": 111,
+        "wins": 64,
+        "losses": 47,
+        "winRate": 0.5766,
+        "netR": 51.8437,
+        "avgR": 0.4671,
+        "avgNetR": 0.4671,
+        "profitFactor": 2.0053,
+        "maxDrawdownR": 6.5204,
+        "lowerConfidenceBound95": 0.1862,
+        "positiveMonths": 9,
+        "months": 12,
+        "positiveMonthRatio": 0.75,
+        "topSymbolProfitShare": 0.0907,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": 2592.1851,
+        "totalFeesUsdt": 379.3527,
+        "totalFundingUsdt": 5.252,
+        "totalSlippageUsdt": 189.6765,
+        "monthly": [
+          {
+            "month": "2025-08",
+            "trades": 2,
+            "netR": 3.2532,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2025-09",
+            "trades": 2,
+            "netR": -2.3065,
+            "profitFactor": 0,
+            "maxDrawdownR": 2.3065
+          },
+          {
+            "month": "2025-10",
+            "trades": 12,
+            "netR": 3.9106,
+            "profitFactor": 1.6013,
+            "maxDrawdownR": 2.2064
+          },
+          {
+            "month": "2025-11",
+            "trades": 9,
+            "netR": -1.5081,
+            "profitFactor": 0.7754,
+            "maxDrawdownR": 3.2754
+          },
+          {
+            "month": "2025-12",
+            "trades": 3,
+            "netR": 2.2039,
+            "profitFactor": 2.9951,
+            "maxDrawdownR": 1.1047
+          },
+          {
+            "month": "2026-01",
+            "trades": 7,
+            "netR": 8.2527,
+            "profitFactor": 7.7776,
+            "maxDrawdownR": 1.2177
+          },
+          {
+            "month": "2026-02",
+            "trades": 29,
+            "netR": 29.1848,
+            "profitFactor": 5.4849,
+            "maxDrawdownR": 4.3543
+          },
+          {
+            "month": "2026-03",
+            "trades": 1,
+            "netR": -1.0648,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.0648
+          },
+          {
+            "month": "2026-04",
+            "trades": 2,
+            "netR": 3.3666,
+            "profitFactor": null,
+            "maxDrawdownR": 0
+          },
+          {
+            "month": "2026-05",
+            "trades": 12,
+            "netR": 2.4044,
+            "profitFactor": 1.3658,
+            "maxDrawdownR": 3.3653
+          },
+          {
+            "month": "2026-06",
+            "trades": 28,
+            "netR": 0.3251,
+            "profitFactor": 1.0177,
+            "maxDrawdownR": 6.5204
+          },
+          {
+            "month": "2026-08",
+            "trades": 4,
+            "netR": 3.8217,
+            "profitFactor": 4.2641,
+            "maxDrawdownR": 1.1708
+          }
+        ]
+      },
+      "tradeCount": 111,
+      "controlA": {
+        "trades": 490,
+        "wins": 187,
+        "losses": 303,
+        "winRate": 0.3816,
+        "netR": 36.7361,
+        "avgR": 0.075,
+        "avgNetR": 0.075,
+        "profitFactor": 1.1148,
+        "maxDrawdownR": 46.2411,
+        "lowerConfidenceBound95": -0.1173,
+        "positiveMonths": 6,
+        "months": 13,
+        "positiveMonthRatio": 0.4615,
+        "topSymbolProfitShare": 0.0543,
+        "topFoldProfitShare": null,
+        "totalNetPnlUsdt": 2567.8839,
+        "totalFeesUsdt": 735.4557,
+        "totalFundingUsdt": -75.7439,
+        "totalSlippageUsdt": 367.728,
+        "monthly": [
+          {
+            "month": "2025-08",
+            "trades": 13,
+            "netR": -9.8909,
+            "profitFactor": 0.1632,
+            "maxDrawdownR": 9.8909
+          },
+          {
+            "month": "2025-09",
+            "trades": 5,
+            "netR": 3.6471,
+            "profitFactor": 2.7149,
+            "maxDrawdownR": 2.1267
+          },
+          {
+            "month": "2025-10",
+            "trades": 41,
+            "netR": 22.1766,
+            "profitFactor": 2.0975,
+            "maxDrawdownR": 7.4151
+          },
+          {
+            "month": "2025-11",
+            "trades": 34,
+            "netR": 0.4374,
+            "profitFactor": 1.0191,
+            "maxDrawdownR": 10.6636
+          },
+          {
+            "month": "2025-12",
+            "trades": 23,
+            "netR": -0.3953,
+            "profitFactor": 0.9752,
+            "maxDrawdownR": 7.4821
+          },
+          {
+            "month": "2026-01",
+            "trades": 19,
+            "netR": -1.7349,
+            "profitFactor": 0.8708,
+            "maxDrawdownR": 13.4245
+          },
+          {
+            "month": "2026-02",
+            "trades": 99,
+            "netR": 44.7211,
+            "profitFactor": 1.8581,
+            "maxDrawdownR": 24.2899
+          },
+          {
+            "month": "2026-03",
+            "trades": 32,
+            "netR": 5.7013,
+            "profitFactor": 1.2936,
+            "maxDrawdownR": 5.3716
+          },
+          {
+            "month": "2026-04",
+            "trades": 13,
+            "netR": -10.9027,
+            "profitFactor": 0.1486,
+            "maxDrawdownR": 12.8062
+          },
+          {
+            "month": "2026-05",
+            "trades": 28,
+            "netR": -11.8146,
+            "profitFactor": 0.496,
+            "maxDrawdownR": 13.512
+          },
+          {
+            "month": "2026-06",
+            "trades": 137,
+            "netR": 7.307,
+            "profitFactor": 1.0807,
+            "maxDrawdownR": 28.7526
+          },
+          {
+            "month": "2026-07",
+            "trades": 38,
+            "netR": -12.1895,
+            "profitFactor": 0.5882,
+            "maxDrawdownR": 13.0531
+          },
+          {
+            "month": "2026-08",
+            "trades": 8,
+            "netR": -0.3264,
+            "profitFactor": 0.942,
+            "maxDrawdownR": 3.2026
+          }
+        ]
+      },
+      "selectionExcludedHoldout": true
+    }
+  }
+}
