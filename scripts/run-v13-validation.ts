@@ -214,7 +214,9 @@ interface FamilyEvaluation extends ValidationResult {
   pairDiversification: Record<string, unknown>;
   yearStability: StabilityResult;
   regimeStability: StabilityResult;
+  volatilityStability: StabilityResult;
   latency: Record<string, unknown>;
+  legMisalignment: Record<string, unknown>;
   emailSimulation: Record<string, unknown>;
   portfolio: Record<string, unknown>;
   placebo: Record<string, unknown>;
@@ -287,7 +289,7 @@ async function main(): Promise<void> {
 
 function buildRegistry(): Record<string, unknown> {
   const placeboPairs = buildPlaceboPairs(130013);
-  return { schema: "bca-v13-registry-v1", baseline: BASELINE, universe: SYMBOLS, families: ["BETA_NEUTRAL_RESIDUAL_REVERSION", "PAIR_SPREAD_MEAN_REVERSION", "CLUSTER_RELATIVE_VALUE"], configurations: CONFIGURATIONS, pairRegistry: PAIRS, clusterRegistry: CLUSTERS, placeboPairs, dataRule: "Universe and pair registry are fixed before outcomes; beta/correlation/cluster hedge estimates use only bars closed at or before each signal.", executionRule: "Signal uses a closed 15m bar and executes the next complete 15m open; all strategies have two logical legs.", gateRule: "Nested: >=100 trades, net>0, annualized net return>=8%, PF>=1.30, DD<=10%, positiveMonthRatio>=70%, median>0, +10bps net>0, +20bps net>0. Holdout A/B: >=20 trades, net>0, PF>=1.20, DD<=10%. Diversification: >=8 pairs, >=5 profitable, top pair<=40%. Email yield: >=2/month, activeMonthRatio>=70%, max drought<=45d. All latency scenarios must remain net positive.", costModel: COST_MODEL };
+  return { schema: "bca-v13-registry-v1", baseline: BASELINE, universe: SYMBOLS, families: ["BETA_NEUTRAL_RESIDUAL_REVERSION", "PAIR_SPREAD_MEAN_REVERSION", "CLUSTER_RELATIVE_VALUE"], configurations: CONFIGURATIONS, pairRegistry: PAIRS, clusterRegistry: CLUSTERS, placeboPairs, dataRule: "Universe and pair registry are fixed before outcomes; beta/correlation/cluster hedge estimates use only bars closed at or before each signal.", executionRule: "Signal uses a closed 15m bar and executes the next complete 15m open; all strategies have two logical legs.", volatilityRule: "HIGH_VOL is a closed 96-bar RMS log-return reading >=1%; LOW_VOL is below 1%; UNKNOWN is excluded from the stability gate.", gateRule: "Nested: >=100 trades, net>0, annualized net return>=8%, PF>=1.30, DD<=10%, positiveMonthRatio>=70%, median>0, +10bps net>0, +20bps net>0. Holdout A/B: >=20 trades, net>0, PF>=1.20, DD<=10%. Diversification: >=8 pairs, >=5 profitable, top pair<=40%. Email yield: >=2/month, activeMonthRatio>=70%, max drought<=45d. All latency and 30s/2m/5m leg-misalignment scenarios must remain net positive.", costModel: COST_MODEL };
 }
 
 async function loadData(): Promise<LoadedData> {
@@ -356,15 +358,17 @@ function evaluateFamily(family: Family, series: ReadonlyMap<string, Series>, reg
   const pairDiversification = buildPairDiversification(selected.trades);
   const yearStability = buildStability(selected.trades, "year");
   const regimeStability = buildStability(selected.trades, "regime", series);
+  const volatilityStability = buildStability(selected.trades, "volatility", series);
   const latency = buildLatencyReport(selected.trades);
+  const legMisalignment = buildLegMisalignmentReport(selected.trades);
   const emailSimulation = buildEmailSimulation(selected.trades);
   const portfolio = buildPortfolioSimulation(selected.trades);
   const placebo = family === "PAIR_SPREAD_MEAN_REVERSION" ? buildPlaceboReport(selected.trades, selected.config, series) : { applicable: false, status: "NOT_APPLICABLE", reason: "Random-pair placebo is preregistered for the fixed pair family; residual and cluster families have no pair-label selection step." };
   const metrics = metricsFor(selected.trades, NORMAL_LATENCY_MINUTES, NORMAL_MISALIGN_SECONDS, 0);
-  const gate = { nested: nested.status === "PASS", holdoutA: holdoutA.status === "PASS", holdoutB: holdoutB.status === "PASS", pairDiversification: Boolean(pairDiversification.pass), yearStability: yearStability.pass, regimeStability: regimeStability.pass, emailLatency: Boolean(latency.pass), emailYield: Boolean((emailSimulation as Record<string, unknown>).pass), portfolio: Boolean((portfolio as Record<string, unknown>).pass), costStress: metrics.stress["20"].netPnl > 0, placebo: family === "PAIR_SPREAD_MEAN_REVERSION" ? placebo.status === "PASS" : true };
-  const reasons = [...nested.reasons, ...holdoutA.reasons.map((reason) => `holdoutA_${reason}`), ...holdoutB.reasons.map((reason) => `holdoutB_${reason}`), ...(pairDiversification.reasons as string[]), ...yearStability.reasons.map((reason) => `year_${reason}`), ...regimeStability.reasons.map((reason) => `regime_${reason}`), ...((latency.reasons as string[]) ?? []), ...((emailSimulation.reasons as string[]) ?? []), ...((portfolio.reasons as string[]) ?? []), ...((placebo.reasons as string[]) ?? [])];
+  const gate = { nested: nested.status === "PASS", holdoutA: holdoutA.status === "PASS", holdoutB: holdoutB.status === "PASS", pairDiversification: Boolean(pairDiversification.pass), yearStability: yearStability.pass, regimeStability: regimeStability.pass, volatilityStability: volatilityStability.pass, emailLatency: Boolean(latency.pass), legMisalignment: Boolean(legMisalignment.pass), emailYield: Boolean((emailSimulation as Record<string, unknown>).pass), portfolio: Boolean((portfolio as Record<string, unknown>).pass), costStress: metrics.stress["20"].netPnl > 0, placebo: family === "PAIR_SPREAD_MEAN_REVERSION" ? placebo.status === "PASS" : true };
+  const reasons = [...nested.reasons, ...holdoutA.reasons.map((reason) => `holdoutA_${reason}`), ...holdoutB.reasons.map((reason) => `holdoutB_${reason}`), ...(pairDiversification.reasons as string[]), ...yearStability.reasons.map((reason) => `year_${reason}`), ...regimeStability.reasons.map((reason) => `regime_${reason}`), ...volatilityStability.reasons.map((reason) => `volatility_${reason}`), ...((latency.reasons as string[]) ?? []), ...((legMisalignment.reasons as string[]) ?? []), ...((emailSimulation.reasons as string[]) ?? []), ...((portfolio.reasons as string[]) ?? []), ...((placebo.reasons as string[]) ?? [])];
   const status: FamilyStatus = Object.values(gate).every(Boolean) ? "PASS" : "FAIL";
-  return { family, status, configId: selected.config.id, metrics, gate, reasons: [...new Set(reasons)], trades: selected.trades, configResults, nested, holdoutA, holdoutB, pairDiversification, yearStability, regimeStability, latency, emailSimulation, portfolio, placebo, capital: buildCapitalSimulation(selected.trades), registryHash } as FamilyEvaluation;
+  return { family, status, configId: selected.config.id, metrics, gate, reasons: [...new Set(reasons)], trades: selected.trades, configResults, nested, holdoutA, holdoutB, pairDiversification, yearStability, regimeStability, volatilityStability, latency, legMisalignment, emailSimulation, portfolio, placebo, capital: buildCapitalSimulation(selected.trades), registryHash } as FamilyEvaluation;
 }
 
 function buildFamilyTrades(family: Family, series: ReadonlyMap<string, Series>, config: V13Config): V13Trade[] {
@@ -591,10 +595,11 @@ function buildPairDiversification(trades: readonly V13Trade[]): Record<string, u
   return { pass: reasons.length === 0, pairCount: metrics.length, profitablePairs: positive.length, topPairProfitShare, byPair: metrics.map((item) => ({ pair: item.pair, trades: item.metrics.trades, netPnl: item.metrics.netPnl, profitFactor: item.metrics.profitFactor })), reasons };
 }
 
-function buildStability(trades: readonly V13Trade[], mode: "year" | "regime", series?: ReadonlyMap<string, Series>): StabilityResult {
+function buildStability(trades: readonly V13Trade[], mode: "year" | "regime" | "volatility", series?: ReadonlyMap<string, Series>): StabilityResult {
   const groups = new Map<string, V13Trade[]>();
   for (const trade of trades) {
-    const key = mode === "year" ? String(new Date(trade.exitTimestamp).getUTCFullYear()) : regimeFor(trade.signalTimestamp, series?.get("BTCUSDT")?.candles ?? []);
+    const key = mode === "year" ? String(new Date(trade.exitTimestamp).getUTCFullYear()) : mode === "regime" ? regimeFor(trade.signalTimestamp, series?.get("BTCUSDT")?.candles ?? []) : volatilityRegimeFor(trade.signalTimestamp, series?.get("BTCUSDT")?.candles ?? []);
+    if (key === "UNKNOWN") continue;
     groups.set(key, [...(groups.get(key) ?? []), trade]);
   }
   const serialized = Object.fromEntries([...groups.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([key, value]) => [key, metricsFor(value, NORMAL_LATENCY_MINUTES, NORMAL_MISALIGN_SECONDS, 0)]));
@@ -609,6 +614,12 @@ function buildLatencyReport(trades: readonly V13Trade[]): Record<string, unknown
   const byLatency = Object.fromEntries(EMAIL_LATENCIES.map((latency) => { const metrics = metricsFor(trades, latency, NORMAL_MISALIGN_SECONDS, 0); return [String(latency), metrics]; }));
   const reasons = EMAIL_LATENCIES.flatMap((latency) => { const metrics = byLatency[String(latency)] as MetricSummary; return metrics.netPnl > 0 ? [] : [`${latency}m_net_not_positive`]; });
   return { pass: reasons.length === 0, normalMisalignmentSeconds: NORMAL_MISALIGN_SECONDS, byLatency, reasons };
+}
+
+function buildLegMisalignmentReport(trades: readonly V13Trade[]): Record<string, unknown> {
+  const byMisalignment = Object.fromEntries(LEG_MISALIGNMENTS.map((misalignment) => { const metrics = metricsFor(trades, NORMAL_LATENCY_MINUTES, misalignment, 0); return [String(misalignment), metrics]; }));
+  const reasons = LEG_MISALIGNMENTS.flatMap((misalignment) => { const metrics = byMisalignment[String(misalignment)] as MetricSummary; return metrics.netPnl > 0 ? [] : [`${misalignment}s_net_not_positive`]; });
+  return { pass: reasons.length === 0, normalLatencyMinutes: NORMAL_LATENCY_MINUTES, byMisalignment, reasons };
 }
 
 function buildEmailSimulation(trades: readonly V13Trade[]): Record<string, unknown> {
@@ -673,7 +684,7 @@ function buildSummary(input: { dataGate: Record<string, unknown>; registryHash: 
 }
 
 function serializeFamily(value: FamilyEvaluation): Record<string, unknown> {
-  return { status: value.status, family: value.family, configId: value.configId, metrics: value.metrics, gate: value.gate, reasons: value.reasons, trades: value.trades.length, configResults: value.configResults.map((item) => ({ config: item.config, trades: item.trades.length, metrics: item.metrics, selectedByFrozenRule: item.selectedByFrozenRule })), nested: serializeValidation(value.nested), holdoutA: serializeValidation(value.holdoutA), holdoutB: serializeValidation(value.holdoutB), pairDiversification: value.pairDiversification, yearStability: value.yearStability, regimeStability: value.regimeStability, latency: value.latency, emailSimulation: value.emailSimulation, portfolio: value.portfolio, placebo: value.placebo, capital: value.capital };
+  return { status: value.status, family: value.family, configId: value.configId, metrics: value.metrics, gate: value.gate, reasons: value.reasons, trades: value.trades.length, configResults: value.configResults.map((item) => ({ config: item.config, trades: item.trades.length, metrics: item.metrics, selectedByFrozenRule: item.selectedByFrozenRule })), nested: serializeValidation(value.nested), holdoutA: serializeValidation(value.holdoutA), holdoutB: serializeValidation(value.holdoutB), pairDiversification: value.pairDiversification, yearStability: value.yearStability, regimeStability: value.regimeStability, volatilityStability: value.volatilityStability, latency: value.latency, legMisalignment: value.legMisalignment, emailSimulation: value.emailSimulation, portfolio: value.portfolio, placebo: value.placebo, capital: value.capital };
 }
 
 function serializeValidation(value: ValidationResult): Record<string, unknown> { return { status: value.status, configId: value.configId, metrics: value.metrics, gate: value.gate, reasons: value.reasons, trades: value.trades.length }; }
@@ -839,7 +850,32 @@ function rollingZFromPrefixes(leftPrefix: readonly number[], rightPrefix: readon
 
 function removeOverlaps(trades: readonly V13Trade[]): V13Trade[] { const availableAfter = new Map<string, number>(); const selected: V13Trade[] = []; for (const trade of trades.slice().sort((left, right) => left.entryTimestamp - right.entryTimestamp || left.exitTimestamp - right.exitTimestamp)) { if (trade.entryTimestamp < (availableAfter.get(trade.pairId) ?? START)) continue; selected.push(trade); availableAfter.set(trade.pairId, trade.exitTimestamp + FIFTEEN_MINUTES); } return selected.sort((left, right) => left.exitTimestamp - right.exitTimestamp || left.entryTimestamp - right.entryTimestamp); }
 
-function regimeFor(timestamp: number, btc: readonly Candle[]): string { const current = btc.find((candle) => candle.openTime === floorBar(timestamp)); if (!current) return "UNKNOWN"; const previous = btc.find((candle) => candle.openTime === current.openTime - 7 * DAY); if (!previous || previous.close <= 0) return "UNKNOWN"; const change = current.close / previous.close - 1; return change > 0.03 ? "BULL" : change < -0.03 ? "BEAR" : "RANGE"; }
+const CANDLE_INDEX_CACHE = new WeakMap<readonly Candle[], Map<number, number>>();
+
+function candleIndexFor(timestamp: number, candles: readonly Candle[]): number | null {
+  let indexByOpenTime = CANDLE_INDEX_CACHE.get(candles);
+  if (!indexByOpenTime) {
+    indexByOpenTime = new Map(candles.map((candle, index) => [candle.openTime, index]));
+    CANDLE_INDEX_CACHE.set(candles, indexByOpenTime);
+  }
+  return indexByOpenTime.get(floorBar(timestamp)) ?? null;
+}
+
+function regimeFor(timestamp: number, btc: readonly Candle[]): string { const currentIndex = candleIndexFor(timestamp, btc); if (currentIndex === null) return "UNKNOWN"; const current = btc[currentIndex]; const previousIndex = candleIndexFor(current.openTime - 7 * DAY, btc); if (previousIndex === null) return "UNKNOWN"; const previous = btc[previousIndex]; if (previous.close <= 0) return "UNKNOWN"; const change = current.close / previous.close - 1; return change > 0.03 ? "BULL" : change < -0.03 ? "BEAR" : "RANGE"; }
+
+function volatilityRegimeFor(timestamp: number, btc: readonly Candle[]): string {
+  const currentIndex = candleIndexFor(timestamp, btc);
+  if (currentIndex === null || currentIndex < 96) return "UNKNOWN";
+  let squaredReturnSum = 0;
+  for (let index = currentIndex - 95; index <= currentIndex; index += 1) {
+    const previousClose = btc[index - 1].close;
+    const close = btc[index].close;
+    if (previousClose <= 0 || close <= 0) return "UNKNOWN";
+    const logReturn = Math.log(close / previousClose);
+    squaredReturnSum += logReturn ** 2;
+  }
+  return Math.sqrt(squaredReturnSum / 96) >= 0.01 ? "HIGH_VOL" : "LOW_VOL";
+}
 function floorBar(timestamp: number): number { return Math.floor(timestamp / FIFTEEN_MINUTES) * FIFTEEN_MINUTES; }
 
 function buildPlaceboPairs(seed: number): PairDefinition[] { const shuffled = SYMBOLS.slice().sort((left, right) => seededValue(seed, left) - seededValue(seed, right)); const pairs: PairDefinition[] = []; for (let index = 0; index + 1 < shuffled.length; index += 1) pairs.push({ id: `PLACEBO-${shuffled[index].replace("USDT", "")}-${shuffled[index + 1].replace("USDT", "")}`, left: shuffled[index], right: shuffled[index + 1] }); return pairs; }
