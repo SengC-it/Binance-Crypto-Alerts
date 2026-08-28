@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { readZipEntries } from "@/lib/v5-7/external-data";
 
@@ -17,22 +17,17 @@ const WEEK = 7 * DAY;
 const FIFTEEN_MINUTES = 15 * 60_000;
 const CAPITAL = 10_000;
 const REPORT_ROOT = resolve("reports");
-const PIT_INDEX_PATH = resolve("data/pit-universe/binance-um-monthly-15m-index.json");
 const CACHE_ROOT = resolve("data/raw/v14-cross-sectional-cache");
 const DATA_VISION_ROOT = "https://data.binance.vision/data/futures/um/monthly";
 const SPOT_ROOT = "https://data.binance.vision/data/spot/monthly";
+const S3_ROOT = "https://s3.ap-northeast-1.amazonaws.com/data.binance.vision/";
+const S3_KLINE_PREFIX = "data/futures/um/monthly/klines/";
 const DELAY_MINUTES = [15, 30, 120, 360, 1_440] as const;
 const STRESS_BPS = [0, 5, 10, 20] as const;
 const HISTORICAL_ONLY_CUTOFF = Date.UTC(2026, 6, 1);
 
-const SYMBOLS = [
-  "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT", "LINKUSDT", "LTCUSDT", "XLMUSDT", "TRXUSDT",
-  "BCHUSDT", "EOSUSDT", "ETCUSDT", "ZECUSDT", "XMRUSDT", "DOGEUSDT", "DOTUSDT", "FILUSDT", "UNIUSDT",
-  "AVAXUSDT", "SOLUSDT", "AAVEUSDT", "ALGOUSDT", "ATOMUSDT", "CRVUSDT", "EGLDUSDT", "ENJUSDT", "FTMUSDT",
-  "MATICUSDT", "MKRUSDT", "NEARUSDT", "SANDUSDT", "SNXUSDT", "THETAUSDT", "VETUSDT", "1INCHUSDT", "RUNEUSDT",
-  "KAVAUSDT", "COMPUSDT", "COTIUSDT", "INJUSDT", "SUSHIUSDT", "GRTUSDT", "MASKUSDT", "LRCUSDT", "KSMUSDT",
-  "BANDUSDT", "ONTUSDT", "QTUMUSDT", "WAVESUSDT", "YFIUSDT", "RENUSDT", "DASHUSDT",
-] as const;
+let SYMBOLS: string[] = [];
+const SPOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT", "ADAUSDT", "LINKUSDT", "DOGEUSDT"] as const;
 
 type Family = "FAMILY_A_PURE_REVERSAL" | "FAMILY_B_HIGH_VOL_REVERSAL" | "FAMILY_C_DISPERSION_REVERSAL";
 type Timeframe = "1d" | "15m" | "funding";
@@ -61,10 +56,33 @@ interface ArchiveRecord {
   rowCount: number;
   bytes: number;
   sha256: string | null;
+  expectedSha256: string | null;
+  checksumStatus: "PASS" | "FAIL" | "NOT_CHECKED";
+  listed: boolean;
   error?: string;
 }
 
 interface StoredArchive { record: ArchiveRecord; path: string | null; }
+
+interface ArchiveAvailability {
+  symbol: string;
+  periods: string[];
+  firstPeriod: string | null;
+  lastPeriod: string | null;
+  listedObjects: number;
+}
+
+interface RootInventory {
+  source: string;
+  listingUrl: string;
+  fetchedAt: string;
+  allArchiveSymbols: string[];
+  usdtSymbols: string[];
+  analysisSymbols: string[];
+  availability: ArchiveAvailability[];
+  rawSha256: string;
+  complete: boolean;
+}
 
 interface SymbolDailyStats {
   symbol: string;
@@ -182,6 +200,7 @@ interface FamilyResult {
   placebo: Record<string, unknown>;
   robustness: Record<string, unknown>;
   capital: Record<string, unknown>;
+  portfolio: Metrics;
   emailSimulation: Record<string, unknown>;
   longContribution: number;
   shortContribution: number;
@@ -221,12 +240,16 @@ const fundingPoints = new Map<string, FundingPoint[]>();
 const executionLoads = new Map<string, Promise<void>>();
 const fundingLoads = new Map<string, Promise<void>>();
 const archiveRecords: ArchiveRecord[] = [];
+const executionArchiveRecords = new Map<string, ArchiveRecord>();
+const listedDailyArchives = new Map<string, Set<string>>();
 
 async function main(): Promise<void> {
   await mkdir(REPORT_ROOT, { recursive: true });
   await mkdir(CACHE_ROOT, { recursive: true });
   const generatedAt = new Date().toISOString();
   const rootInventory = await loadRootInventory();
+  SYMBOLS = rootInventory.analysisSymbols;
+  console.info(JSON.stringify({ stage: "v14_archive_inventory_complete", archiveSymbols: rootInventory.allArchiveSymbols.length, usdtSymbols: rootInventory.usdtSymbols.length, analysisSymbols: SYMBOLS.length, historicalOnlyCandidates: rootInventory.availability.filter((item) => item.lastPeriod !== null && item.lastPeriod < "2026-07").length }));
   const daily = await loadDailyData();
   const pitWeeks = buildPitWeeks(daily);
   const registryBody = buildArchiveRegistry(rootInventory, daily);
@@ -260,23 +283,96 @@ async function main(): Promise<void> {
   await writeJson(resolve(REPORT_ROOT, "v14-validation-summary.json"), summary);
   await writeJson(resolve(REPORT_ROOT, "v14-promotion-decision.json"), { schema: "bca-v14-promotion-decision-v1", baseline: BASELINE, registryHash, status: promotion === "PASS" ? "EMAIL_PROMOTION_CANDIDATE_PASS" : "V14_CROSS_SECTIONAL_REVERSAL_REJECTED", researchStop: "YES", winner: best ? { family: best.family, configId: best.bestConfigId } : null });
   await writeFile(resolve(REPORT_ROOT, "v14-promotion-decision.md"), renderDecision(summary), "utf8");
-  console.info(JSON.stringify({ stage: "v14_validation_complete", dataGate: dataGate.status, archiveSymbols: rootInventory.symbols.length, pitMedian: dataGate.medianPitUniverse, pitMinimum: dataGate.minimumPitUniverse, families: Object.values(families).map((family) => ({ family: family.family, status: family.status, configId: family.bestConfigId, signals: family.nested.signals })), EMAIL_PROMOTION_CANDIDATE: promotion, researchStop: "YES" }));
+  console.info(JSON.stringify({ stage: "v14_validation_complete", dataGate: dataGate.status, archiveSymbols: rootInventory.usdtSymbols.length, analysisSymbols: SYMBOLS.length, pitMedian: dataGate.medianPitUniverse, pitMinimum: dataGate.minimumPitUniverse, families: Object.values(families).map((family) => ({ family: family.family, status: family.status, configId: family.bestConfigId, signals: family.nested.signals })), EMAIL_PROMOTION_CANDIDATE: promotion, researchStop: "YES" }));
 }
 
-async function loadRootInventory(): Promise<{ symbols: string[]; source: string; fetchedAt: string | null; rawSha256: string; status: string }> {
-  const bytes = await readFile(PIT_INDEX_PATH);
-  const value = JSON.parse(bytes.toString("utf8")) as { rootArchiveSymbols?: string[]; retrievalTimestamp?: string; status?: string };
-  return { symbols: [...new Set(value.rootArchiveSymbols ?? [])].sort(), source: "Binance Data Vision official frozen root archive inventory", fetchedAt: value.retrievalTimestamp ?? null, rawSha256: sha256(bytes), status: value.status ?? "UNKNOWN" };
+async function loadRootInventory(): Promise<RootInventory> {
+  const listing = await listS3Objects(S3_KLINE_PREFIX, "/");
+  const allArchiveSymbols = listing.prefixes.map((prefix) => prefix.slice(S3_KLINE_PREFIX.length).replace(/\/$/, "")).filter(Boolean).sort();
+  const usdtSymbols = allArchiveSymbols.filter((symbol) => symbol.endsWith("USDT"));
+  const availability = await mapLimit(usdtSymbols, 8, async (symbol) => {
+    const symbolListing = await listS3Objects(`${S3_KLINE_PREFIX}${symbol}/1d/`);
+    const periods = [...new Set(symbolListing.keys.filter((key) => key.endsWith(".zip")).map(periodFromArchiveKey).filter((period): period is string => period !== null))].sort();
+    const targetPeriods = new Set(monthKeys(START, END));
+    const target = periods.filter((period) => targetPeriods.has(period));
+    listedDailyArchives.set(symbol, new Set(target));
+    return { symbol, periods: target, firstPeriod: target[0] ?? null, lastPeriod: target.at(-1) ?? null, listedObjects: symbolListing.keys.filter((key) => key.endsWith(".zip")).length } satisfies ArchiveAvailability;
+  });
+  const targetMonthCount = monthKeys(START, END).length;
+  const analysisSymbols = availability.filter((item) => {
+    const longHistory = item.periods.length >= Math.ceil(targetMonthCount * 0.9);
+    const historicalOnly = item.lastPeriod !== null && item.lastPeriod < "2026-07" && item.periods.length >= 12;
+    return longHistory || historicalOnly;
+  }).map((item) => item.symbol).sort();
+  const inventoryBody = { source: "Binance Data Vision official public archive via S3 ListObjectsV2", listingUrl: `${S3_ROOT}?list-type=2&prefix=${encodeURIComponent(S3_KLINE_PREFIX)}&delimiter=%2F`, allArchiveSymbols, usdtSymbols, availability, analysisRule: `Use every USDT-M symbol with at least ${Math.ceil(targetMonthCount * 0.9)} of ${targetMonthCount} target monthly 1d archives, plus every later-delisted symbol with at least 12 target monthly archives; this rule is based only on archive object availability, never on returns or current exchangeInfo.` };
+  return { ...inventoryBody, analysisSymbols, fetchedAt: new Date().toISOString(), rawSha256: hashObject(inventoryBody), complete: !listing.truncated };
+}
+
+interface S3Listing {
+  keys: string[];
+  prefixes: string[];
+  truncated: boolean;
+}
+
+async function listS3Objects(prefix: string, delimiter?: string): Promise<S3Listing> {
+  const keys: string[] = [];
+  const prefixes: string[] = [];
+  let continuationToken: string | null = null;
+  let truncated = false;
+  do {
+    const query = new URLSearchParams({ "list-type": "2", prefix });
+    if (delimiter) query.set("delimiter", delimiter);
+    if (continuationToken) query.set("continuation-token", continuationToken);
+    const response = await fetchWithRetry(`${S3_ROOT}?${query.toString()}`);
+    if (!response.ok) throw new Error(`official archive listing failed: HTTP ${response.status} for ${prefix}`);
+    const xml = await response.text();
+    keys.push(...xmlValues(xml, "Key"));
+    prefixes.push(...xmlValues(xml, "Prefix"));
+    truncated = xmlValues(xml, "IsTruncated")[0] === "true";
+    continuationToken = xmlValues(xml, "NextContinuationToken")[0] ?? null;
+    if (truncated && !continuationToken) throw new Error(`official archive listing was truncated without continuation token: ${prefix}`);
+  } while (truncated);
+  return { keys: [...new Set(keys)], prefixes: [...new Set(prefixes)], truncated };
+}
+
+async function fetchWithRetry(url: string): Promise<Response> {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+      if (response.ok || response.status === 404) return response;
+      lastError = new Error(`HTTP ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+    if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
+function xmlValues(xml: string, tag: string): string[] {
+  const pattern = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "g");
+  return [...xml.matchAll(pattern)].map((match) => decodeXml(match[1]));
+}
+
+function decodeXml(value: string): string {
+  return value.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&quot;", '"').replaceAll("&apos;", "'");
+}
+
+function periodFromArchiveKey(key: string): string | null {
+  if (!key.endsWith(".zip")) return null;
+  const period = key.slice(-11, -4);
+  return /^\d{4}-\d{2}$/.test(period) ? period : null;
 }
 
 async function loadDailyData(): Promise<{ symbols: string[]; records: ArchiveRecord[] }> {
   const periods = monthKeys(START, END);
   const work = SYMBOLS.flatMap((symbol) => periods.map((period) => ({ symbol, period })));
-  const results = await mapLimit(work, 20, async (item) => {
+  const results = await mapLimit(work, 24, async (item) => {
     const stored = await ensureArchive(item.symbol, "1d", item.period, DATA_VISION_ROOT, true);
     let bars: Bar[] = [];
     if (stored.path) {
-      try { bars = parseBars(await readFile(stored.path)); } catch (error) { stored.record.status = "FAILED"; stored.record.error = error instanceof Error ? error.message : String(error); stored.record.sha256 = null; }
+      try { bars = parseBars(await readFile(stored.path)); stored.record.rowCount = bars.length; } catch (error) { stored.record.status = "FAILED"; stored.record.error = error instanceof Error ? error.message : String(error); stored.record.sha256 = null; stored.record.checksumStatus = "FAIL"; }
     }
     return { stored, bars };
   });
@@ -303,7 +399,7 @@ function buildDailyStats(symbol: string, bars: Bar[], records: ArchiveRecord[]):
   const badOhlc = bars.filter((bar) => bar.open <= 0 || bar.high < Math.max(bar.open, bar.close) || bar.low > Math.min(bar.open, bar.close) || bar.low <= 0 || bar.close <= 0).length;
   const zeroVolume = bars.filter((bar) => bar.volume <= 0 || bar.quoteVolume <= 0).length;
   const coverage = expected > 0 ? bars.length / expected : 0;
-  const available = records.filter((record) => record.status === "AVAILABLE");
+  const available = records.filter((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS");
   return {
     symbol,
     firstObserved: first === null ? null : new Date(first).toISOString(),
@@ -315,17 +411,19 @@ function buildDailyStats(symbol: string, bars: Bar[], records: ArchiveRecord[]):
     internalGapDays,
     badOhlc,
     zeroVolume,
-    checksumStatus: available.length > 0 && available.every((record) => Boolean(record.sha256)) && records.every((record) => record.status !== "FAILED") ? "PASS" : "FAIL",
+    checksumStatus: available.length > 0 && available.every((record) => Boolean(record.sha256)) && records.every((record) => record.status !== "FAILED" && record.checksumStatus !== "FAIL") ? "PASS" : "FAIL",
     historicalOnly: last !== null && last < HISTORICAL_ONLY_CUTOFF,
     reliable: bars.length > 0 && coverage >= 0.98 && badOhlc === 0 && zeroVolume === 0,
   };
 }
 
-function buildArchiveRegistry(root: { symbols: string[]; source: string; fetchedAt: string | null; rawSha256: string; status: string }, daily: { symbols: string[] }): Record<string, unknown> {
+function buildArchiveRegistry(root: RootInventory, daily: { symbols: string[] }): Record<string, unknown> {
   const candidateSet = new Set(daily.symbols);
-  const records = root.symbols.map((symbol) => {
+  const availability = new Map(root.availability.map((item) => [item.symbol, item]));
+  const records = root.usdtSymbols.map((symbol) => {
     const symbolRecords = archiveRecords.filter((record) => record.symbol === symbol && record.timeframe === "1d");
     const stats = dailyStats.get(symbol);
+    const listed = availability.get(symbol);
     return {
       symbol,
       market: "USDⓈ-M Futures",
@@ -336,6 +434,7 @@ function buildArchiveRegistry(root: { symbols: string[]; source: string; fetched
       checksumStatus: candidateSet.has(symbol) ? (stats?.checksumStatus ?? "FAIL") : "DISCOVERY_ONLY_NOT_DOWNLOADED",
       phase1Status: candidateSet.has(symbol) ? "PHASE1_DAILY_VALIDATED" : "ARCHIVE_DISCOVERY_ONLY",
       historicalOnly: stats?.historicalOnly ?? null,
+      listedTargetMonths: listed?.periods ?? [],
     };
   });
   return {
@@ -345,29 +444,30 @@ function buildArchiveRegistry(root: { symbols: string[]; source: string; fetched
     source: root.source,
     inventoryFetchedAt: root.fetchedAt,
     inventoryRawSha256: root.rawSha256,
-    inventoryStatus: root.status,
-    enumeration: { method: "Previously frozen official Data Vision root inventory; 832 unique USDT-M archive symbols", pagination: "COMPLETE_FROZEN_INVENTORY", liveS3Listing: "UNAVAILABLE_IN_EXECUTION_ENVIRONMENT_TLS", currentExchangeInfoUsedForHistory: false },
+    inventoryStatus: root.complete ? "COMPLETE" : "INCOMPLETE",
+    enumeration: { method: "Live official Data Vision S3 ListObjectsV2 root prefixes", pagination: root.complete ? "COMPLETE" : "INCOMPLETE", liveS3Listing: "USED", currentExchangeInfoUsedForHistory: false, allArchiveSymbols: root.allArchiveSymbols.length, usdtSymbols: root.usdtSymbols.length },
     period: { start: new Date(START).toISOString(), end: new Date(END).toISOString(), frequency: "1d phase-1; 15m/funding phase-2 on selected execution legs" },
     candidateSymbols: daily.symbols,
-    rootArchiveSymbolCount: root.symbols.length,
+    rootArchiveSymbolCount: root.usdtSymbols.length,
+    analysisSymbolCount: daily.symbols.length,
     symbols: records,
     checksumRule: "Every downloaded/reused ZIP is SHA-256 verified; expected pre-listing/post-terminal 404 objects are lifecycle absence, not fabricated bars.",
     lifecycleRule: "Observed archive bars define availability at each PIT timestamp. Future bars and current active exchangeInfo are never used for historical membership.",
   };
 }
 
-function buildDataGate(root: { symbols: string[] }, daily: { symbols: string[] }, weeks: PitWeek[]): Record<string, unknown> & { pass: boolean; status: string; medianPitUniverse: number; minimumPitUniverse: number } {
+function buildDataGate(root: RootInventory, daily: { symbols: string[] }, weeks: PitWeek[]): Record<string, unknown> & { pass: boolean; status: string; medianPitUniverse: number; minimumPitUniverse: number } {
   const stats = [...dailyStats.values()];
   const reliableSymbols = stats.filter((value) => value.reliable);
   const universeSizes = weeks.map((week) => week.eligible.length);
   const medianPitUniverse = median(universeSizes);
   const minimumPitUniverse = universeSizes.length ? Math.min(...universeSizes) : 0;
   const formationCoverage = weeks.length ? weeks.filter((week) => week.eligible.length >= 20).length / weeks.length : 0;
-  const allChecksummed = archiveRecords.filter((record) => record.status === "AVAILABLE").every((record) => Boolean(record.sha256)) && archiveRecords.every((record) => record.status !== "FAILED");
+  const allChecksummed = archiveRecords.filter((record) => record.status === "AVAILABLE").length > 0 && archiveRecords.filter((record) => record.status === "AVAILABLE").every((record) => Boolean(record.sha256) && record.checksumStatus === "PASS") && archiveRecords.every((record) => record.status !== "FAILED" && record.checksumStatus !== "FAIL");
   const fullWindowSymbols = stats.filter((value) => value.firstObserved !== null && Date.parse(value.firstObserved) <= START && value.lastObserved !== null && Date.parse(value.lastObserved) >= END - DAY).length;
   const historicalOnlySymbols = stats.filter((value) => value.historicalOnly).map((value) => value.symbol);
   const reasons = [
-    ...(root.symbols.length < 800 ? ["archive_root_inventory_not_complete"] : []),
+    ...(!root.complete ? ["archive_root_inventory_not_complete"] : []),
     ...(!allChecksummed ? ["download_or_checksum_failure"] : []),
     ...(fullWindowSymbols < 2 ? ["requested_period_not_reliably_covered"] : []),
     ...(reliableSymbols.length < 30 ? ["fewer_than_30_reliable_phase1_symbols"] : []),
@@ -379,8 +479,8 @@ function buildDataGate(root: { symbols: string[] }, daily: { symbols: string[] }
   return {
     status: reasons.length ? "V14_PIT_UNIVERSE_INSUFFICIENT" : "PASS",
     pass: reasons.length === 0,
-    archiveEnumeration: root.symbols.length >= 800 ? "COMPLETE_FROZEN_INVENTORY" : "FAIL",
-    archiveSymbols: root.symbols.length,
+    archiveEnumeration: root.complete ? "COMPLETE_LIVE_S3_INVENTORY" : "FAIL",
+    archiveSymbols: root.usdtSymbols.length,
     requestedPeriod: { start: new Date(START).toISOString(), end: new Date(END).toISOString(), fullWindowSymbols },
     phase1CandidateSymbols: daily.symbols.length,
     reliablePhase1Symbols: reliableSymbols.length,
@@ -447,7 +547,14 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
   const holdoutB = selectedRun ? metricsFor(filterByDecisionPeriod(selectedRun.trades, Date.UTC(2025, 6, 1), END)) : emptyMetrics();
   const latency: Record<string, Metrics> = {};
   for (const delay of DELAY_MINUTES) latency[`${delay}m`] = selectedRun ? metricsFor(await executeDecisions(selectedRun.decisions, delay)) : emptyMetrics();
-  const gate = buildPromotionGate(nested.metrics, holdoutA, holdoutB, latency, selectedTrades);
+  const diversificationReport = diversification(selectedTrades);
+  const stabilityReport = stability(selectedTrades, weeks);
+  const placeboReport = await placebo(selectedRun, weeks);
+  const robustnessReport = robustness(nested.metrics, selectedTrades);
+  const capitalReport = capitalSimulation(selectedTrades);
+  const emailReport = emailSimulation(selectedTrades, latency);
+  const portfolioReport = metricsFor(selectedTrades);
+  const gate = buildPromotionGate(nested.metrics, holdoutA, holdoutB, latency, selectedTrades, { stability: stabilityReport, placebo: placeboReport, robustness: robustnessReport, capital: capitalReport, email: emailReport, portfolio: portfolioReport });
   const result: FamilyResult = {
     family,
     status: Object.values(gate).every(Boolean) ? "PASS" : "FAIL",
@@ -460,12 +567,13 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
     configRuns,
     selectedTrades,
     latency,
-    diversification: diversification(selectedTrades),
-    stability: stability(selectedTrades, weeks),
-    placebo: await placebo(selectedRun, weeks),
-    robustness: robustness(nested.metrics, selectedTrades),
-    capital: capitalSimulation(selectedTrades),
-    emailSimulation: emailSimulation(selectedTrades, latency),
+    diversification: diversificationReport,
+    stability: stabilityReport,
+    placebo: placeboReport,
+    robustness: robustnessReport,
+    capital: capitalReport,
+    portfolio: portfolioReport,
+    emailSimulation: emailReport,
     longContribution: sum(selectedTrades.map((trade) => trade.longR)),
     shortContribution: sum(selectedTrades.map((trade) => trade.shortR)),
     portfolioBeta: portfolioBeta(selectedTrades, weeks),
@@ -550,8 +658,18 @@ function scoreConfig(run: ConfigRun, start: number, end: number): number {
   return metric.signals >= 20 ? metric.netR + metric.profitFactor * 0.01 - metric.maxDD * 0.1 : -1e9;
 }
 
-function buildPromotionGate(nested: Metrics, holdoutA: Metrics, holdoutB: Metrics, latency: Record<string, Metrics>, trades: SignalTrade[]): Record<string, boolean> {
+function buildPromotionGate(nested: Metrics, holdoutA: Metrics, holdoutB: Metrics, latency: Record<string, Metrics>, trades: SignalTrade[], reports: { stability: Record<string, unknown>; placebo: Record<string, unknown>; robustness: Record<string, unknown>; capital: Record<string, unknown>; email: Record<string, unknown>; portfolio: Metrics }): Record<string, boolean> {
   const symbols = new Set(trades.flatMap((trade) => trade.legs.map((leg) => leg.symbol)));
+  const stability = reports.stability as { regimes?: Record<string, Metrics>; years?: Record<string, Metrics> };
+  const regimes = stability.regimes ?? {};
+  const years = stability.years ?? {};
+  const positiveRegimes = Object.values(regimes).filter((metric) => metric.netR > 0).length;
+  const observedYears = Object.values(years).filter((metric) => metric.signals > 0);
+  const positiveYears = observedYears.filter((metric) => metric.netR > 0).length;
+  const robustnessReports = reports.robustness as { removeTop1?: Metrics; removeTop5?: Metrics; winsorized?: Metrics };
+  const capitalReports = Object.values(reports.capital as Record<string, { effectiveLeverage?: number }>);
+  const email = reports.email as { emailsPerMonth?: number; activeMonthRatio?: number; maxDroughtDays?: number; p95DroughtDays?: number };
+  const placebo = reports.placebo as { pass?: unknown };
   return {
     nestedSignals: nested.signals >= 100,
     nestedNet: nested.netR > 0,
@@ -563,12 +681,22 @@ function buildPromotionGate(nested: Metrics, holdoutA: Metrics, holdoutB: Metric
     nestedPlus10bps: (nested.stress["10"]?.netR ?? 0) > 0,
     delay30m: (latency["30m"]?.netR ?? 0) > 0,
     delay2h: (latency["120m"]?.netR ?? 0) > 0,
+    delay24h: (latency["1440m"]?.netR ?? 0) >= 0,
     holdoutA: holdoutA.signals >= 20 && holdoutA.netR > 0 && holdoutA.profitFactor >= 1.2 && holdoutA.maxDD <= 0.15,
     holdoutB: holdoutB.signals >= 20 && holdoutB.netR > 0 && holdoutB.profitFactor >= 1.2 && holdoutB.maxDD <= 0.15,
     diversificationSymbols: symbols.size >= 20,
     diversificationProfitable: profitableSymbols(trades) >= 10,
     top1Share: Number(diversification(trades).top1ProfitShare ?? 1) <= 0.2,
     top5Share: Number(diversification(trades).top5ProfitShare ?? 1) <= 0.5,
+    regimeStability: positiveRegimes >= 3,
+    yearStability: observedYears.length > 0 && positiveYears / observedYears.length >= 0.5,
+    placebo: placebo.pass === true,
+    removeTop1: (robustnessReports.removeTop1?.netR ?? 0) > 0,
+    removeTop5: (robustnessReports.removeTop5?.netR ?? 0) > 0,
+    winsorized: (robustnessReports.winsorized?.netR ?? 0) > 0,
+    emailYield: Number(email.emailsPerMonth ?? 0) >= 3 && Number(email.activeMonthRatio ?? 0) >= 0.9 && Number(email.maxDroughtDays ?? Number.POSITIVE_INFINITY) <= 14,
+    portfolio: reports.portfolio.netR > 0 && reports.portfolio.profitFactor >= 1.2,
+    capitalLeverage: capitalReports.every((item) => Number(item.effectiveLeverage ?? Number.POSITIVE_INFINITY) <= 3),
   };
 }
 
@@ -660,14 +788,27 @@ function capitalSimulation(trades: SignalTrade[]): Record<string, unknown> {
 
 function emailSimulation(trades: SignalTrade[], latency: Record<string, Metrics>): Record<string, unknown> {
   const metrics = metricsFor(trades);
-  return { oneWeeklyPortfolioSignalPerEmail: true, emails: metrics.signals, emailsPerYear: metrics.signals / Math.max(1, (END - START) / (365.25 * DAY)), emailsPerMonth: metrics.signals / Math.max(1, (END - START) / (30.4375 * DAY)), profitable: metrics.wins, losing: metrics.losses, winRate: metrics.signals ? metrics.wins / metrics.signals : 0, netPnl: metrics.netPnl, annualized: metrics.annualized, profitFactor: metrics.profitFactor, average: metrics.average, median: metrics.median, worst: metrics.worst, maxDD: metrics.maxDD, maxDroughtDays: maxDroughtDays(trades), activeMonthRatio: activeMonthRatio(trades), delayMetrics: latency };
+  const years = Math.max(1, (END - START) / (365.25 * DAY));
+  const droughts = droughtDays(trades);
+  return { oneWeeklyPortfolioSignalPerEmail: true, emails: metrics.signals, emailsPerWeek: metrics.signals / years / 52, emailsPerYear: metrics.signals / years, emailsPerMonth: metrics.signals / Math.max(1, (END - START) / (30.4375 * DAY)), profitable: metrics.wins, losing: metrics.losses, winRate: metrics.signals ? metrics.wins / metrics.signals : 0, netPnl: metrics.netPnl, annualized: metrics.annualized, profitFactor: metrics.profitFactor, average: metrics.average, median: metrics.median, worst: metrics.worst, maxDD: metrics.maxDD, p95DroughtDays: percentile(droughts, 0.95), maxDroughtDays: maxDroughtDays(trades), activeMonthRatio: activeMonthRatio(trades), delayMetrics: latency };
 }
 
 function maxDroughtDays(trades: SignalTrade[]): number {
+  return Math.max(0, ...droughtDays(trades));
+}
+
+function droughtDays(trades: SignalTrade[]): number[] {
   const timestamps = trades.slice().sort((left, right) => left.timestamp - right.timestamp).map((trade) => trade.timestamp);
-  let max = 0;
-  for (let index = 1; index < timestamps.length; index += 1) max = Math.max(max, (timestamps[index] - timestamps[index - 1]) / DAY);
-  return max;
+  const gaps: number[] = [];
+  for (let index = 1; index < timestamps.length; index += 1) gaps.push((timestamps[index] - timestamps[index - 1]) / DAY);
+  return gaps;
+}
+
+function percentile(values: number[], probability: number): number {
+  if (!values.length) return 0;
+  const sorted = values.slice().sort((left, right) => left - right);
+  const index = Math.min(sorted.length - 1, Math.max(0, Math.ceil(probability * sorted.length) - 1));
+  return sorted[index];
 }
 
 function activeMonthRatio(trades: SignalTrade[]): number {
@@ -757,6 +898,9 @@ async function ensureArchive(symbol: string, timeframe: Timeframe, period: strin
   const sourceUrl = archiveUrl(symbol, timeframe, period, root);
   const relative = join("data/raw/v14-cross-sectional-cache", root === SPOT_ROOT ? "spot" : "um", timeframe, symbol, `${period}.zip`);
   const ownPath = resolve(relative);
+  if (root === DATA_VISION_ROOT && timeframe === "1d" && !listedDailyArchives.get(symbol)?.has(period)) {
+    return { record: missingArchiveRecord(symbol, timeframe, period, sourceUrl, false), path: null };
+  }
   const existingRoots = root === DATA_VISION_ROOT && timeframe !== "1d" ? [
     resolve(`data/raw/v7-derivatives-flow-cache/market/${symbol}/${timeframe}/${period}.zip`),
     resolve(`data/raw/v5-7-external-cache/archives/${symbol}/${timeframe}/${period}.zip`),
@@ -767,25 +911,48 @@ async function ensureArchive(symbol: string, timeframe: Timeframe, period: strin
   for (const path of [ownPath, ...existingRoots]) {
     try {
       const bytes = await readFile(path);
-      const record = archiveRecord(symbol, timeframe, period, sourceUrl, path, bytes, 200);
+      const record = await verifiedArchiveRecord(symbol, timeframe, period, sourceUrl, path, bytes, 200, true);
       return { record, path };
-    } catch { /* cache miss */ }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        return { record: failedArchiveRecord(symbol, timeframe, period, sourceUrl, path, error), path: null };
+      }
+    }
   }
-  if (!download) return { record: { symbol, timeframe, period, sourceUrl, cachePath: null, status: "MISSING", httpStatus: null, rowCount: 0, bytes: 0, sha256: null }, path: null };
+  if (!download) return { record: missingArchiveRecord(symbol, timeframe, period, sourceUrl, false), path: null };
   try {
-    const response = await fetch(sourceUrl, { signal: AbortSignal.timeout(30_000) });
-    if (response.status === 404) return { record: { symbol, timeframe, period, sourceUrl, cachePath: null, status: "MISSING", httpStatus: 404, rowCount: 0, bytes: 0, sha256: null }, path: null };
-    if (!response.ok) return { record: { symbol, timeframe, period, sourceUrl, cachePath: null, status: "FAILED", httpStatus: response.status, rowCount: 0, bytes: 0, sha256: null, error: `HTTP ${response.status}` }, path: null };
+    const response = await fetchWithRetry(sourceUrl);
+    if (response.status === 404) return { record: missingArchiveRecord(symbol, timeframe, period, sourceUrl, true), path: null };
+    if (!response.ok) return { record: failedArchiveRecord(symbol, timeframe, period, sourceUrl, null, `HTTP ${response.status}`), path: null };
     const bytes = Buffer.from(await response.arrayBuffer());
     await immutableWrite(ownPath, bytes);
-    return { record: archiveRecord(symbol, timeframe, period, sourceUrl, ownPath, bytes, response.status), path: ownPath };
+    return { record: await verifiedArchiveRecord(symbol, timeframe, period, sourceUrl, ownPath, bytes, response.status, false), path: ownPath };
   } catch (error) {
-    return { record: { symbol, timeframe, period, sourceUrl, cachePath: null, status: "FAILED", httpStatus: null, rowCount: 0, bytes: 0, sha256: null, error: error instanceof Error ? error.message : String(error) }, path: null };
+    return { record: failedArchiveRecord(symbol, timeframe, period, sourceUrl, ownPath, error), path: null };
   }
 }
 
-function archiveRecord(symbol: string, timeframe: Timeframe, period: string, sourceUrl: string, path: string, bytes: Buffer, httpStatus: number): ArchiveRecord {
-  return { symbol, timeframe, period, sourceUrl, cachePath: relativePath(path), status: "AVAILABLE", httpStatus, rowCount: 0, bytes: bytes.byteLength, sha256: sha256(bytes) };
+function missingArchiveRecord(symbol: string, timeframe: Timeframe, period: string, sourceUrl: string, listed: boolean): ArchiveRecord {
+  return { symbol, timeframe, period, sourceUrl, cachePath: null, status: "MISSING", httpStatus: listed ? 404 : null, rowCount: 0, bytes: 0, sha256: null, expectedSha256: null, checksumStatus: "NOT_CHECKED", listed };
+}
+
+function failedArchiveRecord(symbol: string, timeframe: Timeframe, period: string, sourceUrl: string, path: string | null, error: unknown): ArchiveRecord {
+  return { symbol, timeframe, period, sourceUrl, cachePath: path ? relativePath(path) : null, status: "FAILED", httpStatus: null, rowCount: 0, bytes: 0, sha256: null, expectedSha256: null, checksumStatus: "FAIL", listed: true, error: error instanceof Error ? error.message : String(error) };
+}
+
+async function verifiedArchiveRecord(symbol: string, timeframe: Timeframe, period: string, sourceUrl: string, path: string, bytes: Buffer, httpStatus: number, listed: boolean): Promise<ArchiveRecord> {
+  const actualSha256 = sha256(bytes);
+  const expectedSha256 = await fetchExpectedChecksum(sourceUrl);
+  if (actualSha256 !== expectedSha256) throw new Error(`SHA-256 mismatch for ${sourceUrl}: expected ${expectedSha256}, got ${actualSha256}`);
+  return { symbol, timeframe, period, sourceUrl, cachePath: relativePath(path), status: "AVAILABLE", httpStatus, rowCount: 0, bytes: bytes.byteLength, sha256: actualSha256, expectedSha256, checksumStatus: "PASS", listed };
+}
+
+async function fetchExpectedChecksum(sourceUrl: string): Promise<string> {
+  const response = await fetchWithRetry(`${sourceUrl}.CHECKSUM`);
+  if (!response.ok) throw new Error(`checksum fetch failed: HTTP ${response.status} for ${sourceUrl}`);
+  const value = (await response.text()).trim().split(/\s+/)[0];
+  if (!/^[a-f0-9]{64}$/i.test(value)) throw new Error(`invalid SHA-256 checksum for ${sourceUrl}`);
+  return value.toLowerCase();
 }
 
 async function immutableWrite(path: string, bytes: Buffer): Promise<void> {
@@ -855,6 +1022,7 @@ async function loadExecutionMonth(symbol: string, month: string): Promise<void> 
   if (running) return running;
   const promise = (async () => {
     const stored = await ensureArchive(symbol, "15m", month, DATA_VISION_ROOT, true);
+    executionArchiveRecords.set(key, stored.record);
     if (!stored.path) { executionBars.set(key, []); return; }
     try { executionBars.set(key, dedupeBars(parseBars(await readFile(stored.path)))); } catch { executionBars.set(key, []); }
   })();
@@ -869,6 +1037,7 @@ async function loadFundingMonth(symbol: string, month: string): Promise<void> {
   if (running) return running;
   const promise = (async () => {
     const stored = await ensureArchive(symbol, "funding", month, DATA_VISION_ROOT, true);
+    executionArchiveRecords.set(key, stored.record);
     if (!stored.path) return;
     try { fundingPoints.set(key, dedupeFunding(parseFunding(await readFile(stored.path)))); } catch { /* unavailable remains absent */ }
   })();
@@ -877,9 +1046,10 @@ async function loadFundingMonth(symbol: string, month: string): Promise<void> {
 }
 
 function archiveUrl(symbol: string, timeframe: Timeframe, period: string, root: string): string {
-  if (root === SPOT_ROOT) return `${root}/klines/${symbol}/1d/${symbol}-1d-${period}.zip`;
-  if (timeframe === "funding") return `${root}/fundingRate/${symbol}/${symbol}-fundingRate-${period}.zip`;
-  return `${root}/klines/${symbol}/${timeframe}/${symbol}-${timeframe}-${period}.zip`;
+  const encodedSymbol = encodeURIComponent(symbol);
+  if (root === SPOT_ROOT) return `${root}/klines/${encodedSymbol}/1d/${encodedSymbol}-1d-${period}.zip`;
+  if (timeframe === "funding") return `${root}/fundingRate/${encodedSymbol}/${encodedSymbol}-fundingRate-${period}.zip`;
+  return `${root}/klines/${encodedSymbol}/${timeframe}/${encodedSymbol}-${timeframe}-${period}.zip`;
 }
 
 function dedupeBars(bars: Bar[]): Bar[] { return [...new Map(bars.map((bar) => [bar.openTime, bar])).values()].sort((left, right) => left.openTime - right.openTime); }
