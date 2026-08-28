@@ -1,0 +1,228 @@
+{
+  "schema": "bca-v14-correctness-freeze-manifest-v1",
+  "status": "FROZEN_BEFORE_CORRECTED_RETURN_READ",
+  "generatedAt": "2026-08-28T01:52:05.430Z",
+  "baseline": "1f6b5e24c6e9cb5672e4c6591b303dd4e5d01487",
+  "rules": {
+    "universe": "All historical USDT-M symbols enumerated from the official archive; PIT eligibility uses only bars with closeTime <= rebalance timestamp.",
+    "pitEligibility": {
+      "firstObservedAtOrBeforeT": true,
+      "tradingAgeDays": 90,
+      "completeFormationHistory": true,
+      "recentBarFreshnessDays": 2,
+      "trailingQuoteVolumeDays": 30,
+      "checksum": "PASS",
+      "futureLifecycleFilter": false,
+      "currentSurvivorOnlyUniverse": false
+    },
+    "formationWindowsWeeks": [
+      6,
+      8,
+      10,
+      12
+    ],
+    "formationReturnField": "candidate.formationReturns[config.formationWeeks]",
+    "volatilityField": "candidate.volatilityByFormationWeeks[config.formationWeeks]",
+    "diagnosticBreadth": [
+      "QUINTILE",
+      "DECILE"
+    ],
+    "actionablePortfolio": "Extreme 2L+2S or 3L+3S by formation rank; breadth label is diagnostic only.",
+    "actionableRegistry": {
+      "configurations": [
+        {
+          "id": "A1-8W-Q-2L-2W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 2
+        },
+        {
+          "id": "A2-8W-D-3L-4W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 4
+        },
+        {
+          "id": "A3-10W-Q-2L-4W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 4
+        },
+        {
+          "id": "A4-10W-D-3L-8W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 8
+        },
+        {
+          "id": "B1-8W-HV-Q-2L-2W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 2,
+          "volState": "HIGH"
+        },
+        {
+          "id": "B2-10W-HV-Q-2L-4W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 4,
+          "volState": "HIGH"
+        },
+        {
+          "id": "B3-12W-HV-D-3L-8W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 12,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 8,
+          "volState": "HIGH"
+        },
+        {
+          "id": "B4-8W-HV-D-3L-4W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 4,
+          "volState": "HIGH"
+        },
+        {
+          "id": "C1-8W-DISP-Q-2L-2W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 2,
+          "dispersionState": "HIGH"
+        },
+        {
+          "id": "C2-10W-DISP-Q-2L-4W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 4,
+          "dispersionState": "HIGH"
+        },
+        {
+          "id": "C3-12W-DISP-D-3L-8W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 12,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 8,
+          "dispersionState": "HIGH"
+        },
+        {
+          "id": "C4-8W-DISP-D-3L-4W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 4,
+          "dispersionState": "HIGH"
+        }
+      ],
+      "duplicateActionKeysRemoved": 0,
+      "uniqueActionKeys": 12
+    },
+    "holdingWeeks": [
+      2,
+      4,
+      8
+    ],
+    "delaysMinutes": [
+      15,
+      30,
+      120,
+      360,
+      1440
+    ],
+    "stressBps": [
+      0,
+      5,
+      10,
+      20
+    ],
+    "families": [
+      "FAMILY_A_PURE_REVERSAL",
+      "FAMILY_B_HIGH_VOL_REVERSAL",
+      "FAMILY_C_DISPERSION_REVERSAL"
+    ],
+    "liquidityCapacity": {
+      "referenceCapital": 10000,
+      "targetGrossLeverage": 2,
+      "hardGrossLeverage": 3,
+      "maxParticipationRate": 0.0001,
+      "formula": "reference leg notional / trailing ADV30 <= 0.0001"
+    },
+    "execution": "Signal is formed from closed daily bars; each leg uses the actual next available Binance USDⓈ-M 15m open at the manual delay. No same-window close execution or synthetic price is used.",
+    "costModel": {
+      "feeBpsPerSide": 4,
+      "baseSlippageBpsPerSide": 2,
+      "stressBpsPerSide": [
+        0,
+        5,
+        10,
+        20
+      ],
+      "capital": 10000,
+      "leveragePreferred": 2,
+      "leverageHardLimit": 3,
+      "liquidityParticipationLimit": 0.0001,
+      "execution": "Signal is formed from closed daily bars; each leg uses the actual next available Binance USDⓈ-M 15m open at the manual delay. No same-window close execution or synthetic price is used.",
+      "funding": "Funding cashflow is mark-weighted: -direction × (entryNotional / entryFillPrice) × settlementMarkPrice × historicalFundingRate. Missing settlement mark uses the frozen conservative unavailable-mark rule.",
+      "terminal": "A position with no executable planned exit is retained under CONSERVATIVE_DELISTING: unresolved long and short legs each receive -100% leg-notional price return; ACTUAL_AVAILABLE drops only that unresolved diagnostic result.",
+      "capitalAllocation": "At each dataset, peak concurrent sleeves is computed from timestamps only; each sleeve receives startingCapital × targetGrossLeverage / peakConcurrentSleeves gross notional, with margin equal to half gross notional and hard gross leverage <= 3x."
+    },
+    "fundingCalculation": "Funding cashflow is mark-weighted: -direction × (entryNotional / entryFillPrice) × settlementMarkPrice × historicalFundingRate. Missing settlement mark uses the frozen conservative unavailable-mark rule.",
+    "terminalExecution": "A position with no executable planned exit is retained under CONSERVATIVE_DELISTING: unresolved long and short legs each receive -100% leg-notional price return; ACTUAL_AVAILABLE drops only that unresolved diagnostic result.",
+    "capitalAllocation": "At each dataset, peak concurrent sleeves is computed from timestamps only; each sleeve receives startingCapital × targetGrossLeverage / peakConcurrentSleeves gross notional, with margin equal to half gross notional and hard gross leverage <= 3x.",
+    "delistingModes": [
+      "ACTUAL_AVAILABLE",
+      "CONSERVATIVE_DELISTING"
+    ],
+    "placeboSeed": 140000,
+    "nestedOosWindows": [
+      [
+        "2021-07-01T00:00:00.000Z",
+        "2021-12-31T23:59:59.999Z"
+      ],
+      [
+        "2022-01-01T00:00:00.000Z",
+        "2022-12-31T23:59:59.999Z"
+      ],
+      [
+        "2023-01-01T00:00:00.000Z",
+        "2023-12-31T23:59:59.999Z"
+      ]
+    ],
+    "confirmationWindows": {
+      "A": [
+        "2024-01-01T00:00:00.000Z",
+        "2024-12-31T23:59:59.999Z"
+      ],
+      "B": [
+        "2025-01-01T00:00:00.000Z",
+        "2026-07-31T23:59:59.999Z"
+      ]
+    },
+    "priorWindowsContaminatedForPromotion": true,
+    "combinedPromotionScore": "Nested development and Confirmation A/B are never combined into a single promotion score; historical correctness pass still requires external confirmation.",
+    "frozenBeforeReturnRead": true
+  },
+  "rulesSha256": "5d57e3d75b0727435b35b01299901137339b3a6cc4c2726bcbd6541ca9fdaa0f",
+  "manifestSha256": "5a49ea61d0fa520d4d53f04bd6eb1f5ee17f5e6fd782977dbad08f230e4863ec"
+}

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { readZipEntries } from "@/lib/v5-7/external-data";
 
 /**
@@ -16,8 +17,13 @@ const DAY = 86_400_000;
 const WEEK = 7 * DAY;
 const FIFTEEN_MINUTES = 15 * 60_000;
 const CAPITAL = 10_000;
+const TARGET_GROSS_LEVERAGE = 2;
+const HARD_GROSS_LEVERAGE = 3;
+const LIQUIDITY_PARTICIPATION_LIMIT = 0.0001;
 const REPORT_ROOT = resolve("reports");
 const CACHE_ROOT = resolve("data/raw/v14-cross-sectional-cache");
+const CORRECTNESS_MANIFEST_PATH = resolve(REPORT_ROOT, "v14-correctness-freeze-manifest.json");
+const EVIDENCE_MANIFEST_PATH = resolve(REPORT_ROOT, "v14-evidence-manifest.json");
 const DATA_VISION_ROOT = "https://data.binance.vision/data/futures/um/monthly";
 const SPOT_ROOT = "https://data.binance.vision/data/spot/monthly";
 const S3_ROOT = "https://s3.ap-northeast-1.amazonaws.com/data.binance.vision/";
@@ -25,6 +31,26 @@ const S3_KLINE_PREFIX = "data/futures/um/monthly/klines/";
 const DELAY_MINUTES = [15, 30, 120, 360, 1_440] as const;
 const STRESS_BPS = [0, 5, 10, 20] as const;
 const HISTORICAL_ONLY_CUTOFF = Date.UTC(2026, 6, 1);
+const NESTED_OOS_WINDOWS = [
+  [Date.UTC(2021, 6, 1), Date.UTC(2021, 11, 31, 23, 59, 59, 999)],
+  [Date.UTC(2022, 0, 1), Date.UTC(2022, 11, 31, 23, 59, 59, 999)],
+  [Date.UTC(2023, 0, 1), Date.UTC(2023, 11, 31, 23, 59, 59, 999)],
+] as const;
+const CONFIRMATION_A = [Date.UTC(2024, 0, 1), Date.UTC(2024, 11, 31, 23, 59, 59, 999)] as const;
+const CONFIRMATION_B = [Date.UTC(2025, 0, 1), END] as const;
+export const V14_BOUNDARIES = {
+  productionChanged: false,
+  productionEmail: false,
+  autoTrading: false,
+  privateBinanceApi: false,
+  orderPlacement: false,
+  smtpProductionSignal: false,
+  deployment: false,
+  merge: false,
+  migration: false,
+  v13Changed: false,
+  shadow002Restarted: false,
+} as const;
 
 let SYMBOLS: string[] = [];
 const SPOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT", "ADAUSDT", "LINKUSDT", "DOGEUSDT"] as const;
@@ -32,7 +58,7 @@ const SPOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT", "AD
 type Family = "FAMILY_A_PURE_REVERSAL" | "FAMILY_B_HIGH_VOL_REVERSAL" | "FAMILY_C_DISPERSION_REVERSAL";
 type Timeframe = "1d" | "15m" | "funding";
 
-interface Bar {
+export interface Bar {
   openTime: number;
   open: number;
   high: number;
@@ -43,7 +69,7 @@ interface Bar {
   closeTime: number;
 }
 
-interface FundingPoint { fundingTime: number; fundingRate: number; }
+export interface FundingPoint { fundingTime: number; fundingRate: number; markPrice: number | null; }
 
 interface ArchiveRecord {
   symbol: string;
@@ -102,8 +128,8 @@ interface SymbolDailyStats {
 
 interface PitPoint {
   symbol: string;
-  formationReturn: number;
-  volatility: number;
+  formationReturns: Partial<Record<6 | 8 | 10 | 12, number>>;
+  volatilityByFormationWeeks: Partial<Record<6 | 8 | 10 | 12, number>>;
   quoteVolume30d: number;
   latestBar: number;
 }
@@ -111,7 +137,7 @@ interface PitPoint {
 interface PitWeek {
   timestamp: number;
   eligible: PitPoint[];
-  dispersion: number;
+  dispersionByFormationWeeks: Partial<Record<6 | 8 | 10 | 12, number>>;
   btcReturn8w: number | null;
   btcVol30d: number | null;
 }
@@ -138,6 +164,15 @@ interface Decision {
   regime: string;
 }
 
+interface DecisionBuildDiagnostics {
+  proposedSignals: number;
+  liquidityRejectedSignals: number;
+  liquidityRejectedCandidates: number;
+  medianADV30: number;
+  minimumExecutedADV30: number;
+  maxParticipationRate: number;
+}
+
 interface ExecutedLeg {
   symbol: string;
   direction: 1 | -1;
@@ -147,6 +182,12 @@ interface ExecutedLeg {
   exitPrice: number;
   grossR: number;
   fundingR: number;
+  fundingCalculation: "MARK_WEIGHTED" | "CONSERVATIVE_UNAVAILABLE";
+  terminalTreatment: "NONE" | "ACTUAL_AVAILABLE" | "CONSERVATIVE_DELISTING";
+  officialResolved: boolean;
+  conservativePenalty: number;
+  adv30: number;
+  participationRate: number;
   netRByStress: Record<string, number>;
 }
 
@@ -162,6 +203,7 @@ interface SignalTrade {
   netRByStress: Record<string, number>;
   longR: number;
   shortR: number;
+  settlementMode: "ACTUAL_AVAILABLE" | "CONSERVATIVE_DELISTING";
 }
 
 interface Metrics {
@@ -181,7 +223,30 @@ interface Metrics {
   stress: Record<string, { netR: number; netPnl: number; maxDD: number }>;
 }
 
-interface ConfigRun { config: Config; decisions: Decision[]; trades: SignalTrade[]; metrics: Metrics; }
+interface ConfigRun {
+  config: Config;
+  decisions: Decision[];
+  trades: SignalTrade[];
+  metrics: Metrics;
+  rawDiagnostic: Metrics;
+  decisionDiagnostics: DecisionBuildDiagnostics;
+}
+
+interface ExecutionBatch {
+  trades: SignalTrade[];
+  droppedSignals: number;
+  terminal: { affectedLegs: number; officialResolved: number; conservativePenalties: number; previouslyDroppableSignals: number };
+  funding: { markWeightedLegs: number; conservativeUnavailableLegs: number };
+}
+
+interface LedgerAllocation {
+  startingCapital: number;
+  targetGrossLeverage: number;
+  hardGrossLeverage: number;
+  peakConcurrentSleeves: number;
+  grossExposurePerSleeve: number;
+  peakGrossExposure: number;
+}
 
 interface FamilyResult {
   family: Family;
@@ -190,6 +255,8 @@ interface FamilyResult {
   nested: Metrics;
   holdoutA: Metrics;
   holdoutB: Metrics;
+  confirmationA: Metrics;
+  confirmationB: Metrics;
   gate: Record<string, boolean>;
   reasons: string[];
   configRuns: ConfigRun[];
@@ -205,6 +272,9 @@ interface FamilyResult {
   longContribution: number;
   shortContribution: number;
   portfolioBeta: number | null;
+  rawDiagnostic: Metrics;
+  decisionDiagnostics: DecisionBuildDiagnostics;
+  delisting: Record<string, unknown>;
 }
 
 const CONFIGURATIONS: readonly Config[] = [
@@ -227,10 +297,13 @@ const COST_MODEL = {
   baseSlippageBpsPerSide: 2,
   stressBpsPerSide: STRESS_BPS,
   capital: CAPITAL,
-  leveragePreferred: 2,
-  leverageHardLimit: 3,
+  leveragePreferred: TARGET_GROSS_LEVERAGE,
+  leverageHardLimit: HARD_GROSS_LEVERAGE,
+  liquidityParticipationLimit: LIQUIDITY_PARTICIPATION_LIMIT,
   execution: "Signal is formed from closed daily bars; each leg uses the actual next available Binance USDⓈ-M 15m open at the manual delay. No same-window close execution or synthetic price is used.",
-  funding: "Every funding contribution is read from the corresponding official fundingRate archive; missing funding archives make the execution unavailable.",
+  funding: "Funding cashflow is mark-weighted: -direction × (entryNotional / entryFillPrice) × settlementMarkPrice × historicalFundingRate. Missing settlement mark uses the frozen conservative unavailable-mark rule.",
+  terminal: "A position with no executable planned exit is retained under CONSERVATIVE_DELISTING: unresolved long and short legs each receive -100% leg-notional price return; ACTUAL_AVAILABLE drops only that unresolved diagnostic result.",
+  capitalAllocation: "At each dataset, peak concurrent sleeves is computed from timestamps only; each sleeve receives startingCapital × targetGrossLeverage / peakConcurrentSleeves gross notional, with margin equal to half gross notional and hard gross leverage <= 3x.",
 } as const;
 
 const dailyBars = new Map<string, Bar[]>();
@@ -246,6 +319,7 @@ const listedDailyArchives = new Map<string, Set<string>>();
 async function main(): Promise<void> {
   await mkdir(REPORT_ROOT, { recursive: true });
   await mkdir(CACHE_ROOT, { recursive: true });
+  const correctnessFreeze = await loadCorrectnessFreezeManifest();
   const generatedAt = new Date().toISOString();
   const rootInventory = await loadRootInventory();
   SYMBOLS = rootInventory.analysisSymbols;
@@ -255,16 +329,15 @@ async function main(): Promise<void> {
   const registryBody = buildArchiveRegistry(rootInventory, daily);
   const registryHash = hashObject(registryBody);
   const dataGate = buildDataGate(rootInventory, daily, pitWeeks);
-  const freezeManifest = buildFreezeManifest(registryHash, dataGate);
   await writeJson(resolve(REPORT_ROOT, "v14-archive-symbol-registry.json"), { ...registryBody, registrySha256: registryHash });
-  await writeJson(resolve(REPORT_ROOT, "v14-data-gate.json"), { schema: "bca-v14-data-gate-v1", generatedAt, baseline: BASELINE, dataGate, dailyStats: [...dailyStats.values()], archiveRecords });
-  await writeJson(resolve(REPORT_ROOT, "v14-freeze-manifest.json"), freezeManifest);
+  await writeJson(resolve(REPORT_ROOT, "v14-data-gate.json"), { schema: "bca-v14-data-gate-v2", generatedAt, baseline: BASELINE, correctnessFreezeSha256: correctnessFreeze.manifestSha256, dataGate, dailyStats: [...dailyStats.values()], archiveRecords });
 
   if (!dataGate.pass) {
     const stop = buildDataStopSummary(dataGate, registryHash);
     await writeJson(resolve(REPORT_ROOT, "v14-validation-summary.json"), stop);
-    await writeJson(resolve(REPORT_ROOT, "v14-promotion-decision.json"), { status: "V14_PIT_UNIVERSE_INSUFFICIENT", researchStop: "YES", registryHash });
+    await writeJson(resolve(REPORT_ROOT, "v14-promotion-decision.json"), { schema: "bca-v14-promotion-decision-v2", status: "V14_PIT_UNIVERSE_INSUFFICIENT", researchStop: "YES", registryHash });
     await writeFile(resolve(REPORT_ROOT, "v14-promotion-decision.md"), renderDecision(stop), "utf8");
+    await writeEvidenceManifest(correctnessFreeze, registryHash, dataGate, stop);
     console.error("V14_PIT_UNIVERSE_INSUFFICIENT");
     process.exitCode = 2;
     return;
@@ -277,12 +350,14 @@ async function main(): Promise<void> {
     FAMILY_C_DISPERSION_REVERSAL: await evaluateFamily("FAMILY_C_DISPERSION_REVERSAL", pitWeeks),
   };
   const best = selectBestFamily(Object.values(families));
-  const promotion = best?.status === "PASS" ? "PASS" : "FAIL";
-  const summary = buildFullSummary({ generatedAt, dataGate, registryHash, spotDiagnostic, families, best, promotion });
+  const allHistoricalGatesPass = Boolean(best && best.status === "PASS");
+  const promotion = allHistoricalGatesPass ? "V14_CORRECTNESS_PASS_EXTERNAL_CONFIRMATION_REQUIRED" : "V14_CROSS_SECTIONAL_REVERSAL_REJECTED";
+  const summary = buildFullSummary({ generatedAt, dataGate, registryHash, correctnessFreeze, spotDiagnostic, families, best, promotion });
   await writeJson(resolve(REPORT_ROOT, "v14-family-results.json"), families);
   await writeJson(resolve(REPORT_ROOT, "v14-validation-summary.json"), summary);
-  await writeJson(resolve(REPORT_ROOT, "v14-promotion-decision.json"), { schema: "bca-v14-promotion-decision-v1", baseline: BASELINE, registryHash, status: promotion === "PASS" ? "EMAIL_PROMOTION_CANDIDATE_PASS" : "V14_CROSS_SECTIONAL_REVERSAL_REJECTED", researchStop: "YES", winner: best ? { family: best.family, configId: best.bestConfigId } : null });
+  await writeJson(resolve(REPORT_ROOT, "v14-promotion-decision.json"), { schema: "bca-v14-promotion-decision-v2", baseline: BASELINE, registryHash, correctnessFreezeSha256: correctnessFreeze.manifestSha256, status: promotion, researchStop: "YES", priorWindowsContaminatedForPromotion: true, winner: best ? { family: best.family, configId: best.bestConfigId } : null });
   await writeFile(resolve(REPORT_ROOT, "v14-promotion-decision.md"), renderDecision(summary), "utf8");
+  await writeEvidenceManifest(correctnessFreeze, registryHash, dataGate, summary);
   console.info(JSON.stringify({ stage: "v14_validation_complete", dataGate: dataGate.status, archiveSymbols: rootInventory.usdtSymbols.length, analysisSymbols: SYMBOLS.length, pitMedian: dataGate.medianPitUniverse, pitMinimum: dataGate.minimumPitUniverse, families: Object.values(families).map((family) => ({ family: family.family, status: family.status, configId: family.bestConfigId, signals: family.nested.signals })), EMAIL_PROMOTION_CANDIDATE: promotion, researchStop: "YES" }));
 }
 
@@ -298,13 +373,8 @@ async function loadRootInventory(): Promise<RootInventory> {
     listedDailyArchives.set(symbol, new Set(target));
     return { symbol, periods: target, firstPeriod: target[0] ?? null, lastPeriod: target.at(-1) ?? null, listedObjects: symbolListing.keys.filter((key) => key.endsWith(".zip")).length } satisfies ArchiveAvailability;
   });
-  const targetMonthCount = monthKeys(START, END).length;
-  const analysisSymbols = availability.filter((item) => {
-    const longHistory = item.periods.length >= Math.ceil(targetMonthCount * 0.9);
-    const historicalOnly = item.lastPeriod !== null && item.lastPeriod < "2026-07" && item.periods.length >= 12;
-    return longHistory || historicalOnly;
-  }).map((item) => item.symbol).sort();
-  const inventoryBody = { source: "Binance Data Vision official public archive via S3 ListObjectsV2", listingUrl: `${S3_ROOT}?list-type=2&prefix=${encodeURIComponent(S3_KLINE_PREFIX)}&delimiter=%2F`, allArchiveSymbols, usdtSymbols, availability, analysisRule: `Use every USDT-M symbol with at least ${Math.ceil(targetMonthCount * 0.9)} of ${targetMonthCount} target monthly 1d archives, plus every later-delisted symbol with at least 12 target monthly archives; this rule is based only on archive object availability, never on returns or current exchangeInfo.` };
+  const analysisSymbols = usdtSymbols.slice().sort();
+  const inventoryBody = { source: "Binance Data Vision official public archive via S3 ListObjectsV2", listingUrl: `${S3_ROOT}?list-type=2&prefix=${encodeURIComponent(S3_KLINE_PREFIX)}&delimiter=%2F`, allArchiveSymbols, usdtSymbols, availability, analysisRule: "Discovery contains every historically enumerated USDT-M symbol. No future lifecycle length, lastObserved, current active status, or return-based prefilter is used; PIT eligibility is evaluated from bars available on or before each rebalance timestamp." };
   return { ...inventoryBody, analysisSymbols, fetchedAt: new Date().toISOString(), rawSha256: hashObject(inventoryBody), complete: !listing.truncated };
 }
 
@@ -466,6 +536,13 @@ function buildDataGate(root: RootInventory, daily: { symbols: string[] }, weeks:
   const allChecksummed = archiveRecords.filter((record) => record.status === "AVAILABLE").length > 0 && archiveRecords.filter((record) => record.status === "AVAILABLE").every((record) => Boolean(record.sha256) && record.checksumStatus === "PASS") && archiveRecords.every((record) => record.status !== "FAILED" && record.checksumStatus !== "FAIL");
   const fullWindowSymbols = stats.filter((value) => value.firstObserved !== null && Date.parse(value.firstObserved) <= START && value.lastObserved !== null && Date.parse(value.lastObserved) >= END - DAY).length;
   const historicalOnlySymbols = stats.filter((value) => value.historicalOnly).map((value) => value.symbol);
+  const shortLivedHistoricalSymbols = stats.filter((value) => value.lastObserved !== null && value.observedMonths.length < 12).map((value) => value.symbol);
+  const symbolsEverEligible = [...new Set(weeks.flatMap((week) => week.eligible.map((candidate) => candidate.symbol)))].sort();
+  const requestedArchiveSlots = root.usdtSymbols.length * monthKeys(START, END).length;
+  const availableZipCount = archiveRecords.filter((record) => record.status === "AVAILABLE").length;
+  const checksumPassZipCount = archiveRecords.filter((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS").length;
+  const missingSlotCount = archiveRecords.filter((record) => record.status === "MISSING").length;
+  const failedZipCount = archiveRecords.filter((record) => record.status === "FAILED" || record.checksumStatus === "FAIL").length;
   const reasons = [
     ...(!root.complete ? ["archive_root_inventory_not_complete"] : []),
     ...(!allChecksummed ? ["download_or_checksum_failure"] : []),
@@ -481,14 +558,19 @@ function buildDataGate(root: RootInventory, daily: { symbols: string[] }, weeks:
     pass: reasons.length === 0,
     archiveEnumeration: root.complete ? "COMPLETE_LIVE_S3_INVENTORY" : "FAIL",
     archiveSymbols: root.usdtSymbols.length,
+    allHistoricalUsdtSymbols: root.usdtSymbols,
+    symbolsEverEligible,
+    shortLivedHistoricalSymbols,
+    historicalOnlySymbols,
+    futureLifecycleFilter: "NO",
     requestedPeriod: { start: new Date(START).toISOString(), end: new Date(END).toISOString(), fullWindowSymbols },
     phase1CandidateSymbols: daily.symbols.length,
     reliablePhase1Symbols: reliableSymbols.length,
     checksum: allChecksummed ? "100%_OF_DOWNLOADED_ZIPS" : "FAIL",
+    archiveCounts: { requestedArchiveSlots, availableZipCount, checksumPassZipCount, missingSlotCount, failedZipCount },
     medianPitUniverse,
     minimumPitUniverse,
     formationCoverage,
-    historicalOnlySymbols,
     pitMembership: reasons.includes("median_pit_universe_below_30") || reasons.includes("minimum_actionable_pit_universe_below_20") ? "FAIL" : "PASS",
     currentSurvivorOnlyUniverse: false,
     dataQuality: { duplicateBars: 0, forwardFill: false, syntheticBars: false, zeroVolumeSymbols: stats.filter((value) => value.zeroVolume > 0).map((value) => value.symbol), badOhlcSymbols: stats.filter((value) => value.badOhlc > 0).map((value) => value.symbol) },
@@ -503,50 +585,71 @@ function buildPitWeeks(_: { symbols: string[] }): PitWeek[] {
     const candidates: PitPoint[] = [];
     for (const symbol of SYMBOLS) {
       const bars = dailyBars.get(symbol) ?? [];
-      const latest = latestClosedBar(bars, timestamp);
-      if (!latest || latest.openTime + DAY < timestamp - 2 * DAY) continue;
-      const age = latest.openTime - (bars[0]?.openTime ?? latest.openTime);
-      if (age < 90 * DAY) continue;
-      const formationEnd = latest.openTime;
-      const formationStart = formationEnd - 12 * WEEK;
-      const recentBars = bars.filter((bar) => bar.openTime > formationEnd - 30 * DAY && bar.openTime <= formationEnd);
-      if (recentBars.length < 28 || recentBars.some((bar) => bar.quoteVolume <= 0)) continue;
-      const formationBars = bars.filter((bar) => bar.openTime >= formationStart && bar.openTime <= formationEnd);
-      if (formationBars.length < 0.98 * 84) continue;
-      const startBar = barAtOrBefore(bars, formationEnd - 8 * WEEK);
-      if (!startBar || startBar.close <= 0 || latest.close <= 0) continue;
-      const logReturns = consecutiveLogReturns(formationBars);
-      if (logReturns.length < 28) continue;
-      candidates.push({ symbol, formationReturn: latest.close / startBar.close - 1, volatility: Math.sqrt(mean(logReturns.map((value) => value ** 2))) * Math.sqrt(365), quoteVolume30d: mean(recentBars.map((bar) => bar.quoteVolume)), latestBar: latest.openTime });
+      const candidate = buildPitPointAtTimestamp(bars, timestamp);
+      if (candidate) candidates.push({ ...candidate, symbol });
     }
-    const returns = candidates.map((candidate) => candidate.formationReturn);
+    const dispersionByFormationWeeks: Partial<Record<6 | 8 | 10 | 12, number>> = {};
+    for (const formationWeeks of [6, 8, 10, 12] as const) {
+      const returns = candidates.map((candidate) => candidate.formationReturns[formationWeeks]).filter((value): value is number => Number.isFinite(value));
+      if (returns.length) dispersionByFormationWeeks[formationWeeks] = standardDeviation(returns);
+    }
     const btcBars = dailyBars.get("BTCUSDT") ?? [];
     const btcLatest = latestClosedBar(btcBars, timestamp);
     const btcStart = btcLatest ? barAtOrBefore(btcBars, btcLatest.openTime - 8 * WEEK) : null;
     const btcReturn8w = btcLatest && btcStart && btcStart.close > 0 ? btcLatest.close / btcStart.close - 1 : null;
     const btcRecent = btcBars.filter((bar) => btcLatest && bar.openTime > btcLatest.openTime - 30 * DAY && bar.openTime <= btcLatest.openTime);
     const btcVol30d = btcRecent.length >= 20 ? Math.sqrt(mean(consecutiveLogReturns(btcRecent).map((value) => value ** 2))) * Math.sqrt(365) : null;
-    weeks.push({ timestamp, eligible: candidates, dispersion: standardDeviation(returns), btcReturn8w, btcVol30d });
+    weeks.push({ timestamp, eligible: candidates, dispersionByFormationWeeks, btcReturn8w, btcVol30d });
   }
   return weeks;
+}
+
+export function buildPitPointAtTimestamp(bars: Bar[], timestamp: number): Omit<PitPoint, "symbol"> | null {
+  const latestIndex = lastIndexAtOrBeforeClose(bars, timestamp);
+  const latest = latestIndex >= 0 ? bars[latestIndex] : null;
+  if (!latest || latest.openTime + DAY < timestamp - 2 * DAY) return null;
+  const age = latest.openTime - (bars[0]?.openTime ?? latest.openTime);
+  if (age < 90 * DAY) return null;
+  const recentStartIndex = firstIndexAtOrAfterOpen(bars, latest.openTime - 30 * DAY + 1);
+  const recentBars = bars.slice(recentStartIndex, latestIndex + 1);
+  if (recentBars.length < 28 || recentBars.some((bar) => bar.quoteVolume <= 0)) return null;
+  const formationReturns: Partial<Record<6 | 8 | 10 | 12, number>> = {};
+  const volatilityByFormationWeeks: Partial<Record<6 | 8 | 10 | 12, number>> = {};
+  for (const formationWeeks of [6, 8, 10, 12] as const) {
+    const formationStart = latest.openTime - formationWeeks * WEEK;
+    const expectedBars = formationWeeks * 7;
+    const formationStartIndex = firstIndexAtOrAfterOpen(bars, formationStart);
+    const formationBars = bars.slice(formationStartIndex, latestIndex + 1);
+    const startBar = barAtOrBefore(bars, formationStart);
+    if (!startBar || formationBars.length < 0.98 * expectedBars || startBar.close <= 0 || latest.close <= 0) continue;
+    const logReturns = consecutiveLogReturns(formationBars);
+    if (logReturns.length < Math.max(28, expectedBars - 2)) continue;
+    formationReturns[formationWeeks] = latest.close / startBar.close - 1;
+    volatilityByFormationWeeks[formationWeeks] = Math.sqrt(mean(logReturns.map((value) => value ** 2))) * Math.sqrt(365);
+  }
+  if (formationReturns[6] === undefined) return null;
+  return { formationReturns, volatilityByFormationWeeks, quoteVolume30d: mean(recentBars.map((bar) => bar.quoteVolume)), latestBar: latest.openTime };
 }
 
 async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyResult> {
   const configs = CONFIGURATIONS.filter((config) => config.family === family);
   const configRuns: ConfigRun[] = [];
   for (const config of configs) {
-    const decisions = buildDecisions(config, weeks);
-    const trades = await executeDecisions(decisions, 15);
-    configRuns.push({ config, decisions, trades, metrics: metricsFor(trades) });
+    const built = buildDecisionSet(config, weeks);
+    const decisions = built.decisions;
+    const execution = await executeDecisions(decisions, 15, "CONSERVATIVE_DELISTING");
+    const trades = execution.trades;
+    configRuns.push({ config, decisions, trades, metrics: metricsFor(trades), rawDiagnostic: rawMetricsFor(trades), decisionDiagnostics: built.diagnostics });
   }
   const nested = nestedEvaluation(configRuns);
   const bestConfigId = nested.configId;
   const selectedRun = configRuns.find((run) => run.config.id === bestConfigId) ?? configRuns[0];
   const selectedTrades = selectedRun ? filterByDecisionPeriod(selectedRun.trades, START, END) : [];
-  const holdoutA = selectedRun ? metricsFor(filterByDecisionPeriod(selectedRun.trades, Date.UTC(2024, 6, 1), Date.UTC(2025, 5, 30, 23, 59, 59, 999))) : emptyMetrics();
-  const holdoutB = selectedRun ? metricsFor(filterByDecisionPeriod(selectedRun.trades, Date.UTC(2025, 6, 1), END)) : emptyMetrics();
+  const confirmationA = selectedRun ? metricsFor(filterByDecisionPeriod(selectedRun.trades, CONFIRMATION_A[0], CONFIRMATION_A[1])) : emptyMetrics();
+  const confirmationB = selectedRun ? metricsFor(filterByDecisionPeriod(selectedRun.trades, CONFIRMATION_B[0], CONFIRMATION_B[1])) : emptyMetrics();
+  const actualAvailable = selectedRun ? await executeDecisions(selectedRun.decisions, 15, "ACTUAL_AVAILABLE") : { trades: [], droppedSignals: 0, terminal: { affectedLegs: 0, officialResolved: 0, conservativePenalties: 0, previouslyDroppableSignals: 0 }, funding: { markWeightedLegs: 0, conservativeUnavailableLegs: 0 } } satisfies ExecutionBatch;
   const latency: Record<string, Metrics> = {};
-  for (const delay of DELAY_MINUTES) latency[`${delay}m`] = selectedRun ? metricsFor(await executeDecisions(selectedRun.decisions, delay)) : emptyMetrics();
+  for (const delay of DELAY_MINUTES) latency[`${delay}m`] = selectedRun ? metricsFor((await executeDecisions(selectedRun.decisions, delay, "CONSERVATIVE_DELISTING")).trades) : emptyMetrics();
   const diversificationReport = diversification(selectedTrades);
   const stabilityReport = stability(selectedTrades, weeks);
   const placeboReport = await placebo(selectedRun, weeks);
@@ -554,14 +657,17 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
   const capitalReport = capitalSimulation(selectedTrades);
   const emailReport = emailSimulation(selectedTrades, latency);
   const portfolioReport = metricsFor(selectedTrades);
-  const gate = buildPromotionGate(nested.metrics, holdoutA, holdoutB, latency, selectedTrades, { stability: stabilityReport, placebo: placeboReport, robustness: robustnessReport, capital: capitalReport, email: emailReport, portfolio: portfolioReport });
+  const gate = buildPromotionGate(nested.metrics, confirmationA, confirmationB, latency, selectedTrades, { stability: stabilityReport, placebo: placeboReport, robustness: robustnessReport, capital: capitalReport, email: emailReport, portfolio: portfolioReport });
+  const delistingReport = buildDelistingReport(selectedTrades, actualAvailable);
   const result: FamilyResult = {
     family,
     status: Object.values(gate).every(Boolean) ? "PASS" : "FAIL",
     bestConfigId,
     nested: nested.metrics,
-    holdoutA,
-    holdoutB,
+    holdoutA: confirmationA,
+    holdoutB: confirmationB,
+    confirmationA,
+    confirmationB,
     gate,
     reasons: Object.entries(gate).filter(([, value]) => !value).map(([key]) => key),
     configRuns,
@@ -577,72 +683,127 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
     longContribution: sum(selectedTrades.map((trade) => trade.longR)),
     shortContribution: sum(selectedTrades.map((trade) => trade.shortR)),
     portfolioBeta: portfolioBeta(selectedTrades, weeks),
+    rawDiagnostic: rawMetricsFor(selectedTrades),
+    decisionDiagnostics: selectedRun?.decisionDiagnostics ?? emptyDecisionDiagnostics(),
+    delisting: delistingReport,
   };
   return result;
 }
 
 function buildDecisions(config: Config, weeks: PitWeek[]): Decision[] {
+  return buildDecisionSet(config, weeks).decisions;
+}
+
+function buildDecisionSet(config: Config, weeks: PitWeek[]): { decisions: Decision[]; diagnostics: DecisionBuildDiagnostics } {
   const output: Decision[] = [];
   const priorDispersions: number[] = [];
+  const executedAdvs: number[] = [];
+  let proposedSignals = 0;
+  let liquidityRejectedSignals = 0;
+  let liquidityRejectedCandidates = 0;
   for (const [index, week] of weeks.entries()) {
-    const eligible = week.eligible.filter((candidate) => candidate.formationReturn !== null);
-    const volMedian = median(eligible.map((candidate) => candidate.volatility));
+    const formationWeeks = config.formationWeeks;
+    const eligible = week.eligible.filter((candidate) => Number.isFinite(candidate.formationReturns[formationWeeks]));
+    const volMedian = median(eligible.map((candidate) => candidate.volatilityByFormationWeeks[formationWeeks] ?? 0));
     const priorDispersionMedian = median(priorDispersions.slice(-12));
-    priorDispersions.push(week.dispersion);
-    const filtered = eligible.filter((candidate) => (!config.volState || candidate.volatility >= volMedian) && (!config.dispersionState || week.dispersion >= priorDispersionMedian || index < 12));
-    const ordered = filtered.slice().sort((left, right) => left.formationReturn - right.formationReturn || left.symbol.localeCompare(right.symbol));
-    const breadthPool = config.breadth === "DECILE" ? Math.max(config.legs, Math.ceil(ordered.length * 0.1)) : Math.max(config.legs, Math.ceil(ordered.length * 0.2));
-    if (ordered.length < config.legs * 2 || breadthPool < config.legs) continue;
-    const longs = ordered.slice(0, Math.min(config.legs, breadthPool)).map((candidate) => candidate.symbol);
-    const shorts = ordered.slice(-Math.min(config.legs, breadthPool)).reverse().map((candidate) => candidate.symbol);
+    const dispersion = week.dispersionByFormationWeeks[formationWeeks] ?? 0;
+    priorDispersions.push(dispersion);
+    const regimeFiltered = eligible.filter((candidate) => (!config.volState || (candidate.volatilityByFormationWeeks[formationWeeks] ?? 0) >= volMedian) && (!config.dispersionState || dispersion >= priorDispersionMedian || index < 12));
+    const liquid = regimeFiltered.filter((candidate) => passesCapacityGate(candidate.quoteVolume30d, config.legs));
+    liquidityRejectedCandidates += regimeFiltered.length - liquid.length;
+    const ordered = liquid.slice().sort((left, right) => (left.formationReturns[formationWeeks] ?? 0) - (right.formationReturns[formationWeeks] ?? 0) || left.symbol.localeCompare(right.symbol));
+    if (regimeFiltered.length >= config.legs * 2) proposedSignals += 1;
+    if (ordered.length < config.legs * 2) {
+      if (regimeFiltered.length >= config.legs * 2) liquidityRejectedSignals += 1;
+      continue;
+    }
+    const longs = ordered.slice(0, config.legs).map((candidate) => candidate.symbol);
+    const shorts = ordered.slice(-config.legs).reverse().map((candidate) => candidate.symbol);
     if (new Set([...longs, ...shorts]).size !== longs.length + shorts.length) continue;
+    for (const candidate of [...ordered.slice(0, config.legs), ...ordered.slice(-config.legs)]) {
+      executedAdvs.push(candidate.quoteVolume30d);
+    }
     output.push({ id: `${config.id}-${week.timestamp}`, family: config.family, configId: config.id, timestamp: week.timestamp, holdingWeeks: config.holdingWeeks, longs, shorts, regime: regimeFor(week) });
   }
-  return output;
+  return { decisions: output, diagnostics: { proposedSignals, liquidityRejectedSignals, liquidityRejectedCandidates, medianADV30: median(executedAdvs), minimumExecutedADV30: executedAdvs.length ? Math.min(...executedAdvs) : 0, maxParticipationRate: executedAdvs.length ? Math.max(...executedAdvs.map((adv) => referenceLegNotional(config.legs) / adv)) : 0 } };
 }
 
-async function executeDecisions(decisions: Decision[], delayMinutes: number): Promise<SignalTrade[]> {
-  const output = await mapLimit(decisions, 16, async (decision): Promise<SignalTrade | null> => {
+export function referenceLegNotional(legs: 2 | 3, startingCapital = CAPITAL): number { return startingCapital * TARGET_GROSS_LEVERAGE / (legs * 2); }
+
+export function passesCapacityGate(adv30: number, legs: 2 | 3, startingCapital = CAPITAL): boolean {
+  return Number.isFinite(adv30) && adv30 > 0 && referenceLegNotional(legs, startingCapital) / adv30 <= LIQUIDITY_PARTICIPATION_LIMIT;
+}
+
+export function selectActionableSymbols(points: Array<{ symbol: string; formationReturns: Partial<Record<6 | 8 | 10 | 12, number>> }>, formationWeeks: 6 | 8 | 10 | 12, legs: 2 | 3): { longs: string[]; shorts: string[] } {
+  const ordered = points.filter((point) => Number.isFinite(point.formationReturns[formationWeeks])).slice().sort((left, right) => (left.formationReturns[formationWeeks] as number) - (right.formationReturns[formationWeeks] as number) || left.symbol.localeCompare(right.symbol));
+  return { longs: ordered.slice(0, legs).map((point) => point.symbol), shorts: ordered.slice(-legs).reverse().map((point) => point.symbol) };
+}
+
+async function executeDecisions(decisions: Decision[], delayMinutes: number, settlementMode: "ACTUAL_AVAILABLE" | "CONSERVATIVE_DELISTING" = "CONSERVATIVE_DELISTING"): Promise<ExecutionBatch> {
+  const output = await mapLimit(decisions, 16, async (decision): Promise<{ trade: SignalTrade | null; dropped: boolean; terminalAffected: number; officialResolved: number; conservativePenalties: number; markWeighted: number; fundingUnavailable: number }> => {
     const entryTarget = decision.timestamp + delayMinutes * 60_000;
     const exitTarget = entryTarget + decision.holdingWeeks * WEEK;
-    if (exitTarget > END) return null;
-    const legs: ExecutedLeg[] = [];
+    if (exitTarget > END) return { trade: null, dropped: true, terminalAffected: 0, officialResolved: 0, conservativePenalties: 0, markWeighted: 0, fundingUnavailable: 0 };
     const legResults = await Promise.all([
-      ...decision.longs.map((symbol) => executeLeg(symbol, 1, entryTarget, exitTarget)),
-      ...decision.shorts.map((symbol) => executeLeg(symbol, -1, entryTarget, exitTarget)),
+      ...decision.longs.map((symbol) => executeLeg(symbol, 1, entryTarget, exitTarget, settlementMode, decision.longs.length as 2 | 3)),
+      ...decision.shorts.map((symbol) => executeLeg(symbol, -1, entryTarget, exitTarget, settlementMode, decision.longs.length as 2 | 3)),
     ]);
-    for (const leg of legResults) if (leg) legs.push(leg);
-    if (legs.length !== decision.longs.length + decision.shorts.length) return null;
+    const legs = legResults.flatMap((result) => result.leg ? [result.leg] : []);
+    const terminalAffected = sum(legResults.map((result) => result.terminalAffected));
+    const officialResolved = sum(legResults.map((result) => result.officialResolved));
+    const conservativePenalties = sum(legResults.map((result) => result.conservativePenalty));
+    const markWeighted = sum(legResults.map((result) => result.markWeighted));
+    const fundingUnavailable = sum(legResults.map((result) => result.fundingUnavailable));
+    if (legs.length !== decision.longs.length + decision.shorts.length) return { trade: null, dropped: true, terminalAffected, officialResolved, conservativePenalties, markWeighted, fundingUnavailable };
     const netRByStress = Object.fromEntries(STRESS_BPS.map((bps) => [String(bps), mean(legs.map((leg) => leg.netRByStress[String(bps)]))]));
-    return { id: decision.id, family: decision.family, configId: decision.configId, timestamp: decision.timestamp, entryTime: Math.min(...legs.map((leg) => leg.entryTime)), exitTime: Math.max(...legs.map((leg) => leg.exitTime)), regime: decision.regime, legs, netRByStress, longR: mean(legs.filter((leg) => leg.direction === 1).map((leg) => leg.netRByStress["0"])), shortR: mean(legs.filter((leg) => leg.direction === -1).map((leg) => leg.netRByStress["0"])) };
+    return { trade: { id: decision.id, family: decision.family, configId: decision.configId, timestamp: decision.timestamp, entryTime: Math.min(...legs.map((leg) => leg.entryTime)), exitTime: Math.max(...legs.map((leg) => leg.exitTime)), regime: decision.regime, legs, netRByStress, longR: mean(legs.filter((leg) => leg.direction === 1).map((leg) => leg.netRByStress["0"])), shortR: mean(legs.filter((leg) => leg.direction === -1).map((leg) => leg.netRByStress["0"])), settlementMode }, dropped: false, terminalAffected, officialResolved, conservativePenalties, markWeighted, fundingUnavailable };
   });
-  return output.filter((trade): trade is SignalTrade => trade !== null);
+  return {
+    trades: output.flatMap((result) => result.trade ? [result.trade] : []),
+    droppedSignals: output.filter((result) => result.dropped).length,
+    terminal: { affectedLegs: sum(output.map((result) => result.terminalAffected)), officialResolved: sum(output.map((result) => result.officialResolved)), conservativePenalties: sum(output.map((result) => result.conservativePenalties)), previouslyDroppableSignals: output.filter((result) => result.terminalAffected > 0 && result.trade !== null).length },
+    funding: { markWeightedLegs: sum(output.map((result) => result.markWeighted)), conservativeUnavailableLegs: sum(output.map((result) => result.fundingUnavailable)), },
+  };
 }
 
-async function executeLeg(symbol: string, direction: 1 | -1, entryTarget: number, exitTarget: number): Promise<ExecutedLeg | null> {
+interface LegExecutionOutcome { leg: ExecutedLeg | null; terminalAffected: number; officialResolved: number; conservativePenalty: number; markWeighted: number; fundingUnavailable: number; }
+
+async function executeLeg(symbol: string, direction: 1 | -1, entryTarget: number, exitTarget: number, settlementMode: "ACTUAL_AVAILABLE" | "CONSERVATIVE_DELISTING", legCount: 2 | 3): Promise<LegExecutionOutcome> {
   const entry = await candleAtOrAfter(symbol, entryTarget);
+  if (!entry || entry.open <= 0) return { leg: null, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 0 };
   const exit = await candleAtOrAfter(symbol, exitTarget);
-  if (!entry || !exit || entry.open <= 0 || exit.open <= 0 || exit.openTime <= entry.openTime) return null;
-  const funding = await fundingBetween(symbol, entry.openTime, exit.openTime);
-  if (funding === null) return null;
+  const terminalAffected = exit && exit.open > 0 && exit.openTime > entry.openTime ? 0 : 1;
+  if (!exit || exit.open <= 0 || exit.openTime <= entry.openTime) {
+    if (settlementMode === "ACTUAL_AVAILABLE") return { leg: null, terminalAffected, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 0 };
+    const grossR = -1;
+    const fundingR = 0;
+    const netRByStress = netReturnByStress(grossR, fundingR);
+    return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: entry.openTime, entryPrice: entry.open, exitPrice: 0, grossR, fundingR, fundingCalculation: "CONSERVATIVE_UNAVAILABLE", terminalTreatment: "CONSERVATIVE_DELISTING", officialResolved: false, conservativePenalty: 1, adv30: 0, participationRate: 0, netRByStress }, terminalAffected, officialResolved: 0, conservativePenalty: 1, markWeighted: 0, fundingUnavailable: 0 };
+  }
+  const funding = await fundingBetween(symbol, entry.openTime, exit.openTime, direction, referenceLegNotional(legCount), entry.open);
+  if (!funding || funding.missingMark) {
+    if (settlementMode === "ACTUAL_AVAILABLE") return { leg: null, terminalAffected: 0, officialResolved: 1, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 1 };
+    const grossR = direction * (exit.open / entry.open - 1);
+    const fundingR = -1;
+    const netRByStress = netReturnByStress(grossR, fundingR);
+    return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: exit.openTime, entryPrice: entry.open, exitPrice: exit.open, grossR, fundingR, fundingCalculation: "CONSERVATIVE_UNAVAILABLE", terminalTreatment: "NONE", officialResolved: false, conservativePenalty: 1, adv30: 0, participationRate: 0, netRByStress }, terminalAffected: 0, officialResolved: 0, conservativePenalty: 1, markWeighted: 0, fundingUnavailable: 1 };
+  }
   const grossR = direction * (exit.open / entry.open - 1);
-  const fundingR = -direction * funding;
-  const netRByStress = Object.fromEntries(STRESS_BPS.map((stress) => {
+  const netRByStress = netReturnByStress(grossR, funding.fundingR);
+  return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: exit.openTime, entryPrice: entry.open, exitPrice: exit.open, grossR, fundingR: funding.fundingR, fundingCalculation: "MARK_WEIGHTED", terminalTreatment: "NONE", officialResolved: false, conservativePenalty: 0, adv30: 0, participationRate: 0, netRByStress }, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 1, fundingUnavailable: 0 };
+}
+
+function netReturnByStress(grossR: number, fundingR: number): Record<string, number> {
+  return Object.fromEntries(STRESS_BPS.map((stress) => {
     const costs = 2 * (COST_MODEL.feeBpsPerSide + COST_MODEL.baseSlippageBpsPerSide + stress) / 10_000;
     return [String(stress), grossR + fundingR - costs];
   }));
-  return { symbol, direction, entryTime: entry.openTime, exitTime: exit.openTime, entryPrice: entry.open, exitPrice: exit.open, grossR, fundingR, netRByStress };
 }
 
 function nestedEvaluation(runs: ConfigRun[]): { configId: string | null; metrics: Metrics } {
-  const foldRanges = [
-    [Date.UTC(2022, 0, 1), Date.UTC(2022, 11, 31, 23, 59, 59, 999)],
-    [Date.UTC(2023, 0, 1), Date.UTC(2023, 11, 31, 23, 59, 59, 999)],
-    [Date.UTC(2024, 0, 1), Date.UTC(2024, 11, 31, 23, 59, 59, 999)],
-  ] as const;
   const oos: SignalTrade[] = [];
   const selected: string[] = [];
-  for (const [foldStart, foldEnd] of foldRanges) {
+  for (const [foldStart, foldEnd] of NESTED_OOS_WINDOWS) {
     const trainEnd = foldStart - 4 * WEEK;
     const candidate = runs.slice().sort((left, right) => scoreConfig(right, START, trainEnd) - scoreConfig(left, START, trainEnd) || left.config.id.localeCompare(right.config.id))[0];
     if (!candidate) continue;
@@ -682,8 +843,8 @@ function buildPromotionGate(nested: Metrics, holdoutA: Metrics, holdoutB: Metric
     delay30m: (latency["30m"]?.netR ?? 0) > 0,
     delay2h: (latency["120m"]?.netR ?? 0) > 0,
     delay24h: (latency["1440m"]?.netR ?? 0) >= 0,
-    holdoutA: holdoutA.signals >= 20 && holdoutA.netR > 0 && holdoutA.profitFactor >= 1.2 && holdoutA.maxDD <= 0.15,
-    holdoutB: holdoutB.signals >= 20 && holdoutB.netR > 0 && holdoutB.profitFactor >= 1.2 && holdoutB.maxDD <= 0.15,
+    holdoutA: holdoutA.signals >= 30 && holdoutA.netR > 0 && holdoutA.profitFactor >= 1.2 && holdoutA.maxDD <= 0.15,
+    holdoutB: holdoutB.signals >= 30 && holdoutB.netR > 0 && holdoutB.profitFactor >= 1.2 && holdoutB.maxDD <= 0.15,
     diversificationSymbols: symbols.size >= 20,
     diversificationProfitable: profitableSymbols(trades) >= 10,
     top1Share: Number(diversification(trades).top1ProfitShare ?? 1) <= 0.2,
@@ -694,24 +855,77 @@ function buildPromotionGate(nested: Metrics, holdoutA: Metrics, holdoutB: Metric
     removeTop1: (robustnessReports.removeTop1?.netR ?? 0) > 0,
     removeTop5: (robustnessReports.removeTop5?.netR ?? 0) > 0,
     winsorized: (robustnessReports.winsorized?.netR ?? 0) > 0,
-    emailYield: Number(email.emailsPerMonth ?? 0) >= 3 && Number(email.activeMonthRatio ?? 0) >= 0.9 && Number(email.maxDroughtDays ?? Number.POSITIVE_INFINITY) <= 14,
+    emailYield: Number(email.emailsPerMonth ?? 0) >= 4 && Number(email.activeMonthRatio ?? 0) >= 0.7 && Number(email.p95DroughtDays ?? Number.POSITIVE_INFINITY) <= 30 && Number(email.maxDroughtDays ?? Number.POSITIVE_INFINITY) <= 45,
     portfolio: reports.portfolio.netR > 0 && reports.portfolio.profitFactor >= 1.2,
     capitalLeverage: capitalReports.every((item) => Number(item.effectiveLeverage ?? Number.POSITIVE_INFINITY) <= 3),
   };
 }
 
-function metricsFor(trades: SignalTrade[]): Metrics {
+function metricsFor(trades: SignalTrade[], startingCapital = CAPITAL): Metrics {
+  if (!trades.length) return emptyMetrics();
+  const allocation = ledgerAllocation(trades, startingCapital);
+  const baseEvents = ledgerEvents(trades, allocation, 0);
+  const values = baseEvents.map((event) => event.returnR);
+  const stress = Object.fromEntries(STRESS_BPS.map((bps) => {
+    const events = ledgerEvents(trades, allocation, bps);
+    const netR = sum(events.map((event) => event.returnR));
+    return [String(bps), { netR, netPnl: netR * startingCapital, maxDD: maxDrawdownFromReturns(events.map((event) => event.returnR)) }];
+  }));
+  const positive = values.filter((value) => value > 0);
+  const negative = values.filter((value) => value < 0);
+  const years = Math.max(1, (Math.max(...trades.map((trade) => trade.timestamp)) - Math.min(...trades.map((trade) => trade.timestamp))) / (365.25 * DAY));
+  const foldValues = temporalFoldValuesFromEvents(baseEvents);
+  return { signals: trades.length, wins: positive.length, losses: negative.length, netR: sum(values), netPnl: sum(values) * startingCapital, annualized: sum(values) / years, profitFactor: negative.length ? sum(positive) / Math.abs(sum(negative)) : positive.length ? Number.POSITIVE_INFINITY : 0, average: mean(values), median: median(values), worst: Math.min(...values), maxDD: maxDrawdownFromReturns(values), positiveFoldRatio: foldValues.filter((value) => value > 0).length / Math.max(1, foldValues.length), medianFoldNetR: median(foldValues), stress: stress as Record<string, { netR: number; netPnl: number; maxDD: number }> };
+}
+
+function rawMetricsFor(trades: SignalTrade[]): Metrics {
   if (!trades.length) return emptyMetrics();
   const values = trades.map((trade) => trade.netRByStress["0"] ?? 0);
   const stress = Object.fromEntries(STRESS_BPS.map((bps) => {
-    const netR = sum(trades.map((trade) => trade.netRByStress[String(bps)] ?? 0));
-    return [String(bps), { netR, netPnl: netR * CAPITAL, maxDD: maxDrawdown(trades.map((trade) => trade.netRByStress[String(bps)] ?? 0)) }];
+    const valuesAtStress = trades.map((trade) => trade.netRByStress[String(bps)] ?? 0);
+    const netR = sum(valuesAtStress);
+    return [String(bps), { netR, netPnl: netR * CAPITAL, maxDD: maxDrawdown(valuesAtStress) }];
   }));
   const positive = values.filter((value) => value > 0);
   const negative = values.filter((value) => value < 0);
   const years = Math.max(1, (Math.max(...trades.map((trade) => trade.timestamp)) - Math.min(...trades.map((trade) => trade.timestamp))) / (365.25 * DAY));
   const foldValues = temporalFoldValues(trades, (trade) => trade.netRByStress["0"] ?? 0);
   return { signals: trades.length, wins: positive.length, losses: negative.length, netR: sum(values), netPnl: sum(values) * CAPITAL, annualized: sum(values) / years, profitFactor: negative.length ? sum(positive) / Math.abs(sum(negative)) : positive.length ? Number.POSITIVE_INFINITY : 0, average: mean(values), median: median(values), worst: Math.min(...values), maxDD: maxDrawdown(values), positiveFoldRatio: foldValues.filter((value) => value > 0).length / Math.max(1, foldValues.length), medianFoldNetR: median(foldValues), stress: stress as Record<string, { netR: number; netPnl: number; maxDD: number }> };
+}
+
+function ledgerAllocation(trades: SignalTrade[], startingCapital: number): LedgerAllocation {
+  const timeline = [...new Set(trades.flatMap((trade) => [trade.entryTime, trade.exitTime]))].sort((left, right) => left - right);
+  const concurrentAt = (timestamp: number): number => trades.filter((trade) => trade.entryTime <= timestamp && trade.exitTime >= timestamp).length;
+  const peakConcurrentSleeves = Math.max(1, ...timeline.map(concurrentAt));
+  const grossExposurePerSleeve = startingCapital * TARGET_GROSS_LEVERAGE / peakConcurrentSleeves;
+  return { startingCapital, targetGrossLeverage: TARGET_GROSS_LEVERAGE, hardGrossLeverage: HARD_GROSS_LEVERAGE, peakConcurrentSleeves, grossExposurePerSleeve, peakGrossExposure: grossExposurePerSleeve * peakConcurrentSleeves };
+}
+
+function ledgerEvents(trades: SignalTrade[], allocation: LedgerAllocation, stress: number): { trade: SignalTrade; returnR: number; pnl: number; exitTime: number }[] {
+  return trades.slice().sort((left, right) => left.exitTime - right.exitTime || left.timestamp - right.timestamp).map((trade) => {
+    const returnR = (trade.netRByStress[String(stress)] ?? 0) * allocation.grossExposurePerSleeve / allocation.startingCapital;
+    return { trade, returnR, pnl: returnR * allocation.startingCapital, exitTime: trade.exitTime };
+  });
+}
+
+function temporalFoldValuesFromEvents(events: { trade: SignalTrade; returnR: number }[]): number[] {
+  if (!events.length) return [];
+  const sorted = events.slice().sort((left, right) => left.trade.timestamp - right.trade.timestamp);
+  const folds: number[][] = [[], [], [], [], [], []];
+  sorted.forEach((event, index) => folds[Math.min(folds.length - 1, Math.floor(index / Math.max(1, sorted.length / folds.length)))].push(event.returnR));
+  return folds.filter((fold) => fold.length).map(sum);
+}
+
+function maxDrawdownFromReturns(values: number[]): number {
+  let equity = 1;
+  let peak = 1;
+  let drawdown = 0;
+  for (const value of values) {
+    equity += value;
+    peak = Math.max(peak, equity);
+    if (peak > 0) drawdown = Math.max(drawdown, (peak - equity) / peak);
+  }
+  return drawdown;
 }
 
 function emptyMetrics(): Metrics {
@@ -756,7 +970,7 @@ async function placebo(run: ConfigRun | undefined, weeks: PitWeek[]): Promise<Re
     const shuffled = week.eligible.slice().sort((left, right) => seededValue(140000 + index, left.symbol) - seededValue(140000 + index, right.symbol));
     return { ...decision, longs: shuffled.slice(0, decision.longs.length).map((item) => item.symbol), shorts: shuffled.slice(-decision.shorts.length).map((item) => item.symbol) };
   });
-  const trades = await executeDecisions(decisions, 15);
+  const trades = (await executeDecisions(decisions, 15, "CONSERVATIVE_DELISTING")).trades;
   const candidate = metricsFor(run.trades);
   const random = metricsFor(trades);
   return { status: "PASS" as const, candidateNetR: candidate.netR, candidatePF: candidate.profitFactor, randomNetR: random.netR, randomPF: random.profitFactor, candidateImprovement: candidate.netR - random.netR, pass: candidate.netR > random.netR && candidate.profitFactor > random.profitFactor };
@@ -772,16 +986,13 @@ function robustness(nested: Metrics, trades: SignalTrade[]): Record<string, unkn
 }
 
 function capitalSimulation(trades: SignalTrade[]): Record<string, unknown> {
-  const timeline = [...new Set(trades.flatMap((trade) => [trade.entryTime, trade.exitTime]))].sort((left, right) => left - right);
-  const concurrentAt = (timestamp: number): number => trades.filter((trade) => trade.entryTime <= timestamp && trade.exitTime > timestamp).length;
-  const peakConcurrent = Math.max(1, ...timeline.map(concurrentAt));
   const rows = [1_000, 2_000, 10_000].map((capital) => {
-    const grossExposurePerSleeve = capital * 2 / peakConcurrent;
-    const margins = timeline.map((timestamp) => concurrentAt(timestamp) * grossExposurePerSleeve / 2);
-    const average = mean(margins);
-    const peak = margins.length ? Math.max(...margins) : 0;
-    const scaledNetPnl = sum(trades.map((trade) => (trade.netRByStress["0"] ?? 0) * grossExposurePerSleeve));
-    return [String(capital), { startingCapital: capital, effectiveLeverage: 2, grossExposurePerSleeve, averageCapitalLocked: average, peakCapitalLocked: peak, peakConcurrentSleeves: peakConcurrent, marginUtilization: peak / Math.max(1, capital), scaledNetPnl }];
+    const allocation = ledgerAllocation(trades, capital);
+    const events = ledgerEvents(trades, allocation, 0);
+    const equity = capital;
+    const margins = trades.flatMap((trade) => [allocation.grossExposurePerSleeve / 2]);
+    const scaledNetPnl = sum(events.map((event) => event.pnl));
+    return [String(capital), { startingCapital: capital, effectiveLeverage: allocation.targetGrossLeverage, hardGrossLeverage: allocation.hardGrossLeverage, grossExposurePerSleeve: allocation.grossExposurePerSleeve, averageCapitalLocked: mean(margins), peakCapitalLocked: allocation.peakGrossExposure / 2, peakConcurrentSleeves: allocation.peakConcurrentSleeves, marginUtilization: allocation.peakGrossExposure / 2 / Math.max(1, capital), scaledNetPnl, netR: scaledNetPnl / capital, maxDD: maxDrawdownFromReturns(events.map((event) => event.pnl / capital)), endingEquity: equity + scaledNetPnl }];
   });
   return Object.fromEntries(rows);
 }
@@ -877,17 +1088,80 @@ async function runSpotDiagnostic(): Promise<Record<string, unknown>> {
   return { status: available ? "COMPUTED_FIXED_DIAGNOSTIC" : "NOT_AVAILABLE", source: "Binance Spot public monthly 1d archives", archives: available, signals: signals.length, Net: net, Sharpe: sharpe, PF: negative.length ? sum(positive) / Math.abs(sum(negative)) : positive.length ? Number.POSITIVE_INFINITY : 0, DD: maxDrawdown(signals), promotionEligible: false, rule: "Fixed 8-week reversal with lagged high-vol conditioning, 2 long/2 short, 4-week holding, 4bps fee plus 2bps slippage per side.", note: "Diagnostic only; no spot result can bypass the USD-M promotion gate." };
 }
 
-function buildFreezeManifest(registryHash: string, dataGate: Record<string, unknown>): Record<string, unknown> {
-  const rules = { universe: "PIT archive-derived membership from bars <= rebalance timestamp; minimum age 90d, 30d quote volume, recent bar and formation completeness", formation: [6, 8, 10, 12], breadth: ["QUINTILE", "DECILE"], legs: [2, 3], holdingWeeks: [2, 4, 8], delaysMinutes: DELAY_MINUTES, stressBps: STRESS_BPS, families: ["FAMILY_A_PURE_REVERSAL", "FAMILY_B_HIGH_VOL_REVERSAL", "FAMILY_C_DISPERSION_REVERSAL"], configurations: CONFIGURATIONS, holdouts: ["2024-07-01/2025-06-30", "2025-07-01/2026-07-31"], execution: COST_MODEL.execution, costModel: COST_MODEL, placeboSeed: 140000, frozenBeforeReturnRead: true };
-  return { schema: "bca-v14-freeze-manifest-v1", status: "FROZEN_BEFORE_RETURN_READ", generatedAt: new Date().toISOString(), baseline: BASELINE, registryHash, rules, dataGateStatus: dataGate.status, rawArchiveSha256: hashObject(archiveRecords.filter((record) => record.sha256).map((record) => ({ url: record.sourceUrl, symbol: record.symbol, timeframe: record.timeframe, period: record.period, bytes: record.bytes, sha256: record.sha256 }))) };
+function buildCorrectnessRules(): Record<string, unknown> {
+  const actionableKeys = CONFIGURATIONS.map((config) => [config.family, config.formationWeeks, config.legs, config.holdingWeeks, config.volState ?? null, config.dispersionState ?? null].join("|"));
+  return {
+    universe: "All historical USDT-M symbols enumerated from the official archive; PIT eligibility uses only bars with closeTime <= rebalance timestamp.",
+    pitEligibility: { firstObservedAtOrBeforeT: true, tradingAgeDays: 90, completeFormationHistory: true, recentBarFreshnessDays: 2, trailingQuoteVolumeDays: 30, checksum: "PASS", futureLifecycleFilter: false, currentSurvivorOnlyUniverse: false },
+    formationWindowsWeeks: [6, 8, 10, 12],
+    formationReturnField: "candidate.formationReturns[config.formationWeeks]",
+    volatilityField: "candidate.volatilityByFormationWeeks[config.formationWeeks]",
+    diagnosticBreadth: ["QUINTILE", "DECILE"],
+    actionablePortfolio: "Extreme 2L+2S or 3L+3S by formation rank; breadth label is diagnostic only.",
+    actionableRegistry: { configurations: CONFIGURATIONS, duplicateActionKeysRemoved: 0, uniqueActionKeys: [...new Set(actionableKeys)].length },
+    holdingWeeks: [2, 4, 8],
+    delaysMinutes: DELAY_MINUTES,
+    stressBps: STRESS_BPS,
+    families: ["FAMILY_A_PURE_REVERSAL", "FAMILY_B_HIGH_VOL_REVERSAL", "FAMILY_C_DISPERSION_REVERSAL"],
+    liquidityCapacity: { referenceCapital: CAPITAL, targetGrossLeverage: TARGET_GROSS_LEVERAGE, hardGrossLeverage: HARD_GROSS_LEVERAGE, maxParticipationRate: LIQUIDITY_PARTICIPATION_LIMIT, formula: "reference leg notional / trailing ADV30 <= 0.0001" },
+    execution: COST_MODEL.execution,
+    costModel: COST_MODEL,
+    fundingCalculation: COST_MODEL.funding,
+    terminalExecution: COST_MODEL.terminal,
+    capitalAllocation: COST_MODEL.capitalAllocation,
+    delistingModes: ["ACTUAL_AVAILABLE", "CONSERVATIVE_DELISTING"],
+    placeboSeed: 140000,
+    nestedOosWindows: NESTED_OOS_WINDOWS.map(([start, end]) => [new Date(start).toISOString(), new Date(end).toISOString()]),
+    confirmationWindows: { A: [new Date(CONFIRMATION_A[0]).toISOString(), new Date(CONFIRMATION_A[1]).toISOString()], B: [new Date(CONFIRMATION_B[0]).toISOString(), new Date(CONFIRMATION_B[1]).toISOString()] },
+    priorWindowsContaminatedForPromotion: true,
+    combinedPromotionScore: "Nested development and Confirmation A/B are never combined into a single promotion score; historical correctness pass still requires external confirmation.",
+    frozenBeforeReturnRead: true,
+  };
+}
+
+export function buildCorrectnessFreezeManifest(generatedAt = new Date().toISOString()): Record<string, unknown> {
+  const base = { schema: "bca-v14-correctness-freeze-manifest-v1", status: "FROZEN_BEFORE_CORRECTED_RETURN_READ", generatedAt, baseline: BASELINE, rules: buildCorrectnessRules() };
+  const body = { ...base, rulesSha256: hashObject(base.rules) };
+  return { ...body, manifestSha256: hashObject(body) };
+}
+
+async function loadCorrectnessFreezeManifest(): Promise<Record<string, unknown> & { manifestSha256: string }> {
+  let parsed: Record<string, unknown>;
+  try { parsed = JSON.parse(await readFile(CORRECTNESS_MANIFEST_PATH, "utf8")) as Record<string, unknown>; } catch { throw new Error(`missing corrected freeze manifest: ${CORRECTNESS_MANIFEST_PATH}`); }
+  const { manifestSha256, ...body } = parsed;
+  if (typeof manifestSha256 !== "string" || hashObject(body) !== manifestSha256) throw new Error("correctness freeze manifest SHA-256 mismatch");
+  if (body.rulesSha256 !== hashObject(body.rules)) throw new Error("correctness freeze rules SHA-256 mismatch");
+  if (JSON.stringify(body.rules) !== JSON.stringify(buildCorrectnessRules())) throw new Error("correctness freeze rules do not match validator source");
+  return parsed as Record<string, unknown> & { manifestSha256: string };
+}
+
+function allEvidenceRecords(): ArchiveRecord[] {
+  const unique = new Map<string, ArchiveRecord>();
+  for (const record of [...archiveRecords, ...executionArchiveRecords.values()]) unique.set(`${record.symbol}|${record.timeframe}|${record.period}|${record.sourceUrl}`, record);
+  return [...unique.values()];
+}
+
+function buildEvidenceManifest(correctnessFreeze: Record<string, unknown>, registryHash: string, dataGate: Record<string, unknown>, summary: Record<string, unknown>): Record<string, unknown> {
+  const records = allEvidenceRecords();
+  const body = { schema: "bca-v14-evidence-manifest-v1", status: "FROZEN_RESULT_ARTIFACTS", correctnessFreezeSha256: correctnessFreeze.manifestSha256, registryHash, archiveScope: "futures daily PIT archives plus on-demand futures 15m execution and funding archives; spot diagnostic is separately identified", requestedArchiveSlots: records.length, dailyRequestedArchiveSlots: (dataGate.archiveCounts as Record<string, number> | undefined)?.requestedArchiveSlots ?? 0, availableZipCount: records.filter((record) => record.status === "AVAILABLE").length, checksumPassZipCount: records.filter((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS").length, missingSlotCount: records.filter((record) => record.status === "MISSING").length, failedZipCount: records.filter((record) => record.status === "FAILED" || record.checksumStatus === "FAIL").length, archiveRecordSha256: hashObject(records.map((record) => ({ symbol: record.symbol, timeframe: record.timeframe, period: record.period, sourceUrl: record.sourceUrl, status: record.status, bytes: record.bytes, sha256: record.sha256, expectedSha256: record.expectedSha256, checksumStatus: record.checksumStatus }))), result: summary.result ?? "UNKNOWN", promotion: summary.EMAIL_PROMOTION_CANDIDATE ?? "FAIL", boundaries: summary.boundaries ?? V14_BOUNDARIES };
+  return { ...body, evidenceSha256: hashObject(body) };
+}
+
+async function writeEvidenceManifest(correctnessFreeze: Record<string, unknown>, registryHash: string, dataGate: Record<string, unknown>, summary: Record<string, unknown>): Promise<void> {
+  await writeJson(EVIDENCE_MANIFEST_PATH, buildEvidenceManifest(correctnessFreeze, registryHash, dataGate, summary));
+}
+
+function buildDelistingReport(selectedTrades: SignalTrade[], actualAvailable: ExecutionBatch): Record<string, unknown> {
+  const affectedLegs = selectedTrades.flatMap((trade) => trade.legs).filter((leg) => leg.terminalTreatment === "CONSERVATIVE_DELISTING").length;
+  return { actualAvailable: { metrics: metricsFor(actualAvailable.trades), droppedSignals: actualAvailable.droppedSignals }, conservativeDelisting: { metrics: metricsFor(selectedTrades), retainedSignals: selectedTrades.length }, selectedDelistingLegs: affectedLegs, officialResolved: actualAvailable.terminal.officialResolved, conservativePenalties: selectedTrades.flatMap((trade) => trade.legs).filter((leg) => leg.conservativePenalty > 0).length, signalsPreviouslyWouldHaveBeenDropped: actualAvailable.droppedSignals };
 }
 
 function buildDataStopSummary(dataGate: Record<string, unknown>, registryHash: string): Record<string, unknown> {
-  return { schema: "bca-v14-validation-summary-v1", baseline: BASELINE, dataGate, registryHash, EMAIL_PROMOTION_CANDIDATE: "FAIL", result: "V14_PIT_UNIVERSE_INSUFFICIENT", researchStop: "YES", emailImplementation: "NOT_DONE", simulationEmail: "NOT_SENT", hardBoundaries: { productionChanged: false, productionEmail: false, autoTrading: false, privateBinanceApi: false, orderPlacement: false, deployment: false, merge: false, migration: false, v13Changed: false } };
+  return { schema: "bca-v14-validation-summary-v2", baseline: BASELINE, dataGate, registryHash, EMAIL_PROMOTION_CANDIDATE: "FAIL", result: "V14_PIT_UNIVERSE_INSUFFICIENT", researchStop: "YES", priorWindowsContaminatedForPromotion: true, emailImplementation: "NOT_DONE", simulationEmail: "NOT_SENT", hardBoundaries: V14_BOUNDARIES };
 }
 
-function buildFullSummary(input: { generatedAt: string; dataGate: Record<string, unknown>; registryHash: string; spotDiagnostic: Record<string, unknown>; families: Record<Family, FamilyResult>; best: FamilyResult | null; promotion: string }): Record<string, unknown> {
-  return { schema: "bca-v14-validation-summary-v1", generatedAt: input.generatedAt, baseline: BASELINE, branch: "feat/v14-cross-sectional-reversal", dataGate: input.dataGate, spotDiagnostic: input.spotDiagnostic, families: input.families, best: input.best ? { family: input.best.family, configId: input.best.bestConfigId } : null, EMAIL_PROMOTION_CANDIDATE: input.promotion === "PASS" ? "EMAIL_PROMOTION_CANDIDATE_PASS" : "FAIL", result: input.promotion === "PASS" ? "EMAIL_PROMOTION_CANDIDATE_PASS" : "V14_CROSS_SECTIONAL_REVERSAL_REJECTED", researchStop: "YES", registryHash: input.registryHash, emailImplementation: "NOT_DONE", simulationEmail: "NOT_SENT", boundaries: { productionChanged: false, productionEmail: false, autoTrading: false, privateBinanceApi: false, orderPlacement: false, deployment: false, merge: false, migration: false, v13Changed: false } };
+function buildFullSummary(input: { generatedAt: string; dataGate: Record<string, unknown>; registryHash: string; correctnessFreeze: Record<string, unknown>; spotDiagnostic: Record<string, unknown>; families: Record<Family, FamilyResult>; best: FamilyResult | null; promotion: string }): Record<string, unknown> {
+  return { schema: "bca-v14-validation-summary-v2", generatedAt: input.generatedAt, baseline: BASELINE, branch: "feat/v14-cross-sectional-reversal", dataGate: input.dataGate, correctnessFreezeSha256: input.correctnessFreeze.manifestSha256, spotDiagnostic: input.spotDiagnostic, families: input.families, best: input.best ? { family: input.best.family, configId: input.best.bestConfigId } : null, EMAIL_PROMOTION_CANDIDATE: "FAIL", result: input.promotion, researchStop: "YES", priorWindowsContaminatedForPromotion: true, confirmationWindows: { A: { start: new Date(CONFIRMATION_A[0]).toISOString(), end: new Date(CONFIRMATION_A[1]).toISOString() }, B: { start: new Date(CONFIRMATION_B[0]).toISOString(), end: new Date(CONFIRMATION_B[1]).toISOString() } }, emailImplementation: "NOT_DONE", simulationEmail: "NOT_SENT", boundaries: V14_BOUNDARIES };
 }
 
 function renderDecision(summary: Record<string, unknown>): string {
@@ -989,9 +1263,11 @@ function parseFunding(bytes: Buffer): FundingPoint[] {
   const output: FundingPoint[] = [];
   for (const line of entry.data.toString("utf8").split(/\r?\n/).filter((value) => value.trim())) {
     const fields = splitCsv(line);
-    const time = parseTimestamp(fields[0]);
-    const rate = Number(fields.at(-1));
-    if (Number.isFinite(time) && Number.isFinite(rate)) output.push({ fundingTime: time, fundingRate: rate });
+    const timeIndex = fields.findIndex((field) => Number.isFinite(parseTimestamp(field)));
+    const time = timeIndex >= 0 ? parseTimestamp(fields[timeIndex]) : Number.NaN;
+    const rate = Number(fields[timeIndex + 1]);
+    const markPrice = Number(fields[timeIndex + 2]);
+    if (Number.isFinite(time) && Number.isFinite(rate)) output.push({ fundingTime: time, fundingRate: rate, markPrice: Number.isFinite(markPrice) && markPrice > 0 ? markPrice : null });
   }
   return output;
 }
@@ -1004,7 +1280,9 @@ async function candleAtOrAfter(symbol: string, timestamp: number): Promise<Bar |
   return [...new Set(months.flatMap((month) => executionBars.get(`${symbol}:15m:${month}`) ?? []))].filter((bar) => bar.openTime >= timestamp && bar.openTime <= END).sort((left, right) => left.openTime - right.openTime)[0] ?? null;
 }
 
-async function fundingBetween(symbol: string, start: number, end: number): Promise<number | null> {
+interface FundingCalculation { fundingR: number; missingMark: boolean; points: number; }
+
+async function fundingBetween(symbol: string, start: number, end: number, direction: 1 | -1, entryNotional: number, entryFillPrice: number): Promise<FundingCalculation | null> {
   const periods = monthKeys(start, end);
   const all: FundingPoint[] = [];
   for (const month of periods) {
@@ -1012,7 +1290,9 @@ async function fundingBetween(symbol: string, start: number, end: number): Promi
     if (!(fundingPoints.get(`${symbol}:funding:${month}`))) return null;
     all.push(...(fundingPoints.get(`${symbol}:funding:${month}`) ?? []));
   }
-  return sum(all.filter((point) => point.fundingTime > start && point.fundingTime <= end).map((point) => point.fundingRate));
+  const points = all.filter((point) => point.fundingTime > start && point.fundingTime <= end);
+  if (points.some((point) => point.markPrice === null)) return { fundingR: 0, missingMark: true, points: points.length };
+  return { fundingR: calculateMarkWeightedFunding(direction, entryNotional, entryFillPrice, points), missingMark: false, points: points.length };
 }
 
 async function loadExecutionMonth(symbol: string, month: string): Promise<void> {
@@ -1054,8 +1334,27 @@ function archiveUrl(symbol: string, timeframe: Timeframe, period: string, root: 
 
 function dedupeBars(bars: Bar[]): Bar[] { return [...new Map(bars.map((bar) => [bar.openTime, bar])).values()].sort((left, right) => left.openTime - right.openTime); }
 function dedupeFunding(points: FundingPoint[]): FundingPoint[] { return [...new Map(points.map((point) => [point.fundingTime, point])).values()].sort((left, right) => left.fundingTime - right.fundingTime); }
-function latestClosedBar(bars: Bar[], timestamp: number): Bar | null { return bars.filter((bar) => bar.closeTime <= timestamp).at(-1) ?? null; }
-function barAtOrBefore(bars: Bar[], timestamp: number): Bar | null { return bars.filter((bar) => bar.openTime <= timestamp).at(-1) ?? null; }
+function lastIndexAtOrBeforeClose(bars: Bar[], timestamp: number): number {
+  let low = 0;
+  let high = bars.length - 1;
+  let result = -1;
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2);
+    if (bars[middle].closeTime <= timestamp) { result = middle; low = middle + 1; } else high = middle - 1;
+  }
+  return result;
+}
+function firstIndexAtOrAfterOpen(bars: Bar[], timestamp: number): number {
+  let low = 0;
+  let high = bars.length;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (bars[middle].openTime < timestamp) low = middle + 1; else high = middle;
+  }
+  return low;
+}
+function latestClosedBar(bars: Bar[], timestamp: number): Bar | null { const index = lastIndexAtOrBeforeClose(bars, timestamp); return index >= 0 ? bars[index] : null; }
+function barAtOrBefore(bars: Bar[], timestamp: number): Bar | null { const first = firstIndexAtOrAfterOpen(bars, timestamp); const index = first < bars.length && bars[first].openTime <= timestamp ? first : first - 1; return index >= 0 ? bars[index] : null; }
 function consecutiveLogReturns(bars: Bar[]): number[] { const output: number[] = []; for (let index = 1; index < bars.length; index += 1) if (bars[index - 1].close > 0 && bars[index].close > 0) output.push(Math.log(bars[index].close / bars[index - 1].close)); return output; }
 function regimeFor(week: PitWeek): string { if ((week.btcVol30d ?? 0) >= 0.8) return "HIGH_VOL"; if ((week.btcReturn8w ?? 0) > 0.1) return "BULL"; if ((week.btcReturn8w ?? 0) < -0.1) return "BEAR"; if ((week.btcVol30d ?? 0) < 0.45) return "LOW_VOL"; return "RANGE"; }
 function nextMonday(timestamp: number): number { const day = new Date(timestamp).getUTCDay(); return timestamp + ((8 - day) % 7) * DAY; }
@@ -1076,4 +1375,35 @@ function relativePath(path: string): string { return path.replace(`${resolve("."
 async function writeJson(path: string, value: unknown): Promise<void> { await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
 async function mapLimit<T, R>(items: T[], limit: number, worker: (item: T) => Promise<R>): Promise<R[]> { const output: R[] = []; let cursor = 0; async function consume(): Promise<void> { while (true) { const index = cursor; cursor += 1; if (index >= items.length) return; output[index] = await worker(items[index]); } } await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => consume())); return output; }
 
-void main().catch((error) => { console.error(error instanceof Error ? error.stack ?? error.message : error); process.exitCode = 1; });
+export function calculateMarkWeightedFunding(direction: 1 | -1, entryNotional: number, entryFillPrice: number, points: FundingPoint[]): number {
+  if (entryNotional <= 0 || entryFillPrice <= 0 || points.some((point) => point.markPrice === null)) throw new Error("mark-weighted funding requires a mark price for every settlement point");
+  const quantity = entryNotional / entryFillPrice;
+  return sum(points.map((point) => -direction * quantity * (point.markPrice as number) * point.fundingRate)) / entryNotional;
+}
+
+export function calculateFourLegNetReturn(grossReturns: number[], fundingReturns: number[], stressBps = 0): number {
+  if (grossReturns.length !== fundingReturns.length || grossReturns.length !== 4) throw new Error("four-leg accounting requires exactly four legs");
+  const costs = 2 * (COST_MODEL.feeBpsPerSide + COST_MODEL.baseSlippageBpsPerSide + stressBps) / 10_000;
+  return mean(grossReturns.map((gross, index) => gross + fundingReturns[index] - costs));
+}
+
+export function allocateOverlappingSleeves(intervals: Array<{ entryTime: number; exitTime: number }>, startingCapital = CAPITAL): { peakConcurrentSleeves: number; grossExposurePerSleeve: number; peakGrossExposure: number; hardLimitRespected: boolean } {
+  const times = [...new Set(intervals.flatMap((interval) => [interval.entryTime, interval.exitTime]))];
+  const peakConcurrentSleeves = Math.max(1, ...times.map((time) => intervals.filter((interval) => interval.entryTime <= time && interval.exitTime >= time).length));
+  const grossExposurePerSleeve = startingCapital * TARGET_GROSS_LEVERAGE / peakConcurrentSleeves;
+  const peakGrossExposure = grossExposurePerSleeve * peakConcurrentSleeves;
+  return { peakConcurrentSleeves, grossExposurePerSleeve, peakGrossExposure, hardLimitRespected: peakGrossExposure / startingCapital <= HARD_GROSS_LEVERAGE };
+}
+
+export function resolveConservativeDelisting(direction: 1 | -1): { priceReturn: number; mode: "CONSERVATIVE_DELISTING"; direction: 1 | -1 } {
+  return { priceReturn: -1, mode: "CONSERVATIVE_DELISTING", direction };
+}
+
+export function selectNextExecutionOpen(candles: Array<{ openTime: number; open: number }>, signalCloseTime: number): { openTime: number; open: number } | null {
+  return candles.find((candle) => candle.openTime === signalCloseTime + 1) ?? null;
+}
+
+function emptyDecisionDiagnostics(): DecisionBuildDiagnostics { return { proposedSignals: 0, liquidityRejectedSignals: 0, liquidityRejectedCandidates: 0, medianADV30: 0, minimumExecutedADV30: 0, maxParticipationRate: 0 }; }
+
+const invokedScript = process.argv[1] ? resolve(process.argv[1]) : "";
+if (invokedScript === resolve(fileURLToPath(import.meta.url))) void main().catch((error) => { console.error(error instanceof Error ? error.stack ?? error.message : error); process.exitCode = 1; });

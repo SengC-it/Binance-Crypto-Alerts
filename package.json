@@ -35,7 +35,10 @@
     "data:v7:download": "tsx scripts/download-v7-derivatives-data.ts --download",
     "freeze:v7": "tsx scripts/freeze-v7-manifests.ts",
     "validate:v7": "tsx scripts/run-v7-validation.ts",
-    "validate:v12": "tsx scripts/run-v12-validation.ts"
+    "validate:v12": "tsx scripts/run-v12-validation.ts",
+    "freeze:v14": "tsx scripts/create-v14-correctness-freeze.ts",
+    "validate:v14:full": "tsx scripts/run-v14-validation.ts",
+    "validate:v14:artifact": "tsx scripts/validate-v14-artifacts.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
