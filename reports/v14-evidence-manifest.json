@@ -1,0 +1,30 @@
+{
+  "schema": "bca-v14-evidence-manifest-v1",
+  "status": "FROZEN_RESULT_ARTIFACTS",
+  "correctnessFreezeSha256": "5a49ea61d0fa520d4d53f04bd6eb1f5ee17f5e6fd782977dbad08f230e4863ec",
+  "registryHash": "f19f25448536a8e9dc1fcd0963bda3159771a4b370537ce05de9a31851c7cb36",
+  "archiveScope": "futures daily PIT archives plus on-demand futures 15m execution and funding archives; spot diagnostic is separately identified",
+  "requestedArchiveSlots": 71239,
+  "dailyRequestedArchiveSlots": 55744,
+  "availableZipCount": 35431,
+  "checksumPassZipCount": 35431,
+  "missingSlotCount": 35806,
+  "failedZipCount": 2,
+  "archiveRecordSha256": "106a363d3ddbef33c440154d200321f9f239a331e32dc999dc9bbe54dbe18055",
+  "result": "V14_CROSS_SECTIONAL_REVERSAL_REJECTED",
+  "promotion": "FAIL",
+  "boundaries": {
+    "productionChanged": false,
+    "productionEmail": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "smtpProductionSignal": false,
+    "deployment": false,
+    "merge": false,
+    "migration": false,
+    "v13Changed": false,
+    "shadow002Restarted": false
+  },
+  "evidenceSha256": "d603bf7f9d494660bd448d0b0456b85ced16b2af583752e10eb170219c8305e5"
+}
