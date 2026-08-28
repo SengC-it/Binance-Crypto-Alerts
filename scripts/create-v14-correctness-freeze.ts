@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildCorrectnessFreezeManifest } from "./run-v14-validation";
 
-const reportPath = resolve("reports", "v14-correctness-freeze-manifest.json");
+const reportPath = resolve("reports", "v14-final-integrity-freeze-manifest.json");
 
 async function main(): Promise<void> {
   await mkdir(resolve("reports"), { recursive: true });

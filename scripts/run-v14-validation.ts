@@ -22,7 +22,7 @@ const HARD_GROSS_LEVERAGE = 3;
 const LIQUIDITY_PARTICIPATION_LIMIT = 0.0001;
 const REPORT_ROOT = resolve("reports");
 const CACHE_ROOT = resolve("data/raw/v14-cross-sectional-cache");
-const CORRECTNESS_MANIFEST_PATH = resolve(REPORT_ROOT, "v14-correctness-freeze-manifest.json");
+const CORRECTNESS_MANIFEST_PATH = resolve(REPORT_ROOT, "v14-final-integrity-freeze-manifest.json");
 const EVIDENCE_MANIFEST_PATH = resolve(REPORT_ROOT, "v14-evidence-manifest.json");
 const DATA_VISION_ROOT = "https://data.binance.vision/data/futures/um/monthly";
 const SPOT_ROOT = "https://data.binance.vision/data/spot/monthly";
@@ -56,7 +56,7 @@ let SYMBOLS: string[] = [];
 const SPOT_SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT", "ADAUSDT", "LINKUSDT", "DOGEUSDT"] as const;
 
 type Family = "FAMILY_A_PURE_REVERSAL" | "FAMILY_B_HIGH_VOL_REVERSAL" | "FAMILY_C_DISPERSION_REVERSAL";
-type Timeframe = "1d" | "15m" | "funding";
+type Timeframe = "1d" | "15m" | "funding" | "markPriceKlines";
 
 export interface Bar {
   openTime: number;
@@ -69,7 +69,8 @@ export interface Bar {
   closeTime: number;
 }
 
-export interface FundingPoint { fundingTime: number; fundingRate: number; markPrice: number | null; }
+export interface FundingPoint { fundingTime: number; fundingIntervalHours: number; fundingRate: number; }
+export interface MarkPricePoint { openTime: number; open: number; }
 
 interface ArchiveRecord {
   symbol: string;
@@ -182,7 +183,7 @@ interface ExecutedLeg {
   exitPrice: number;
   grossR: number;
   fundingR: number;
-  fundingCalculation: "MARK_WEIGHTED" | "CONSERVATIVE_UNAVAILABLE";
+  fundingCalculation: "MARK_WEIGHTED" | "FUNDING_DATA_UNAVAILABLE" | "NOT_APPLICABLE";
   terminalTreatment: "NONE" | "ACTUAL_AVAILABLE" | "CONSERVATIVE_DELISTING";
   officialResolved: boolean;
   conservativePenalty: number;
@@ -198,6 +199,7 @@ interface SignalTrade {
   timestamp: number;
   entryTime: number;
   exitTime: number;
+  holdingWeeks: number;
   regime: string;
   legs: ExecutedLeg[];
   netRByStress: Record<string, number>;
@@ -220,6 +222,7 @@ interface Metrics {
   maxDD: number;
   positiveFoldRatio: number;
   medianFoldNetR: number;
+  drawdownBasis: "REALIZED_EQUITY_DD";
   stress: Record<string, { netR: number; netPnl: number; maxDD: number }>;
 }
 
@@ -230,22 +233,60 @@ interface ConfigRun {
   metrics: Metrics;
   rawDiagnostic: Metrics;
   decisionDiagnostics: DecisionBuildDiagnostics;
+  execution: ExecutionSummary;
 }
 
 interface ExecutionBatch {
   trades: SignalTrade[];
   droppedSignals: number;
+  entryUnavailable: number;
+  dataGaps: number;
   terminal: { affectedLegs: number; officialResolved: number; conservativePenalties: number; previouslyDroppableSignals: number };
-  funding: { markWeightedLegs: number; conservativeUnavailableLegs: number };
+  funding: {
+    markWeightedLegs: number;
+    fundingUnavailableLegs: number;
+    fundingUnavailableEvents: number;
+    fundingEvents: number;
+    exactMarkMatches: number;
+    fallbackMarkMatches: number;
+    missingMarkEvents: number;
+    fundingArchiveKeys: string[];
+    markPriceArchiveKeys: string[];
+  };
+}
+
+interface FundingEvidence {
+  fundingZipCount: number;
+  markPriceZipCount: number;
+  fundingChecksumPass: boolean;
+  markPriceChecksumPass: boolean;
+  fundingEvents: number;
+  exactMarkMatches: number;
+  fallbackMarkMatches: number;
+  missingMarkEvents: number;
+  markCoverage: number;
+  fundingUnavailableLegs: number;
+  fundingUnavailableEvents: number;
+}
+
+interface ExecutionSummary {
+  droppedSignals: number;
+  entryUnavailable: number;
+  dataGaps: number;
+  terminal: ExecutionBatch["terminal"];
+  funding: FundingEvidence;
 }
 
 interface LedgerAllocation {
   startingCapital: number;
   targetGrossLeverage: number;
   hardGrossLeverage: number;
+  theoreticalMaxConcurrentSleeves: number;
+  realizedPeakConcurrentSleeves: number;
   peakConcurrentSleeves: number;
   grossExposurePerSleeve: number;
   peakGrossExposure: number;
+  peakGrossLeverage: number;
 }
 
 interface FamilyResult {
@@ -275,6 +316,8 @@ interface FamilyResult {
   rawDiagnostic: Metrics;
   decisionDiagnostics: DecisionBuildDiagnostics;
   delisting: Record<string, unknown>;
+  execution: ExecutionSummary;
+  fundingEvidence: FundingEvidence;
 }
 
 const CONFIGURATIONS: readonly Config[] = [
@@ -300,18 +343,24 @@ const COST_MODEL = {
   leveragePreferred: TARGET_GROSS_LEVERAGE,
   leverageHardLimit: HARD_GROSS_LEVERAGE,
   liquidityParticipationLimit: LIQUIDITY_PARTICIPATION_LIMIT,
-  execution: "Signal is formed from closed daily bars; each leg uses the actual next available Binance USDⓈ-M 15m open at the manual delay. No same-window close execution or synthetic price is used.",
-  funding: "Funding cashflow is mark-weighted: -direction × (entryNotional / entryFillPrice) × settlementMarkPrice × historicalFundingRate. Missing settlement mark uses the frozen conservative unavailable-mark rule.",
+    execution: "Signal is formed from closed daily bars; each leg uses the exact target Binance USDⓈ-M 15m open or the first official open within target + 15 minutes at the manual delay. Later candles are not execution substitutes.",
+  funding: "Funding archive schema is calc_time, funding_interval_hours, last_funding_rate; fundingRate is last_funding_rate and never a mark price. Settlement marks come only from official 1m markPriceKlines at exact fundingTime or the nearest official candle within ±1 minute. Missing marks are FUNDING_DATA_UNAVAILABLE and never a -100% funding penalty.",
   terminal: "A position with no executable planned exit is retained under CONSERVATIVE_DELISTING: unresolved long and short legs each receive -100% leg-notional price return; ACTUAL_AVAILABLE drops only that unresolved diagnostic result.",
-  capitalAllocation: "At each dataset, peak concurrent sleeves is computed from timestamps only; each sleeve receives startingCapital × targetGrossLeverage / peakConcurrentSleeves gross notional, with margin equal to half gross notional and hard gross leverage <= 3x.",
+  capitalAllocation: "Ex-ante sizing uses the frozen config holdingWeeks as theoretical maximum weekly-schedule concurrency; realized future peak concurrency never determines historical sleeve notional. Each sleeve receives startingCapital × targetGrossLeverage / theoreticalMaxConcurrentSleeves, with target gross leverage 2x and hard gross leverage 3x.",
+  drawdown: "REALIZED_EQUITY_DD: equity is updated only on realized ledger exit events; no mark-to-market drawdown is claimed.",
+  executionGap: "Entry and exit use the exact target 15m open or the first official 15m open within target + 15 minutes. Later candles are DATA_GAP/NOT_EXECUTABLE and are never selected.",
 } as const;
 
 const dailyBars = new Map<string, Bar[]>();
 const dailyStats = new Map<string, SymbolDailyStats>();
 const executionBars = new Map<string, Bar[]>();
+const executionRequestedTimes = new Map<string, Set<number>>();
 const fundingPoints = new Map<string, FundingPoint[]>();
+const markPricePoints = new Map<string, MarkPricePoint[]>();
+const markPriceRequestedTimes = new Map<string, Set<number>>();
 const executionLoads = new Map<string, Promise<void>>();
 const fundingLoads = new Map<string, Promise<void>>();
+const markPriceLoads = new Map<string, Promise<void>>();
 const archiveRecords: ArchiveRecord[] = [];
 const executionArchiveRecords = new Map<string, ArchiveRecord>();
 const listedDailyArchives = new Map<string, Set<string>>();
@@ -330,7 +379,7 @@ async function main(): Promise<void> {
   const registryHash = hashObject(registryBody);
   const dataGate = buildDataGate(rootInventory, daily, pitWeeks);
   await writeJson(resolve(REPORT_ROOT, "v14-archive-symbol-registry.json"), { ...registryBody, registrySha256: registryHash });
-  await writeJson(resolve(REPORT_ROOT, "v14-data-gate.json"), { schema: "bca-v14-data-gate-v2", generatedAt, baseline: BASELINE, correctnessFreezeSha256: correctnessFreeze.manifestSha256, dataGate, dailyStats: [...dailyStats.values()], archiveRecords });
+  await writeJson(resolve(REPORT_ROOT, "v14-data-gate.json"), { schema: "bca-v14-data-gate-v3", generatedAt, baseline: BASELINE, correctnessFreezeSha256: correctnessFreeze.manifestSha256, dataGate, dailyStats: [...dailyStats.values()], archiveRecords });
 
   if (!dataGate.pass) {
     const stop = buildDataStopSummary(dataGate, registryHash);
@@ -350,15 +399,19 @@ async function main(): Promise<void> {
     FAMILY_C_DISPERSION_REVERSAL: await evaluateFamily("FAMILY_C_DISPERSION_REVERSAL", pitWeeks),
   };
   const best = selectBestFamily(Object.values(families));
+  const fundingEvidence = best?.fundingEvidence ?? emptyFundingEvidence();
+  const fundingGate = buildFundingDataGate(fundingEvidence);
   const allHistoricalGatesPass = Boolean(best && best.status === "PASS");
-  const promotion = allHistoricalGatesPass ? "V14_CORRECTNESS_PASS_EXTERNAL_CONFIRMATION_REQUIRED" : "V14_CROSS_SECTIONAL_REVERSAL_REJECTED";
-  const summary = buildFullSummary({ generatedAt, dataGate, registryHash, correctnessFreeze, spotDiagnostic, families, best, promotion });
+  const promotion = !fundingGate.pass ? "V14_FUNDING_DATA_INSUFFICIENT" : allHistoricalGatesPass ? "V14_CORRECTNESS_PASS_EXTERNAL_CONFIRMATION_REQUIRED" : "V14_CROSS_SECTIONAL_REVERSAL_REJECTED";
+  const finalDataGate = { ...dataGate, fundingGate, fundingEvidence };
+  const summary = buildFullSummary({ generatedAt, dataGate: finalDataGate, registryHash, correctnessFreeze, spotDiagnostic, families, best, promotion, fundingEvidence });
+  await writeJson(resolve(REPORT_ROOT, "v14-data-gate.json"), { schema: "bca-v14-data-gate-v3", generatedAt, baseline: BASELINE, correctnessFreezeSha256: correctnessFreeze.manifestSha256, dataGate: finalDataGate, dailyStats: [...dailyStats.values()], archiveRecords, evidence: fundingEvidence });
   await writeJson(resolve(REPORT_ROOT, "v14-family-results.json"), families);
   await writeJson(resolve(REPORT_ROOT, "v14-validation-summary.json"), summary);
   await writeJson(resolve(REPORT_ROOT, "v14-promotion-decision.json"), { schema: "bca-v14-promotion-decision-v2", baseline: BASELINE, registryHash, correctnessFreezeSha256: correctnessFreeze.manifestSha256, status: promotion, researchStop: "YES", priorWindowsContaminatedForPromotion: true, winner: best ? { family: best.family, configId: best.bestConfigId } : null });
   await writeFile(resolve(REPORT_ROOT, "v14-promotion-decision.md"), renderDecision(summary), "utf8");
   await writeEvidenceManifest(correctnessFreeze, registryHash, dataGate, summary);
-  console.info(JSON.stringify({ stage: "v14_validation_complete", dataGate: dataGate.status, archiveSymbols: rootInventory.usdtSymbols.length, analysisSymbols: SYMBOLS.length, pitMedian: dataGate.medianPitUniverse, pitMinimum: dataGate.minimumPitUniverse, families: Object.values(families).map((family) => ({ family: family.family, status: family.status, configId: family.bestConfigId, signals: family.nested.signals })), EMAIL_PROMOTION_CANDIDATE: promotion, researchStop: "YES" }));
+  console.info(JSON.stringify({ stage: "v14_validation_complete", dataGate: dataGate.status, fundingGate: fundingGate.status, archiveSymbols: rootInventory.usdtSymbols.length, analysisSymbols: SYMBOLS.length, pitMedian: dataGate.medianPitUniverse, pitMinimum: dataGate.minimumPitUniverse, families: Object.values(families).map((family) => ({ family: family.family, status: family.status, configId: family.bestConfigId, signals: family.nested.signals })), EMAIL_PROMOTION_CANDIDATE: promotion, researchStop: "YES" }));
 }
 
 async function loadRootInventory(): Promise<RootInventory> {
@@ -639,7 +692,7 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
     const decisions = built.decisions;
     const execution = await executeDecisions(decisions, 15, "CONSERVATIVE_DELISTING");
     const trades = execution.trades;
-    configRuns.push({ config, decisions, trades, metrics: metricsFor(trades), rawDiagnostic: rawMetricsFor(trades), decisionDiagnostics: built.diagnostics });
+    configRuns.push({ config, decisions, trades, metrics: metricsFor(trades), rawDiagnostic: rawMetricsFor(trades), decisionDiagnostics: built.diagnostics, execution: summarizeExecution(execution) });
   }
   const nested = nestedEvaluation(configRuns);
   const bestConfigId = nested.configId;
@@ -647,7 +700,7 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
   const selectedTrades = selectedRun ? filterByDecisionPeriod(selectedRun.trades, START, END) : [];
   const confirmationA = selectedRun ? metricsFor(filterByDecisionPeriod(selectedRun.trades, CONFIRMATION_A[0], CONFIRMATION_A[1])) : emptyMetrics();
   const confirmationB = selectedRun ? metricsFor(filterByDecisionPeriod(selectedRun.trades, CONFIRMATION_B[0], CONFIRMATION_B[1])) : emptyMetrics();
-  const actualAvailable = selectedRun ? await executeDecisions(selectedRun.decisions, 15, "ACTUAL_AVAILABLE") : { trades: [], droppedSignals: 0, terminal: { affectedLegs: 0, officialResolved: 0, conservativePenalties: 0, previouslyDroppableSignals: 0 }, funding: { markWeightedLegs: 0, conservativeUnavailableLegs: 0 } } satisfies ExecutionBatch;
+  const actualAvailable = selectedRun ? await executeDecisions(selectedRun.decisions, 15, "ACTUAL_AVAILABLE") : emptyExecutionBatch();
   const latency: Record<string, Metrics> = {};
   for (const delay of DELAY_MINUTES) latency[`${delay}m`] = selectedRun ? metricsFor((await executeDecisions(selectedRun.decisions, delay, "CONSERVATIVE_DELISTING")).trades) : emptyMetrics();
   const diversificationReport = diversification(selectedTrades);
@@ -658,7 +711,8 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
   const emailReport = emailSimulation(selectedTrades, latency);
   const portfolioReport = metricsFor(selectedTrades);
   const gate = buildPromotionGate(nested.metrics, confirmationA, confirmationB, latency, selectedTrades, { stability: stabilityReport, placebo: placeboReport, robustness: robustnessReport, capital: capitalReport, email: emailReport, portfolio: portfolioReport });
-  const delistingReport = buildDelistingReport(selectedTrades, actualAvailable);
+  const selectedExecution = selectedRun?.execution ?? summarizeExecution(emptyExecutionBatch());
+  const delistingReport = buildDelistingReport(selectedTrades, actualAvailable, selectedExecution);
   const result: FamilyResult = {
     family,
     status: Object.values(gate).every(Boolean) ? "PASS" : "FAIL",
@@ -686,6 +740,8 @@ async function evaluateFamily(family: Family, weeks: PitWeek[]): Promise<FamilyR
     rawDiagnostic: rawMetricsFor(selectedTrades),
     decisionDiagnostics: selectedRun?.decisionDiagnostics ?? emptyDecisionDiagnostics(),
     delisting: delistingReport,
+    execution: selectedExecution,
+    fundingEvidence: selectedExecution.funding,
   };
   return result;
 }
@@ -740,10 +796,12 @@ export function selectActionableSymbols(points: Array<{ symbol: string; formatio
 }
 
 async function executeDecisions(decisions: Decision[], delayMinutes: number, settlementMode: "ACTUAL_AVAILABLE" | "CONSERVATIVE_DELISTING" = "CONSERVATIVE_DELISTING"): Promise<ExecutionBatch> {
-  const output = await mapLimit(decisions, 16, async (decision): Promise<{ trade: SignalTrade | null; dropped: boolean; terminalAffected: number; officialResolved: number; conservativePenalties: number; markWeighted: number; fundingUnavailable: number }> => {
+  await prefetchExecutionData(decisions, delayMinutes);
+  await prefetchFundingData(decisions, delayMinutes);
+  const output = await mapLimit(decisions, 16, async (decision): Promise<{ trade: SignalTrade | null; dropped: boolean; entryUnavailable: number; dataGap: number; terminalAffected: number; officialResolved: number; conservativePenalties: number; markWeighted: number; fundingUnavailable: number; fundingUnavailableEvents: number; fundingEvents: number; exactMarkMatches: number; fallbackMarkMatches: number; missingMarkEvents: number; fundingArchiveKeys: string[]; markPriceArchiveKeys: string[] }> => {
     const entryTarget = decision.timestamp + delayMinutes * 60_000;
     const exitTarget = entryTarget + decision.holdingWeeks * WEEK;
-    if (exitTarget > END) return { trade: null, dropped: true, terminalAffected: 0, officialResolved: 0, conservativePenalties: 0, markWeighted: 0, fundingUnavailable: 0 };
+    if (exitTarget > END) return { trade: null, dropped: true, entryUnavailable: 0, dataGap: 0, terminalAffected: 0, officialResolved: 0, conservativePenalties: 0, markWeighted: 0, fundingUnavailable: 0, fundingUnavailableEvents: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingArchiveKeys: [], markPriceArchiveKeys: [] };
     const legResults = await Promise.all([
       ...decision.longs.map((symbol) => executeLeg(symbol, 1, entryTarget, exitTarget, settlementMode, decision.longs.length as 2 | 3)),
       ...decision.shorts.map((symbol) => executeLeg(symbol, -1, entryTarget, exitTarget, settlementMode, decision.longs.length as 2 | 3)),
@@ -754,43 +812,106 @@ async function executeDecisions(decisions: Decision[], delayMinutes: number, set
     const conservativePenalties = sum(legResults.map((result) => result.conservativePenalty));
     const markWeighted = sum(legResults.map((result) => result.markWeighted));
     const fundingUnavailable = sum(legResults.map((result) => result.fundingUnavailable));
-    if (legs.length !== decision.longs.length + decision.shorts.length) return { trade: null, dropped: true, terminalAffected, officialResolved, conservativePenalties, markWeighted, fundingUnavailable };
+    const fundingUnavailableEvents = sum(legResults.map((result) => result.fundingUnavailableEvents));
+    const fundingEvents = sum(legResults.map((result) => result.fundingEvents));
+    const exactMarkMatches = sum(legResults.map((result) => result.exactMarkMatches));
+    const fallbackMarkMatches = sum(legResults.map((result) => result.fallbackMarkMatches));
+    const missingMarkEvents = sum(legResults.map((result) => result.missingMarkEvents));
+    const fundingArchiveKeys = [...new Set(legResults.flatMap((result) => result.fundingArchiveKeys))];
+    const markPriceArchiveKeys = [...new Set(legResults.flatMap((result) => result.markPriceArchiveKeys))];
+    const entryUnavailable = sum(legResults.map((result) => result.entryUnavailable));
+    const dataGap = sum(legResults.map((result) => result.dataGap));
+    if (legs.length !== decision.longs.length + decision.shorts.length) return { trade: null, dropped: true, entryUnavailable, dataGap, terminalAffected, officialResolved, conservativePenalties, markWeighted, fundingUnavailable, fundingUnavailableEvents, fundingEvents, exactMarkMatches, fallbackMarkMatches, missingMarkEvents, fundingArchiveKeys, markPriceArchiveKeys };
     const netRByStress = Object.fromEntries(STRESS_BPS.map((bps) => [String(bps), mean(legs.map((leg) => leg.netRByStress[String(bps)]))]));
-    return { trade: { id: decision.id, family: decision.family, configId: decision.configId, timestamp: decision.timestamp, entryTime: Math.min(...legs.map((leg) => leg.entryTime)), exitTime: Math.max(...legs.map((leg) => leg.exitTime)), regime: decision.regime, legs, netRByStress, longR: mean(legs.filter((leg) => leg.direction === 1).map((leg) => leg.netRByStress["0"])), shortR: mean(legs.filter((leg) => leg.direction === -1).map((leg) => leg.netRByStress["0"])), settlementMode }, dropped: false, terminalAffected, officialResolved, conservativePenalties, markWeighted, fundingUnavailable };
+    return { trade: { id: decision.id, family: decision.family, configId: decision.configId, timestamp: decision.timestamp, entryTime: Math.min(...legs.map((leg) => leg.entryTime)), exitTime: Math.max(...legs.map((leg) => leg.exitTime)), holdingWeeks: decision.holdingWeeks, regime: decision.regime, legs, netRByStress, longR: mean(legs.filter((leg) => leg.direction === 1).map((leg) => leg.netRByStress["0"])), shortR: mean(legs.filter((leg) => leg.direction === -1).map((leg) => leg.netRByStress["0"])), settlementMode }, dropped: false, entryUnavailable, dataGap, terminalAffected, officialResolved, conservativePenalties, markWeighted, fundingUnavailable, fundingUnavailableEvents, fundingEvents, exactMarkMatches, fallbackMarkMatches, missingMarkEvents, fundingArchiveKeys, markPriceArchiveKeys };
   });
+  const fundingArchiveKeys = [...new Set(output.flatMap((result) => result.fundingArchiveKeys))];
+  const markPriceArchiveKeys = [...new Set(output.flatMap((result) => result.markPriceArchiveKeys))];
   return {
     trades: output.flatMap((result) => result.trade ? [result.trade] : []),
     droppedSignals: output.filter((result) => result.dropped).length,
+    entryUnavailable: sum(output.map((result) => result.entryUnavailable)),
+    dataGaps: sum(output.map((result) => result.dataGap)),
     terminal: { affectedLegs: sum(output.map((result) => result.terminalAffected)), officialResolved: sum(output.map((result) => result.officialResolved)), conservativePenalties: sum(output.map((result) => result.conservativePenalties)), previouslyDroppableSignals: output.filter((result) => result.terminalAffected > 0 && result.trade !== null).length },
-    funding: { markWeightedLegs: sum(output.map((result) => result.markWeighted)), conservativeUnavailableLegs: sum(output.map((result) => result.fundingUnavailable)), },
+    funding: { markWeightedLegs: sum(output.map((result) => result.markWeighted)), fundingUnavailableLegs: sum(output.map((result) => result.fundingUnavailable)), fundingUnavailableEvents: sum(output.map((result) => result.fundingUnavailableEvents)), fundingEvents: sum(output.map((result) => result.fundingEvents)), exactMarkMatches: sum(output.map((result) => result.exactMarkMatches)), fallbackMarkMatches: sum(output.map((result) => result.fallbackMarkMatches)), missingMarkEvents: sum(output.map((result) => result.missingMarkEvents)), fundingArchiveKeys, markPriceArchiveKeys },
   };
 }
 
-interface LegExecutionOutcome { leg: ExecutedLeg | null; terminalAffected: number; officialResolved: number; conservativePenalty: number; markWeighted: number; fundingUnavailable: number; }
+interface LegExecutionOutcome { leg: ExecutedLeg | null; entryUnavailable: number; dataGap: number; terminalAffected: number; officialResolved: number; conservativePenalty: number; markWeighted: number; fundingUnavailable: number; fundingUnavailableEvents: number; fundingEvents: number; exactMarkMatches: number; fallbackMarkMatches: number; missingMarkEvents: number; fundingArchiveKeys: string[]; markPriceArchiveKeys: string[]; }
+
+function emptyExecutionBatch(): ExecutionBatch {
+  return { trades: [], droppedSignals: 0, entryUnavailable: 0, dataGaps: 0, terminal: { affectedLegs: 0, officialResolved: 0, conservativePenalties: 0, previouslyDroppableSignals: 0 }, funding: { markWeightedLegs: 0, fundingUnavailableLegs: 0, fundingUnavailableEvents: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingArchiveKeys: [], markPriceArchiveKeys: [] } };
+}
+
+function emptyFundingEvidence(): FundingEvidence {
+  return { fundingZipCount: 0, markPriceZipCount: 0, fundingChecksumPass: false, markPriceChecksumPass: false, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, markCoverage: 0, fundingUnavailableLegs: 0, fundingUnavailableEvents: 0 };
+}
+
+function summarizeExecution(batch: ExecutionBatch): ExecutionSummary {
+  const fundingRecords = batch.funding.fundingArchiveKeys.map((key) => executionArchiveRecords.get(key)).filter((record): record is ArchiveRecord => Boolean(record));
+  const markRecords = batch.funding.markPriceArchiveKeys.map((key) => executionArchiveRecords.get(key)).filter((record): record is ArchiveRecord => Boolean(record));
+  const observedMarks = batch.funding.exactMarkMatches + batch.funding.fallbackMarkMatches;
+  const markCoverage = batch.funding.fundingEvents > 0 ? observedMarks / batch.funding.fundingEvents : batch.funding.fundingUnavailableEvents > 0 ? 0 : 1;
+  return {
+    droppedSignals: batch.droppedSignals,
+    entryUnavailable: batch.entryUnavailable,
+    dataGaps: batch.dataGaps,
+    terminal: batch.terminal,
+    funding: {
+      fundingZipCount: fundingRecords.filter((record) => record.status === "AVAILABLE").length,
+      markPriceZipCount: markRecords.filter((record) => record.status === "AVAILABLE").length,
+      fundingChecksumPass: fundingRecords.length > 0 && fundingRecords.every((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS"),
+      markPriceChecksumPass: markRecords.length > 0 && markRecords.every((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS"),
+      fundingEvents: batch.funding.fundingEvents,
+      exactMarkMatches: batch.funding.exactMarkMatches,
+      fallbackMarkMatches: batch.funding.fallbackMarkMatches,
+      missingMarkEvents: batch.funding.missingMarkEvents,
+      markCoverage,
+      fundingUnavailableLegs: batch.funding.fundingUnavailableLegs,
+      fundingUnavailableEvents: batch.funding.fundingUnavailableEvents,
+    },
+  };
+}
+
+function buildFundingDataGate(evidence: FundingEvidence): Record<string, unknown> & { pass: boolean; status: string } {
+  const pass = evidence.fundingUnavailableEvents === 0 && evidence.fundingUnavailableLegs === 0 && evidence.markCoverage >= 0.995 && evidence.fundingChecksumPass && evidence.markPriceChecksumPass;
+  return { status: pass ? "PASS" : "V14_FUNDING_DATA_INSUFFICIENT", pass, requiredMarkCoverage: 0.995, ...evidence, rule: "No fundingR=-1 substitution; unavailable funding/mark observations are independently classified and excluded from return metrics." };
+}
+
+function isTerminalExitUnavailable(symbol: string, exitTarget: number): boolean {
+  const bars = dailyBars.get(symbol) ?? [];
+  const latest = bars.at(-1)?.openTime;
+  return latest === undefined || latest < exitTarget;
+}
+
+export function classifyExecutionGap(input: { terminalDelisting: boolean; dataGap: boolean; fundingUnavailable: boolean }): { kind: "CONSERVATIVE_DELISTING" | "DATA_GAP" | "FUNDING_DATA_UNAVAILABLE"; conservativeDelistingPenalty: number } {
+  if (input.fundingUnavailable) return { kind: "FUNDING_DATA_UNAVAILABLE", conservativeDelistingPenalty: 0 };
+  if (input.terminalDelisting) return { kind: "CONSERVATIVE_DELISTING", conservativeDelistingPenalty: 1 };
+  if (input.dataGap) return { kind: "DATA_GAP", conservativeDelistingPenalty: 0 };
+  return { kind: "DATA_GAP", conservativeDelistingPenalty: 0 };
+}
 
 async function executeLeg(symbol: string, direction: 1 | -1, entryTarget: number, exitTarget: number, settlementMode: "ACTUAL_AVAILABLE" | "CONSERVATIVE_DELISTING", legCount: 2 | 3): Promise<LegExecutionOutcome> {
   const entry = await candleAtOrAfter(symbol, entryTarget);
-  if (!entry || entry.open <= 0) return { leg: null, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 0 };
+  if (!entry || entry.open <= 0) return { leg: null, entryUnavailable: 1, dataGap: 0, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 0, fundingUnavailableEvents: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingArchiveKeys: [], markPriceArchiveKeys: [] };
   const exit = await candleAtOrAfter(symbol, exitTarget);
-  const terminalAffected = exit && exit.open > 0 && exit.openTime > entry.openTime ? 0 : 1;
+  const terminalDelisting = !exit && isTerminalExitUnavailable(symbol, exitTarget);
   if (!exit || exit.open <= 0 || exit.openTime <= entry.openTime) {
-    if (settlementMode === "ACTUAL_AVAILABLE") return { leg: null, terminalAffected, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 0 };
+    if (!terminalDelisting) return { leg: null, entryUnavailable: 0, dataGap: 1, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 0, fundingUnavailableEvents: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingArchiveKeys: [], markPriceArchiveKeys: [] };
+    if (settlementMode === "ACTUAL_AVAILABLE") return { leg: null, entryUnavailable: 0, dataGap: 0, terminalAffected: 1, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 0, fundingUnavailableEvents: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingArchiveKeys: [], markPriceArchiveKeys: [] };
     const grossR = -1;
     const fundingR = 0;
     const netRByStress = netReturnByStress(grossR, fundingR);
-    return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: entry.openTime, entryPrice: entry.open, exitPrice: 0, grossR, fundingR, fundingCalculation: "CONSERVATIVE_UNAVAILABLE", terminalTreatment: "CONSERVATIVE_DELISTING", officialResolved: false, conservativePenalty: 1, adv30: 0, participationRate: 0, netRByStress }, terminalAffected, officialResolved: 0, conservativePenalty: 1, markWeighted: 0, fundingUnavailable: 0 };
+    return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: entry.openTime, entryPrice: entry.open, exitPrice: 0, grossR, fundingR, fundingCalculation: "NOT_APPLICABLE", terminalTreatment: "CONSERVATIVE_DELISTING", officialResolved: false, conservativePenalty: 1, adv30: 0, participationRate: 0, netRByStress }, entryUnavailable: 0, dataGap: 0, terminalAffected: 1, officialResolved: 0, conservativePenalty: 1, markWeighted: 0, fundingUnavailable: 0, fundingUnavailableEvents: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingArchiveKeys: [], markPriceArchiveKeys: [] };
   }
   const funding = await fundingBetween(symbol, entry.openTime, exit.openTime, direction, referenceLegNotional(legCount), entry.open);
-  if (!funding || funding.missingMark) {
-    if (settlementMode === "ACTUAL_AVAILABLE") return { leg: null, terminalAffected: 0, officialResolved: 1, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 1 };
-    const grossR = direction * (exit.open / entry.open - 1);
-    const fundingR = -1;
-    const netRByStress = netReturnByStress(grossR, fundingR);
-    return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: exit.openTime, entryPrice: entry.open, exitPrice: exit.open, grossR, fundingR, fundingCalculation: "CONSERVATIVE_UNAVAILABLE", terminalTreatment: "NONE", officialResolved: false, conservativePenalty: 1, adv30: 0, participationRate: 0, netRByStress }, terminalAffected: 0, officialResolved: 0, conservativePenalty: 1, markWeighted: 0, fundingUnavailable: 1 };
+  if (funding.status === "FUNDING_DATA_UNAVAILABLE") {
+    if (settlementMode === "ACTUAL_AVAILABLE") return { leg: null, entryUnavailable: 0, dataGap: 0, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 1, fundingUnavailableEvents: funding.fundingUnavailableEvents, fundingEvents: funding.fundingEvents, exactMarkMatches: funding.exactMarkMatches, fallbackMarkMatches: funding.fallbackMarkMatches, missingMarkEvents: funding.missingMarkEvents, fundingArchiveKeys: funding.fundingArchiveKeys, markPriceArchiveKeys: funding.markPriceArchiveKeys };
+    return { leg: null, entryUnavailable: 0, dataGap: 0, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 0, fundingUnavailable: 1, fundingUnavailableEvents: funding.fundingUnavailableEvents, fundingEvents: funding.fundingEvents, exactMarkMatches: funding.exactMarkMatches, fallbackMarkMatches: funding.fallbackMarkMatches, missingMarkEvents: funding.missingMarkEvents, fundingArchiveKeys: funding.fundingArchiveKeys, markPriceArchiveKeys: funding.markPriceArchiveKeys };
   }
   const grossR = direction * (exit.open / entry.open - 1);
   const netRByStress = netReturnByStress(grossR, funding.fundingR);
-  return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: exit.openTime, entryPrice: entry.open, exitPrice: exit.open, grossR, fundingR: funding.fundingR, fundingCalculation: "MARK_WEIGHTED", terminalTreatment: "NONE", officialResolved: false, conservativePenalty: 0, adv30: 0, participationRate: 0, netRByStress }, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 1, fundingUnavailable: 0 };
+  return { leg: { symbol, direction, entryTime: entry.openTime, exitTime: exit.openTime, entryPrice: entry.open, exitPrice: exit.open, grossR, fundingR: funding.fundingR, fundingCalculation: "MARK_WEIGHTED", terminalTreatment: "NONE", officialResolved: false, conservativePenalty: 0, adv30: 0, participationRate: 0, netRByStress }, entryUnavailable: 0, dataGap: 0, terminalAffected: 0, officialResolved: 0, conservativePenalty: 0, markWeighted: 1, fundingUnavailable: 0, fundingUnavailableEvents: funding.fundingUnavailableEvents, fundingEvents: funding.fundingEvents, exactMarkMatches: funding.exactMarkMatches, fallbackMarkMatches: funding.fallbackMarkMatches, missingMarkEvents: funding.missingMarkEvents, fundingArchiveKeys: funding.fundingArchiveKeys, markPriceArchiveKeys: funding.markPriceArchiveKeys };
 }
 
 function netReturnByStress(grossR: number, fundingR: number): Record<string, number> {
@@ -875,7 +996,7 @@ function metricsFor(trades: SignalTrade[], startingCapital = CAPITAL): Metrics {
   const negative = values.filter((value) => value < 0);
   const years = Math.max(1, (Math.max(...trades.map((trade) => trade.timestamp)) - Math.min(...trades.map((trade) => trade.timestamp))) / (365.25 * DAY));
   const foldValues = temporalFoldValuesFromEvents(baseEvents);
-  return { signals: trades.length, wins: positive.length, losses: negative.length, netR: sum(values), netPnl: sum(values) * startingCapital, annualized: sum(values) / years, profitFactor: negative.length ? sum(positive) / Math.abs(sum(negative)) : positive.length ? Number.POSITIVE_INFINITY : 0, average: mean(values), median: median(values), worst: Math.min(...values), maxDD: maxDrawdownFromReturns(values), positiveFoldRatio: foldValues.filter((value) => value > 0).length / Math.max(1, foldValues.length), medianFoldNetR: median(foldValues), stress: stress as Record<string, { netR: number; netPnl: number; maxDD: number }> };
+  return { signals: trades.length, wins: positive.length, losses: negative.length, netR: sum(values), netPnl: sum(values) * startingCapital, annualized: sum(values) / years, profitFactor: negative.length ? sum(positive) / Math.abs(sum(negative)) : positive.length ? Number.POSITIVE_INFINITY : 0, average: mean(values), median: median(values), worst: Math.min(...values), maxDD: maxDrawdownFromReturns(values), positiveFoldRatio: foldValues.filter((value) => value > 0).length / Math.max(1, foldValues.length), medianFoldNetR: median(foldValues), drawdownBasis: "REALIZED_EQUITY_DD", stress: stress as Record<string, { netR: number; netPnl: number; maxDD: number }> };
 }
 
 function rawMetricsFor(trades: SignalTrade[]): Metrics {
@@ -890,15 +1011,17 @@ function rawMetricsFor(trades: SignalTrade[]): Metrics {
   const negative = values.filter((value) => value < 0);
   const years = Math.max(1, (Math.max(...trades.map((trade) => trade.timestamp)) - Math.min(...trades.map((trade) => trade.timestamp))) / (365.25 * DAY));
   const foldValues = temporalFoldValues(trades, (trade) => trade.netRByStress["0"] ?? 0);
-  return { signals: trades.length, wins: positive.length, losses: negative.length, netR: sum(values), netPnl: sum(values) * CAPITAL, annualized: sum(values) / years, profitFactor: negative.length ? sum(positive) / Math.abs(sum(negative)) : positive.length ? Number.POSITIVE_INFINITY : 0, average: mean(values), median: median(values), worst: Math.min(...values), maxDD: maxDrawdown(values), positiveFoldRatio: foldValues.filter((value) => value > 0).length / Math.max(1, foldValues.length), medianFoldNetR: median(foldValues), stress: stress as Record<string, { netR: number; netPnl: number; maxDD: number }> };
+  return { signals: trades.length, wins: positive.length, losses: negative.length, netR: sum(values), netPnl: sum(values) * CAPITAL, annualized: sum(values) / years, profitFactor: negative.length ? sum(positive) / Math.abs(sum(negative)) : positive.length ? Number.POSITIVE_INFINITY : 0, average: mean(values), median: median(values), worst: Math.min(...values), maxDD: maxDrawdown(values), positiveFoldRatio: foldValues.filter((value) => value > 0).length / Math.max(1, foldValues.length), medianFoldNetR: median(foldValues), drawdownBasis: "REALIZED_EQUITY_DD", stress: stress as Record<string, { netR: number; netPnl: number; maxDD: number }> };
 }
 
 function ledgerAllocation(trades: SignalTrade[], startingCapital: number): LedgerAllocation {
   const timeline = [...new Set(trades.flatMap((trade) => [trade.entryTime, trade.exitTime]))].sort((left, right) => left - right);
   const concurrentAt = (timestamp: number): number => trades.filter((trade) => trade.entryTime <= timestamp && trade.exitTime >= timestamp).length;
-  const peakConcurrentSleeves = Math.max(1, ...timeline.map(concurrentAt));
-  const grossExposurePerSleeve = startingCapital * TARGET_GROSS_LEVERAGE / peakConcurrentSleeves;
-  return { startingCapital, targetGrossLeverage: TARGET_GROSS_LEVERAGE, hardGrossLeverage: HARD_GROSS_LEVERAGE, peakConcurrentSleeves, grossExposurePerSleeve, peakGrossExposure: grossExposurePerSleeve * peakConcurrentSleeves };
+  const realizedPeakConcurrentSleeves = Math.max(1, ...timeline.map(concurrentAt));
+  const theoreticalMaxConcurrentSleeves = Math.max(1, ...trades.map((trade) => trade.holdingWeeks));
+  const grossExposurePerSleeve = startingCapital * TARGET_GROSS_LEVERAGE / theoreticalMaxConcurrentSleeves;
+  const peakGrossExposure = grossExposurePerSleeve * realizedPeakConcurrentSleeves;
+  return { startingCapital, targetGrossLeverage: TARGET_GROSS_LEVERAGE, hardGrossLeverage: HARD_GROSS_LEVERAGE, theoreticalMaxConcurrentSleeves, realizedPeakConcurrentSleeves, peakConcurrentSleeves: realizedPeakConcurrentSleeves, grossExposurePerSleeve, peakGrossExposure, peakGrossLeverage: peakGrossExposure / Math.max(1, startingCapital) };
 }
 
 function ledgerEvents(trades: SignalTrade[], allocation: LedgerAllocation, stress: number): { trade: SignalTrade; returnR: number; pnl: number; exitTime: number }[] {
@@ -929,7 +1052,7 @@ function maxDrawdownFromReturns(values: number[]): number {
 }
 
 function emptyMetrics(): Metrics {
-  return { signals: 0, wins: 0, losses: 0, netR: 0, netPnl: 0, annualized: 0, profitFactor: 0, average: 0, median: 0, worst: 0, maxDD: 0, positiveFoldRatio: 0, medianFoldNetR: 0, stress: Object.fromEntries(STRESS_BPS.map((bps) => [String(bps), { netR: 0, netPnl: 0, maxDD: 0 }])) };
+  return { signals: 0, wins: 0, losses: 0, netR: 0, netPnl: 0, annualized: 0, profitFactor: 0, average: 0, median: 0, worst: 0, maxDD: 0, positiveFoldRatio: 0, medianFoldNetR: 0, drawdownBasis: "REALIZED_EQUITY_DD", stress: Object.fromEntries(STRESS_BPS.map((bps) => [String(bps), { netR: 0, netPnl: 0, maxDD: 0 }])) };
 }
 
 function filterByDecisionPeriod(trades: SignalTrade[], start: number, end: number): SignalTrade[] { return trades.filter((trade) => trade.timestamp >= start && trade.timestamp <= end); }
@@ -989,10 +1112,9 @@ function capitalSimulation(trades: SignalTrade[]): Record<string, unknown> {
   const rows = [1_000, 2_000, 10_000].map((capital) => {
     const allocation = ledgerAllocation(trades, capital);
     const events = ledgerEvents(trades, allocation, 0);
-    const equity = capital;
     const margins = trades.flatMap((trade) => [allocation.grossExposurePerSleeve / 2]);
     const scaledNetPnl = sum(events.map((event) => event.pnl));
-    return [String(capital), { startingCapital: capital, effectiveLeverage: allocation.targetGrossLeverage, hardGrossLeverage: allocation.hardGrossLeverage, grossExposurePerSleeve: allocation.grossExposurePerSleeve, averageCapitalLocked: mean(margins), peakCapitalLocked: allocation.peakGrossExposure / 2, peakConcurrentSleeves: allocation.peakConcurrentSleeves, marginUtilization: allocation.peakGrossExposure / 2 / Math.max(1, capital), scaledNetPnl, netR: scaledNetPnl / capital, maxDD: maxDrawdownFromReturns(events.map((event) => event.pnl / capital)), endingEquity: equity + scaledNetPnl }];
+    return [String(capital), { startingCapital: capital, effectiveLeverage: allocation.targetGrossLeverage, hardGrossLeverage: allocation.hardGrossLeverage, grossExposurePerSleeve: allocation.grossExposurePerSleeve, averageCapitalLocked: mean(margins), peakCapitalLocked: allocation.peakGrossExposure / 2, peakConcurrentSleeves: allocation.realizedPeakConcurrentSleeves, theoreticalMaxConcurrentSleeves: allocation.theoreticalMaxConcurrentSleeves, sizingUsesFutureRealizedConcurrency: false, peakGrossLeverage: allocation.peakGrossLeverage, marginUtilization: allocation.peakGrossExposure / 2 / Math.max(1, capital), scaledNetPnl, netR: scaledNetPnl / capital, maxDD: maxDrawdownFromReturns(events.map((event) => event.pnl / capital)), drawdownBasis: "REALIZED_EQUITY_DD", endingEquity: capital + scaledNetPnl }];
   });
   return Object.fromEntries(rows);
 }
@@ -1105,8 +1227,12 @@ function buildCorrectnessRules(): Record<string, unknown> {
     families: ["FAMILY_A_PURE_REVERSAL", "FAMILY_B_HIGH_VOL_REVERSAL", "FAMILY_C_DISPERSION_REVERSAL"],
     liquidityCapacity: { referenceCapital: CAPITAL, targetGrossLeverage: TARGET_GROSS_LEVERAGE, hardGrossLeverage: HARD_GROSS_LEVERAGE, maxParticipationRate: LIQUIDITY_PARTICIPATION_LIMIT, formula: "reference leg notional / trailing ADV30 <= 0.0001" },
     execution: COST_MODEL.execution,
+    executionGapPolicy: { maximumForwardToleranceMinutes: 15, entryBeyondTolerance: "SIGNAL_NOT_EXECUTABLE", exitBeyondTolerance: "DATA_GAP unless terminal/delisting" },
     costModel: COST_MODEL,
     fundingCalculation: COST_MODEL.funding,
+    fundingArchiveSchema: ["calc_time", "funding_interval_hours", "last_funding_rate"],
+    markPriceSource: "Binance Data Vision official futures/um/monthly/markPriceKlines/{symbol}/1m; mark open at fundingTime, nearest official ±1 minute only as recorded fallback",
+    unavailableFundingClassification: "FUNDING_DATA_UNAVAILABLE; never CONSERVATIVE_DELISTING and never fundingR=-1",
     terminalExecution: COST_MODEL.terminal,
     capitalAllocation: COST_MODEL.capitalAllocation,
     delistingModes: ["ACTUAL_AVAILABLE", "CONSERVATIVE_DELISTING"],
@@ -1120,7 +1246,7 @@ function buildCorrectnessRules(): Record<string, unknown> {
 }
 
 export function buildCorrectnessFreezeManifest(generatedAt = new Date().toISOString()): Record<string, unknown> {
-  const base = { schema: "bca-v14-correctness-freeze-manifest-v1", status: "FROZEN_BEFORE_CORRECTED_RETURN_READ", generatedAt, baseline: BASELINE, rules: buildCorrectnessRules() };
+  const base = { schema: "v14-final-integrity-freeze-manifest-v1", status: "FROZEN_BEFORE_CORRECTED_RETURN_READ", generatedAt, baseline: BASELINE, rules: buildCorrectnessRules() };
   const body = { ...base, rulesSha256: hashObject(base.rules) };
   return { ...body, manifestSha256: hashObject(body) };
 }
@@ -1143,7 +1269,10 @@ function allEvidenceRecords(): ArchiveRecord[] {
 
 function buildEvidenceManifest(correctnessFreeze: Record<string, unknown>, registryHash: string, dataGate: Record<string, unknown>, summary: Record<string, unknown>): Record<string, unknown> {
   const records = allEvidenceRecords();
-  const body = { schema: "bca-v14-evidence-manifest-v1", status: "FROZEN_RESULT_ARTIFACTS", correctnessFreezeSha256: correctnessFreeze.manifestSha256, registryHash, archiveScope: "futures daily PIT archives plus on-demand futures 15m execution and funding archives; spot diagnostic is separately identified", requestedArchiveSlots: records.length, dailyRequestedArchiveSlots: (dataGate.archiveCounts as Record<string, number> | undefined)?.requestedArchiveSlots ?? 0, availableZipCount: records.filter((record) => record.status === "AVAILABLE").length, checksumPassZipCount: records.filter((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS").length, missingSlotCount: records.filter((record) => record.status === "MISSING").length, failedZipCount: records.filter((record) => record.status === "FAILED" || record.checksumStatus === "FAIL").length, archiveRecordSha256: hashObject(records.map((record) => ({ symbol: record.symbol, timeframe: record.timeframe, period: record.period, sourceUrl: record.sourceUrl, status: record.status, bytes: record.bytes, sha256: record.sha256, expectedSha256: record.expectedSha256, checksumStatus: record.checksumStatus }))), result: summary.result ?? "UNKNOWN", promotion: summary.EMAIL_PROMOTION_CANDIDATE ?? "FAIL", boundaries: summary.boundaries ?? V14_BOUNDARIES };
+  const fundingRecords = records.filter((record) => record.timeframe === "funding");
+  const markPriceRecords = records.filter((record) => record.timeframe === "markPriceKlines");
+  const fundingEvidence = summary.fundingEvidence as FundingEvidence | undefined;
+  const body = { schema: "bca-v14-evidence-manifest-v2", status: "FROZEN_RESULT_ARTIFACTS", correctnessFreezeSha256: correctnessFreeze.manifestSha256, registryHash, archiveScope: "futures daily PIT archives plus on-demand futures 15m execution, fundingRate archives, and independent 1m markPriceKlines archives; spot diagnostic is separately identified", requestedArchiveSlots: records.length, dailyRequestedArchiveSlots: (dataGate.archiveCounts as Record<string, number> | undefined)?.requestedArchiveSlots ?? 0, availableZipCount: records.filter((record) => record.status === "AVAILABLE").length, checksumPassZipCount: records.filter((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS").length, missingSlotCount: records.filter((record) => record.status === "MISSING").length, failedZipCount: records.filter((record) => record.status === "FAILED" || record.checksumStatus === "FAIL").length, fundingRateZipCount: fundingRecords.filter((record) => record.status === "AVAILABLE").length, markPriceZipCount: markPriceRecords.filter((record) => record.status === "AVAILABLE").length, fundingChecksumPass: fundingRecords.length > 0 && fundingRecords.every((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS"), markPriceChecksumPass: markPriceRecords.length > 0 && markPriceRecords.every((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS"), fundingEvents: fundingEvidence?.fundingEvents ?? 0, exactMarkMatches: fundingEvidence?.exactMarkMatches ?? 0, fallbackMarkMatches: fundingEvidence?.fallbackMarkMatches ?? 0, missingMarkEvents: fundingEvidence?.missingMarkEvents ?? 0, markCoverage: fundingEvidence?.markCoverage ?? 0, fundingUnavailableLegs: fundingEvidence?.fundingUnavailableLegs ?? 0, fundingUnavailableEvents: fundingEvidence?.fundingUnavailableEvents ?? 0, archiveRecordSha256: hashObject(records.map((record) => ({ symbol: record.symbol, timeframe: record.timeframe, period: record.period, sourceUrl: record.sourceUrl, status: record.status, bytes: record.bytes, sha256: record.sha256, expectedSha256: record.expectedSha256, checksumStatus: record.checksumStatus }))), result: summary.result ?? "UNKNOWN", promotion: summary.EMAIL_PROMOTION_CANDIDATE ?? "FAIL", boundaries: summary.boundaries ?? V14_BOUNDARIES };
   return { ...body, evidenceSha256: hashObject(body) };
 }
 
@@ -1151,21 +1280,24 @@ async function writeEvidenceManifest(correctnessFreeze: Record<string, unknown>,
   await writeJson(EVIDENCE_MANIFEST_PATH, buildEvidenceManifest(correctnessFreeze, registryHash, dataGate, summary));
 }
 
-function buildDelistingReport(selectedTrades: SignalTrade[], actualAvailable: ExecutionBatch): Record<string, unknown> {
+function buildDelistingReport(selectedTrades: SignalTrade[], actualAvailable: ExecutionBatch, selectedExecution: ExecutionSummary): Record<string, unknown> {
   const affectedLegs = selectedTrades.flatMap((trade) => trade.legs).filter((leg) => leg.terminalTreatment === "CONSERVATIVE_DELISTING").length;
-  return { actualAvailable: { metrics: metricsFor(actualAvailable.trades), droppedSignals: actualAvailable.droppedSignals }, conservativeDelisting: { metrics: metricsFor(selectedTrades), retainedSignals: selectedTrades.length }, selectedDelistingLegs: affectedLegs, officialResolved: actualAvailable.terminal.officialResolved, conservativePenalties: selectedTrades.flatMap((trade) => trade.legs).filter((leg) => leg.conservativePenalty > 0).length, signalsPreviouslyWouldHaveBeenDropped: actualAvailable.droppedSignals };
+  return { actualAvailable: { metrics: metricsFor(actualAvailable.trades), droppedSignals: actualAvailable.droppedSignals, terminal: actualAvailable.terminal }, conservativeDelisting: { metrics: metricsFor(selectedTrades), retainedSignals: selectedTrades.length }, selectedDelistingLegs: affectedLegs, officialResolved: actualAvailable.terminal.officialResolved, conservativePenalties: affectedLegs, conservativeDelistingPenalties: affectedLegs, signalsPreviouslyWouldHaveBeenDropped: actualAvailable.droppedSignals, fundingUnavailableLegs: selectedExecution.funding.fundingUnavailableLegs, fundingUnavailableEvents: selectedExecution.funding.fundingUnavailableEvents, fundingClassification: "FUNDING_DATA_UNAVAILABLE is not included in selectedDelistingLegs, officialResolved, or conservativeDelistingPenalties" };
 }
 
 function buildDataStopSummary(dataGate: Record<string, unknown>, registryHash: string): Record<string, unknown> {
   return { schema: "bca-v14-validation-summary-v2", baseline: BASELINE, dataGate, registryHash, EMAIL_PROMOTION_CANDIDATE: "FAIL", result: "V14_PIT_UNIVERSE_INSUFFICIENT", researchStop: "YES", priorWindowsContaminatedForPromotion: true, emailImplementation: "NOT_DONE", simulationEmail: "NOT_SENT", hardBoundaries: V14_BOUNDARIES };
 }
 
-function buildFullSummary(input: { generatedAt: string; dataGate: Record<string, unknown>; registryHash: string; correctnessFreeze: Record<string, unknown>; spotDiagnostic: Record<string, unknown>; families: Record<Family, FamilyResult>; best: FamilyResult | null; promotion: string }): Record<string, unknown> {
-  return { schema: "bca-v14-validation-summary-v2", generatedAt: input.generatedAt, baseline: BASELINE, branch: "feat/v14-cross-sectional-reversal", dataGate: input.dataGate, correctnessFreezeSha256: input.correctnessFreeze.manifestSha256, spotDiagnostic: input.spotDiagnostic, families: input.families, best: input.best ? { family: input.best.family, configId: input.best.bestConfigId } : null, EMAIL_PROMOTION_CANDIDATE: "FAIL", result: input.promotion, researchStop: "YES", priorWindowsContaminatedForPromotion: true, confirmationWindows: { A: { start: new Date(CONFIRMATION_A[0]).toISOString(), end: new Date(CONFIRMATION_A[1]).toISOString() }, B: { start: new Date(CONFIRMATION_B[0]).toISOString(), end: new Date(CONFIRMATION_B[1]).toISOString() } }, emailImplementation: "NOT_DONE", simulationEmail: "NOT_SENT", boundaries: V14_BOUNDARIES };
+function buildFullSummary(input: { generatedAt: string; dataGate: Record<string, unknown>; registryHash: string; correctnessFreeze: Record<string, unknown>; spotDiagnostic: Record<string, unknown>; families: Record<Family, FamilyResult>; best: FamilyResult | null; promotion: string; fundingEvidence: FundingEvidence }): Record<string, unknown> {
+  return { schema: "bca-v14-validation-summary-v3", generatedAt: input.generatedAt, baseline: BASELINE, branch: "feat/v14-cross-sectional-reversal", dataGate: input.dataGate, fundingEvidence: input.fundingEvidence, correctnessFreezeSha256: input.correctnessFreeze.manifestSha256, spotDiagnostic: input.spotDiagnostic, families: input.families, best: input.best ? { family: input.best.family, configId: input.best.bestConfigId } : null, EMAIL_PROMOTION_CANDIDATE: "FAIL", result: input.promotion, researchStop: "YES", priorWindowsContaminatedForPromotion: true, confirmationWindows: { A: { start: new Date(CONFIRMATION_A[0]).toISOString(), end: new Date(CONFIRMATION_A[1]).toISOString() }, B: { start: new Date(CONFIRMATION_B[0]).toISOString(), end: new Date(CONFIRMATION_B[1]).toISOString() } }, emailImplementation: "NOT_DONE", simulationEmail: "NOT_SENT", boundaries: V14_BOUNDARIES };
 }
 
 function renderDecision(summary: Record<string, unknown>): string {
-  return ["# V14.0 Promotion Decision", "", `Baseline: ${BASELINE}`, "", `Data gate: ${String((summary.dataGate as Record<string, unknown> | undefined)?.status ?? "UNKNOWN")}`, `Result: ${String(summary.result ?? "UNKNOWN")}`, "Research stop: YES", "", "The V14 study is research-only. No Production code, SMTP state, strategy runtime, deployment, merge, migration, private Binance API, or order placement was changed.", ""].join("\n");
+  const dataGate = summary.dataGate as Record<string, unknown> | undefined;
+  const fundingGate = dataGate?.fundingGate as Record<string, unknown> | undefined;
+  const evidence = summary.fundingEvidence as Record<string, unknown> | undefined;
+  return ["# V14.0 Promotion Decision", "", `Baseline: ${BASELINE}`, "", `Data gate: ${String(dataGate?.status ?? "UNKNOWN")}`, `Funding gate: ${String(fundingGate?.status ?? "UNKNOWN")}`, `Mark coverage: ${String(evidence?.markCoverage ?? "UNKNOWN")}`, `Result: ${String(summary.result ?? "UNKNOWN")}`, "Research stop: YES", "", "The V14 study is research-only. No Production code, SMTP state, strategy runtime, deployment, merge, migration, private Binance API, or order placement was changed.", ""].join("\n");
 }
 
 async function ensureArchive(symbol: string, timeframe: Timeframe, period: string, root: string, download: boolean): Promise<StoredArchive> {
@@ -1175,7 +1307,7 @@ async function ensureArchive(symbol: string, timeframe: Timeframe, period: strin
   if (root === DATA_VISION_ROOT && timeframe === "1d" && !listedDailyArchives.get(symbol)?.has(period)) {
     return { record: missingArchiveRecord(symbol, timeframe, period, sourceUrl, false), path: null };
   }
-  const existingRoots = root === DATA_VISION_ROOT && timeframe !== "1d" ? [
+  const existingRoots = root === DATA_VISION_ROOT && timeframe !== "1d" && timeframe !== "markPriceKlines" ? [
     resolve(`data/raw/v7-derivatives-flow-cache/market/${symbol}/${timeframe}/${period}.zip`),
     resolve(`data/raw/v5-7-external-cache/archives/${symbol}/${timeframe}/${period}.zip`),
     resolve(`data/raw/v5-8-fresh-cache/archives/${symbol}/${timeframe}/${period}.zip`),
@@ -1260,54 +1392,196 @@ function parseBars(bytes: Buffer): Bar[] {
 function parseFunding(bytes: Buffer): FundingPoint[] {
   const entry = readZipEntries(bytes).find((value) => !value.name.endsWith("/"));
   if (!entry) throw new Error("ZIP contains no data entry");
-  const output: FundingPoint[] = [];
-  for (const line of entry.data.toString("utf8").split(/\r?\n/).filter((value) => value.trim())) {
-    const fields = splitCsv(line);
-    const timeIndex = fields.findIndex((field) => Number.isFinite(parseTimestamp(field)));
-    const time = timeIndex >= 0 ? parseTimestamp(fields[timeIndex]) : Number.NaN;
-    const rate = Number(fields[timeIndex + 1]);
-    const markPrice = Number(fields[timeIndex + 2]);
-    if (Number.isFinite(time) && Number.isFinite(rate)) output.push({ fundingTime: time, fundingRate: rate, markPrice: Number.isFinite(markPrice) && markPrice > 0 ? markPrice : null });
-  }
-  return output;
+  return parseFundingCsv(entry.data.toString("utf8"));
+}
+
+export function parseFundingCsv(csv: string): FundingPoint[] {
+  const lines = csv.split(/\r?\n/).filter((value) => value.trim());
+  if (!lines.length) return [];
+  const first = splitCsv(lines[0]);
+  const rows = Number.isFinite(parseTimestamp(first[0])) ? lines : lines.slice(1);
+  return rows.map(splitCsv).map((fields) => {
+    if (fields.length < 3) return null;
+    const fundingTime = parseTimestamp(fields[0]);
+    const fundingIntervalHours = Number(fields[1]);
+    const fundingRate = Number(fields[2]);
+    return Number.isFinite(fundingTime) && Number.isFinite(fundingIntervalHours) && fundingIntervalHours > 0 && Number.isFinite(fundingRate)
+      ? { fundingTime, fundingIntervalHours, fundingRate }
+      : null;
+  }).filter((value): value is FundingPoint => value !== null);
+}
+
+function parseMarkPriceKlines(bytes: Buffer): MarkPricePoint[] {
+  const entry = readZipEntries(bytes).find((value) => !value.name.endsWith("/"));
+  if (!entry) throw new Error("ZIP contains no data entry");
+  return parseMarkPriceCsv(entry.data.toString("utf8"));
+}
+
+export function parseMarkPriceCsv(csv: string): MarkPricePoint[] {
+  const lines = csv.split(/\r?\n/).filter((value) => value.trim());
+  if (!lines.length) return [];
+  const first = splitCsv(lines[0]);
+  const rows = Number.isFinite(parseTimestamp(first[0])) ? lines : lines.slice(1);
+  return rows.map(splitCsv).map((fields) => {
+    const openTime = parseTimestamp(fields[0]);
+    const open = Number(fields[1]);
+    return Number.isFinite(openTime) && Number.isFinite(open) && open > 0 ? { openTime, open } : null;
+  }).filter((value): value is MarkPricePoint => value !== null);
 }
 
 async function candleAtOrAfter(symbol: string, timestamp: number): Promise<Bar | null> {
-  const targetMonth = monthKey(timestamp);
-  const nextMonth = monthKey(timestamp + 32 * DAY);
-  const months = [...new Set([targetMonth, nextMonth])];
-  await Promise.all(months.map((month) => loadExecutionMonth(symbol, month)));
-  return [...new Set(months.flatMap((month) => executionBars.get(`${symbol}:15m:${month}`) ?? []))].filter((bar) => bar.openTime >= timestamp && bar.openTime <= END).sort((left, right) => left.openTime - right.openTime)[0] ?? null;
+  const months = monthKeys(timestamp, timestamp + FIFTEEN_MINUTES);
+  await Promise.all(months.map((month) => loadExecutionMonth(symbol, month, [timestamp])));
+  return selectNextExecutionOpen(months.flatMap((month) => executionBars.get(`${symbol}:15m:${month}`) ?? []), timestamp);
 }
 
-interface FundingCalculation { fundingR: number; missingMark: boolean; points: number; }
+interface FundingCalculation {
+  status: "MARK_WEIGHTED" | "FUNDING_DATA_UNAVAILABLE";
+  fundingR: number;
+  fundingEvents: number;
+  exactMarkMatches: number;
+  fallbackMarkMatches: number;
+  missingMarkEvents: number;
+  fundingUnavailableEvents: number;
+  fundingArchiveKeys: string[];
+  markPriceArchiveKeys: string[];
+}
 
-async function fundingBetween(symbol: string, start: number, end: number, direction: 1 | -1, entryNotional: number, entryFillPrice: number): Promise<FundingCalculation | null> {
+async function fundingBetween(symbol: string, start: number, end: number, direction: 1 | -1, entryNotional: number, entryFillPrice: number): Promise<FundingCalculation> {
   const periods = monthKeys(start, end);
   const all: FundingPoint[] = [];
+  const fundingArchiveKeys: string[] = [];
   for (const month of periods) {
     await loadFundingMonth(symbol, month);
-    if (!(fundingPoints.get(`${symbol}:funding:${month}`))) return null;
-    all.push(...(fundingPoints.get(`${symbol}:funding:${month}`) ?? []));
+    const key = `${symbol}:funding:${month}`;
+    fundingArchiveKeys.push(key);
+    const record = executionArchiveRecords.get(key);
+    if (!record || record.status !== "AVAILABLE" || !fundingPoints.has(key)) return { status: "FUNDING_DATA_UNAVAILABLE", fundingR: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingUnavailableEvents: 1, fundingArchiveKeys, markPriceArchiveKeys: [] };
+    all.push(...(fundingPoints.get(key) ?? []));
   }
   const points = all.filter((point) => point.fundingTime > start && point.fundingTime <= end);
-  if (points.some((point) => point.markPrice === null)) return { fundingR: 0, missingMark: true, points: points.length };
-  return { fundingR: calculateMarkWeightedFunding(direction, entryNotional, entryFillPrice, points), missingMark: false, points: points.length };
+  if (!points.length) return { status: "MARK_WEIGHTED", fundingR: 0, fundingEvents: 0, exactMarkMatches: 0, fallbackMarkMatches: 0, missingMarkEvents: 0, fundingUnavailableEvents: 0, fundingArchiveKeys, markPriceArchiveKeys: [] };
+  const markTimesByFundingMonth = new Map<string, number[]>();
+  for (const point of points) {
+    for (const month of monthKeys(point.fundingTime - 60_000, point.fundingTime + 60_000)) markTimesByFundingMonth.set(month, [...(markTimesByFundingMonth.get(month) ?? []), point.fundingTime]);
+  }
+  const markTimes = [...markTimesByFundingMonth.keys()];
+  await Promise.all(markTimes.map((month) => loadMarkPriceMonth(symbol, month, [...new Set(markTimesByFundingMonth.get(month) ?? [])])));
+  const marks = markTimes.flatMap((month) => markPricePoints.get(`${symbol}:markPriceKlines:${month}`) ?? []);
+  const matched: FundingPointWithMark[] = [];
+  let exactMarkMatches = 0;
+  let fallbackMarkMatches = 0;
+  let missingMarkEvents = 0;
+  for (const point of points) {
+    const exact = marks.find((mark) => mark.openTime === point.fundingTime);
+    if (exact) {
+      matched.push({ ...point, markPrice: exact.open });
+      exactMarkMatches += 1;
+      continue;
+    }
+    const nearby = marks.filter((mark) => Math.abs(mark.openTime - point.fundingTime) <= 60_000).sort((left, right) => Math.abs(left.openTime - point.fundingTime) - Math.abs(right.openTime - point.fundingTime));
+    const fallback = nearby[0];
+    if (fallback) {
+      matched.push({ ...point, markPrice: fallback.open });
+      fallbackMarkMatches += 1;
+    } else {
+      missingMarkEvents += 1;
+    }
+  }
+  const markPriceArchiveKeys = markTimes.map((month) => `${symbol}:markPriceKlines:${month}`);
+  if (missingMarkEvents > 0) return { status: "FUNDING_DATA_UNAVAILABLE", fundingR: 0, fundingEvents: points.length, exactMarkMatches, fallbackMarkMatches, missingMarkEvents, fundingUnavailableEvents: missingMarkEvents, fundingArchiveKeys, markPriceArchiveKeys };
+  return { status: "MARK_WEIGHTED", fundingR: calculateMarkWeightedFunding(direction, entryNotional, entryFillPrice, matched), fundingEvents: points.length, exactMarkMatches, fallbackMarkMatches, missingMarkEvents: 0, fundingUnavailableEvents: 0, fundingArchiveKeys, markPriceArchiveKeys };
 }
 
-async function loadExecutionMonth(symbol: string, month: string): Promise<void> {
+export interface FundingPointWithMark extends FundingPoint { markPrice: number; }
+
+async function prefetchExecutionData(decisions: Decision[], delayMinutes: number): Promise<void> {
+  const targets = new Map<string, Set<number>>();
+  for (const decision of decisions) {
+    const entryTarget = decision.timestamp + delayMinutes * 60_000;
+    const exitTarget = entryTarget + decision.holdingWeeks * WEEK;
+    if (exitTarget > END) continue;
+    for (const symbol of [...decision.longs, ...decision.shorts]) {
+      for (const target of [entryTarget, exitTarget]) {
+        for (const month of monthKeys(target, target + FIFTEEN_MINUTES)) {
+          const key = `${symbol}:15m:${month}`;
+          const values = targets.get(key) ?? new Set<number>();
+          values.add(target);
+          targets.set(key, values);
+        }
+      }
+    }
+  }
+  await mapLimit([...targets.entries()], 24, ([key, values]) => {
+    const [symbol, , month] = key.split(":");
+    return loadExecutionMonth(symbol, month, [...values]);
+  });
+}
+
+async function prefetchFundingData(decisions: Decision[], delayMinutes: number): Promise<void> {
+  const requests = new Map<string, { symbol: string; months: Set<string> }>();
+  for (const decision of decisions) {
+    const entryTarget = decision.timestamp + delayMinutes * 60_000;
+    const exitTarget = entryTarget + decision.holdingWeeks * WEEK;
+    if (exitTarget > END) continue;
+    for (const symbol of [...decision.longs, ...decision.shorts]) {
+      const existing = requests.get(symbol) ?? { symbol, months: new Set<string>() };
+      for (const month of monthKeys(entryTarget, exitTarget)) existing.months.add(month);
+      requests.set(symbol, existing);
+    }
+  }
+  const fundingRequests = [...requests.values()].flatMap((request) => [...request.months].map((month) => ({ symbol: request.symbol, month })));
+  await mapLimit(fundingRequests, 24, (request) => loadFundingMonth(request.symbol, request.month));
+  const markTargets = new Map<string, Set<number>>();
+  for (const request of requests.values()) {
+    for (const month of request.months) {
+      const key = `${request.symbol}:funding:${month}`;
+      for (const point of fundingPoints.get(key) ?? []) {
+        const markKey = `${request.symbol}:markPriceKlines:${month}`;
+        const values = markTargets.get(markKey) ?? new Set<number>();
+        values.add(point.fundingTime);
+        markTargets.set(markKey, values);
+      }
+    }
+  }
+  await mapLimit([...markTargets.entries()], 16, ([key, values]) => {
+    const [symbol, , month] = key.split(":");
+    return loadMarkPriceMonth(symbol, month, [...values]);
+  });
+}
+
+async function loadExecutionMonth(symbol: string, month: string, targetTimes: number[]): Promise<void> {
   const key = `${symbol}:15m:${month}`;
-  if (executionBars.has(key)) return;
+  const requested = executionRequestedTimes.get(key) ?? new Set<number>();
+  if (targetTimes.every((targetTime) => requested.has(targetTime))) return;
   const running = executionLoads.get(key);
-  if (running) return running;
+  if (running) {
+    await running;
+    return loadExecutionMonth(symbol, month, targetTimes);
+  }
   const promise = (async () => {
     const stored = await ensureArchive(symbol, "15m", month, DATA_VISION_ROOT, true);
     executionArchiveRecords.set(key, stored.record);
-    if (!stored.path) { executionBars.set(key, []); return; }
-    try { executionBars.set(key, dedupeBars(parseBars(await readFile(stored.path)))); } catch { executionBars.set(key, []); }
+    const matched = new Map<number, Bar>((executionBars.get(key) ?? []).map((bar) => [bar.openTime, bar]));
+    if (stored.path) {
+      try {
+        const parsed = parseBars(await readFile(stored.path));
+        for (const targetTime of targetTimes) for (const bar of parsed) if (bar.openTime >= targetTime && bar.openTime <= targetTime + FIFTEEN_MINUTES) matched.set(bar.openTime, bar);
+      } catch (error) {
+        stored.record.status = "FAILED";
+        stored.record.checksumStatus = "FAIL";
+        stored.record.error = error instanceof Error ? error.message : String(error);
+      }
+    }
+    executionBars.set(key, [...matched.values()].sort((left, right) => left.openTime - right.openTime));
+    executionRequestedTimes.set(key, new Set([...requested, ...targetTimes]));
   })();
   executionLoads.set(key, promise);
-  await promise;
+  try {
+    await promise;
+  } finally {
+    if (executionLoads.get(key) === promise) executionLoads.delete(key);
+  }
 }
 
 async function loadFundingMonth(symbol: string, month: string): Promise<void> {
@@ -1318,22 +1592,58 @@ async function loadFundingMonth(symbol: string, month: string): Promise<void> {
   const promise = (async () => {
     const stored = await ensureArchive(symbol, "funding", month, DATA_VISION_ROOT, true);
     executionArchiveRecords.set(key, stored.record);
-    if (!stored.path) return;
-    try { fundingPoints.set(key, dedupeFunding(parseFunding(await readFile(stored.path)))); } catch { /* unavailable remains absent */ }
+    if (!stored.path) { fundingPoints.set(key, []); return; }
+    try { fundingPoints.set(key, dedupeFunding(parseFunding(await readFile(stored.path)))); } catch (error) { stored.record.status = "FAILED"; stored.record.checksumStatus = "FAIL"; stored.record.error = error instanceof Error ? error.message : String(error); fundingPoints.set(key, []); }
   })();
   fundingLoads.set(key, promise);
   await promise;
+}
+
+async function loadMarkPriceMonth(symbol: string, month: string, targetTimes: number[]): Promise<void> {
+  const key = `${symbol}:markPriceKlines:${month}`;
+  const requested = markPriceRequestedTimes.get(key) ?? new Set<number>();
+  if (targetTimes.every((targetTime) => requested.has(targetTime))) return;
+  const running = markPriceLoads.get(key);
+  if (running) {
+    await running;
+    return loadMarkPriceMonth(symbol, month, targetTimes);
+  }
+  const promise = (async () => {
+    const stored = await ensureArchive(symbol, "markPriceKlines", month, DATA_VISION_ROOT, true);
+    executionArchiveRecords.set(key, stored.record);
+    const matched = new Map<number, MarkPricePoint>((markPricePoints.get(key) ?? []).map((point) => [point.openTime, point]));
+    if (stored.path) {
+      try {
+        const parsed = parseMarkPriceKlines(await readFile(stored.path));
+        for (const targetTime of targetTimes) for (const point of parsed) if (Math.abs(point.openTime - targetTime) <= 60_000) matched.set(point.openTime, point);
+      } catch (error) {
+        stored.record.status = "FAILED";
+        stored.record.checksumStatus = "FAIL";
+        stored.record.error = error instanceof Error ? error.message : String(error);
+      }
+    }
+    markPricePoints.set(key, [...matched.values()].sort((left, right) => left.openTime - right.openTime));
+    markPriceRequestedTimes.set(key, new Set([...requested, ...targetTimes]));
+  })();
+  markPriceLoads.set(key, promise);
+  try {
+    await promise;
+  } finally {
+    if (markPriceLoads.get(key) === promise) markPriceLoads.delete(key);
+  }
 }
 
 function archiveUrl(symbol: string, timeframe: Timeframe, period: string, root: string): string {
   const encodedSymbol = encodeURIComponent(symbol);
   if (root === SPOT_ROOT) return `${root}/klines/${encodedSymbol}/1d/${encodedSymbol}-1d-${period}.zip`;
   if (timeframe === "funding") return `${root}/fundingRate/${encodedSymbol}/${encodedSymbol}-fundingRate-${period}.zip`;
+  if (timeframe === "markPriceKlines") return `${root}/markPriceKlines/${encodedSymbol}/1m/${encodedSymbol}-1m-${period}.zip`;
   return `${root}/klines/${encodedSymbol}/${timeframe}/${encodedSymbol}-${timeframe}-${period}.zip`;
 }
 
 function dedupeBars(bars: Bar[]): Bar[] { return [...new Map(bars.map((bar) => [bar.openTime, bar])).values()].sort((left, right) => left.openTime - right.openTime); }
 function dedupeFunding(points: FundingPoint[]): FundingPoint[] { return [...new Map(points.map((point) => [point.fundingTime, point])).values()].sort((left, right) => left.fundingTime - right.fundingTime); }
+function dedupeMarkPrice(points: MarkPricePoint[]): MarkPricePoint[] { return [...new Map(points.map((point) => [point.openTime, point])).values()].sort((left, right) => left.openTime - right.openTime); }
 function lastIndexAtOrBeforeClose(bars: Bar[], timestamp: number): number {
   let low = 0;
   let high = bars.length - 1;
@@ -1375,8 +1685,8 @@ function relativePath(path: string): string { return path.replace(`${resolve("."
 async function writeJson(path: string, value: unknown): Promise<void> { await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
 async function mapLimit<T, R>(items: T[], limit: number, worker: (item: T) => Promise<R>): Promise<R[]> { const output: R[] = []; let cursor = 0; async function consume(): Promise<void> { while (true) { const index = cursor; cursor += 1; if (index >= items.length) return; output[index] = await worker(items[index]); } } await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => consume())); return output; }
 
-export function calculateMarkWeightedFunding(direction: 1 | -1, entryNotional: number, entryFillPrice: number, points: FundingPoint[]): number {
-  if (entryNotional <= 0 || entryFillPrice <= 0 || points.some((point) => point.markPrice === null)) throw new Error("mark-weighted funding requires a mark price for every settlement point");
+export function calculateMarkWeightedFunding(direction: 1 | -1, entryNotional: number, entryFillPrice: number, points: FundingPointWithMark[]): number {
+  if (entryNotional <= 0 || entryFillPrice <= 0 || points.some((point) => !Number.isFinite(point.markPrice))) throw new Error("mark-weighted funding requires a mark price for every settlement point");
   const quantity = entryNotional / entryFillPrice;
   return sum(points.map((point) => -direction * quantity * (point.markPrice as number) * point.fundingRate)) / entryNotional;
 }
@@ -1387,20 +1697,21 @@ export function calculateFourLegNetReturn(grossReturns: number[], fundingReturns
   return mean(grossReturns.map((gross, index) => gross + fundingReturns[index] - costs));
 }
 
-export function allocateOverlappingSleeves(intervals: Array<{ entryTime: number; exitTime: number }>, startingCapital = CAPITAL): { peakConcurrentSleeves: number; grossExposurePerSleeve: number; peakGrossExposure: number; hardLimitRespected: boolean } {
+export function allocateOverlappingSleeves(intervals: Array<{ entryTime: number; exitTime: number }>, startingCapital = CAPITAL, theoreticalMaxConcurrentSleeves?: number): { peakConcurrentSleeves: number; theoreticalMaxConcurrentSleeves: number; grossExposurePerSleeve: number; peakGrossExposure: number; peakGrossLeverage: number; hardLimitRespected: boolean; sizingUsesFutureRealizedConcurrency: false } {
   const times = [...new Set(intervals.flatMap((interval) => [interval.entryTime, interval.exitTime]))];
   const peakConcurrentSleeves = Math.max(1, ...times.map((time) => intervals.filter((interval) => interval.entryTime <= time && interval.exitTime >= time).length));
-  const grossExposurePerSleeve = startingCapital * TARGET_GROSS_LEVERAGE / peakConcurrentSleeves;
+  const theoretical = Math.max(1, theoreticalMaxConcurrentSleeves ?? peakConcurrentSleeves);
+  const grossExposurePerSleeve = startingCapital * TARGET_GROSS_LEVERAGE / theoretical;
   const peakGrossExposure = grossExposurePerSleeve * peakConcurrentSleeves;
-  return { peakConcurrentSleeves, grossExposurePerSleeve, peakGrossExposure, hardLimitRespected: peakGrossExposure / startingCapital <= HARD_GROSS_LEVERAGE };
+  return { peakConcurrentSleeves, theoreticalMaxConcurrentSleeves: theoretical, grossExposurePerSleeve, peakGrossExposure, peakGrossLeverage: peakGrossExposure / Math.max(1, startingCapital), hardLimitRespected: peakGrossExposure / startingCapital <= HARD_GROSS_LEVERAGE, sizingUsesFutureRealizedConcurrency: false };
 }
 
 export function resolveConservativeDelisting(direction: 1 | -1): { priceReturn: number; mode: "CONSERVATIVE_DELISTING"; direction: 1 | -1 } {
   return { priceReturn: -1, mode: "CONSERVATIVE_DELISTING", direction };
 }
 
-export function selectNextExecutionOpen(candles: Array<{ openTime: number; open: number }>, signalCloseTime: number): { openTime: number; open: number } | null {
-  return candles.find((candle) => candle.openTime === signalCloseTime + 1) ?? null;
+export function selectNextExecutionOpen<T extends { openTime: number; open: number }>(candles: T[], targetTime: number, maximumDelayMs = FIFTEEN_MINUTES): T | null {
+  return candles.filter((candle) => candle.openTime >= targetTime && candle.openTime <= targetTime + maximumDelayMs).sort((left, right) => left.openTime - right.openTime)[0] ?? null;
 }
 
 function emptyDecisionDiagnostics(): DecisionBuildDiagnostics { return { proposedSignals: 0, liquidityRejectedSignals: 0, liquidityRejectedCandidates: 0, medianADV30: 0, minimumExecutedADV30: 0, maxParticipationRate: 0 }; }

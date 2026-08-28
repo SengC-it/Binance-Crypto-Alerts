@@ -1,0 +1,242 @@
+{
+  "schema": "v14-final-integrity-freeze-manifest-v1",
+  "status": "FROZEN_BEFORE_CORRECTED_RETURN_READ",
+  "generatedAt": "2026-08-28T06:31:54.308Z",
+  "baseline": "1f6b5e24c6e9cb5672e4c6591b303dd4e5d01487",
+  "rules": {
+    "universe": "All historical USDT-M symbols enumerated from the official archive; PIT eligibility uses only bars with closeTime <= rebalance timestamp.",
+    "pitEligibility": {
+      "firstObservedAtOrBeforeT": true,
+      "tradingAgeDays": 90,
+      "completeFormationHistory": true,
+      "recentBarFreshnessDays": 2,
+      "trailingQuoteVolumeDays": 30,
+      "checksum": "PASS",
+      "futureLifecycleFilter": false,
+      "currentSurvivorOnlyUniverse": false
+    },
+    "formationWindowsWeeks": [
+      6,
+      8,
+      10,
+      12
+    ],
+    "formationReturnField": "candidate.formationReturns[config.formationWeeks]",
+    "volatilityField": "candidate.volatilityByFormationWeeks[config.formationWeeks]",
+    "diagnosticBreadth": [
+      "QUINTILE",
+      "DECILE"
+    ],
+    "actionablePortfolio": "Extreme 2L+2S or 3L+3S by formation rank; breadth label is diagnostic only.",
+    "actionableRegistry": {
+      "configurations": [
+        {
+          "id": "A1-8W-Q-2L-2W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 2
+        },
+        {
+          "id": "A2-8W-D-3L-4W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 4
+        },
+        {
+          "id": "A3-10W-Q-2L-4W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 4
+        },
+        {
+          "id": "A4-10W-D-3L-8W",
+          "family": "FAMILY_A_PURE_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 8
+        },
+        {
+          "id": "B1-8W-HV-Q-2L-2W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 2,
+          "volState": "HIGH"
+        },
+        {
+          "id": "B2-10W-HV-Q-2L-4W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 4,
+          "volState": "HIGH"
+        },
+        {
+          "id": "B3-12W-HV-D-3L-8W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 12,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 8,
+          "volState": "HIGH"
+        },
+        {
+          "id": "B4-8W-HV-D-3L-4W",
+          "family": "FAMILY_B_HIGH_VOL_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 4,
+          "volState": "HIGH"
+        },
+        {
+          "id": "C1-8W-DISP-Q-2L-2W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 2,
+          "dispersionState": "HIGH"
+        },
+        {
+          "id": "C2-10W-DISP-Q-2L-4W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 10,
+          "breadth": "QUINTILE",
+          "legs": 2,
+          "holdingWeeks": 4,
+          "dispersionState": "HIGH"
+        },
+        {
+          "id": "C3-12W-DISP-D-3L-8W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 12,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 8,
+          "dispersionState": "HIGH"
+        },
+        {
+          "id": "C4-8W-DISP-D-3L-4W",
+          "family": "FAMILY_C_DISPERSION_REVERSAL",
+          "formationWeeks": 8,
+          "breadth": "DECILE",
+          "legs": 3,
+          "holdingWeeks": 4,
+          "dispersionState": "HIGH"
+        }
+      ],
+      "duplicateActionKeysRemoved": 0,
+      "uniqueActionKeys": 12
+    },
+    "holdingWeeks": [
+      2,
+      4,
+      8
+    ],
+    "delaysMinutes": [
+      15,
+      30,
+      120,
+      360,
+      1440
+    ],
+    "stressBps": [
+      0,
+      5,
+      10,
+      20
+    ],
+    "families": [
+      "FAMILY_A_PURE_REVERSAL",
+      "FAMILY_B_HIGH_VOL_REVERSAL",
+      "FAMILY_C_DISPERSION_REVERSAL"
+    ],
+    "liquidityCapacity": {
+      "referenceCapital": 10000,
+      "targetGrossLeverage": 2,
+      "hardGrossLeverage": 3,
+      "maxParticipationRate": 0.0001,
+      "formula": "reference leg notional / trailing ADV30 <= 0.0001"
+    },
+    "execution": "Signal is formed from closed daily bars; each leg uses the exact target Binance USDⓈ-M 15m open or the first official open within target + 15 minutes at the manual delay. Later candles are not execution substitutes.",
+    "executionGapPolicy": {
+      "maximumForwardToleranceMinutes": 15,
+      "entryBeyondTolerance": "SIGNAL_NOT_EXECUTABLE",
+      "exitBeyondTolerance": "DATA_GAP unless terminal/delisting"
+    },
+    "costModel": {
+      "feeBpsPerSide": 4,
+      "baseSlippageBpsPerSide": 2,
+      "stressBpsPerSide": [
+        0,
+        5,
+        10,
+        20
+      ],
+      "capital": 10000,
+      "leveragePreferred": 2,
+      "leverageHardLimit": 3,
+      "liquidityParticipationLimit": 0.0001,
+      "execution": "Signal is formed from closed daily bars; each leg uses the exact target Binance USDⓈ-M 15m open or the first official open within target + 15 minutes at the manual delay. Later candles are not execution substitutes.",
+      "funding": "Funding archive schema is calc_time, funding_interval_hours, last_funding_rate; fundingRate is last_funding_rate and never a mark price. Settlement marks come only from official 1m markPriceKlines at exact fundingTime or the nearest official candle within ±1 minute. Missing marks are FUNDING_DATA_UNAVAILABLE and never a -100% funding penalty.",
+      "terminal": "A position with no executable planned exit is retained under CONSERVATIVE_DELISTING: unresolved long and short legs each receive -100% leg-notional price return; ACTUAL_AVAILABLE drops only that unresolved diagnostic result.",
+      "capitalAllocation": "Ex-ante sizing uses the frozen config holdingWeeks as theoretical maximum weekly-schedule concurrency; realized future peak concurrency never determines historical sleeve notional. Each sleeve receives startingCapital × targetGrossLeverage / theoreticalMaxConcurrentSleeves, with target gross leverage 2x and hard gross leverage 3x.",
+      "drawdown": "REALIZED_EQUITY_DD: equity is updated only on realized ledger exit events; no mark-to-market drawdown is claimed.",
+      "executionGap": "Entry and exit use the exact target 15m open or the first official 15m open within target + 15 minutes. Later candles are DATA_GAP/NOT_EXECUTABLE and are never selected."
+    },
+    "fundingCalculation": "Funding archive schema is calc_time, funding_interval_hours, last_funding_rate; fundingRate is last_funding_rate and never a mark price. Settlement marks come only from official 1m markPriceKlines at exact fundingTime or the nearest official candle within ±1 minute. Missing marks are FUNDING_DATA_UNAVAILABLE and never a -100% funding penalty.",
+    "fundingArchiveSchema": [
+      "calc_time",
+      "funding_interval_hours",
+      "last_funding_rate"
+    ],
+    "markPriceSource": "Binance Data Vision official futures/um/monthly/markPriceKlines/{symbol}/1m; mark open at fundingTime, nearest official ±1 minute only as recorded fallback",
+    "unavailableFundingClassification": "FUNDING_DATA_UNAVAILABLE; never CONSERVATIVE_DELISTING and never fundingR=-1",
+    "terminalExecution": "A position with no executable planned exit is retained under CONSERVATIVE_DELISTING: unresolved long and short legs each receive -100% leg-notional price return; ACTUAL_AVAILABLE drops only that unresolved diagnostic result.",
+    "capitalAllocation": "Ex-ante sizing uses the frozen config holdingWeeks as theoretical maximum weekly-schedule concurrency; realized future peak concurrency never determines historical sleeve notional. Each sleeve receives startingCapital × targetGrossLeverage / theoreticalMaxConcurrentSleeves, with target gross leverage 2x and hard gross leverage 3x.",
+    "delistingModes": [
+      "ACTUAL_AVAILABLE",
+      "CONSERVATIVE_DELISTING"
+    ],
+    "placeboSeed": 140000,
+    "nestedOosWindows": [
+      [
+        "2021-07-01T00:00:00.000Z",
+        "2021-12-31T23:59:59.999Z"
+      ],
+      [
+        "2022-01-01T00:00:00.000Z",
+        "2022-12-31T23:59:59.999Z"
+      ],
+      [
+        "2023-01-01T00:00:00.000Z",
+        "2023-12-31T23:59:59.999Z"
+      ]
+    ],
+    "confirmationWindows": {
+      "A": [
+        "2024-01-01T00:00:00.000Z",
+        "2024-12-31T23:59:59.999Z"
+      ],
+      "B": [
+        "2025-01-01T00:00:00.000Z",
+        "2026-07-31T23:59:59.999Z"
+      ]
+    },
+    "priorWindowsContaminatedForPromotion": true,
+    "combinedPromotionScore": "Nested development and Confirmation A/B are never combined into a single promotion score; historical correctness pass still requires external confirmation.",
+    "frozenBeforeReturnRead": true
+  },
+  "rulesSha256": "efa3729c2141176821537dc6beb72ad6f82420bae736c72dd5545b10508c7151",
+  "manifestSha256": "ca00f5ca088527e49f3fa6c9e13e6ed38a72b3c6fd290eb7ffdfa8f23f35f489"
+}
