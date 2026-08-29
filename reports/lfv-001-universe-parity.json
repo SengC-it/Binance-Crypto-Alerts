@@ -1,6 +1,6 @@
 {
   "schema": "bca-lfv-001-universe-parity-v2",
-  "generatedAt": "2026-08-29T13:09:58.465Z",
+  "generatedAt": "2026-08-29T13:14:18.350Z",
   "status": "FAIL",
   "code": "LFV_UNIVERSE_PARITY_INSUFFICIENT",
   "reason": "Frozen live signal archive coverage is below 95% (1/44).",

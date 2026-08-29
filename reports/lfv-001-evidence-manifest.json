@@ -1,6 +1,6 @@
 {
   "schema": "bca-lfv-001-evidence-manifest-v3",
-  "generatedAt": "2026-08-29T13:09:58.732Z",
+  "generatedAt": "2026-08-29T13:14:18.425Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "rawHistoricalDataCommitted": false,
   "returnsRead": false,
@@ -32,8 +32,8 @@
     },
     {
       "path": "reports/lfv-001-replay-freeze-v4.json",
-      "bytes": 13971,
-      "sha256": "9ae3ecd6b2b124e7eaca9a15bb45ad67c1c841cb745e744c4ca2f73eca45720c"
+      "bytes": 14276,
+      "sha256": "a8162da24ef5b0a860c902235d76acb57495d7a515040198f409c708a28ba2b7"
     },
     {
       "path": "reports/lfv-001-observed-universe-evidence-v1.json",
@@ -48,37 +48,37 @@
     {
       "path": "reports/lfv-001-universe-parity.json",
       "bytes": 23753,
-      "sha256": "a6a84577b5694994553124caf155a290295e2f54098e79add322124dcd47dbf2"
+      "sha256": "4e99027efb6fee6223b5525e61ae8c0897255052fadbcbcb535c2f1c5d7023aa"
     },
     {
       "path": "reports/lfv-001-live-parity.json",
-      "bytes": 5345,
-      "sha256": "509363eae11f748c3a5a4fa069bdb61d684e31bec418a6b3d92f4f746329d3b2"
+      "bytes": 5650,
+      "sha256": "c5c2ad4069d00cd908369880e7da6e3f3d7c7f361c2fb4b8253cfa36d3bfcb6b"
     },
     {
       "path": "reports/lfv-001-replay-parity.json",
       "bytes": 886,
-      "sha256": "08f5cef44f19bd0532f884e03df470bff397782ba2063e9d74c05f624177df01"
+      "sha256": "765e84e36026366410b433f0eeacfe957accefe8e7c3888c30688e8e9f481d63"
     },
     {
       "path": "reports/lfv-001-factor-results.json",
       "bytes": 1360,
-      "sha256": "12d5a5a9e986127d97e950faf6cc4258a31e13bc08e65e61497421139badfd59"
+      "sha256": "7c2ba078af01dd6d9d699860ea6b47fff161be860a2ca3278356006707bef2d6"
     },
     {
       "path": "reports/lfv-001-combined-results.json",
       "bytes": 877,
-      "sha256": "e403f88ce260c8b5f33b68840af081103811da070016f9c952e4043275406f69"
+      "sha256": "3a9ac7e3985d39f1f3fef76f2d3e2ce4a5fbec71b0ac35793090b3f6af817cd5"
     },
     {
       "path": "reports/lfv-001-holdouts.json",
       "bytes": 757,
-      "sha256": "487da7874b1b76ff77573e4795033f495d96918f39286b33ee9789fae2c9ee4c"
+      "sha256": "44bb9fcb9f12af0cc953a827b4851cae861fd8f92fb1b802d55d00955c79bfe4"
     },
     {
       "path": "reports/lfv-001-decision.json",
-      "bytes": 13229,
-      "sha256": "317fd878471b6713c451c7fcecf86c20b7e9fa37f064519444186c4403c3b3cc"
+      "bytes": 13847,
+      "sha256": "256824c16fb08710596a8d59ffa2ae5862e2d1d73657ac6c997f950dced319d6"
     },
     {
       "path": "reports/lfv-001-decision.md",

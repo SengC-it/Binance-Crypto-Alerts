@@ -148,7 +148,7 @@
       "stopAtrMultiplier": 0.5,
       "rewardRisk": 2,
       "riskPerTradeUsdt": 50,
-      "maxPositionNotionalUsdt": 2000,
+      "maxPositionNotionalUsdt": null,
       "cooldownHours": 8,
       "entryIntervalHours": 1,
       "maxExecutionCostRiskFraction": 0.1,
@@ -188,8 +188,11 @@
         "provenance": "PROVEN_BY_REPOSITORY"
       },
       "maxPositionNotionalUsdt": {
-        "value": 2000,
-        "provenance": "PROVEN_BY_REPOSITORY"
+        "value": null,
+        "provenance": "UNRESOLVED",
+        "repositoryValue": 2000,
+        "fallbackValue": 10000,
+        "reason": "29edac8 .env.example documents 2000, while lib/config.ts fallback is 10000; effective Production environment is not captured."
       },
       "cooldownHours": {
         "value": 8,
@@ -222,6 +225,7 @@
     },
     "unresolvedFields": [
       "effective Production side filter / environment override",
+      "effective max position notional (repository example 2000 versus lib/config.ts fallback 10000)",
       "historical instrument filters used for quantity and price rounding",
       "Vercel deployment metadata retained outside the Git repository"
     ]
@@ -334,8 +338,8 @@
     },
     {
       "path": "lib/lfv/provenance.ts",
-      "bytes": 4340,
-      "sha256": "a845a37ccf7888759861efb8579c912ce0b781e567d7d18c7a0d8a94b39ef4b0"
+      "bytes": 4648,
+      "sha256": "135b70c6dc0cbda9d30edc66f6117f7fb52b544d43f102a3ff058ae1d57353e4"
     },
     {
       "path": "lib/lfv/observed-parity.ts",
@@ -379,8 +383,8 @@
     },
     {
       "path": "tests/lfv-001-replay.test.ts",
-      "bytes": 11407,
-      "sha256": "76814a24d7c5b783940741a96b5357e07779a5f71ce524df12814726b8f5d90a"
+      "bytes": 11508,
+      "sha256": "328dfc7c0ad3c48e1d95c9bb04d6492cb9df6c02e79d30143987364a72636a19"
     }
   ],
   "productionBoundary": {
@@ -394,6 +398,6 @@
     "autoTrading": false,
     "liveSignalEmail": false
   },
-  "generatedAt": "2026-08-29T13:04:13.277Z",
-  "freezeSha256": "bc6b7d8273704b9d404a0fcece87fd216063ed55c6829ce5d8c55c3dcaaa788b"
+  "generatedAt": "2026-08-29T13:14:08.946Z",
+  "freezeSha256": "28d6b4c640be88099af1d9570f5dd790b3875315c45e5508d46d09ea8723801c"
 }

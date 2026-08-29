@@ -7,7 +7,7 @@
   "metrics": null,
   "returnsRead": false,
   "note": "No strategy returns were read after the mandatory data, universe, or provenance gate stopped the run; no missing value was imputed.",
-  "freezeSha256": "bc6b7d8273704b9d404a0fcece87fd216063ed55c6829ce5d8c55c3dcaaa788b",
+  "freezeSha256": "28d6b4c640be88099af1d9570f5dd790b3875315c45e5508d46d09ea8723801c",
   "definition": [
     "SESSION_18_23_SGT_BLOCK",
     "HIGH_VOL_Q4_BLOCK",

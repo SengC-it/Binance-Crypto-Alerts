@@ -249,6 +249,7 @@ describe("LFV-001 Production replay", () => {
     expect(LFV_V4_PROVENANCE.fieldProvenance.minimumScore.provenance).toBe("PROVEN_BY_REPOSITORY");
     expect(LFV_V4_PROVENANCE.fieldProvenance.stopAtrMultiplier.provenance).toBe("PROVEN_BY_REPOSITORY");
     expect(LFV_V4_PROVENANCE.fieldProvenance.sideFilter.provenance).toBe("UNRESOLVED");
+    expect(LFV_V4_PROVENANCE.fieldProvenance.maxPositionNotionalUsdt.provenance).toBe("UNRESOLVED");
   });
 
   it("uses the shared Production core and matches the legacy admission calculation", () => {
