@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/lfv-001-loss-factor-validation]
   pull_request:
 
 jobs:
