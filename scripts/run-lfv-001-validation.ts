@@ -28,7 +28,6 @@ const REQUIRED_REPORTS = [
   "lfv-001-freeze-manifest.json",
   "lfv-001-data-freeze-v2.json",
   "lfv-001-archive-registry.json",
-  "lfv-001-pit-universe.json",
   "lfv-001-data-gate.json",
   REPLAY_FREEZE_NAME,
   "lfv-001-observed-universe-evidence-v1.json",
@@ -99,6 +98,9 @@ async function readFrozenDataGate(dataFreeze: JsonObject): Promise<DataGateV2> {
   }
   if (gate.archiveEnumeration.registrySha256 !== dataFreeze.archiveRegistryHash) {
     throw new Error("LFV data gate/archive registry provenance mismatch");
+  }
+  if (!gate.pit || gate.pit.futureLifecycleFilter !== "NO" || gate.pit.currentSurvivorOnlyFilter !== "NO") {
+    throw new Error("LFV data gate PIT lifecycle boundary is inconsistent");
   }
   if (gate.liveObservations.count !== 44 || gate.liveObservations.treatment !== "EXCLUDED_FROM_RETURNS") {
     throw new Error("LFV live-observation boundary changed");

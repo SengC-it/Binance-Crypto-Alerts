@@ -9,7 +9,6 @@ const REQUIRED_REPORTS = [
   "lfv-001-freeze-manifest.json",
   "lfv-001-data-freeze-v2.json",
   "lfv-001-archive-registry.json",
-  "lfv-001-pit-universe.json",
   "lfv-001-data-gate.json",
   "lfv-001-replay-freeze-v3.json",
   "lfv-001-observed-universe-evidence-v1.json",
@@ -104,14 +103,11 @@ async function main(): Promise<void> {
   assertCondition(symbols.length === (registry.historicalSymbols as string[]).length && symbols.length > 0, "archive registry symbols missing");
   for (const symbol of symbols) assertCondition(["DISCOVERY_ONLY_NOT_DOWNLOADED", "USED_ARCHIVES_VERIFIED", "FAILED"].includes(String(symbol.checksumStatus)), `archive checksum status missing for ${String(symbol.symbol)}`);
 
-  const pit = parse("lfv-001-pit-universe.json");
-  assertCondition(pit.schema === "bca-lfv-001-pit-universe-v2" && pit.baseline === LFV_BASELINE_SHA, "PIT snapshot schema/baseline mismatch");
-  assertCondition(pit.registrySha256 === registrySha256 && pit.noFutureLifecycle === true, "PIT provenance/future lifecycle boundary failed");
-
   const dataGate = parse("lfv-001-data-gate.json");
   assertCondition(dataGate.schema === "bca-lfv-001-data-gate-v2" && dataGate.baseline === LFV_BASELINE_SHA, "data gate schema/baseline mismatch");
   assertCondition(typeof dataGate.pass === "boolean" && dataGate.status === (dataGate.pass ? "PASS" : "FAIL"), "data gate status is inconsistent");
   assertCondition(dataGate.archiveEnumeration && (dataGate.archiveEnumeration as Record<string, unknown>).registrySha256 === registrySha256, "data gate registry provenance mismatch");
+  assertCondition(dataGate.pit && (dataGate.pit as Record<string, unknown>).futureLifecycleFilter === "NO" && (dataGate.pit as Record<string, unknown>).currentSurvivorOnlyFilter === "NO", "data gate PIT lifecycle boundary failed");
   assertCondition((dataGate.liveObservations as Record<string, unknown>).count === 44 && (dataGate.liveObservations as Record<string, unknown>).treatment === "EXCLUDED_FROM_RETURNS", "August live observations entered returns boundary");
 
   const universe = parse("lfv-001-universe-parity.json");

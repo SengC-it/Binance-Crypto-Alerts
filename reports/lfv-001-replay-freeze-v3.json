@@ -212,8 +212,8 @@
     },
     {
       "path": "scripts/run-lfv-001-validation.ts",
-      "bytes": 19351,
-      "sha256": "2aa3c1b74cfdca0116914f3cc129067da54f21104ab45d2c566cbdeda2331686"
+      "bytes": 19510,
+      "sha256": "f80b4ad91e1b5053c20b1468fbf0c5c3f6cdefb33ce2513cf9c073e2320b9961"
     },
     {
       "path": "scripts/run-lfv-001-universe-parity.ts",
@@ -222,8 +222,8 @@
     },
     {
       "path": "scripts/validate-lfv-001-artifact.ts",
-      "bytes": 12924,
-      "sha256": "b44b1e1946d7a7f7266f5e8a5f96598422f1606010a95f6293134418919e048d"
+      "bytes": 12788,
+      "sha256": "6fb0ac63e9bed76c8453de588807b651cf1dd0b51cc8bc3019841dc5bc121a8c"
     },
     {
       "path": "tests/lfv-001-replay.test.ts",
@@ -243,6 +243,6 @@
     "autoTrading": false,
     "liveSignalEmail": false
   },
-  "generatedAt": "2026-08-29T10:30:08.167Z",
-  "freezeSha256": "d9becb586abe55d3f35bc17d13d11e47d24dccb20f6a666058af9e82b9245392"
+  "generatedAt": "2026-08-29T10:39:39.223Z",
+  "freezeSha256": "a919f542b1eae5e8c5dc9d94f751540f4535ad4f818efe6af28495eb6f388406"
 }

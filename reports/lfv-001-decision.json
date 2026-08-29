@@ -1,11 +1,11 @@
 {
   "schema": "bca-lfv-001-decision-v3",
-  "generatedAt": "2026-08-29T10:30:19.865Z",
+  "generatedAt": "2026-08-29T10:39:52.690Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "originalFreezeCommit": "d68737cbd27c38e8fb09812ab225cfaaec56f037",
   "originalFreezeSHA256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
   "dataFreezeSha256": "0eaf68c7839bda0751b7c40f7d83db7470d508e2e14f300e032b5612003c7d8f",
-  "replayFreezeSha256": "d9becb586abe55d3f35bc17d13d11e47d24dccb20f6a666058af9e82b9245392",
+  "replayFreezeSha256": "a919f542b1eae5e8c5dc9d94f751540f4535ad4f818efe6af28495eb6f388406",
   "dataGate": "PASS",
   "dataGateCode": null,
   "universeParity": {
@@ -86,7 +86,7 @@
   },
   "liveParity": {
     "schema": "bca-lfv-001-live-parity-v2",
-    "generatedAt": "2026-08-29T10:30:19.861Z",
+    "generatedAt": "2026-08-29T10:39:52.687Z",
     "status": "NOT_RUN",
     "code": "LFV_REPLAY_PARITY_FAIL",
     "returnsRead": false,

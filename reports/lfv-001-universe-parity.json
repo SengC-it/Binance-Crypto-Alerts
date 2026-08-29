@@ -1,6 +1,6 @@
 {
   "schema": "bca-lfv-001-universe-parity-v2",
-  "generatedAt": "2026-08-29T10:30:19.825Z",
+  "generatedAt": "2026-08-29T10:39:52.655Z",
   "status": "FAIL",
   "code": "LFV_UNIVERSE_PARITY_FAIL",
   "reason": "Signal-symbol inclusion recall is below 98%.",

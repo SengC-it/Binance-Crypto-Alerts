@@ -1,6 +1,6 @@
 {
   "schema": "bca-lfv-001-evidence-manifest-v3",
-  "generatedAt": "2026-08-29T10:30:19.941Z",
+  "generatedAt": "2026-08-29T10:39:52.727Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "rawHistoricalDataCommitted": false,
   "returnsRead": false,
@@ -21,11 +21,6 @@
       "sha256": "ffa30a75266c6ced7c7af840787be4883ac9c0f7ae692ec9f9dd1578a2f8ee19"
     },
     {
-      "path": "reports/lfv-001-pit-universe.json",
-      "bytes": 4657143,
-      "sha256": "b20be09730f000001ab478ba5caeb343bea11e8a72ea5477f075ba5a5c55ca3c"
-    },
-    {
       "path": "reports/lfv-001-data-gate.json",
       "bytes": 51326,
       "sha256": "1bd636b0ff3e1601872a60cebff4a64fc6ebf898820a31c11797aa79e8139a4d"
@@ -33,7 +28,7 @@
     {
       "path": "reports/lfv-001-replay-freeze-v3.json",
       "bytes": 9317,
-      "sha256": "e193cb75e1cd77f2e407692e19932d7d239324e0d5668c19922c679c75b0faef"
+      "sha256": "720135f4e6a66ecc551e0a8e022717548ccf9f31b44b32dbeac441c8c968bbf9"
     },
     {
       "path": "reports/lfv-001-observed-universe-evidence-v1.json",
@@ -48,37 +43,37 @@
     {
       "path": "reports/lfv-001-universe-parity.json",
       "bytes": 23629,
-      "sha256": "ccda7ed4aa5d83cea7409e46582467225d645bcfe3ce8bd88fb2cbcc54b37ee6"
+      "sha256": "94e8f38a13eae498e5fb56fc9990a35153a47f55abda0f905206f1a297cd4744"
     },
     {
       "path": "reports/lfv-001-live-parity.json",
       "bytes": 2470,
-      "sha256": "e55acce941e81a43680bb324b27052fce7fa465e2b5f1994e140ad403f6ad3d1"
+      "sha256": "cba89b64d6985d06c734de98238cd0c0acdd90b1eaccf8662a2e8c114cc2b539"
     },
     {
       "path": "reports/lfv-001-replay-parity.json",
       "bytes": 866,
-      "sha256": "d22a250a8265f3578308f4566370b7835e74a0cb9e55c5a06234551e4489907d"
+      "sha256": "1d2110c84868e54da05c2efdaafd6121e7a4c50ef44bd84d19840851c26f13c3"
     },
     {
       "path": "reports/lfv-001-factor-results.json",
       "bytes": 1340,
-      "sha256": "d3128b72f34da0cf6492f4089d6152bb68e0e5090afa9c2af7405611cd2e5993"
+      "sha256": "e3c29fe3174e02f8a3db1032b6ea7180080e5d8e6bc49e2716917ab57cd9653e"
     },
     {
       "path": "reports/lfv-001-combined-results.json",
       "bytes": 857,
-      "sha256": "aaa0234471f028cb7770fc76abe986efe8b84a04ad78b6d6955d2507f11c45d6"
+      "sha256": "2cdbf54f66ba9eb9760b2b658a8bc09f476f958e48db203fb5d7f5dd6e19af99"
     },
     {
       "path": "reports/lfv-001-holdouts.json",
       "bytes": 737,
-      "sha256": "1c8c29ee343e75f40f5da1c4ef225ea3a59b8eae4dd173857dc98f346314e4e0"
+      "sha256": "cc87dd2089228378896663c7d0cc57c75f14a886b9843b0a321c84222fce4234"
     },
     {
       "path": "reports/lfv-001-decision.json",
       "bytes": 7149,
-      "sha256": "952d20abca60339b64a9f11105620787f4c6795308e375636d7bdcd0fe0c03e6"
+      "sha256": "248dddbd97737101e0264ad4dea375a9ab56158e75934a1253692b6b5b0a6803"
     },
     {
       "path": "reports/lfv-001-decision.md",
