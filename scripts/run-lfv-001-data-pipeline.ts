@@ -672,7 +672,7 @@ async function loadUsedFeatureArchives(
 ): Promise<ArchiveChecksumRecord[]> {
   const work = slots.flatMap((slot) => FEATURE_TIMEFRAMES.map((timeframe) => ({ ...slot, timeframe })));
   let completed = 0;
-  const records = await mapLimit(work, 18, async (item) => {
+  const records = await mapLimit(work, 64, async (item) => {
     const availability = availabilityFor(registry, item.symbol);
     if (!listedFor(availability, item.timeframe, item.period)) {
       return { symbol: item.symbol, timeframe: item.timeframe, period: item.period, sourceUrl: archiveUrl(item.symbol, item.timeframe, item.period), cachePath: null, status: "MISSING", bytes: 0, rowCount: 0, sha256: null, expectedSha256: null, checksumStatus: "NOT_CHECKED", error: "NOT_LISTED_IN_OFFICIAL_ARCHIVE_INDEX" } satisfies ArchiveChecksumRecord;
@@ -718,8 +718,9 @@ function buildDataGateV2(
   const universeSizes = snapshots.map((snapshot) => snapshot.effectiveUniverseSize);
   const validRatio = snapshots.length === 0 ? 0 : validSnapshots.length / snapshots.length;
   const featureCoverage = buildFeatureCoverage(featureRecords, slots);
-  const usedArchiveSlots = featureRecords.length + daily.records.length;
-  const passSlots = [...daily.records, ...featureRecords].filter((record) => record.status === "AVAILABLE" && record.checksumStatus === "PASS").length;
+  const usedRecords = [...daily.records, ...featureRecords].filter((record) => record.status === "AVAILABLE");
+  const usedArchiveSlots = usedRecords.length;
+  const passSlots = usedRecords.filter((record) => record.checksumStatus === "PASS").length;
   const checksumPassRatio = usedArchiveSlots === 0 ? 0 : passSlots / usedArchiveSlots;
   const reasons: string[] = [];
   if (registry.enumeration.pagination !== "COMPLETE") reasons.push("official_archive_enumeration_incomplete");
