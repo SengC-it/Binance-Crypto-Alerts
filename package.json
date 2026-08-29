@@ -17,6 +17,7 @@
     "backtest": "tsx scripts/run-backtest.ts",
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
     "validate:lfv-001:freeze": "tsx scripts/run-lfv-001-validation.ts --freeze",
+    "validate:lfv-001:freeze-v2": "tsx scripts/run-lfv-001-validation.ts --freeze-v2",
     "validate:lfv-001:full": "tsx scripts/run-lfv-001-validation.ts --full",
     "validate:lfv-001:artifact": "tsx scripts/validate-lfv-001-artifact.ts"
   },

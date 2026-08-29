@@ -1,0 +1,134 @@
+{
+  "schema": "bca-lfv-001-data-freeze-v2",
+  "status": "FROZEN_BEFORE_RETURN_READ",
+  "originalFreezeCommit": "d68737cbd27c38e8fb09812ab225cfaaec56f037",
+  "originalFreezeSHA256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
+  "hypotheses": {
+    "H1": {
+      "id": "SESSION_18_23_SGT_BLOCK",
+      "placebos": [
+        "00-05 SGT",
+        "06-11 SGT",
+        "12-17 SGT"
+      ]
+    },
+    "H2": {
+      "id": "HIGH_VOL_Q4_BLOCK",
+      "percentile": "trailing PIT 90-day Q4",
+      "placebos": [
+        "LOW_VOL_Q1_BLOCK",
+        "matched random 25% removal"
+      ]
+    },
+    "H3": {
+      "id": "DELAY_30M",
+      "primaryMinutes": 30,
+      "diagnosticsMinutes": [
+        15,
+        60
+      ],
+      "execution": "first complete real Binance 15m open at or after signal+delay; pre-entry stop/TP expires signal"
+    },
+    "H4": {
+      "id": "STOP_COOLDOWN_12H",
+      "primaryHours": 12,
+      "diagnosticsHours": [
+        6,
+        24
+      ],
+      "trigger": "STOP_LOSS or realized R <= -0.75; sequential PIT-safe same-symbol block"
+    },
+    "combined": [
+      "SESSION_18_23_SGT_BLOCK",
+      "HIGH_VOL_Q4_BLOCK",
+      "DELAY_30M",
+      "STOP_COOLDOWN_12H"
+    ]
+  },
+  "hypothesisHashes": {
+    "H1": "2e7fa57d090241e96769546423af5ffa8b03f89b93e1f5efe2ae1143f815264a",
+    "H2": "6ac6ff3f84c50896e8eb9842ea2933acae99edd115da44b98bb6c1a89c3dd44f",
+    "H3": "3e4087ab17bfccdb9d82bcd4eb5447a98667296196b69ed301cd08788aca507c",
+    "H4": "11ecd90f4c9dee73cd1cd7081201b12a8e1ee8a44f6518236fbe5cf3aac7f091"
+  },
+  "combinedDefinition": [
+    "SESSION_18_23_SGT_BLOCK",
+    "HIGH_VOL_Q4_BLOCK",
+    "DELAY_30M",
+    "STOP_COOLDOWN_12H"
+  ],
+  "combinedDefinitionHash": "5e6cc5e3a2b75a27aec37a448f962f54d418f6490f7e1ab34eaae5e105cc49d1",
+  "gateDefinition": {
+    "nested": [
+      "trades>=150",
+      "NetR>0",
+      "AvgR>=0.08",
+      "PF>=1.25",
+      "MaxDD<=8R",
+      "positiveFoldRatio>=0.67",
+      "medianFoldNetR>0",
+      "+5bps NetR>0",
+      "+10bps not catastrophic",
+      "30m NetR>0",
+      "30m PF>=1.20"
+    ],
+    "holdouts": [
+      "A trades>=40",
+      "A NetR>0",
+      "A PF>=1.20",
+      "A DD<=6R",
+      "B trades>=25",
+      "B NetR>0",
+      "B PF>=1.20",
+      "B DD<=6R"
+    ],
+    "confidence": "AvgR 95% bootstrap LCB > 0",
+    "emailUtility": [
+      "average>=2 actionable emails/month",
+      "activeMonthRatio>=75%",
+      "medianMonth>=2",
+      "maxDrought<=30d"
+    ],
+    "officialEnumeration": "COMPLETE",
+    "pitReconstructableRatio": ">=0.98",
+    "featureCoverage": "15m/1h/4h>=0.98",
+    "fundingCoverage": "fundingRate/markPriceKlines>=0.99",
+    "earlyBreadth": "top min(100,N) is valid when N<100; no fixed 100-symbol monthly minimum",
+    "liveAugust": "EXCLUDED_FROM_RETURNS"
+  },
+  "gateDefinitionHash": "1a237e27663167bae27d7e1b650886fafba29f41db4b00e87a1b75fd6ccc5248",
+  "dataPipelineDefinition": {
+    "source": "Binance Data Vision official public USDⓈ-M perpetual S3 archives",
+    "stages": [
+      "Stage A: complete paginated symbol/timeframe archive-index enumeration and immutable archive registry",
+      "Stage B: only PIT top min(100,N) symbol-month slots are loaded for 15m, 1h, 4h, fundingRate, and 1m markPriceKlines"
+    ],
+    "targetRange": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2026-07-31T23:59:59.999Z"
+    },
+    "noApproximation": true,
+    "noForwardFill": true,
+    "noSyntheticOhlc": true,
+    "checksum": "Every used ZIP must match its official .CHECKSUM object; existing bytes are rehashed before use.",
+    "rawDataCommitPolicy": "Raw history remains outside Git; only registry, hashes, and summarized evidence are committed."
+  },
+  "dataPipelineDefinitionHash": "410b644dc310deb1c74a16193de936ae21ae5e03d4931ade99929ff7df2e5c2c",
+  "archiveRegistryHash": "2f2040ea02338e7177862190627ae5277a769b37241a4151bff1afe6a0ace0ad",
+  "pitUniverseRule": {
+    "source": "Historical 1d archive bars only",
+    "eligible": [
+      "latest closed daily bar at or before T",
+      "minimum age 90 days from first observed bar",
+      "at least 28 non-zero-quote-volume bars in the previous 30 days"
+    ],
+    "ranking": "latest closed bar quoteVolume24h descending; symbol ascending tie-break",
+    "selection": "top min(100, eligible symbol count)",
+    "futureLifecycleFilter": false,
+    "currentSurvivorFilter": false,
+    "timestampFrequency": "daily UTC boundary from 2021-07-01 through 2026-07-31"
+  },
+  "pitUniverseRuleHash": "3656ce0e407b22a7f43c22b09b0ad9ae50cb35e83246c872de7153b4420abdfd",
+  "returnsRead": false,
+  "freezeSha256": "0eaf68c7839bda0751b7c40f7d83db7470d508e2e14f300e032b5612003c7d8f"
+}
