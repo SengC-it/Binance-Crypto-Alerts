@@ -10,6 +10,7 @@ import {
   summarizeUniverseParity,
 } from "@/lib/lfv/universe-replay";
 import { calculateObservedUniverseParity } from "@/lib/lfv/observed-parity";
+import { LFV_V4_PROVENANCE } from "@/lib/lfv/provenance";
 import {
   closed15mSchedule,
   replayProductionSignals,
@@ -191,7 +192,7 @@ describe("LFV-001 PIT universe replay", () => {
     expect(comparison.signalInclusionRecall).toBe(1);
   });
 
-  it("fails closed when live observations cannot be joined to observed scan groups", () => {
+  it("maps frozen live signals by source timestamp and symbol instead of scan group key", () => {
     const timestamp = 96 * interval;
     const result = calculateObservedUniverseParity({
       groups: [{
@@ -201,16 +202,55 @@ describe("LFV-001 PIT universe replay", () => {
         observedRankedSymbols: ["AAAUSDT"],
       }],
       initialResults: [{ symbol: "AAAUSDT", bars: Array.from({ length: 96 }, (_, index) => bar(index * interval, 100)) }],
-      liveRows: [{ symbol: "AAAUSDT", scanGroupKey: "unmatched-group" }],
+      liveRows: [{
+        symbol: "AAAUSDT",
+        scanGroupKey: "unmatched-group",
+        sourceDataTimestamp: new Date(timestamp).toISOString(),
+      }],
     });
 
     expect(result.dataCoverage.matchedSignalRows).toBe(0);
+    expect(result.dataCoverage.signalRowsEvaluated).toBe(1);
+    expect(result.dataCoverage.signalRowsIncluded).toBe(1);
+    expect(result.dataCoverage.signalRowsMissingArchive).toBe(0);
+    expect(result.metrics.signalInclusionRecall).toBe(1);
+    expect(result.metrics.pass).toBe(true);
+  });
+
+  it("counts live rows without a complete PIT archive window as missing coverage", () => {
+    const result = calculateObservedUniverseParity({
+      groups: [{
+        scanGroupKey: "observed-group",
+        scanTimestamp: new Date(96 * interval).toISOString(),
+        selectedForEvaluation: ["AAAUSDT"],
+        observedRankedSymbols: ["AAAUSDT"],
+      }],
+      initialResults: [{ symbol: "AAAUSDT", bars: [bar(0, 100)] }],
+      liveRows: [{
+        symbol: "AAAUSDT",
+        sourceDataTimestamp: new Date(96 * interval).toISOString(),
+      }],
+    });
+
+    expect(result.dataCoverage.signalRowsEvaluated).toBe(0);
+    expect(result.dataCoverage.signalRowsIncluded).toBe(0);
+    expect(result.dataCoverage.signalRowsMissingArchive).toBe(1);
     expect(result.metrics.signalInclusionRecall).toBeNull();
     expect(result.metrics.pass).toBe(false);
   });
 });
 
 describe("LFV-001 Production replay", () => {
+  it("records corrected V4 repository provenance without claiming an effective side filter", () => {
+    expect(LFV_V4_PROVENANCE.status).toBe("V4_REPLAY_PROVENANCE_UNAVAILABLE");
+    expect(LFV_V4_PROVENANCE.repositoryConfig.minimumScore).toBe(70);
+    expect(LFV_V4_PROVENANCE.repositoryConfig.stopAtrMultiplier).toBe(0.5);
+    expect(LFV_V4_PROVENANCE.repositoryConfig.maxPositionNotionalUsdt).toBe(2_000);
+    expect(LFV_V4_PROVENANCE.fieldProvenance.minimumScore.provenance).toBe("PROVEN_BY_REPOSITORY");
+    expect(LFV_V4_PROVENANCE.fieldProvenance.stopAtrMultiplier.provenance).toBe("PROVEN_BY_REPOSITORY");
+    expect(LFV_V4_PROVENANCE.fieldProvenance.sideFilter.provenance).toBe("UNRESOLVED");
+  });
+
   it("uses the shared Production core and matches the legacy admission calculation", () => {
     const input = snapshot();
     const runtimePolicy = policy();

@@ -124,7 +124,9 @@ export function compareUniverseSnapshots(
 
 export function summarizeUniverseParity(
   comparisons: UniverseParityComparison[],
+  options: { requireSignalInclusion?: boolean } = {},
 ): UniverseParityMetrics {
+  const requireSignalInclusion = options.requireSignalInclusion ?? true;
   const overlaps = comparisons.map((item) => item.top100Overlap).filter(Number.isFinite);
   const correlations = comparisons.map((item) => item.rankSpearman).filter((item): item is number => item !== null && Number.isFinite(item));
   const recalls = comparisons.map((item) => item.signalInclusionRecall).filter((item): item is number => item !== null && Number.isFinite(item));
@@ -136,7 +138,9 @@ export function summarizeUniverseParity(
   if (comparisons.length === 0) reasons.push("No observed V5.5 universe snapshots had a complete 96-bar PIT proxy.");
   if (medianTop100Overlap === null || medianTop100Overlap < 0.95) reasons.push("Median Top100 membership overlap is below 95%.");
   if (p10Top100Overlap === null || p10Top100Overlap < 0.90) reasons.push("P10 Top100 membership overlap is below 90%.");
-  if (signalInclusionRecall === null || signalInclusionRecall < 0.98) reasons.push("Signal-symbol inclusion recall is below 98%.");
+  if (requireSignalInclusion && (signalInclusionRecall === null || signalInclusionRecall < 0.98)) {
+    reasons.push("Signal-symbol inclusion recall is below 98%.");
+  }
   return {
     method: ROLLING_15M_24H_VOLUME_PROXY,
     snapshotsCompared: comparisons.length,

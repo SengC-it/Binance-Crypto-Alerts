@@ -1,0 +1,399 @@
+{
+  "schema": "bca-lfv-001-replay-freeze-v4",
+  "status": "FROZEN_BEFORE_RETURN_READ",
+  "originalFreezeCommit": "d68737cbd27c38e8fb09812ab225cfaaec56f037",
+  "originalFreezeSHA256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
+  "dataFreezeV2": {
+    "fileSha256": "c5ce26d1bc78941d040e44bec3f12a9c83e1b242ab9510a5c8e8f2b17054d618",
+    "freezeSha256": "0eaf68c7839bda0751b7c40f7d83db7470d508e2e14f300e032b5612003c7d8f",
+    "archiveRegistryHash": "2f2040ea02338e7177862190627ae5277a769b37241a4151bff1afe6a0ace0ad",
+    "pitUniverseRuleHash": "3656ce0e407b22a7f43c22b09b0ad9ae50cb35e83246c872de7153b4420abdfd",
+    "gateDefinitionHash": "1a237e27663167bae27d7e1b650886fafba29f41db4b00e87a1b75fd6ccc5248",
+    "hypothesisHashes": {
+      "H1": "2e7fa57d090241e96769546423af5ffa8b03f89b93e1f5efe2ae1143f815264a",
+      "H2": "6ac6ff3f84c50896e8eb9842ea2933acae99edd115da44b98bb6c1a89c3dd44f",
+      "H3": "3e4087ab17bfccdb9d82bcd4eb5447a98667296196b69ed301cd08788aca507c",
+      "H4": "11ecd90f4c9dee73cd1cd7081201b12a8e1ee8a44f6518236fbe5cf3aac7f091"
+    },
+    "combinedDefinitionHash": "5e6cc5e3a2b75a27aec37a448f962f54d418f6490f7e1ab34eaae5e105cc49d1",
+    "returnsRead": false
+  },
+  "replayFreezeV3": {
+    "reportSha256": "720135f4e6a66ecc551e0a8e022717548ccf9f31b44b32dbeac441c8c968bbf9",
+    "freezeSha256": "a919f542b1eae5e8c5dc9d94f751540f4535ad4f818efe6af28495eb6f388406",
+    "generatedAt": "2026-08-29T10:39:39.223Z"
+  },
+  "unchangedDefinitions": {
+    "hypotheses": {
+      "H1_SESSION": "SESSION_18_23_SGT_BLOCK",
+      "H2_HIGH_VOLATILITY": "HIGH_VOL_Q4_BLOCK",
+      "H3_ENTRY_DELAY": "DELAY_30M",
+      "H4_COOLDOWN": "STOP_COOLDOWN_12H"
+    },
+    "hypothesisHashes": {
+      "H1": "2e7fa57d090241e96769546423af5ffa8b03f89b93e1f5efe2ae1143f815264a",
+      "H2": "6ac6ff3f84c50896e8eb9842ea2933acae99edd115da44b98bb6c1a89c3dd44f",
+      "H3": "3e4087ab17bfccdb9d82bcd4eb5447a98667296196b69ed301cd08788aca507c",
+      "H4": "11ecd90f4c9dee73cd1cd7081201b12a8e1ee8a44f6518236fbe5cf3aac7f091"
+    },
+    "combinedDefinition": [
+      "SESSION_18_23_SGT_BLOCK",
+      "HIGH_VOL_Q4_BLOCK",
+      "DELAY_30M",
+      "STOP_COOLDOWN_12H"
+    ],
+    "combinedDefinitionHash": "5e6cc5e3a2b75a27aec37a448f962f54d418f6490f7e1ab34eaae5e105cc49d1",
+    "gateDefinitionHash": "1a237e27663167bae27d7e1b650886fafba29f41db4b00e87a1b75fd6ccc5248",
+    "originalGateDefinition": {
+      "nested": [
+        "trades>=150",
+        "NetR>0",
+        "AvgR>=0.08",
+        "PF>=1.25",
+        "MaxDD<=8R",
+        "positiveFoldRatio>=0.67",
+        "medianFoldNetR>0",
+        "+5bps NetR>0",
+        "+10bps not catastrophic",
+        "30m NetR>0",
+        "30m PF>=1.20"
+      ],
+      "holdouts": [
+        "A trades>=40",
+        "A NetR>0",
+        "A PF>=1.20",
+        "A DD<=6R",
+        "B trades>=25",
+        "B NetR>0",
+        "B PF>=1.20",
+        "B DD<=6R"
+      ],
+      "confidence": "AvgR 95% bootstrap LCB > 0",
+      "emailUtility": [
+        "average>=2 actionable emails/month",
+        "activeMonthRatio>=75%",
+        "medianMonth>=2",
+        "maxDrought<=30d"
+      ]
+    }
+  },
+  "universeReplay": {
+    "observedEvidence": {
+      "path": "reports/lfv-001-observed-universe-evidence-v1.json",
+      "bytes": 780743,
+      "sha256": "bdcbe84b37b1cb38796108764acd12c3e8781a5318fde186fb2928e3c002c5ea"
+    },
+    "method": "ROLLING_15M_24H_VOLUME_PROXY",
+    "windowBars": 96,
+    "signalTimestampRule": "for every frozen live row use sourceDataTimestamp; only bars with closeTime < sourceDataTimestamp",
+    "signalMapping": "sourceDataTimestamp + symbol; scan_group_key is retained only as an observed diagnostic and is not the join key",
+    "signalCoverageRule": "a row is evaluated only when the complete frozen observed universe has a valid 96-bar PIT window at that timestamp",
+    "signalInclusionRecall": "signalRowsIncluded / signalRowsEvaluated; signalRowsEvaluated / 44 must be >=0.95 before the >=0.98 recall gate is applied",
+    "selection": "eligible symbols ranked by rolling quote volume descending, symbol ascending; top min(100,N)",
+    "parityGate": {
+      "medianTop100Overlap": ">=0.95",
+      "p10Top100Overlap": ">=0.90",
+      "signalArchiveCoverage": ">=0.95",
+      "signalInclusionRecall": ">=0.98"
+    },
+    "rawCache": {
+      "path": "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m.json",
+      "status": "NOT_AVAILABLE"
+    },
+    "retryCache": {
+      "path": "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json",
+      "status": "NOT_AVAILABLE"
+    }
+  },
+  "v4Provenance": {
+    "strategyVersion": "rules-profit-oriented-v4",
+    "sourceCommit": "29edac8a98f7f9564ed8fdd754854de6a85a20ba",
+    "status": "V4_REPLAY_PROVENANCE_UNAVAILABLE",
+    "deploymentEpochs": [
+      {
+        "environment": "Production",
+        "sourceCommit": "29edac8a98f7f9564ed8fdd754854de6a85a20ba",
+        "deploymentCommit": "2a363040637598e247ca492c050436271d51c475",
+        "lineage": "2a363040 is the direct child of 29edac8; the Git diff contains only .vercelignore.",
+        "vercelMetadata": "NOT_CAPTURED_IN_REPOSITORY"
+      }
+    ],
+    "sourceEvidence": [
+      "29edac8 .env.example documents the V4 repository configuration used for the deployment epoch.",
+      "2a363040 is the successful Production deployment commit supplied for this audit and has no runtime-code diff from 29edac8.",
+      "Immutable live rows prove observed outputs only; they do not prove effective Vercel environment values.",
+      "The live V4 observations include both LONG/BULL and SHORT/BEAR, so a repository SHORT example cannot be treated as an unconditional historical side filter."
+    ],
+    "repositoryConfig": {
+      "minimumScore": 70,
+      "sideFilter": "SHORT",
+      "strategyFamily": "TREND",
+      "requireRegimeAlignment": true,
+      "stopAtrMultiplier": 0.5,
+      "rewardRisk": 2,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 2000,
+      "cooldownHours": 8,
+      "entryIntervalHours": 1,
+      "maxExecutionCostRiskFraction": 0.1,
+      "maxHoldHours": 72,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2
+    },
+    "runtimeConfig": {
+      "minimumScore": 70,
+      "sideFilter": null,
+      "strategyFamily": "TREND",
+      "requireRegimeAlignment": true,
+      "stopAtrMultiplier": 0.5,
+      "rewardRisk": 2,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 2000,
+      "cooldownHours": 8,
+      "entryIntervalHours": 1,
+      "maxExecutionCostRiskFraction": 0.1,
+      "maxHoldHours": 72,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2
+    },
+    "fieldProvenance": {
+      "minimumScore": {
+        "value": 70,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "sideFilter": {
+        "value": null,
+        "provenance": "UNRESOLVED",
+        "repositoryValue": "SHORT",
+        "reason": "Effective deployment environment is not captured and immutable live rows include LONG/BULL."
+      },
+      "strategyFamily": {
+        "value": "TREND",
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "requireRegimeAlignment": {
+        "value": true,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "stopAtrMultiplier": {
+        "value": 0.5,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "rewardRisk": {
+        "value": 2,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "riskPerTradeUsdt": {
+        "value": 50,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "maxPositionNotionalUsdt": {
+        "value": 2000,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "cooldownHours": {
+        "value": 8,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "entryIntervalHours": {
+        "value": 1,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "maxExecutionCostRiskFraction": {
+        "value": 0.1,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "maxHoldHours": {
+        "value": 72,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "takerFeeRate": {
+        "value": 0.0004,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "slippageBps": {
+        "value": 2,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "instrumentFilters": {
+        "value": null,
+        "provenance": "UNRESOLVED"
+      }
+    },
+    "unresolvedFields": [
+      "effective Production side filter / environment override",
+      "historical instrument filters used for quantity and price rounding",
+      "Vercel deployment metadata retained outside the Git repository"
+    ]
+  },
+  "trendProvenance": {
+    "strategyVersion": "trend-rejection-short-v1",
+    "entryMode": "TREND_REJECTION",
+    "sourceCommit": "1a6f0663e4dfe71869373cb41863856581713a7c",
+    "status": "RESTORED",
+    "runtimeConfig": {
+      "minimumScore": 70,
+      "sideFilter": "SHORT",
+      "strategyFamily": "TREND",
+      "requireRegimeAlignment": true,
+      "stopAtrMultiplier": 0.5,
+      "rewardRisk": 2,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 10000,
+      "maxConcurrentPositions": 1,
+      "cooldownHours": 8,
+      "entryIntervalHours": 1,
+      "maxExecutionCostRiskFraction": 0.1,
+      "marginUsdt": 100,
+      "perSignalRiskCapUsdt": 100,
+      "dailyRiskBudgetUsdt": 600,
+      "assumedLeverage": 20,
+      "maxHoldHours": 72,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2
+    }
+  },
+  "liveParity": {
+    "sourceReport": {
+      "path": "reports/lfv-001-live-parity-input-v1.json",
+      "bytes": 62901,
+      "sha256": "55317e8d9728aa0109273fd98d54b4113da2c9777e91dff1348588269908e716"
+    },
+    "thresholds": {
+      "signalMatchRate": 0.95,
+      "scoreDelta": 0.5,
+      "priceRelativeError": 0.0025
+    },
+    "v4": "UNAVAILABLE_UNTIL_MATERIAL_RUNTIME_FIELDS_ARE_PROVEN",
+    "trend": "ELIGIBLE_AFTER_UNIVERSE_GATE"
+  },
+  "eligibleStrategies": [
+    "trend-rejection-short-v1"
+  ],
+  "returnsRead": false,
+  "codeFiles": [
+    {
+      "path": "app/api/scan/route.ts",
+      "bytes": 21238,
+      "sha256": "7168caf6d1385c801907a02be68537d181115dd51419eb08be6754548ff433e3"
+    },
+    {
+      "path": "lib/config.ts",
+      "bytes": 4188,
+      "sha256": "ac7fa55274e8f3db52807e47460ef018ca7fe0718219fde33a018124551e5cd0"
+    },
+    {
+      "path": "lib/core/build-opportunity.ts",
+      "bytes": 1785,
+      "sha256": "d8a1158152ffa3ad1e9d88794742ebf0a48fa409a17d78365666bfd64abd4f1b"
+    },
+    {
+      "path": "lib/core/execution-policy.ts",
+      "bytes": 833,
+      "sha256": "78b80b2b21593ff4d968c940e5bb26aae7672613ecee1d454931fc2a4e5b0842"
+    },
+    {
+      "path": "lib/core/production-policy.ts",
+      "bytes": 331,
+      "sha256": "cbbb59cb16fb9afe772f94747f5da628066307ba57e50b908dada6eb5ceff7ed"
+    },
+    {
+      "path": "lib/core/production-signal.ts",
+      "bytes": 7901,
+      "sha256": "a4075e7f84b65903a2aff37a75aec93f29454332d5802ba8a519ba44cfadd511"
+    },
+    {
+      "path": "lib/core/risk.ts",
+      "bytes": 4313,
+      "sha256": "538fb3ceeaec32c0c43a4143bad1862468367b2a8b5853f814378b0fd68aa12a"
+    },
+    {
+      "path": "lib/core/scoring.ts",
+      "bytes": 7690,
+      "sha256": "6f0a614b2de0b61abb9b830310bc7668b1c7e90782370cbef0496133037a6a8a"
+    },
+    {
+      "path": "lib/core/strategies.ts",
+      "bytes": 28340,
+      "sha256": "d4c99f073363e42f9b1b263b62e7720219b76116668b517e00dd42cea7ca5025"
+    },
+    {
+      "path": "lib/core/types.ts",
+      "bytes": 2517,
+      "sha256": "f11cb9c32a3e324cecbe012c66613b63bc4b86496dfffde5257ce4b8a043e11f"
+    },
+    {
+      "path": "lib/lfv/loss-factors.ts",
+      "bytes": 12494,
+      "sha256": "c1c00a4dc615bf961441b11fb1942dc62f373b882e1d2b0855c5726e8ac49a93"
+    },
+    {
+      "path": "lib/lfv/production-replay.ts",
+      "bytes": 9592,
+      "sha256": "d47e6b12869fb7dfd3021ab3d7152211233611ce68573f3c421cfef178ee670f"
+    },
+    {
+      "path": "lib/lfv/provenance.ts",
+      "bytes": 4340,
+      "sha256": "a845a37ccf7888759861efb8579c912ce0b781e567d7d18c7a0d8a94b39ef4b0"
+    },
+    {
+      "path": "lib/lfv/observed-parity.ts",
+      "bytes": 5594,
+      "sha256": "df38f63e92fb0dfe855a9e9f82abfcc6b9867431caf3d61388386bd3fac2050f"
+    },
+    {
+      "path": "lib/lfv/universe-replay.ts",
+      "bytes": 7807,
+      "sha256": "4f661cbdc3015e1e5144938f6fa5bfc3cb35f73e9c215160d83fd217b4f6278f"
+    },
+    {
+      "path": "scripts/create-lfv-001-replay-freeze-v3.ts",
+      "bytes": 6039,
+      "sha256": "fc5f74c89270d850eeeb3006e04fe68a4a8a9ec1ad0ea842be674ffe539024be"
+    },
+    {
+      "path": "scripts/create-lfv-001-replay-freeze-v4.ts",
+      "bytes": 7249,
+      "sha256": "32734fbd6b0cb05dca5c01a7836be0867d6f0c3fa4d76ffaf9e73a55c6c8d979"
+    },
+    {
+      "path": "scripts/run-lfv-001-data-pipeline.ts",
+      "bytes": 42413,
+      "sha256": "381a2a087c93073c507c52a8345a194ab57846f3d891e54b8baacdc64175ed40"
+    },
+    {
+      "path": "scripts/run-lfv-001-validation.ts",
+      "bytes": 20912,
+      "sha256": "87651e4f0c611454b2d9b94ad6637e1ab1d3e5ab83e934b2e6f0aca0da8ff419"
+    },
+    {
+      "path": "scripts/run-lfv-001-universe-parity.ts",
+      "bytes": 4378,
+      "sha256": "d4da548a20d520b35fa4235428a5924b2f01bedae1c60ba8c1bc60118d6ecb92"
+    },
+    {
+      "path": "scripts/validate-lfv-001-artifact.ts",
+      "bytes": 16912,
+      "sha256": "7c5f374370002738083b2b209928cc3852ba69b16f5a9251f6f7dbc2ffaaf95e"
+    },
+    {
+      "path": "tests/lfv-001-replay.test.ts",
+      "bytes": 11407,
+      "sha256": "76814a24d7c5b783940741a96b5357e07779a5f71ce524df12814726b8f5d90a"
+    }
+  ],
+  "productionBoundary": {
+    "mode": "SIGNAL + SMTP ONLY",
+    "privateBinanceApi": false,
+    "accountBalances": false,
+    "positions": false,
+    "orderPlacement": false,
+    "automaticEntry": false,
+    "automaticExit": false,
+    "autoTrading": false,
+    "liveSignalEmail": false
+  },
+  "generatedAt": "2026-08-29T13:04:13.277Z",
+  "freezeSha256": "bc6b7d8273704b9d404a0fcece87fd216063ed55c6829ce5d8c55c3dcaaa788b"
+}

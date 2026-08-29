@@ -23,12 +23,14 @@ const REPORT_DIR = resolve("reports");
 const DATA_ROOT = resolve("../../data/raw");
 const ORIGINAL_FREEZE_COMMIT = "d68737cbd27c38e8fb09812ab225cfaaec56f037";
 const ORIGINAL_FREEZE_SHA256 = "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9";
-const REPLAY_FREEZE_NAME = "lfv-001-replay-freeze-v3.json";
+const REPLAY_FREEZE_V3_NAME = "lfv-001-replay-freeze-v3.json";
+const REPLAY_FREEZE_NAME = "lfv-001-replay-freeze-v4.json";
 const REQUIRED_REPORTS = [
   "lfv-001-freeze-manifest.json",
   "lfv-001-data-freeze-v2.json",
   "lfv-001-archive-registry.json",
   "lfv-001-data-gate.json",
+  REPLAY_FREEZE_V3_NAME,
   REPLAY_FREEZE_NAME,
   "lfv-001-observed-universe-evidence-v1.json",
   "lfv-001-live-parity-input-v1.json",
@@ -43,7 +45,7 @@ const REQUIRED_REPORTS = [
 ];
 
 type JsonObject = Record<string, unknown>;
-type StopCode = "LFV_DATA_INSUFFICIENT_FINAL" | "LFV_UNIVERSE_PARITY_FAIL" | "V4_REPLAY_PROVENANCE_FAIL" | "LFV_REPLAY_PARITY_FAIL";
+type StopCode = "LFV_DATA_INSUFFICIENT_FINAL" | "LFV_UNIVERSE_PARITY_FAIL" | "LFV_UNIVERSE_PARITY_INSUFFICIENT" | "V4_REPLAY_PROVENANCE_FAIL" | "V4_REPLAY_PROVENANCE_UNAVAILABLE" | "LFV_REPLAY_PARITY_FAIL";
 
 interface ProxyCacheFile {
   schema?: string;
@@ -112,15 +114,21 @@ async function readReplayFreeze(): Promise<JsonObject> {
   const freeze = await readJson(REPLAY_FREEZE_NAME);
   const freezeSha256 = freeze.freezeSha256;
   const core = Object.fromEntries(Object.entries(freeze).filter(([key]) => key !== "freezeSha256" && key !== "generatedAt"));
-  if (freeze.schema !== "bca-lfv-001-replay-freeze-v3" || freeze.status !== "FROZEN_BEFORE_RETURN_READ") {
-    throw new Error("LFV replay freeze v3 schema/status mismatch");
+  if (freeze.schema !== "bca-lfv-001-replay-freeze-v4" || freeze.status !== "FROZEN_BEFORE_RETURN_READ") {
+    throw new Error("LFV replay freeze v4 schema/status mismatch");
   }
-  if (freezeSha256 !== sha256Text(stableStringify(core))) throw new Error("LFV replay freeze v3 hash mismatch");
+  if (freezeSha256 !== sha256Text(stableStringify(core))) throw new Error("LFV replay freeze v4 hash mismatch");
   if (freeze.originalFreezeCommit !== ORIGINAL_FREEZE_COMMIT || freeze.originalFreezeSHA256 !== ORIGINAL_FREEZE_SHA256) {
-    throw new Error("LFV replay freeze v3 original freeze provenance mismatch");
+    throw new Error("LFV replay freeze v4 original freeze provenance mismatch");
   }
   if (freeze.returnsRead !== false || (freeze.dataFreezeV2 as JsonObject | undefined)?.returnsRead !== false) {
-    throw new Error("LFV replay freeze v3 returns-read boundary failed");
+    throw new Error("LFV replay freeze v4 returns-read boundary failed");
+  }
+  if (String((freeze.replayFreezeV3 as JsonObject | undefined)?.freezeSha256 ?? "") === "") {
+    throw new Error("LFV replay freeze v4 does not reference replay freeze v3");
+  }
+  if (String((freeze.trendProvenance as JsonObject | undefined)?.status ?? "") !== "RESTORED") {
+    throw new Error("LFV trend provenance is not restored");
   }
   return freeze;
 }
@@ -196,13 +204,31 @@ async function writeUniverseParityReport(dataGatePass: boolean): Promise<JsonObj
     code = null;
     reason = "Data Gate failed; universe parity was not evaluated and returns remain unread.";
     metrics = emptyUniverseMetrics(reason);
-    dataCoverage = { observedGroups: observed.groups.length, observedSymbols: 0, completeSymbols: 0, incompleteSymbols: [], matchedSignalRows: 0 };
+    dataCoverage = {
+      observedGroups: observed.groups.length,
+      observedSymbols: 0,
+      completeSymbols: 0,
+      incompleteSymbols: [],
+      matchedSignalRows: 0,
+      signalRowsEvaluated: 0,
+      signalRowsIncluded: 0,
+      signalRowsMissingArchive: 0,
+    };
   } else if (!initial.cache?.results) {
     status = "FAIL";
-    code = "LFV_UNIVERSE_PARITY_FAIL";
+    code = "LFV_UNIVERSE_PARITY_INSUFFICIENT";
     reason = "Immutable observed-universe 15m proxy cache is unavailable or invalid.";
     metrics = emptyUniverseMetrics(reason);
-    dataCoverage = { observedGroups: observed.groups.length, observedSymbols: 0, completeSymbols: 0, incompleteSymbols: [], matchedSignalRows: 0 };
+    dataCoverage = {
+      observedGroups: observed.groups.length,
+      observedSymbols: 0,
+      completeSymbols: 0,
+      incompleteSymbols: [],
+      matchedSignalRows: 0,
+      signalRowsEvaluated: 0,
+      signalRowsIncluded: 0,
+      signalRowsMissingArchive: live.rows.length,
+    };
   } else {
     const result = calculateObservedUniverseParity({
       groups: observed.groups,
@@ -211,7 +237,14 @@ async function writeUniverseParityReport(dataGatePass: boolean): Promise<JsonObj
       liveRows: live.rows,
     });
     status = result.metrics.pass ? "PASS" : "FAIL";
-    code = result.metrics.pass ? null : "LFV_UNIVERSE_PARITY_FAIL";
+    const signalCoverage = live.rows.length === 0
+      ? 0
+      : result.dataCoverage.signalRowsEvaluated / live.rows.length;
+    code = result.metrics.pass
+      ? null
+      : signalCoverage < 0.95
+        ? "LFV_UNIVERSE_PARITY_INSUFFICIENT"
+        : "LFV_UNIVERSE_PARITY_FAIL";
     reason = result.metrics.pass ? "PIT rolling-volume universe parity passed." : result.metrics.reasons.join("; ");
     metrics = { ...result.metrics };
     dataCoverage = result.dataCoverage;
@@ -284,15 +317,18 @@ function stopReason(dataGate: DataGateV2, universe: JsonObject): { code: StopCod
     };
   }
   if (universe.status !== "PASS") {
+    const universeCode = String(universe.code);
     return {
-      code: "LFV_UNIVERSE_PARITY_FAIL",
+      code: universeCode === "LFV_UNIVERSE_PARITY_INSUFFICIENT"
+        ? "LFV_UNIVERSE_PARITY_INSUFFICIENT"
+        : "LFV_UNIVERSE_PARITY_FAIL",
       reason: String(universe.reason ?? "PIT Production universe parity did not pass; historical returns remain unread."),
     };
   }
   if (String(LFV_V4_PROVENANCE.status) !== "RESTORED") {
     return {
-      code: "V4_REPLAY_PROVENANCE_FAIL",
-      reason: "V4 exact runtime configuration is not recoverable from immutable source/deployment evidence; returns must not be fitted from live trades.",
+      code: "LFV_REPLAY_PARITY_FAIL",
+      reason: "V4 exact runtime configuration is unavailable and V4 is excluded; Trend remains the eligible strategy, but its independent replay parity must pass before historical returns are read.",
     };
   }
   return {
@@ -340,7 +376,7 @@ async function writeStopArtifacts(
   });
   const secondaryReasons = [
     universe.status !== "PASS" ? `Universe parity: ${String(universe.reason ?? "FAIL")}` : null,
-    String(LFV_V4_PROVENANCE.status) !== "RESTORED" ? "V4 provenance: V4_REPLAY_PROVENANCE_FAIL" : null,
+    String(LFV_V4_PROVENANCE.status) !== "RESTORED" ? `V4 provenance: ${String(LFV_V4_PROVENANCE.status)}` : null,
   ].filter((item): item is string => Boolean(item));
   const universeMetrics = universe.metrics as JsonObject;
   const decision = {
@@ -389,7 +425,9 @@ async function writeStopArtifacts(
       "#002": "STOPPED",
       v14: "UNCHANGED",
     },
-    nextStep: "Research stopped fail-closed. Do not read historical returns or tune H1-H4; only a newly authorized LFV project may proceed after restoring the missing immutable evidence.",
+    nextStep: universe.status !== "PASS"
+      ? "Research stopped fail-closed at the universe evidence gate. Do not read historical returns or tune H1-H4 until immutable live-signal archive coverage is restored."
+      : "V4 remains excluded because its effective runtime provenance is unavailable; continue only with the eligible Trend replay parity gate before reading returns.",
   };
   await writeJson("lfv-001-decision.json", decision);
   const markdown = [

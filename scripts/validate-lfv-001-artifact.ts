@@ -11,6 +11,7 @@ const REQUIRED_REPORTS = [
   "lfv-001-archive-registry.json",
   "lfv-001-data-gate.json",
   "lfv-001-replay-freeze-v3.json",
+  "lfv-001-replay-freeze-v4.json",
   "lfv-001-observed-universe-evidence-v1.json",
   "lfv-001-live-parity-input-v1.json",
   "lfv-001-universe-parity.json",
@@ -91,6 +92,30 @@ async function main(): Promise<void> {
   const codeFiles = replayFreeze.codeFiles as Array<{ path: string }>;
   assertCondition(codeFiles.length > 0 && codeFiles.every((item) => !/^[A-Za-z]:[\\/]/.test(item.path) && !item.path.startsWith("/")), "replay freeze contains non-portable code paths");
 
+  const replayFreezeV4 = parse("lfv-001-replay-freeze-v4.json");
+  const replayV4Hash = replayFreezeV4.freezeSha256;
+  const replayV4Core = Object.fromEntries(Object.entries(replayFreezeV4).filter(([key]) => key !== "freezeSha256" && key !== "generatedAt"));
+  assertCondition(replayFreezeV4.schema === "bca-lfv-001-replay-freeze-v4" && replayFreezeV4.status === "FROZEN_BEFORE_RETURN_READ", "replay freeze v4 status/schema mismatch");
+  assertCondition(replayV4Hash === sha256(stableStringify(replayV4Core)), "replay freeze v4 hash mismatch");
+  assertCondition(replayFreezeV4.originalFreezeCommit === ORIGINAL_FREEZE_COMMIT && replayFreezeV4.originalFreezeSHA256 === ORIGINAL_FREEZE_SHA256, "replay freeze v4 original provenance mismatch");
+  assertCondition(replayFreezeV4.returnsRead === false && (replayFreezeV4.dataFreezeV2 as Record<string, unknown>).returnsRead === false, "replay freeze v4 returns-read boundary failed");
+  const v4Reference = replayFreezeV4.replayFreezeV3 as Record<string, unknown>;
+  assertCondition(v4Reference.freezeSha256 === replayFreeze.freezeSha256, "replay freeze v4 does not reference replay freeze v3");
+  const v4DataFreeze = replayFreezeV4.dataFreezeV2 as Record<string, unknown>;
+  assertCondition(v4DataFreeze.gateDefinitionHash === freeze.gateDefinitionHash && sameJson(v4DataFreeze.hypothesisHashes, freeze.hypothesisHashes), "replay freeze v4 changed frozen gate or hypothesis hashes");
+  const v4Definitions = replayFreezeV4.unchangedDefinitions as Record<string, unknown>;
+  assertCondition(sameJson(v4Definitions.hypotheses, LFV_HYPOTHESES) && sameJson(v4Definitions.combinedDefinition, LFV_COMBINED_PRIMARY), "replay freeze v4 definitions changed");
+  assertCondition(v4Definitions.gateDefinitionHash === freeze.gateDefinitionHash, "replay freeze v4 gate hash changed");
+  const v4Universe = replayFreezeV4.universeReplay as Record<string, unknown>;
+  const v4ParityGate = v4Universe.parityGate as Record<string, unknown>;
+  assertCondition(v4Universe.method === "ROLLING_15M_24H_VOLUME_PROXY" && v4Universe.windowBars === 96, "replay freeze v4 universe method changed");
+  assertCondition(v4ParityGate.signalArchiveCoverage === ">=0.95" && v4ParityGate.signalInclusionRecall === ">=0.98", "replay freeze v4 signal gate missing");
+  const v4Provenance = replayFreezeV4.v4Provenance as Record<string, unknown>;
+  const trendProvenance = replayFreezeV4.trendProvenance as Record<string, unknown>;
+  assertCondition(["RESTORED", "V4_REPLAY_PROVENANCE_UNAVAILABLE"].includes(String(v4Provenance.status)), "replay freeze v4 V4 provenance status invalid");
+  assertCondition(trendProvenance.status === "RESTORED", "replay freeze v4 trend provenance is not restored");
+  assertCondition(sameJson(replayFreezeV4.eligibleStrategies, ["trend-rejection-short-v1"]), "replay freeze v4 eligible strategy set changed");
+
   const registry = parse("lfv-001-archive-registry.json");
   const { registrySha256, ...registryCore } = registry;
   assertCondition(registry.schema === "bca-lfv-001-archive-registry-v2" && registry.status === "FROZEN_BEFORE_RETURN_READ", "archive registry schema/status mismatch");
@@ -113,11 +138,18 @@ async function main(): Promise<void> {
   const universe = parse("lfv-001-universe-parity.json");
   assertCondition(universe.schema === "bca-lfv-001-universe-parity-v2" && ["PASS", "FAIL", "NOT_RUN"].includes(String(universe.status)), "universe parity schema/status mismatch");
   const universeMetrics = universe.metrics as Record<string, unknown>;
+  const universeCoverage = universe.dataCoverage as Record<string, unknown>;
+  assertCondition(universeCoverage.signalRowsEvaluated !== undefined && universeCoverage.signalRowsIncluded !== undefined && universeCoverage.signalRowsMissingArchive !== undefined, "universe signal coverage fields missing");
+  assertCondition(Number(universeCoverage.signalRowsEvaluated) + Number(universeCoverage.signalRowsMissingArchive) === 44, "universe signal coverage does not account for all 44 frozen rows");
+  assertCondition(Number(universeCoverage.signalRowsIncluded) <= Number(universeCoverage.signalRowsEvaluated), "universe signal inclusion exceeds evaluated rows");
   if (universe.status === "PASS") {
     assertCondition(universe.code === null && universeMetrics.pass === true, "universe parity PASS is inconsistent");
     assertCondition(Number(universeMetrics.medianTop100Overlap) >= 0.95 && Number(universeMetrics.p10Top100Overlap) >= 0.9 && Number(universeMetrics.signalInclusionRecall) >= 0.98, "universe parity thresholds not met");
   } else if (universe.status === "FAIL") {
-    assertCondition(universe.code === "LFV_UNIVERSE_PARITY_FAIL" && universeMetrics.pass === false, "universe parity FAIL is inconsistent");
+    assertCondition(["LFV_UNIVERSE_PARITY_FAIL", "LFV_UNIVERSE_PARITY_INSUFFICIENT"].includes(String(universe.code)) && universeMetrics.pass === false, "universe parity FAIL is inconsistent");
+    const signalCoverage = Number(universeCoverage.signalRowsEvaluated) / 44;
+    if (signalCoverage < 0.95) assertCondition(universe.code === "LFV_UNIVERSE_PARITY_INSUFFICIENT", "insufficient signal archive coverage did not use the insufficient code");
+    else assertCondition(universe.code === "LFV_UNIVERSE_PARITY_FAIL", "failed signal inclusion gate did not use the parity failure code");
   } else {
     assertCondition(dataGate.pass === false, "universe parity was not run despite a passing Data Gate");
   }
@@ -127,14 +159,14 @@ async function main(): Promise<void> {
   assertCondition((liveParity.observations as Record<string, unknown>).count === 44, "live parity observation count changed");
 
   const decision = parse("lfv-001-decision.json");
-  const acceptedCodes = ["LFV_DATA_INSUFFICIENT_FINAL", "LFV_UNIVERSE_PARITY_FAIL", "V4_REPLAY_PROVENANCE_FAIL", "LFV_REPLAY_PARITY_FAIL"];
+  const acceptedCodes = ["LFV_DATA_INSUFFICIENT_FINAL", "LFV_UNIVERSE_PARITY_FAIL", "LFV_UNIVERSE_PARITY_INSUFFICIENT", "V4_REPLAY_PROVENANCE_FAIL", "V4_REPLAY_PROVENANCE_UNAVAILABLE", "LFV_REPLAY_PARITY_FAIL"];
   assertCondition(decision.schema === "bca-lfv-001-decision-v3" && acceptedCodes.includes(String(decision.status)) && decision.finalClassification === decision.status, "decision classification is not a frozen fail-closed result");
   assertCondition(decision.researchStop === true && decision.returnsRead === false, "research/returns boundary failed");
   assertCondition(decision.dataGate === dataGate.status, "decision data gate status mismatch");
   assertCondition((decision.universeParity as Record<string, unknown>).status === universe.status, "decision universe parity mismatch");
   if (dataGate.pass === false) assertCondition(decision.status === "LFV_DATA_INSUFFICIENT_FINAL", "failed data gate did not stop with LFV_DATA_INSUFFICIENT_FINAL");
-  else if (universe.status !== "PASS") assertCondition(decision.status === "LFV_UNIVERSE_PARITY_FAIL", "failed universe parity did not stop with LFV_UNIVERSE_PARITY_FAIL");
-  else assertCondition(decision.status === "V4_REPLAY_PROVENANCE_FAIL", "unrestored V4 provenance did not stop returns");
+  else if (universe.status !== "PASS") assertCondition(decision.status === universe.code, "failed universe parity did not stop with its exact code");
+  else assertCondition(["V4_REPLAY_PROVENANCE_UNAVAILABLE", "V4_REPLAY_PROVENANCE_FAIL", "LFV_REPLAY_PARITY_FAIL"].includes(String(decision.status)), "post-universe replay gate did not stop returns");
   const production = decision.production as Record<string, unknown>;
   assertCondition(production.changed === false && production.email === "OFF" && production.autoTrading === false && production.privateBinanceApi === false, "Production boundary changed");
   assertCondition(production["#002"] === "STOPPED" && production.v14 === "UNCHANGED", "research boundary missing");

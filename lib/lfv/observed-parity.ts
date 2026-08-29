@@ -34,6 +34,8 @@ export interface ObservedProxyResultInput {
 export interface LiveParitySymbolInput {
   symbol: string;
   scanGroupKey?: string;
+  sourceDataTimestamp?: string;
+  strategyVersion?: string;
 }
 
 export interface ObservedUniverseParityResult {
@@ -44,6 +46,9 @@ export interface ObservedUniverseParityResult {
     completeSymbols: number;
     incompleteSymbols: string[];
     matchedSignalRows: number;
+    signalRowsEvaluated: number;
+    signalRowsIncluded: number;
+    signalRowsMissingArchive: number;
   };
 }
 
@@ -81,6 +86,7 @@ export function calculateObservedUniverseParity(input: {
   }
 
   const liveRows = input.liveRows ?? [];
+  const observedUniverseSymbols = [...new Set(input.groups.flatMap((group) => group.observedRankedSymbols))];
   const comparisons = input.groups.flatMap((group) => {
     const timestamp = Date.parse(group.scanTimestamp);
     if (!Number.isFinite(timestamp)) return [];
@@ -97,7 +103,41 @@ export function calculateObservedUniverseParity(input: {
     });
     return [compareUniverseSnapshots(observed, proxy)];
   });
-  const metrics = summarizeUniverseParity(comparisons);
+  const metrics = summarizeUniverseParity(comparisons, { requireSignalInclusion: false });
+  let signalRowsEvaluated = 0;
+  let signalRowsIncluded = 0;
+  let signalRowsMissingArchive = 0;
+  for (const row of liveRows) {
+    const timestamp = Date.parse(row.sourceDataTimestamp ?? "");
+    if (!row.symbol || !Number.isFinite(timestamp) || !observedUniverseSymbols.includes(row.symbol)) {
+      signalRowsMissingArchive += 1;
+      continue;
+    }
+    const proxy = buildRollingUniverseSnapshot(timestamp, barsBySymbol, {
+      requiredSymbols: observedUniverseSymbols,
+    });
+    if (proxy.missingSymbols.length > 0) {
+      signalRowsMissingArchive += 1;
+      continue;
+    }
+    signalRowsEvaluated += 1;
+    if (proxy.deepScan.includes(row.symbol)) signalRowsIncluded += 1;
+  }
+  const signalInclusionRecall = signalRowsEvaluated === 0
+    ? null
+    : signalRowsIncluded / signalRowsEvaluated;
+  metrics.signalInclusionRecall = signalInclusionRecall;
+  const signalCoverage = liveRows.length === 0 ? 0 : signalRowsEvaluated / liveRows.length;
+  if (signalCoverage < 0.95) {
+    metrics.pass = false;
+    metrics.reasons = [
+      ...metrics.reasons,
+      `Frozen live signal archive coverage is below 95% (${signalRowsEvaluated}/${liveRows.length}).`,
+    ];
+  } else if (signalInclusionRecall === null || signalInclusionRecall < 0.98) {
+    metrics.pass = false;
+    metrics.reasons = [...metrics.reasons, "Signal-symbol inclusion recall is below 98%."];
+  }
   if (incompleteSymbols.length > 0) {
     metrics.pass = false;
     metrics.reasons = [
@@ -113,6 +153,9 @@ export function calculateObservedUniverseParity(input: {
       completeSymbols: [...merged.values()].filter((item) => !item.error && item.bars.length >= 96).length,
       incompleteSymbols: incompleteSymbols.sort(),
       matchedSignalRows: liveRows.filter((row) => input.groups.some((group) => group.scanGroupKey === row.scanGroupKey)).length,
+      signalRowsEvaluated,
+      signalRowsIncluded,
+      signalRowsMissingArchive,
     },
   };
 }

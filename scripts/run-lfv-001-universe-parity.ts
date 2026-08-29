@@ -13,7 +13,7 @@ interface ObservedEvidence {
 }
 
 interface LiveEvidence {
-  rows: Array<{ symbol: string; scanGroupKey?: string }>;
+  rows: Array<{ symbol: string; scanGroupKey?: string; sourceDataTimestamp?: string; strategyVersion?: string }>;
 }
 
 interface CacheFile {
@@ -69,7 +69,11 @@ async function main(): Promise<void> {
     schema: "bca-lfv-001-universe-parity-v1",
     generatedAt: new Date().toISOString(),
     status: result.metrics.pass ? "PASS" : "FAIL",
-    code: result.metrics.pass ? null : "LFV_UNIVERSE_PARITY_FAIL",
+    code: result.metrics.pass
+      ? null
+      : result.dataCoverage.signalRowsEvaluated / live.rows.length < 0.95
+        ? "LFV_UNIVERSE_PARITY_INSUFFICIENT"
+        : "LFV_UNIVERSE_PARITY_FAIL",
     treatment: "OBSERVED_PRODUCTION_UNIVERSE_COMPARED_WITH_PIT_ROLLING_VOLUME_PROXY_ONLY",
     method: result.metrics.method,
     rules: {
