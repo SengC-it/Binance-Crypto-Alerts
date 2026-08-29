@@ -55,7 +55,11 @@
     },
     "retryCache": {
       "path": "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json",
-      "status": "NOT_AVAILABLE"
+      "bytes": 6981047,
+      "sha256": "80517ad6dec63637a4a2812ca64b5eabb17bbc2fd9f5a79a70fe64c4f6863d09",
+      "capturedAt": "2026-08-29T10:01:59.269Z",
+      "resultCount": 125,
+      "errorCount": 0
     }
   },
   "productionReplay": {
@@ -209,6 +213,6 @@
     "autoTrading": false,
     "liveSignalEmail": false
   },
-  "generatedAt": "2026-08-29T09:59:02.597Z",
-  "freezeSha256": "cf026ca2a219d02c118e991e2c1434608d93b1741cb02282e38c8de403a68b31"
+  "generatedAt": "2026-08-29T10:02:22.731Z",
+  "freezeSha256": "ec45aab2d1a85b9d6e028b671e199149087699439ac8c398d80f21fec8247ca0"
 }
