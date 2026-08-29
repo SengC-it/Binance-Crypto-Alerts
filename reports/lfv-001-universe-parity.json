@@ -1,9 +1,9 @@
 {
   "schema": "bca-lfv-001-universe-parity-v2",
-  "generatedAt": "2026-08-29T10:39:52.655Z",
+  "generatedAt": "2026-08-29T13:09:58.465Z",
   "status": "FAIL",
-  "code": "LFV_UNIVERSE_PARITY_FAIL",
-  "reason": "Signal-symbol inclusion recall is below 98%.",
+  "code": "LFV_UNIVERSE_PARITY_INSUFFICIENT",
+  "reason": "Frozen live signal archive coverage is below 95% (1/44).",
   "treatment": "OBSERVED_PRODUCTION_UNIVERSE_COMPARED_WITH_PIT_ROLLING_VOLUME_PROXY_ONLY",
   "method": "ROLLING_15M_24H_VOLUME_PROXY",
   "rules": {
@@ -25,7 +25,10 @@
     "observedSymbols": 527,
     "completeSymbols": 527,
     "incompleteSymbols": [],
-    "matchedSignalRows": 0
+    "matchedSignalRows": 0,
+    "signalRowsEvaluated": 1,
+    "signalRowsIncluded": 1,
+    "signalRowsMissingArchive": 43
   },
   "metrics": {
     "method": "ROLLING_15M_24H_VOLUME_PROXY",
@@ -33,7 +36,7 @@
     "medianTop100Overlap": 1,
     "p10Top100Overlap": 1,
     "rankSpearman": 0.9999864412420502,
-    "signalInclusionRecall": null,
+    "signalInclusionRecall": 1,
     "comparisons": [
       {
         "timestamp": 1787702437349,
@@ -815,7 +818,7 @@
     ],
     "pass": false,
     "reasons": [
-      "Signal-symbol inclusion recall is below 98%."
+      "Frozen live signal archive coverage is below 95% (1/44)."
     ]
   },
   "caches": {

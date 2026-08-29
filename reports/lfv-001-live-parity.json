@@ -1,6 +1,6 @@
 {
   "schema": "bca-lfv-001-live-parity-v2",
-  "generatedAt": "2026-08-29T10:39:52.687Z",
+  "generatedAt": "2026-08-29T13:09:58.495Z",
   "status": "NOT_RUN",
   "code": "LFV_REPLAY_PARITY_FAIL",
   "returnsRead": false,
@@ -17,30 +17,123 @@
   "v4": {
     "strategyVersion": "rules-profit-oriented-v4",
     "sourceCommit": "29edac8a98f7f9564ed8fdd754854de6a85a20ba",
-    "status": "V4_REPLAY_PROVENANCE_FAIL",
+    "status": "V4_REPLAY_PROVENANCE_UNAVAILABLE",
+    "deploymentEpochs": [
+      {
+        "environment": "Production",
+        "sourceCommit": "29edac8a98f7f9564ed8fdd754854de6a85a20ba",
+        "deploymentCommit": "2a363040637598e247ca492c050436271d51c475",
+        "lineage": "2a363040 is the direct child of 29edac8; the Git diff contains only .vercelignore.",
+        "vercelMetadata": "NOT_CAPTURED_IN_REPOSITORY"
+      }
+    ],
     "sourceEvidence": [
-      "The historical source commit contains the V4 strategy identifier and the Production route entry point.",
-      "The 26 August paper rows contain observed outputs but are LIVE_OBSERVATION_ONLY and cannot restore runtime configuration."
+      "29edac8 .env.example documents the V4 repository configuration used for the deployment epoch.",
+      "2a363040 is the successful Production deployment commit supplied for this audit and has no runtime-code diff from 29edac8.",
+      "Immutable live rows prove observed outputs only; they do not prove effective Vercel environment values.",
+      "The live V4 observations include both LONG/BULL and SHORT/BEAR, so a repository SHORT example cannot be treated as an unconditional historical side filter."
     ],
-    "documentedDefaults": {
-      "minimumScore": 60,
-      "sideFilter": null,
-      "strategyFamily": null,
-      "requireRegimeAlignment": null,
-      "stopAtrMultiplier": 0.25,
-      "rewardRisk": null,
-      "cooldownHours": null,
-      "entryIntervalHours": null,
-      "takerFeeRate": null,
-      "slippageBps": null
+    "repositoryConfig": {
+      "minimumScore": 70,
+      "sideFilter": "SHORT",
+      "strategyFamily": "TREND",
+      "requireRegimeAlignment": true,
+      "stopAtrMultiplier": 0.5,
+      "rewardRisk": 2,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 2000,
+      "cooldownHours": 8,
+      "entryIntervalHours": 1,
+      "maxExecutionCostRiskFraction": 0.1,
+      "maxHoldHours": 72,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2
     },
-    "missingRuntimeFields": [
-      "Production environment values for side/family/regime filters",
-      "CS_STRATEGY_STOP_ATR_MULTIPLIER effective value",
-      "reward-risk, cooldown, entry interval and execution-cost policy",
-      "historical instrument filters used for quantity/price rounding"
-    ],
-    "runtimeConfig": null
+    "runtimeConfig": {
+      "minimumScore": 70,
+      "sideFilter": null,
+      "strategyFamily": "TREND",
+      "requireRegimeAlignment": true,
+      "stopAtrMultiplier": 0.5,
+      "rewardRisk": 2,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 2000,
+      "cooldownHours": 8,
+      "entryIntervalHours": 1,
+      "maxExecutionCostRiskFraction": 0.1,
+      "maxHoldHours": 72,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2
+    },
+    "fieldProvenance": {
+      "minimumScore": {
+        "value": 70,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "sideFilter": {
+        "value": null,
+        "provenance": "UNRESOLVED",
+        "repositoryValue": "SHORT",
+        "reason": "Effective deployment environment is not captured and immutable live rows include LONG/BULL."
+      },
+      "strategyFamily": {
+        "value": "TREND",
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "requireRegimeAlignment": {
+        "value": true,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "stopAtrMultiplier": {
+        "value": 0.5,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "rewardRisk": {
+        "value": 2,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "riskPerTradeUsdt": {
+        "value": 50,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "maxPositionNotionalUsdt": {
+        "value": 2000,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "cooldownHours": {
+        "value": 8,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "entryIntervalHours": {
+        "value": 1,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "maxExecutionCostRiskFraction": {
+        "value": 0.1,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "maxHoldHours": {
+        "value": 72,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "takerFeeRate": {
+        "value": 0.0004,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "slippageBps": {
+        "value": 2,
+        "provenance": "PROVEN_BY_REPOSITORY"
+      },
+      "instrumentFilters": {
+        "value": null,
+        "provenance": "UNRESOLVED"
+      }
+    },
+    "unresolvedFields": [
+      "effective Production side filter / environment override",
+      "historical instrument filters used for quantity and price rounding",
+      "Vercel deployment metadata retained outside the Git repository"
+    ]
   },
   "trend": {
     "strategyVersion": "trend-rejection-short-v1",
