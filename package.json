@@ -15,7 +15,10 @@
     "optimizer": "tsx scripts/run-optimizer.ts",
     "validate": "tsx scripts/run-validation.ts",
     "backtest": "tsx scripts/run-backtest.ts",
-    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts"
+    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
+    "validate:lfv-001:freeze": "tsx scripts/run-lfv-001-validation.ts --freeze",
+    "validate:lfv-001:full": "tsx scripts/run-lfv-001-validation.ts --full",
+    "validate:lfv-001:artifact": "tsx scripts/validate-lfv-001-artifact.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

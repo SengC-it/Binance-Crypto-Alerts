@@ -1,0 +1,173 @@
+{
+  "schema": "bca-lfv-001-freeze-manifest-v1",
+  "baseline": {
+    "branch": "agent/shadow-entry-deployment",
+    "sha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953"
+  },
+  "strategies": [
+    {
+      "id": "rules-profit-oriented-v4",
+      "status": "FROZEN"
+    },
+    {
+      "id": "trend-rejection-short-v1",
+      "status": "FROZEN"
+    }
+  ],
+  "observations": {
+    "livePaperTrades": 44,
+    "usage": "HYPOTHESIS_GENERATION_ONLY; LIVE_OBSERVATION_ONLY; excluded from training, gates, and promotion",
+    "researchHistoryEnd": "2026-07-31T23:59:59.999Z",
+    "cutoff": "2026-08-01T00:00:00.000Z"
+  },
+  "data": {
+    "source": "Binance Data Vision USDⓈ-M perpetual public monthly archives",
+    "range": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2026-07-31T23:59:59.999Z"
+    },
+    "timeframes": [
+      "15m",
+      "1h",
+      "4h",
+      "fundingRate",
+      "markPriceKlines"
+    ],
+    "rawDataPolicy": "External immutable cache only; raw historical data is never committed",
+    "pitUniverse": "At each timestamp use only then-listed, sufficiently aged, sufficiently liquid, complete symbols; Production top_symbols=100 must be reconstructed exactly",
+    "fundingSchema": [
+      "calc_time",
+      "funding_interval_hours",
+      "last_funding_rate"
+    ]
+  },
+  "hypotheses": {
+    "H1": {
+      "id": "SESSION_18_23_SGT_BLOCK",
+      "placebos": [
+        "00-05 SGT",
+        "06-11 SGT",
+        "12-17 SGT"
+      ]
+    },
+    "H2": {
+      "id": "HIGH_VOL_Q4_BLOCK",
+      "percentile": "trailing PIT 90-day Q4",
+      "placebos": [
+        "LOW_VOL_Q1_BLOCK",
+        "matched random 25% removal"
+      ]
+    },
+    "H3": {
+      "id": "DELAY_30M",
+      "primaryMinutes": 30,
+      "diagnosticsMinutes": [
+        15,
+        60
+      ],
+      "execution": "first complete real Binance 15m open at or after signal+delay; pre-entry stop/TP expires signal"
+    },
+    "H4": {
+      "id": "STOP_COOLDOWN_12H",
+      "primaryHours": 12,
+      "diagnosticsHours": [
+        6,
+        24
+      ],
+      "trigger": "STOP_LOSS or realized R <= -0.75; sequential PIT-safe same-symbol block"
+    },
+    "combined": [
+      "SESSION_18_23_SGT_BLOCK",
+      "HIGH_VOL_Q4_BLOCK",
+      "DELAY_30M",
+      "STOP_COOLDOWN_12H"
+    ],
+    "allowedComparisons": [
+      "BASELINE",
+      "H1_ONLY",
+      "H2_ONLY",
+      "H3_PRIMARY",
+      "H4_PRIMARY",
+      "COMBINED_PRIMARY"
+    ]
+  },
+  "executionAndCosts": {
+    "entry": "next complete 15m open after signal; no same-window execution",
+    "feeBpsPerSide": 4,
+    "baseSlippageBpsPerSide": 2,
+    "stressSlippageBpsPerSide": [
+      2,
+      5,
+      10
+    ],
+    "funding": "official actual funding settled from markPriceKlines; no artificial missing-data penalty",
+    "exits": "frozen Production STOP_LOSS/TAKE_PROFIT/max-hold/same-symbol replacement-cancellation semantics"
+  },
+  "validation": {
+    "method": "strict nested purged walk-forward",
+    "nestedOos": {
+      "start": "2021-07-01T00:00:00.000Z",
+      "end": "2024-12-31T23:59:59.999Z"
+    },
+    "holdoutA": {
+      "start": "2025-01-01T00:00:00.000Z",
+      "end": "2025-12-31T23:59:59.999Z"
+    },
+    "holdoutB": {
+      "start": "2026-01-01T00:00:00.000Z",
+      "end": "2026-07-31T23:59:59.999Z"
+    },
+    "liveAugust": "OOS parity diagnostic only; never promotion evidence",
+    "minimums": {
+      "baselineTradesPerStrategy": 300,
+      "combinedNestedTrades": 150,
+      "holdoutA": 40,
+      "holdoutB": 25
+    }
+  },
+  "gates": {
+    "nested": [
+      "trades>=150",
+      "NetR>0",
+      "AvgR>=0.08",
+      "PF>=1.25",
+      "MaxDD<=8R",
+      "positiveFoldRatio>=0.67",
+      "medianFoldNetR>0",
+      "+5bps NetR>0",
+      "+10bps not catastrophic",
+      "30m NetR>0",
+      "30m PF>=1.20"
+    ],
+    "holdouts": [
+      "A trades>=40",
+      "A NetR>0",
+      "A PF>=1.20",
+      "A DD<=6R",
+      "B trades>=25",
+      "B NetR>0",
+      "B PF>=1.20",
+      "B DD<=6R"
+    ],
+    "confidence": "AvgR 95% bootstrap LCB > 0",
+    "emailUtility": [
+      "average>=2 actionable emails/month",
+      "activeMonthRatio>=75%",
+      "medianMonth>=2",
+      "maxDrought<=30d"
+    ]
+  },
+  "boundary": {
+    "mode": "SIGNAL + SMTP ONLY",
+    "privateBinanceApi": false,
+    "accountBalances": false,
+    "positions": false,
+    "orderPlacement": false,
+    "automaticEntry": false,
+    "automaticExit": false,
+    "autoTrading": false,
+    "liveSignalEmail": false
+  },
+  "freezeOrder": "Freeze code/tests/manifest and push Commit A before reading historical strategy returns",
+  "freezeSha256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9"
+}
