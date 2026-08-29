@@ -9,6 +9,7 @@ import {
   ROLLING_15M_24H_VOLUME_PROXY,
   summarizeUniverseParity,
 } from "@/lib/lfv/universe-replay";
+import { calculateObservedUniverseParity } from "@/lib/lfv/observed-parity";
 import {
   closed15mSchedule,
   replayProductionSignals,
@@ -188,6 +189,24 @@ describe("LFV-001 PIT universe replay", () => {
 
     expect(comparison.top100Overlap).toBe(1);
     expect(comparison.signalInclusionRecall).toBe(1);
+  });
+
+  it("fails closed when live observations cannot be joined to observed scan groups", () => {
+    const timestamp = 96 * interval;
+    const result = calculateObservedUniverseParity({
+      groups: [{
+        scanGroupKey: "observed-group",
+        scanTimestamp: new Date(timestamp).toISOString(),
+        selectedForEvaluation: ["AAAUSDT"],
+        observedRankedSymbols: ["AAAUSDT"],
+      }],
+      initialResults: [{ symbol: "AAAUSDT", bars: Array.from({ length: 96 }, (_, index) => bar(index * interval, 100)) }],
+      liveRows: [{ symbol: "AAAUSDT", scanGroupKey: "unmatched-group" }],
+    });
+
+    expect(result.dataCoverage.matchedSignalRows).toBe(0);
+    expect(result.metrics.signalInclusionRecall).toBeNull();
+    expect(result.metrics.pass).toBe(false);
   });
 });
 

@@ -32,7 +32,7 @@
   ],
   "universeReplay": {
     "observedEvidence": {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\reports\\lfv-001-observed-universe-evidence-v1.json",
+      "path": "reports/lfv-001-observed-universe-evidence-v1.json",
       "bytes": 780743,
       "sha256": "bdcbe84b37b1cb38796108764acd12c3e8781a5318fde186fb2928e3c002c5ea"
     },
@@ -69,7 +69,7 @@
     "sharedCore": "lib/core/build-opportunity.ts -> lib/core/production-signal.ts",
     "settlement": "stop-first OHLC, take-profit, max-hold, signal replacement/cancellation, sequential cooldown, two-sided fee/slippage and actual funding observations",
     "liveParityInput": {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\reports\\lfv-001-live-parity-input-v1.json",
+      "path": "reports/lfv-001-live-parity-input-v1.json",
       "bytes": 62901,
       "sha256": "55317e8d9728aa0109273fd98d54b4113da2c9777e91dff1348588269908e716"
     },
@@ -131,74 +131,104 @@
   },
   "codeFiles": [
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\app\\api\\scan\\route.ts",
+      "path": "app/api/scan/route.ts",
       "bytes": 21238,
       "sha256": "7168caf6d1385c801907a02be68537d181115dd51419eb08be6754548ff433e3"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\config.ts",
+      "path": "lib/config.ts",
       "bytes": 4188,
       "sha256": "ac7fa55274e8f3db52807e47460ef018ca7fe0718219fde33a018124551e5cd0"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\build-opportunity.ts",
+      "path": "lib/core/build-opportunity.ts",
       "bytes": 1785,
       "sha256": "d8a1158152ffa3ad1e9d88794742ebf0a48fa409a17d78365666bfd64abd4f1b"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\execution-policy.ts",
+      "path": "lib/core/execution-policy.ts",
       "bytes": 833,
       "sha256": "78b80b2b21593ff4d968c940e5bb26aae7672613ecee1d454931fc2a4e5b0842"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\production-policy.ts",
+      "path": "lib/core/production-policy.ts",
       "bytes": 331,
       "sha256": "cbbb59cb16fb9afe772f94747f5da628066307ba57e50b908dada6eb5ceff7ed"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\production-signal.ts",
+      "path": "lib/core/production-signal.ts",
       "bytes": 7901,
       "sha256": "a4075e7f84b65903a2aff37a75aec93f29454332d5802ba8a519ba44cfadd511"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\risk.ts",
+      "path": "lib/core/risk.ts",
       "bytes": 4313,
       "sha256": "538fb3ceeaec32c0c43a4143bad1862468367b2a8b5853f814378b0fd68aa12a"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\scoring.ts",
+      "path": "lib/core/scoring.ts",
       "bytes": 7690,
       "sha256": "6f0a614b2de0b61abb9b830310bc7668b1c7e90782370cbef0496133037a6a8a"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\strategies.ts",
+      "path": "lib/core/strategies.ts",
       "bytes": 28340,
       "sha256": "d4c99f073363e42f9b1b263b62e7720219b76116668b517e00dd42cea7ca5025"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\core\\types.ts",
+      "path": "lib/core/types.ts",
       "bytes": 2517,
       "sha256": "f11cb9c32a3e324cecbe012c66613b63bc4b86496dfffde5257ce4b8a043e11f"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\lfv\\loss-factors.ts",
+      "path": "lib/lfv/loss-factors.ts",
       "bytes": 12494,
       "sha256": "c1c00a4dc615bf961441b11fb1942dc62f373b882e1d2b0855c5726e8ac49a93"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\lfv\\production-replay.ts",
+      "path": "lib/lfv/production-replay.ts",
       "bytes": 9592,
       "sha256": "d47e6b12869fb7dfd3021ab3d7152211233611ce68573f3c421cfef178ee670f"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\lfv\\provenance.ts",
+      "path": "lib/lfv/provenance.ts",
       "bytes": 1942,
       "sha256": "78c5e584db228c26937eda814ea115d2ba2156cab317eb95f13186b1290c57a5"
     },
     {
-      "path": "E:\\Codex\\binance-crypto-alerts\\.next\\lfv-001\\lib\\lfv\\universe-replay.ts",
+      "path": "lib/lfv/observed-parity.ts",
+      "bytes": 3825,
+      "sha256": "3fdb7ed71ad5a3fc90dcc96a52961e3b9ce453b91db85e4e1f12118e8a486cf5"
+    },
+    {
+      "path": "lib/lfv/universe-replay.ts",
       "bytes": 7642,
       "sha256": "5cdae544e3d0a459188dd77c3b44b6a9c00487de24aaf0f7b13620a1141c8a4f"
+    },
+    {
+      "path": "scripts/run-lfv-001-data-pipeline.ts",
+      "bytes": 42413,
+      "sha256": "381a2a087c93073c507c52a8345a194ab57846f3d891e54b8baacdc64175ed40"
+    },
+    {
+      "path": "scripts/run-lfv-001-validation.ts",
+      "bytes": 19351,
+      "sha256": "2aa3c1b74cfdca0116914f3cc129067da54f21104ab45d2c566cbdeda2331686"
+    },
+    {
+      "path": "scripts/run-lfv-001-universe-parity.ts",
+      "bytes": 4189,
+      "sha256": "267569e7ef29defed187899f5a7df6d98973a89a49352a0e677ac562257185cf"
+    },
+    {
+      "path": "scripts/validate-lfv-001-artifact.ts",
+      "bytes": 12924,
+      "sha256": "b44b1e1946d7a7f7266f5e8a5f96598422f1606010a95f6293134418919e048d"
+    },
+    {
+      "path": "tests/lfv-001-replay.test.ts",
+      "bytes": 9502,
+      "sha256": "96cd0d26ec4aaa9f423e814064ae4f1f684d520d9ce8700ac3ad016252eafbf6"
     }
   ],
   "returnsRead": false,
@@ -213,6 +243,6 @@
     "autoTrading": false,
     "liveSignalEmail": false
   },
-  "generatedAt": "2026-08-29T10:02:22.731Z",
-  "freezeSha256": "ec45aab2d1a85b9d6e028b671e199149087699439ac8c398d80f21fec8247ca0"
+  "generatedAt": "2026-08-29T10:30:08.167Z",
+  "freezeSha256": "d9becb586abe55d3f35bc17d13d11e47d24dccb20f6a666058af9e82b9245392"
 }

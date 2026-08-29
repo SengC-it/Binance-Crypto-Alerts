@@ -1,0 +1,855 @@
+{
+  "schema": "bca-lfv-001-universe-parity-v2",
+  "generatedAt": "2026-08-29T10:30:19.825Z",
+  "status": "FAIL",
+  "code": "LFV_UNIVERSE_PARITY_FAIL",
+  "reason": "Signal-symbol inclusion recall is below 98%.",
+  "treatment": "OBSERVED_PRODUCTION_UNIVERSE_COMPARED_WITH_PIT_ROLLING_VOLUME_PROXY_ONLY",
+  "method": "ROLLING_15M_24H_VOLUME_PROXY",
+  "rules": {
+    "windowBars": 96,
+    "closedBarBoundary": "bar.closeTime < observed scan timestamp",
+    "selection": "rolling quote volume descending, symbol ascending; top min(100,N)",
+    "noCurrentTicker": true,
+    "noFutureData": true,
+    "noDailySnapshotSubstitution": true,
+    "noCurrentSurvivorFilter": true
+  },
+  "thresholds": {
+    "medianTop100Overlap": 0.95,
+    "p10Top100Overlap": 0.9,
+    "signalInclusionRecall": 0.98
+  },
+  "dataCoverage": {
+    "observedGroups": 111,
+    "observedSymbols": 527,
+    "completeSymbols": 527,
+    "incompleteSymbols": [],
+    "matchedSignalRows": 0
+  },
+  "metrics": {
+    "method": "ROLLING_15M_24H_VOLUME_PROXY",
+    "snapshotsCompared": 111,
+    "medianTop100Overlap": 1,
+    "p10Top100Overlap": 1,
+    "rankSpearman": 0.9999864412420502,
+    "signalInclusionRecall": null,
+    "comparisons": [
+      {
+        "timestamp": 1787702437349,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999980322849568,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787703420888,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999935229379824,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787704320848,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999947527598845,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787705220565,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999996228546167,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787706120896,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999953266767722,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787707020595,
+        "top100Overlap": 0.99,
+        "rankSpearman": 0.9999886036503739,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787707920520,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999967204749278,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787708820612,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999970484274351,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787709722300,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999957366174062,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787710620560,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999971304155619,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787711520972,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999871278640914,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787712421097,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999934409498555,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787713320456,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999925390804607,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787714220572,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999956546292793,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787715120473,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999879477453595,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787716020459,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999848321965408,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787716920600,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999881937097399,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787717820583,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999854881015552,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787718720939,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999927030567143,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787719620574,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999945067955041,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787720520792,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999874558165986,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787721420636,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999935229379824,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787722320614,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999985160149048,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787723220551,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999942608311236,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787724120529,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999992375104207,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787725020561,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999913092585586,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787725921186,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999490033851259,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787726820540,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999989423531642,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787727720465,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999987291840345,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787728620592,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999993276973602,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787729520435,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999949987242649,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787730420569,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999895875078956,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787731320395,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999871278640914,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787732220474,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999904073891637,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787733120328,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999668884528692,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787734020510,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999742280401426,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787734921244,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999542109839425,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787735820591,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999866552958667,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787736720475,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999826518846266,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787737620873,
+        "top100Overlap": 0.99,
+        "rankSpearman": 0.9999727267609275,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787738520475,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999788152821883,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787739420511,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999932442435325,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787740320757,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999907421115075,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787741220590,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999836527374367,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787742120429,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999887404058875,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787743020550,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999836527374367,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787743920375,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999870723178709,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787744820397,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999899080674992,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787745721085,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999815676274159,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787746620409,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999909089203092,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787747520524,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999406160666068,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787748420321,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999898246630984,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787749320482,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999991492751115,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787750220241,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999768969809693,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787751120449,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999882399794825,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787752020321,
+        "top100Overlap": 1,
+        "rankSpearman": 0.99997597953256,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787752920456,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999769803853701,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787753820355,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999917429643175,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787754721004,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999615505712159,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787755620364,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999797327305975,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787756520484,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999742280401426,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787757420285,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999678059012784,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787758321276,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999894076410942,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787759220515,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999869055090692,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787760120499,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999876561486767,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787761020461,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999068372842693,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787761920706,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999947455227475,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787762820459,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999921599863216,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787763720586,
+        "top100Overlap": 0.99,
+        "rankSpearman": 0.9999950791403508,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787764620432,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999933276479334,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787765520515,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999945787139458,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787766420437,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999948289271483,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787767320442,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999931608391317,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787768220434,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999957463755575,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787769121231,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999996497015165,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787770020521,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999959131843592,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787770920586,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999969140371692,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787771820507,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999931608391317,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787772720446,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999984486781445,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787773620541,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999904084939042,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787774520492,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999928272215284,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787775420504,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999956629711567,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787776320454,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999958297799584,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787777220446,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999877395530775,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787778120877,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999929106259292,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787779020520,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999934110523342,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787779921111,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999933276479334,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787780820445,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999960799931609,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787781720425,
+        "top100Overlap": 1,
+        "rankSpearman": 0.999991492751115,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787782620491,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999869055090692,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787783520490,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999916595599166,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787784420590,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999783982601842,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787785320465,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999888238102883,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787786220504,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999954961623551,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787787120609,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999945787139458,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787788020596,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999943285007433,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787788920678,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9998685546642868,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787789820629,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999882399794825,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787790721189,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999910757291108,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787791620635,
+        "top100Overlap": 0.99,
+        "rankSpearman": 0.9999924936039251,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787792520426,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999887404058875,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787793420454,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999899080674992,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787794320885,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999941616919417,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787795220506,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999959131843592,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787796120486,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999932442435325,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787797020466,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999868221046684,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787797921146,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999874059354742,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787798820426,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999906587071067,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787799721208,
+        "top100Overlap": 0.99,
+        "rankSpearman": 0.999987489339875,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787800620423,
+        "top100Overlap": 1,
+        "rankSpearman": 0.9999950791403508,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      },
+      {
+        "timestamp": 1787801520428,
+        "top100Overlap": 0.99,
+        "rankSpearman": 0.9999924101995242,
+        "signalInclusionRecall": null,
+        "signalCount": 0
+      }
+    ],
+    "pass": false,
+    "reasons": [
+      "Signal-symbol inclusion recall is below 98%."
+    ]
+  },
+  "caches": {
+    "initial": {
+      "path": "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m.json",
+      "bytes": 22367361,
+      "sha256": "61f8dece0b0212683f361ee0a56fdbfb61e87bfc884b5c5ca48f9c294af9e0ca",
+      "schema": "bca-lfv-001-observed-universe-rest-cache-v1",
+      "source": "https://fapi.binance.com/fapi/v1/klines",
+      "interval": "15m",
+      "capturedAt": "2026-08-29T09:40:21.890Z",
+      "resultCount": 527,
+      "errorCount": 125
+    },
+    "retry": {
+      "path": "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json",
+      "bytes": 6981047,
+      "sha256": "80517ad6dec63637a4a2812ca64b5eabb17bbc2fd9f5a79a70fe64c4f6863d09",
+      "schema": "bca-lfv-001-observed-universe-rest-retry-cache-v1",
+      "source": "https://fapi.binance.com/fapi/v1/klines",
+      "interval": "15m",
+      "capturedAt": "2026-08-29T10:01:59.269Z",
+      "resultCount": 125,
+      "errorCount": 0
+    }
+  },
+  "sourceReports": {
+    "observed": {
+      "path": "reports/lfv-001-observed-universe-evidence-v1.json",
+      "sha256": "bdcbe84b37b1cb38796108764acd12c3e8781a5318fde186fb2928e3c002c5ea"
+    },
+    "live": {
+      "path": "reports/lfv-001-live-parity-input-v1.json",
+      "sha256": "55317e8d9728aa0109273fd98d54b4113da2c9777e91dff1348588269908e716"
+    }
+  }
+}

@@ -1,19 +1,171 @@
 {
-  "schema": "bca-lfv-001-decision-v2",
-  "generatedAt": "2026-08-29T07:37:17.267Z",
+  "schema": "bca-lfv-001-decision-v3",
+  "generatedAt": "2026-08-29T10:30:19.865Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "originalFreezeCommit": "d68737cbd27c38e8fb09812ab225cfaaec56f037",
   "originalFreezeSHA256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
-  "freezeSha256": "0eaf68c7839bda0751b7c40f7d83db7470d508e2e14f300e032b5612003c7d8f",
+  "dataFreezeSha256": "0eaf68c7839bda0751b7c40f7d83db7470d508e2e14f300e032b5612003c7d8f",
+  "replayFreezeSha256": "d9becb586abe55d3f35bc17d13d11e47d24dccb20f6a666058af9e82b9245392",
   "dataGate": "PASS",
   "dataGateCode": null,
-  "status": "LFV_REPLAY_PARITY_FAIL",
-  "finalClassification": "LFV_REPLAY_PARITY_FAIL",
+  "universeParity": {
+    "status": "FAIL",
+    "code": "LFV_UNIVERSE_PARITY_FAIL",
+    "metrics": {
+      "method": "ROLLING_15M_24H_VOLUME_PROXY",
+      "snapshotsCompared": 111,
+      "medianTop100Overlap": 1,
+      "p10Top100Overlap": 1,
+      "rankSpearman": 0.9999864412420502,
+      "signalInclusionRecall": null,
+      "pass": false,
+      "report": "reports/lfv-001-universe-parity.json"
+    },
+    "dataCoverage": {
+      "observedGroups": 111,
+      "observedSymbols": 527,
+      "completeSymbols": 527,
+      "incompleteSymbols": [],
+      "matchedSignalRows": 0
+    }
+  },
+  "v4Provenance": {
+    "strategyVersion": "rules-profit-oriented-v4",
+    "sourceCommit": "29edac8a98f7f9564ed8fdd754854de6a85a20ba",
+    "status": "V4_REPLAY_PROVENANCE_FAIL",
+    "sourceEvidence": [
+      "The historical source commit contains the V4 strategy identifier and the Production route entry point.",
+      "The 26 August paper rows contain observed outputs but are LIVE_OBSERVATION_ONLY and cannot restore runtime configuration."
+    ],
+    "documentedDefaults": {
+      "minimumScore": 60,
+      "sideFilter": null,
+      "strategyFamily": null,
+      "requireRegimeAlignment": null,
+      "stopAtrMultiplier": 0.25,
+      "rewardRisk": null,
+      "cooldownHours": null,
+      "entryIntervalHours": null,
+      "takerFeeRate": null,
+      "slippageBps": null
+    },
+    "missingRuntimeFields": [
+      "Production environment values for side/family/regime filters",
+      "CS_STRATEGY_STOP_ATR_MULTIPLIER effective value",
+      "reward-risk, cooldown, entry interval and execution-cost policy",
+      "historical instrument filters used for quantity/price rounding"
+    ],
+    "runtimeConfig": null
+  },
+  "trendProvenance": {
+    "strategyVersion": "trend-rejection-short-v1",
+    "entryMode": "TREND_REJECTION",
+    "sourceCommit": "1a6f0663e4dfe71869373cb41863856581713a7c",
+    "status": "RESTORED",
+    "runtimeConfig": {
+      "minimumScore": 70,
+      "sideFilter": "SHORT",
+      "strategyFamily": "TREND",
+      "requireRegimeAlignment": true,
+      "stopAtrMultiplier": 0.5,
+      "rewardRisk": 2,
+      "riskPerTradeUsdt": 50,
+      "maxPositionNotionalUsdt": 10000,
+      "maxConcurrentPositions": 1,
+      "cooldownHours": 8,
+      "entryIntervalHours": 1,
+      "maxExecutionCostRiskFraction": 0.1,
+      "marginUsdt": 100,
+      "perSignalRiskCapUsdt": 100,
+      "dailyRiskBudgetUsdt": 600,
+      "assumedLeverage": 20,
+      "maxHoldHours": 72,
+      "takerFeeRate": 0.0004,
+      "slippageBps": 2
+    }
+  },
+  "liveParity": {
+    "schema": "bca-lfv-001-live-parity-v2",
+    "generatedAt": "2026-08-29T10:30:19.861Z",
+    "status": "NOT_RUN",
+    "code": "LFV_REPLAY_PARITY_FAIL",
+    "returnsRead": false,
+    "observations": {
+      "count": 44,
+      "cutoff": "2026-08-01T00:00:00.000Z",
+      "treatment": "LIVE_OBSERVATION_ONLY"
+    },
+    "thresholds": {
+      "signalMatchRate": 0.95,
+      "scoreDelta": 0.5,
+      "priceRelativeError": 0.0025
+    },
+    "v4": {
+      "strategyVersion": "rules-profit-oriented-v4",
+      "sourceCommit": "29edac8a98f7f9564ed8fdd754854de6a85a20ba",
+      "status": "V4_REPLAY_PROVENANCE_FAIL",
+      "sourceEvidence": [
+        "The historical source commit contains the V4 strategy identifier and the Production route entry point.",
+        "The 26 August paper rows contain observed outputs but are LIVE_OBSERVATION_ONLY and cannot restore runtime configuration."
+      ],
+      "documentedDefaults": {
+        "minimumScore": 60,
+        "sideFilter": null,
+        "strategyFamily": null,
+        "requireRegimeAlignment": null,
+        "stopAtrMultiplier": 0.25,
+        "rewardRisk": null,
+        "cooldownHours": null,
+        "entryIntervalHours": null,
+        "takerFeeRate": null,
+        "slippageBps": null
+      },
+      "missingRuntimeFields": [
+        "Production environment values for side/family/regime filters",
+        "CS_STRATEGY_STOP_ATR_MULTIPLIER effective value",
+        "reward-risk, cooldown, entry interval and execution-cost policy",
+        "historical instrument filters used for quantity/price rounding"
+      ],
+      "runtimeConfig": null
+    },
+    "trend": {
+      "strategyVersion": "trend-rejection-short-v1",
+      "entryMode": "TREND_REJECTION",
+      "sourceCommit": "1a6f0663e4dfe71869373cb41863856581713a7c",
+      "status": "RESTORED",
+      "runtimeConfig": {
+        "minimumScore": 70,
+        "sideFilter": "SHORT",
+        "strategyFamily": "TREND",
+        "requireRegimeAlignment": true,
+        "stopAtrMultiplier": 0.5,
+        "rewardRisk": 2,
+        "riskPerTradeUsdt": 50,
+        "maxPositionNotionalUsdt": 10000,
+        "maxConcurrentPositions": 1,
+        "cooldownHours": 8,
+        "entryIntervalHours": 1,
+        "maxExecutionCostRiskFraction": 0.1,
+        "marginUsdt": 100,
+        "perSignalRiskCapUsdt": 100,
+        "dailyRiskBudgetUsdt": 600,
+        "assumedLeverage": 20,
+        "maxHoldHours": 72,
+        "takerFeeRate": 0.0004,
+        "slippageBps": 2
+      }
+    },
+    "reason": "Live observations are retained for parity only; historical returns are blocked until universe and runtime replay parity pass."
+  },
+  "status": "LFV_UNIVERSE_PARITY_FAIL",
+  "finalClassification": "LFV_UNIVERSE_PARITY_FAIL",
   "researchStop": true,
   "returnsRead": false,
   "metrics": null,
   "reasons": [
-    "Data Gate passed, but an independently frozen Production replay export is not available; historical returns remain unread."
+    "Signal-symbol inclusion recall is below 98%.",
+    "Universe parity: Signal-symbol inclusion recall is below 98%.",
+    "V4 provenance: V4_REPLAY_PROVENANCE_FAIL"
   ],
   "unchangedDefinitions": {
     "hypotheses": {
@@ -49,5 +201,5 @@
     "#002": "STOPPED",
     "v14": "UNCHANGED"
   },
-  "nextStep": "Obtain an independently frozen Production replay export; do not read returns or tune H1-H4 until parity passes."
+  "nextStep": "Research stopped fail-closed. Do not read historical returns or tune H1-H4; only a newly authorized LFV project may proceed after restoring the missing immutable evidence."
 }

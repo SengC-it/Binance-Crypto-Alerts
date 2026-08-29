@@ -1,12 +1,13 @@
 {
-  "schema": "bca-lfv-001-replay-parity-v2",
+  "schema": "bca-lfv-001-replay-parity-v3",
   "status": "NOT_RUN",
-  "code": "LFV_REPLAY_PARITY_FAIL",
-  "reason": "Data Gate passed, but an independently frozen Production replay export is not available; historical returns remain unread.",
+  "code": "LFV_UNIVERSE_PARITY_FAIL",
+  "reason": "Signal-symbol inclusion recall is below 98%.",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "metrics": null,
   "returnsRead": false,
-  "note": "No strategy returns were read after the mandatory data/replay gate stopped the run; no missing value was imputed.",
+  "note": "No strategy returns were read after the mandatory data, universe, or provenance gate stopped the run; no missing value was imputed.",
+  "freezeSha256": "d9becb586abe55d3f35bc17d13d11e47d24dccb20f6a666058af9e82b9245392",
   "liveObservationDiagnostic": {
     "count": 44,
     "cutoff": "2026-08-01T00:00:00.000Z",

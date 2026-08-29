@@ -1,4 +1,4 @@
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   LFV_COMBINED_PRIMARY,
@@ -28,20 +28,26 @@ const CODE_FILES = [
   "lib/lfv/loss-factors.ts",
   "lib/lfv/production-replay.ts",
   "lib/lfv/provenance.ts",
+  "lib/lfv/observed-parity.ts",
   "lib/lfv/universe-replay.ts",
+  "scripts/run-lfv-001-data-pipeline.ts",
+  "scripts/run-lfv-001-validation.ts",
+  "scripts/run-lfv-001-universe-parity.ts",
+  "scripts/validate-lfv-001-artifact.ts",
+  "tests/lfv-001-replay.test.ts",
 ];
 
-async function fileHash(path: string): Promise<{ path: string; bytes: number; sha256: string }> {
-  const content = await readFile(path, "utf8");
-  return { path, bytes: Buffer.byteLength(content), sha256: sha256Text(content) };
+async function fileHash(relativePath: string): Promise<{ path: string; bytes: number; sha256: string }> {
+  const content = await readFile(resolve(relativePath), "utf8");
+  return { path: relativePath.replaceAll("\\", "/"), bytes: Buffer.byteLength(content), sha256: sha256Text(content) };
 }
 
-async function optionalDataCacheHash(path: string): Promise<Record<string, unknown>> {
+async function optionalDataCacheHash(path: string, relativePath: string): Promise<Record<string, unknown>> {
   try {
     const [content, metadata] = await Promise.all([readFile(path, "utf8"), stat(path)]);
     const parsed = JSON.parse(content) as Record<string, unknown>;
     return {
-      path: path.replace(`${DATA_ROOT}\\`, "data/raw/").replaceAll("\\", "/"),
+      path: relativePath.replaceAll("\\", "/"),
       bytes: metadata.size,
       sha256: sha256Text(content),
       capturedAt: parsed.capturedAt ?? null,
@@ -49,16 +55,16 @@ async function optionalDataCacheHash(path: string): Promise<Record<string, unkno
       errorCount: Array.isArray(parsed.results) ? parsed.results.filter((item) => Boolean((item as Record<string, unknown>).error)).length : null,
     };
   } catch {
-    return { path: path.replace(`${DATA_ROOT}\\`, "data/raw/").replaceAll("\\", "/"), status: "NOT_AVAILABLE" };
+    return { path: relativePath.replaceAll("\\", "/"), status: "NOT_AVAILABLE" };
   }
 }
 
 async function main(): Promise<void> {
   const original = JSON.parse(await readFile(resolve(REPORT_DIR, "lfv-001-freeze-manifest.json"), "utf8")) as Record<string, unknown>;
   const dataFreeze = JSON.parse(await readFile(resolve(REPORT_DIR, "lfv-001-data-freeze-v2.json"), "utf8")) as Record<string, unknown>;
-  const observed = await fileHash(resolve(REPORT_DIR, "lfv-001-observed-universe-evidence-v1.json"));
-  const liveParity = await fileHash(resolve(REPORT_DIR, "lfv-001-live-parity-input-v1.json"));
-  const code = await Promise.all(CODE_FILES.map((path) => fileHash(resolve(path))));
+  const observed = await fileHash("reports/lfv-001-observed-universe-evidence-v1.json");
+  const liveParity = await fileHash("reports/lfv-001-live-parity-input-v1.json");
+  const code = await Promise.all(CODE_FILES.map((path) => fileHash(path)));
   const core = {
     schema: "bca-lfv-001-replay-freeze-v3",
     status: "FROZEN_BEFORE_RETURN_READ",
@@ -87,8 +93,14 @@ async function main(): Promise<void> {
         p10Top100Overlap: ">=0.90",
         signalInclusionRecall: ">=0.98",
       },
-      rawCache: await optionalDataCacheHash(resolve(DATA_ROOT, "lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m.json")),
-      retryCache: await optionalDataCacheHash(resolve(DATA_ROOT, "lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json")),
+      rawCache: await optionalDataCacheHash(
+        resolve(DATA_ROOT, "lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m.json"),
+        "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m.json",
+      ),
+      retryCache: await optionalDataCacheHash(
+        resolve(DATA_ROOT, "lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json"),
+        "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json",
+      ),
     },
     productionReplay: {
       cadence: "15m closed-candle schedule",
@@ -104,12 +116,13 @@ async function main(): Promise<void> {
     returnsRead: false,
     productionBoundary: LFV_SYSTEM_BOUNDARY,
   };
+  const serializedCore = JSON.parse(JSON.stringify(core)) as typeof core;
   const freeze = {
-    ...core,
+    ...serializedCore,
     generatedAt: new Date().toISOString(),
-    freezeSha256: sha256Text(stableStringify(core)),
+    freezeSha256: sha256Text(stableStringify(serializedCore)),
   };
-  await (await import("node:fs/promises")).writeFile(OUTPUT, `${JSON.stringify(freeze, null, 2)}\n`, "utf8");
+  await writeFile(OUTPUT, `${JSON.stringify(freeze, null, 2)}\n`, "utf8");
   console.info(JSON.stringify({ output: OUTPUT, freezeSha256: freeze.freezeSha256, returnsRead: false }, null, 2));
 }
 
