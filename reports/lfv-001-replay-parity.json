@@ -1,0 +1,13 @@
+{
+  "schema": "bca-lfv-001-replay-parity-v1",
+  "status": "NOT_RUN",
+  "reason": "LFV_DATA_INSUFFICIENT",
+  "metrics": null,
+  "note": "No returns were read after the mandatory data gate failed; no missing value is imputed.",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "liveObservationDiagnostic": "NOT_RUN",
+  "strategies": {
+    "rules-profit-oriented-v4": "NOT_RUN",
+    "trend-rejection-short-v1": "NOT_RUN"
+  }
+}

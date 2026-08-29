@@ -1,0 +1,31 @@
+{
+  "schema": "bca-lfv-001-decision-v1",
+  "generatedAt": "2026-08-29T05:10:46.361Z",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "freezeSha256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
+  "dataGate": "FAIL",
+  "status": "LFV_DATA_INSUFFICIENT",
+  "finalClassification": "LFV_DATA_INSUFFICIENT",
+  "researchStop": true,
+  "returnsRead": false,
+  "metrics": null,
+  "reasons": [
+    "PIT manifest status is INCOMPLETE; exact historical listing/delisting reconstruction is not proven",
+    "available historical 15m archive breadth peaks at 41 symbols, below Production top_symbols=100",
+    "historical 15m archive coverage is 0.00%, below required 98.00%"
+  ],
+  "production": {
+    "changed": false,
+    "strategyChanged": false,
+    "email": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "liveSignalEmail": false,
+    "#002": "STOPPED",
+    "v14": "UNCHANGED"
+  },
+  "nextStep": "Do not tune existing Production strategies; obtain complete immutable PIT top-100 data before any new LFV run."
+}

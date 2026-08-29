@@ -1,0 +1,48 @@
+{
+  "schema": "bca-lfv-001-evidence-manifest-v1",
+  "generatedAt": "2026-08-29T05:10:46.369Z",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "rawHistoricalDataCommitted": false,
+  "reports": [
+    {
+      "path": "reports/lfv-001-freeze-manifest.json",
+      "bytes": 4629,
+      "sha256": "aca8d2f070b8ab9c499fab587688f28010eee33499fd2eb694c0bf0ebcf1e4af"
+    },
+    {
+      "path": "reports/lfv-001-data-gate.json",
+      "bytes": 3053,
+      "sha256": "fcfb3fa9d3090063de485cdb34e37a7eda06fe556da8cf66b8fc9ab6828ddcdc"
+    },
+    {
+      "path": "reports/lfv-001-replay-parity.json",
+      "bytes": 435,
+      "sha256": "869bf77f59406dcca73ad3b993dddc35c41562a05724175bbaae659465c268e0"
+    },
+    {
+      "path": "reports/lfv-001-factor-results.json",
+      "bytes": 1067,
+      "sha256": "88b6109b073d1ce6c6c6ec4c502d046330a6ed6a306a98fe09fcb2792b854ab5"
+    },
+    {
+      "path": "reports/lfv-001-combined-results.json",
+      "bytes": 448,
+      "sha256": "be2bd4c07b85848eaaac02763e868b63fb84a0f729e273f6c1ceac732fbf22eb"
+    },
+    {
+      "path": "reports/lfv-001-holdouts.json",
+      "bytes": 464,
+      "sha256": "88268347fd14fb25ab1a3a6325c72f2bbe4e6fd942eaca2d50594ff69317b6a4"
+    },
+    {
+      "path": "reports/lfv-001-decision.json",
+      "bytes": 1127,
+      "sha256": "5266a7169027523932cc38072cf35e3b3d6d9de72bda000f0b10b49d064f9b63"
+    },
+    {
+      "path": "reports/lfv-001-decision.md",
+      "bytes": 903,
+      "sha256": "787d395fe748f698d090569018b12c20ff2842afd8746aa431edea29ab7f4d83"
+    }
+  ]
+}

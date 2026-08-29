@@ -1,0 +1,17 @@
+{
+  "schema": "bca-lfv-001-combined-results-v1",
+  "status": "NOT_RUN",
+  "reason": "LFV_DATA_INSUFFICIENT",
+  "metrics": null,
+  "note": "No returns were read after the mandatory data gate failed; no missing value is imputed.",
+  "definition": [
+    "SESSION_18_23_SGT_BLOCK",
+    "HIGH_VOL_Q4_BLOCK",
+    "DELAY_30M",
+    "STOP_COOLDOWN_12H"
+  ],
+  "strategies": {
+    "rules-profit-oriented-v4": null,
+    "trend-rejection-short-v1": null
+  }
+}
