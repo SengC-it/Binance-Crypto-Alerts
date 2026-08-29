@@ -1,4 +1,4 @@
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   createLfvDataFreezeV2,
@@ -13,18 +13,18 @@ import {
 } from "@/lib/lfv/loss-factors";
 import { LFV_V4_PROVENANCE, LFV_TREND_PROVENANCE, LFV_LIVE_PARITY_THRESHOLDS } from "@/lib/lfv/provenance";
 import {
-  calculateObservedUniverseParity,
   type LiveParitySymbolInput,
-  type ObservedProxyResultInput,
+  type ObservedUniverseGroupInput,
 } from "@/lib/lfv/observed-parity";
 import { sha256Text, stableStringify } from "@/lib/lfv/archive-data";
 
 const REPORT_DIR = resolve("reports");
-const DATA_ROOT = resolve("../../data/raw");
 const ORIGINAL_FREEZE_COMMIT = "d68737cbd27c38e8fb09812ab225cfaaec56f037";
 const ORIGINAL_FREEZE_SHA256 = "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9";
 const REPLAY_FREEZE_V3_NAME = "lfv-001-replay-freeze-v3.json";
 const REPLAY_FREEZE_NAME = "lfv-001-replay-freeze-v4.json";
+const FINAL_EXECUTION_FREEZE_NAME = "lfv-001-final-execution-freeze.json";
+const LIVE_SIGNAL_UNIVERSE_NAME = "lfv-001-live-signal-universe-v2.json";
 const REQUIRED_REPORTS = [
   "lfv-001-freeze-manifest.json",
   "lfv-001-data-freeze-v2.json",
@@ -34,6 +34,8 @@ const REQUIRED_REPORTS = [
   REPLAY_FREEZE_NAME,
   "lfv-001-observed-universe-evidence-v1.json",
   "lfv-001-live-parity-input-v1.json",
+  LIVE_SIGNAL_UNIVERSE_NAME,
+  FINAL_EXECUTION_FREEZE_NAME,
   "lfv-001-universe-parity.json",
   "lfv-001-live-parity.json",
   "lfv-001-replay-parity.json",
@@ -46,14 +48,6 @@ const REQUIRED_REPORTS = [
 
 type JsonObject = Record<string, unknown>;
 type StopCode = "LFV_DATA_INSUFFICIENT_FINAL" | "LFV_UNIVERSE_PARITY_FAIL" | "LFV_UNIVERSE_PARITY_INSUFFICIENT" | "V4_REPLAY_PROVENANCE_FAIL" | "V4_REPLAY_PROVENANCE_UNAVAILABLE" | "LFV_REPLAY_PARITY_FAIL";
-
-interface ProxyCacheFile {
-  schema?: string;
-  source?: string;
-  interval?: string;
-  capturedAt?: string;
-  results?: ObservedProxyResultInput[];
-}
 
 async function readJson(name: string): Promise<JsonObject> {
   return JSON.parse(await readFile(resolve(REPORT_DIR, name), "utf8")) as JsonObject;
@@ -133,35 +127,35 @@ async function readReplayFreeze(): Promise<JsonObject> {
   return freeze;
 }
 
-async function readOptionalCache(path: string, label: string): Promise<{ cache: ProxyCacheFile | null; evidence: JsonObject }> {
-  try {
-    const [content, metadata] = await Promise.all([readFile(path, "utf8"), stat(path)]);
-    const cache = JSON.parse(content) as ProxyCacheFile;
-    if (!Array.isArray(cache.results)) throw new Error("results is not an array");
-    return {
-      cache,
-      evidence: {
-        path: label,
-        bytes: metadata.size,
-        sha256: sha256Text(content),
-        schema: cache.schema ?? null,
-        source: cache.source ?? null,
-        interval: cache.interval ?? null,
-        capturedAt: cache.capturedAt ?? null,
-        resultCount: cache.results.length,
-        errorCount: cache.results.filter((item) => Boolean(item.error)).length,
-      },
-    };
-  } catch (error) {
-    return {
-      cache: null,
-      evidence: {
-        path: label,
-        status: "NOT_AVAILABLE",
-        error: error instanceof Error ? error.message : String(error),
-      },
-    };
+async function readFinalExecutionFreeze(): Promise<JsonObject> {
+  const freeze = await readJson(FINAL_EXECUTION_FREEZE_NAME);
+  const freezeSha256 = freeze.freezeSha256;
+  const core = Object.fromEntries(Object.entries(freeze).filter(([key]) => key !== "freezeSha256" && key !== "generatedAt"));
+  if (freeze.schema !== "bca-lfv-001-final-execution-freeze-v1" || freeze.status !== "FROZEN_BEFORE_RETURN_READ") {
+    throw new Error("LFV final execution freeze schema/status mismatch");
   }
+  if (freezeSha256 !== sha256Text(stableStringify(core))) throw new Error("LFV final execution freeze hash mismatch");
+  if (freeze.originalFreezeCommit !== ORIGINAL_FREEZE_COMMIT || freeze.originalFreezeSHA256 !== ORIGINAL_FREEZE_SHA256) {
+    throw new Error("LFV final execution freeze original provenance mismatch");
+  }
+  if (freeze.returnsRead !== false) throw new Error("LFV final execution freeze returns-read boundary failed");
+  const liveUniverse = freeze.liveSignalUniverse as JsonObject | undefined;
+  if (liveUniverse?.reportSha256 === undefined || !["PASS", "FAIL"].includes(String(liveUniverse.status))) {
+    throw new Error("LFV final execution freeze does not reference the frozen live-signal universe result");
+  }
+  return freeze;
+}
+
+async function readLiveSignalUniverse(): Promise<{ report: JsonObject; content: string }> {
+  const content = await readFile(resolve(REPORT_DIR, LIVE_SIGNAL_UNIVERSE_NAME), "utf8");
+  const report = JSON.parse(content) as JsonObject;
+  const { reportSha256, ...core } = report;
+  if (report.schema !== "bca-lfv-001-live-signal-universe-v2" || reportSha256 !== sha256Text(stableStringify(core))) {
+    throw new Error("LFV live-signal universe v2 schema/hash mismatch");
+  }
+  const dataCoverage = report.dataCoverage as JsonObject | undefined;
+  if (Number(dataCoverage?.frozenSignals) !== 44) throw new Error("LFV live-signal universe v2 does not cover 44 frozen rows");
+  return { report, content };
 }
 
 function emptyUniverseMetrics(reason: string): JsonObject {
@@ -183,22 +177,27 @@ async function writeUniverseParityReport(dataGatePass: boolean): Promise<JsonObj
   const livePath = resolve(REPORT_DIR, "lfv-001-live-parity-input-v1.json");
   const observedContent = await readFile(observedPath, "utf8");
   const liveContent = await readFile(livePath, "utf8");
-  const observed = JSON.parse(observedContent) as { groups: Parameters<typeof calculateObservedUniverseParity>[0]["groups"] };
+  const observed = JSON.parse(observedContent) as { groups: ObservedUniverseGroupInput[] };
   const live = JSON.parse(liveContent) as { rows: LiveParitySymbolInput[] };
-  const initial = await readOptionalCache(
-    resolve(DATA_ROOT, "lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m.json"),
-    "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m.json",
-  );
-  const retry = await readOptionalCache(
-    resolve(DATA_ROOT, "lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json"),
-    "data/raw/lfv-001-cache/observed-universe-rest/2026-08-25_to_2026-08-27_15m_retry.json",
-  );
+  const observedSymbols = new Set(observed.groups.flatMap((group) => [
+    ...group.observedRankedSymbols,
+    ...group.selectedForEvaluation,
+  ])).size;
 
-  let status: "PASS" | "FAIL" | "NOT_RUN";
-  let code: string | null;
-  let reason: string;
-  let metrics: JsonObject;
-  let dataCoverage: JsonObject;
+  let status: "PASS" | "FAIL" | "NOT_RUN" = "FAIL";
+  let code: string | null = "LFV_UNIVERSE_PARITY_INSUFFICIENT";
+  let reason = "Archive-derived PIT live-signal universe parity was not evaluated.";
+  let metrics: JsonObject = emptyUniverseMetrics(reason);
+  let dataCoverage: JsonObject = {
+    observedGroups: observed.groups.length,
+    observedSymbols,
+    completeSymbols: 0,
+    incompleteSymbols: [],
+    matchedSignalRows: 0,
+    signalRowsEvaluated: 0,
+    signalRowsIncluded: 0,
+    signalRowsMissingArchive: live.rows.length,
+  };
   if (!dataGatePass) {
     status = "NOT_RUN";
     code = null;
@@ -214,40 +213,63 @@ async function writeUniverseParityReport(dataGatePass: boolean): Promise<JsonObj
       signalRowsIncluded: 0,
       signalRowsMissingArchive: 0,
     };
-  } else if (!initial.cache?.results) {
-    status = "FAIL";
-    code = "LFV_UNIVERSE_PARITY_INSUFFICIENT";
-    reason = "Immutable observed-universe 15m proxy cache is unavailable or invalid.";
-    metrics = emptyUniverseMetrics(reason);
-    dataCoverage = {
-      observedGroups: observed.groups.length,
-      observedSymbols: 0,
-      completeSymbols: 0,
-      incompleteSymbols: [],
-      matchedSignalRows: 0,
-      signalRowsEvaluated: 0,
-      signalRowsIncluded: 0,
-      signalRowsMissingArchive: live.rows.length,
-    };
   } else {
-    const result = calculateObservedUniverseParity({
-      groups: observed.groups,
-      initialResults: initial.cache.results,
-      retryResults: retry.cache?.results,
-      liveRows: live.rows,
-    });
-    status = result.metrics.pass ? "PASS" : "FAIL";
-    const signalCoverage = live.rows.length === 0
-      ? 0
-      : result.dataCoverage.signalRowsEvaluated / live.rows.length;
-    code = result.metrics.pass
-      ? null
-      : signalCoverage < 0.95
-        ? "LFV_UNIVERSE_PARITY_INSUFFICIENT"
-        : "LFV_UNIVERSE_PARITY_FAIL";
-    reason = result.metrics.pass ? "PIT rolling-volume universe parity passed." : result.metrics.reasons.join("; ");
-    metrics = { ...result.metrics };
-    dataCoverage = result.dataCoverage;
+    let reconstructed: { report: JsonObject; content: string } | null = null;
+    try {
+      reconstructed = await readLiveSignalUniverse();
+    } catch (error) {
+      status = "FAIL";
+      code = "LFV_UNIVERSE_PARITY_INSUFFICIENT";
+      reason = `Archive-derived PIT live-signal universe report is unavailable or invalid: ${error instanceof Error ? error.message : String(error)}`;
+      metrics = emptyUniverseMetrics(reason);
+      dataCoverage = {
+        observedGroups: observed.groups.length,
+        observedSymbols,
+        completeSymbols: 0,
+        incompleteSymbols: [],
+        matchedSignalRows: 0,
+        signalRowsEvaluated: 0,
+        signalRowsIncluded: 0,
+        signalRowsMissingArchive: live.rows.length,
+      };
+    }
+    if (reconstructed !== null) {
+      const archiveReport = reconstructed.report;
+      const archiveCoverage = archiveReport.dataCoverage as JsonObject;
+      const observedDiagnostic = archiveReport.observedParityDiagnostic as JsonObject;
+      const signalCoverage = Number(archiveCoverage.signalCoverage);
+      const signalInclusionRecall = archiveCoverage.signalInclusionRecall === null ? null : Number(archiveCoverage.signalInclusionRecall);
+      status = archiveReport.status === "PASS" ? "PASS" : "FAIL";
+      code = status === "PASS" ? null : signalCoverage < 0.95 ? "LFV_UNIVERSE_PARITY_INSUFFICIENT" : "LFV_UNIVERSE_PARITY_FAIL";
+      reason = status === "PASS"
+        ? "Archive-derived PIT live-signal universe parity passed."
+        : (Array.isArray(archiveReport.reasons) ? archiveReport.reasons.join("; ") : "Archive-derived PIT live-signal universe parity failed.");
+      metrics = {
+        method: "ROLLING_15M_24H_VOLUME_PROXY",
+        snapshotsCompared: Array.isArray(archiveReport.snapshots) ? archiveReport.snapshots.length : 0,
+        medianTop100Overlap: observedDiagnostic.medianTop100Overlap ?? null,
+        p10Top100Overlap: observedDiagnostic.p10Top100Overlap ?? null,
+        rankSpearman: observedDiagnostic.rankSpearman ?? null,
+        signalInclusionRecall,
+        pass: archiveReport.pass === true,
+        reasons: archiveReport.reasons ?? [],
+        observedDiagnostic,
+      };
+      dataCoverage = {
+        observedGroups: observed.groups.length,
+        observedSymbols,
+        completeSymbols: archiveCoverage.snapshotsWithCompleteCandidateData === undefined ? null : archiveCoverage.snapshotsWithCompleteCandidateData,
+        incompleteSymbols: [],
+        matchedSignalRows: archiveCoverage.signalRowsEvaluated,
+        signalRowsEvaluated: archiveCoverage.signalRowsEvaluated,
+        signalRowsIncluded: archiveCoverage.signalRowsIncluded,
+        signalRowsMissingArchive: archiveCoverage.signalRowsMissingArchive,
+        signalCoverage: archiveCoverage.signalCoverage,
+        signalInclusionRecall: archiveCoverage.signalInclusionRecall,
+        requestDataErrors: archiveCoverage.requestDataErrors ?? [],
+        snapshotsWithCompleteCandidateData: archiveCoverage.snapshotsWithCompleteCandidateData,
+      };
+    }
   }
   const report = {
     schema: "bca-lfv-001-universe-parity-v2",
@@ -255,7 +277,7 @@ async function writeUniverseParityReport(dataGatePass: boolean): Promise<JsonObj
     status,
     code,
     reason,
-    treatment: "OBSERVED_PRODUCTION_UNIVERSE_COMPARED_WITH_PIT_ROLLING_VOLUME_PROXY_ONLY",
+    treatment: "ARCHIVE_DERIVED_PIT_LIVE_SIGNAL_UNIVERSE_PRIMARY_WITH_OBSERVED_PARITY_DIAGNOSTIC_UNCHANGED",
     method: "ROLLING_15M_24H_VOLUME_PROXY",
     rules: {
       windowBars: 96,
@@ -269,10 +291,17 @@ async function writeUniverseParityReport(dataGatePass: boolean): Promise<JsonObj
     thresholds: { medianTop100Overlap: 0.95, p10Top100Overlap: 0.9, signalInclusionRecall: 0.98 },
     dataCoverage,
     metrics,
-    caches: { initial: initial.evidence, retry: retry.evidence },
     sourceReports: {
       observed: { path: "reports/lfv-001-observed-universe-evidence-v1.json", sha256: sha256Text(observedContent) },
       live: { path: "reports/lfv-001-live-parity-input-v1.json", sha256: sha256Text(liveContent) },
+      liveSignalUniverse: await (async () => {
+        try {
+          const liveUniverse = await readLiveSignalUniverse();
+          return { path: `reports/${LIVE_SIGNAL_UNIVERSE_NAME}`, sha256: sha256Text(liveUniverse.content), reportSha256: liveUniverse.report.reportSha256 };
+        } catch (error) {
+          return { path: `reports/${LIVE_SIGNAL_UNIVERSE_NAME}`, status: "NOT_AVAILABLE", error: error instanceof Error ? error.message : String(error) };
+        }
+      })(),
     },
   } satisfies JsonObject;
   await writeJson("lfv-001-universe-parity.json", report);
@@ -341,12 +370,13 @@ async function writeStopArtifacts(
   dataGate: DataGateV2,
   dataFreeze: JsonObject,
   replayFreeze: JsonObject,
+  finalExecutionFreeze: JsonObject,
   universe: JsonObject,
   liveParity: JsonObject,
 ): Promise<void> {
   const { code, reason } = stopReason(dataGate, universe);
-  const freezeSha256 = String(replayFreeze.freezeSha256);
-  const common = { baseline: LFV_BASELINE_SHA, freezeSha256, returnsRead: false };
+  const finalFreezeSha256 = String(finalExecutionFreeze.freezeSha256);
+  const common = { baseline: LFV_BASELINE_SHA, freezeSha256: finalFreezeSha256, returnsRead: false };
   await writeJson("lfv-001-replay-parity.json", {
     ...notRunArtifact("replay-parity", code, reason),
     ...common,
@@ -386,7 +416,8 @@ async function writeStopArtifacts(
     originalFreezeCommit: ORIGINAL_FREEZE_COMMIT,
     originalFreezeSHA256: ORIGINAL_FREEZE_SHA256,
     dataFreezeSha256: dataFreeze.freezeSha256,
-    replayFreezeSha256: freezeSha256,
+    replayFreezeSha256: replayFreeze.freezeSha256,
+    finalExecutionFreezeSha256: finalExecutionFreeze.freezeSha256,
     dataGate: dataGate.status,
     dataGateCode: dataGate.code,
     universeParity: {
@@ -476,10 +507,11 @@ async function validateOriginalFreezeOnly(): Promise<void> {
 async function runFull(): Promise<void> {
   const dataFreeze = await readDataFreeze();
   const replayFreeze = await readReplayFreeze();
+  const finalExecutionFreeze = await readFinalExecutionFreeze();
   const dataGate = await readFrozenDataGate(dataFreeze);
   const universe = await writeUniverseParityReport(dataGate.pass);
   const liveParity = await writeLiveParityReport();
-  await writeStopArtifacts(dataGate, dataFreeze, replayFreeze, universe, liveParity);
+  await writeStopArtifacts(dataGate, dataFreeze, replayFreeze, finalExecutionFreeze, universe, liveParity);
   await writeEvidenceManifest();
   const result = stopReason(dataGate, universe);
   console.info(JSON.stringify({

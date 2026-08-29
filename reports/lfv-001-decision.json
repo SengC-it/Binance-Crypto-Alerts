@@ -1,35 +1,40 @@
 {
   "schema": "bca-lfv-001-decision-v3",
-  "generatedAt": "2026-08-29T13:14:18.382Z",
+  "generatedAt": "2026-08-29T15:56:03.347Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "originalFreezeCommit": "d68737cbd27c38e8fb09812ab225cfaaec56f037",
   "originalFreezeSHA256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
   "dataFreezeSha256": "0eaf68c7839bda0751b7c40f7d83db7470d508e2e14f300e032b5612003c7d8f",
   "replayFreezeSha256": "28d6b4c640be88099af1d9570f5dd790b3875315c45e5508d46d09ea8723801c",
+  "finalExecutionFreezeSha256": "7ee31dedf5dd18b7dacd0f701ea7b8bbaf8a1e51981ddaba5dbc0fbe3fe2a75f",
   "dataGate": "PASS",
   "dataGateCode": null,
   "universeParity": {
     "status": "FAIL",
-    "code": "LFV_UNIVERSE_PARITY_INSUFFICIENT",
+    "code": "LFV_UNIVERSE_PARITY_FAIL",
     "metrics": {
       "method": "ROLLING_15M_24H_VOLUME_PROXY",
-      "snapshotsCompared": 111,
+      "snapshotsCompared": 44,
       "medianTop100Overlap": 1,
       "p10Top100Overlap": 1,
       "rankSpearman": 0.9999864412420502,
-      "signalInclusionRecall": 1,
+      "signalInclusionRecall": 0.5813953488372093,
       "pass": false,
       "report": "reports/lfv-001-universe-parity.json"
     },
     "dataCoverage": {
       "observedGroups": 111,
       "observedSymbols": 527,
-      "completeSymbols": 527,
+      "completeSymbols": 44,
       "incompleteSymbols": [],
-      "matchedSignalRows": 0,
-      "signalRowsEvaluated": 1,
-      "signalRowsIncluded": 1,
-      "signalRowsMissingArchive": 43
+      "matchedSignalRows": 43,
+      "signalRowsEvaluated": 43,
+      "signalRowsIncluded": 25,
+      "signalRowsMissingArchive": 1,
+      "signalCoverage": 0.9772727272727273,
+      "signalInclusionRecall": 0.5813953488372093,
+      "requestDataErrors": [],
+      "snapshotsWithCompleteCandidateData": 44
     }
   },
   "v4Provenance": {
@@ -186,7 +191,7 @@
   },
   "liveParity": {
     "schema": "bca-lfv-001-live-parity-v2",
-    "generatedAt": "2026-08-29T13:14:18.377Z",
+    "generatedAt": "2026-08-29T15:56:03.341Z",
     "status": "NOT_RUN",
     "code": "LFV_REPLAY_PARITY_FAIL",
     "returnsRead": false,
@@ -354,14 +359,14 @@
     },
     "reason": "Live observations are retained for parity only; historical returns are blocked until universe and runtime replay parity pass."
   },
-  "status": "LFV_UNIVERSE_PARITY_INSUFFICIENT",
-  "finalClassification": "LFV_UNIVERSE_PARITY_INSUFFICIENT",
+  "status": "LFV_UNIVERSE_PARITY_FAIL",
+  "finalClassification": "LFV_UNIVERSE_PARITY_FAIL",
   "researchStop": true,
   "returnsRead": false,
   "metrics": null,
   "reasons": [
-    "Frozen live signal archive coverage is below 95% (1/44).",
-    "Universe parity: Frozen live signal archive coverage is below 95% (1/44).",
+    "Signal-symbol inclusion recall is below 98% (0.5814).",
+    "Universe parity: Signal-symbol inclusion recall is below 98% (0.5814).",
     "V4 provenance: V4_REPLAY_PROVENANCE_UNAVAILABLE"
   ],
   "unchangedDefinitions": {

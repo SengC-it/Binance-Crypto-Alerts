@@ -3,6 +3,7 @@ import type { LfvBar } from "./archive-data";
 export const ROLLING_15M_24H_VOLUME_PROXY = "ROLLING_15M_24H_VOLUME_PROXY" as const;
 export const ROLLING_WINDOW_BARS = 96;
 export const DEEP_UNIVERSE_LIMIT = 100;
+const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
 export interface RollingUniversePoint {
   symbol: string;
@@ -66,7 +67,11 @@ export function buildRollingUniverseSnapshot(
       .filter((bar) => bar.closeTime < timestamp)
       .sort((left, right) => left.closeTime - right.closeTime);
     const window = bars.slice(-windowBars);
-    if (window.length < windowBars || window.some((bar) => !Number.isFinite(bar.quoteVolume) || bar.quoteVolume < 0)) {
+    if (
+      window.length < windowBars
+      || window.some((bar) => !Number.isFinite(bar.quoteVolume) || bar.quoteVolume < 0)
+      || !hasCompleteIntervals(window)
+    ) {
       missingSymbols.push(symbol);
       continue;
     }
@@ -98,6 +103,13 @@ export function buildRollingUniverseSnapshot(
     effectiveUniverseSize: deepScan.length,
     missingSymbols: missingSymbols.sort(),
   };
+}
+
+function hasCompleteIntervals(bars: LfvBar[]): boolean {
+  return bars.every((bar, index) => (
+    bar.closeTime === bar.openTime + FIFTEEN_MINUTES - 1
+    && (index === 0 || bar.openTime === bars[index - 1].openTime + FIFTEEN_MINUTES)
+  ));
 }
 
 export function compareUniverseSnapshots(

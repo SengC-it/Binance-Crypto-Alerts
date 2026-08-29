@@ -14,6 +14,8 @@ const REQUIRED_REPORTS = [
   "lfv-001-replay-freeze-v4.json",
   "lfv-001-observed-universe-evidence-v1.json",
   "lfv-001-live-parity-input-v1.json",
+  "lfv-001-live-signal-universe-v2.json",
+  "lfv-001-final-execution-freeze.json",
   "lfv-001-universe-parity.json",
   "lfv-001-live-parity.json",
   "lfv-001-replay-parity.json",
@@ -115,6 +117,36 @@ async function main(): Promise<void> {
   assertCondition(["RESTORED", "V4_REPLAY_PROVENANCE_UNAVAILABLE"].includes(String(v4Provenance.status)), "replay freeze v4 V4 provenance status invalid");
   assertCondition(trendProvenance.status === "RESTORED", "replay freeze v4 trend provenance is not restored");
   assertCondition(sameJson(replayFreezeV4.eligibleStrategies, ["trend-rejection-short-v1"]), "replay freeze v4 eligible strategy set changed");
+
+  const liveSignalUniverse = parse("lfv-001-live-signal-universe-v2.json");
+  const { reportSha256: liveSignalUniverseHash, ...liveSignalUniverseCore } = liveSignalUniverse;
+  assertCondition(liveSignalUniverse.schema === "bca-lfv-001-live-signal-universe-v2", "live-signal universe schema mismatch");
+  assertCondition(liveSignalUniverseHash === sha256(stableStringify(liveSignalUniverseCore)), "live-signal universe report hash mismatch");
+  const liveSignalCoverage = liveSignalUniverse.dataCoverage as Record<string, unknown>;
+  assertCondition(liveSignalCoverage.frozenSignals === 44, "live-signal universe does not cover 44 frozen rows");
+  assertCondition(Number(liveSignalCoverage.signalRowsEvaluated) + Number(liveSignalCoverage.signalRowsMissingArchive) === 44, "live-signal universe coverage does not account for all 44 frozen rows");
+  assertCondition(Number(liveSignalCoverage.signalRowsIncluded) <= Number(liveSignalCoverage.signalRowsEvaluated), "live-signal universe inclusion exceeds evaluated rows");
+  assertCondition(Array.isArray(liveSignalUniverse.snapshots) && liveSignalUniverse.snapshots.length > 0, "live-signal universe snapshots are missing");
+  assertCondition(liveSignalUniverse.returnsRead === false, "live-signal universe was generated after returns were read");
+
+  const finalExecutionFreeze = parse("lfv-001-final-execution-freeze.json");
+  const { freezeSha256: finalFreezeHash, ...finalFreezeCore } = finalExecutionFreeze;
+  const finalFreezeCoreWithoutGeneratedAt = Object.fromEntries(Object.entries(finalFreezeCore).filter(([key]) => key !== "generatedAt"));
+  assertCondition(finalExecutionFreeze.schema === "bca-lfv-001-final-execution-freeze-v1" && finalExecutionFreeze.status === "FROZEN_BEFORE_RETURN_READ", "final execution freeze schema/status mismatch");
+  assertCondition(finalFreezeHash === sha256(stableStringify(finalFreezeCoreWithoutGeneratedAt)), "final execution freeze hash mismatch");
+  assertCondition(finalExecutionFreeze.originalFreezeCommit === ORIGINAL_FREEZE_COMMIT && finalExecutionFreeze.originalFreezeSHA256 === ORIGINAL_FREEZE_SHA256, "final execution freeze original provenance mismatch");
+  assertCondition(finalExecutionFreeze.returnsRead === false, "final execution freeze returns-read boundary failed");
+  assertCondition((finalExecutionFreeze.originalFreeze as Record<string, unknown>).freezeSha256 === originalHash, "final execution freeze does not reference original freeze");
+  assertCondition((finalExecutionFreeze.dataFreezeV2 as Record<string, unknown>).freezeSha256 === freeze.freezeSha256, "final execution freeze does not reference data freeze v2");
+  assertCondition((finalExecutionFreeze.replayFreezeV3 as Record<string, unknown>).freezeSha256 === replayFreeze.freezeSha256, "final execution freeze does not reference replay freeze v3");
+  assertCondition((finalExecutionFreeze.replayFreezeV4 as Record<string, unknown>).freezeSha256 === replayFreezeV4.freezeSha256, "final execution freeze does not reference replay freeze v4");
+  const finalLiveUniverse = finalExecutionFreeze.liveSignalUniverse as Record<string, unknown>;
+  assertCondition(finalLiveUniverse.reportSha256 === liveSignalUniverseHash && finalLiveUniverse.status === liveSignalUniverse.status, "final execution freeze live-signal provenance mismatch");
+  const finalDefinitions = finalExecutionFreeze.unchangedDefinitions as Record<string, unknown>;
+  assertCondition(sameJson(finalDefinitions.hypotheses, LFV_HYPOTHESES) && sameJson(finalDefinitions.combined, LFV_COMBINED_PRIMARY), "final execution freeze definitions changed");
+  assertCondition(finalDefinitions.gateDefinitionHash === freeze.gateDefinitionHash && sameJson(finalDefinitions.hypothesisHashes, freeze.hypothesisHashes), "final execution freeze gate/hypothesis hashes changed");
+  const finalTrend = finalExecutionFreeze.trendRuntime as Record<string, unknown>;
+  assertCondition((finalTrend.provenance as Record<string, unknown>).status === "RESTORED" && typeof finalExecutionFreeze.trendCodeHash === "string", "final execution freeze Trend provenance is incomplete");
 
   const registry = parse("lfv-001-archive-registry.json");
   const { registrySha256, ...registryCore } = registry;

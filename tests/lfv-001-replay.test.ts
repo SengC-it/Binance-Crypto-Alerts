@@ -10,6 +10,7 @@ import {
   summarizeUniverseParity,
 } from "@/lib/lfv/universe-replay";
 import { calculateObservedUniverseParity } from "@/lib/lfv/observed-parity";
+import { calculateLiveSignalUniverseParity } from "@/lib/lfv/live-signal-universe";
 import { LFV_V4_PROVENANCE } from "@/lib/lfv/provenance";
 import {
   closed15mSchedule,
@@ -327,6 +328,47 @@ describe("LFV-001 Production replay", () => {
 
   it("emits the exact closed 15m schedule without a same-window timestamp", () => {
     expect(closed15mSchedule(0, interval * 2 - 1)).toEqual([interval - 1, interval * 2 - 1]);
+  });
+});
+
+describe("LFV-001 archive-derived live signal universe reconstruction", () => {
+  const timestamp = Date.parse("2026-08-11T13:59:59.999Z");
+  const makeBars = (symbol: string, quoteVolume: number) => Array.from({ length: 96 }, (_, index) => {
+    const openTime = timestamp - (96 - index + 1) * 15 * 60 * 1000;
+    return {
+      openTime,
+      open: 100,
+      high: 101,
+      low: 99,
+      close: 100,
+      volume: 1,
+      closeTime: openTime + 15 * 60 * 1000 - 1,
+      quoteVolume,
+    };
+  });
+
+  it("maps every live row by source timestamp and symbol, independent of scan_group_key", () => {
+    const result = calculateLiveSignalUniverseParity({
+      rows: [{ symbol: "SIGNALUSDT", sourceDataTimestamp: new Date(timestamp).toISOString(), scanGroupKey: "wrong-group" } as never],
+      lifecycleSymbols: [{ symbol: "SIGNALUSDT", firstObserved: "2025-01", lastObserved: "2026-07" }, { symbol: "OTHERUSDT", firstObserved: "2025-01", lastObserved: "2026-07" }],
+      barsBySymbol: new Map([["SIGNALUSDT", makeBars("SIGNALUSDT", 100)], ["OTHERUSDT", makeBars("OTHERUSDT", 200)]]),
+    });
+    expect(result.dataCoverage.signalRowsEvaluated).toBe(1);
+    expect(result.dataCoverage.signalRowsIncluded).toBe(1);
+    expect(result.dataCoverage.signalRowsMissingArchive).toBe(0);
+    expect(result.dataCoverage.signalInclusionRecall).toBe(1);
+    expect(result.pass).toBe(true);
+  });
+
+  it("fails coverage when the frozen signal has no complete archive window", () => {
+    const result = calculateLiveSignalUniverseParity({
+      rows: [{ symbol: "MISSINGUSDT", sourceDataTimestamp: new Date(timestamp).toISOString() }],
+      lifecycleSymbols: [{ symbol: "MISSINGUSDT", firstObserved: "2025-01", lastObserved: "2026-07" }],
+      barsBySymbol: new Map([["MISSINGUSDT", makeBars("MISSINGUSDT", 100).slice(1)]]),
+    });
+    expect(result.dataCoverage.signalRowsEvaluated).toBe(0);
+    expect(result.dataCoverage.signalRowsMissingArchive).toBe(1);
+    expect(result.pass).toBe(false);
   });
 });
 

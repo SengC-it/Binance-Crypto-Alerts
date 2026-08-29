@@ -1,13 +1,13 @@
 {
   "schema": "bca-lfv-001-factor-results-v3",
   "status": "NOT_RUN",
-  "code": "LFV_UNIVERSE_PARITY_INSUFFICIENT",
-  "reason": "Frozen live signal archive coverage is below 95% (1/44).",
+  "code": "LFV_UNIVERSE_PARITY_FAIL",
+  "reason": "Signal-symbol inclusion recall is below 98% (0.5814).",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "metrics": null,
   "returnsRead": false,
   "note": "No strategy returns were read after the mandatory data, universe, or provenance gate stopped the run; no missing value was imputed.",
-  "freezeSha256": "28d6b4c640be88099af1d9570f5dd790b3875315c45e5508d46d09ea8723801c",
+  "freezeSha256": "7ee31dedf5dd18b7dacd0f701ea7b8bbaf8a1e51981ddaba5dbc0fbe3fe2a75f",
   "hypotheses": {
     "H1_SESSION": "SESSION_18_23_SGT_BLOCK",
     "H2_HIGH_VOLATILITY": "HIGH_VOL_Q4_BLOCK",
