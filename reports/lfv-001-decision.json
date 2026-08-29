@@ -1,31 +1,53 @@
 {
-  "schema": "bca-lfv-001-decision-v1",
-  "generatedAt": "2026-08-29T05:10:46.361Z",
+  "schema": "bca-lfv-001-decision-v2",
+  "generatedAt": "2026-08-29T06:10:11.752Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
-  "freezeSha256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
+  "originalFreezeCommit": "d68737cbd27c38e8fb09812ab225cfaaec56f037",
+  "originalFreezeSHA256": "1bd06d9317203488eef599180f52dd66ecc1d15c87b6dca4ef382daf2dc901f9",
+  "freezeSha256": "0eaf68c7839bda0751b7c40f7d83db7470d508e2e14f300e032b5612003c7d8f",
   "dataGate": "FAIL",
-  "status": "LFV_DATA_INSUFFICIENT",
-  "finalClassification": "LFV_DATA_INSUFFICIENT",
+  "dataGateCode": "LFV_DATA_INSUFFICIENT_FINAL",
+  "status": "LFV_DATA_INSUFFICIENT_FINAL",
+  "finalClassification": "LFV_DATA_INSUFFICIENT_FINAL",
   "researchStop": true,
   "returnsRead": false,
   "metrics": null,
   "reasons": [
-    "PIT manifest status is INCOMPLETE; exact historical listing/delisting reconstruction is not proven",
-    "available historical 15m archive breadth peaks at 41 symbols, below Production top_symbols=100",
-    "historical 15m archive coverage is 0.00%, below required 98.00%"
+    "historical PIT top min(100,N) reconstructable ratio 0.00% is below 98.00%; 22 required 1d lifecycle/liquidity archive slots are unavailable or checksum-invalid; 15m coverage 0.00% is below 98.00% or has unverified content; 1h coverage 0.00% is below 98.00% or has unverified content; 4h coverage 0.00% is below 98.00% or has unverified content; funding coverage 0.00% is below 99.00% or has unverified content; markPriceKlines coverage 0.00% is below 99.00% or has unverified content; used archive checksum pass ratio 25.84% is below 100%"
   ],
+  "unchangedDefinitions": {
+    "hypotheses": {
+      "H1_SESSION": "SESSION_18_23_SGT_BLOCK",
+      "H2_HIGH_VOLATILITY": "HIGH_VOL_Q4_BLOCK",
+      "H3_ENTRY_DELAY": "DELAY_30M",
+      "H4_COOLDOWN": "STOP_COOLDOWN_12H"
+    },
+    "combined": [
+      "SESSION_18_23_SGT_BLOCK",
+      "HIGH_VOL_Q4_BLOCK",
+      "DELAY_30M",
+      "STOP_COOLDOWN_12H"
+    ],
+    "gateHash": "1a237e27663167bae27d7e1b650886fafba29f41db4b00e87a1b75fd6ccc5248"
+  },
   "production": {
+    "mode": "SIGNAL + SMTP ONLY",
+    "privateBinanceApi": false,
+    "accountBalances": false,
+    "positions": false,
+    "orderPlacement": false,
+    "automaticEntry": false,
+    "automaticExit": false,
+    "autoTrading": false,
+    "liveSignalEmail": false,
     "changed": false,
     "strategyChanged": false,
     "email": "OFF",
     "deploy": false,
     "merge": false,
     "migration": false,
-    "autoTrading": false,
-    "privateBinanceApi": false,
-    "liveSignalEmail": false,
     "#002": "STOPPED",
     "v14": "UNCHANGED"
   },
-  "nextStep": "Do not tune existing Production strategies; obtain complete immutable PIT top-100 data before any new LFV run."
+  "nextStep": "Obtain complete immutable official PIT archives before any new LFV run; do not tune H1-H4."
 }

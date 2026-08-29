@@ -50,6 +50,7 @@ const RAW_ROOT_CANDIDATES = [
 const DATA_CACHE_DIR_NAME = "lfv-001-cache";
 const S3_RESEARCH_ROOT = "https://s3-ap-northeast-1.amazonaws.com/data.binance.vision";
 const KLINE_ROOT_PREFIX = "data/futures/um/monthly/klines/";
+let localArchivePathIndex: Set<string> | null = null;
 
 configureNodeProxy();
 
@@ -366,8 +367,40 @@ async function findLocalArchive(dataRoot: string, symbol: string, timeframe: Lfv
     join(dataRoot, "v5-9-untouched-cache", "archives", symbol, timeframe, filename),
     join(dataRoot, "v10-execution-cache", symbol, timeframe, filename),
   ];
-  for (const candidate of candidates) if (await pathExists(candidate)) return candidate;
-  return null;
+  if (localArchivePathIndex) return candidates.find((candidate) => localArchivePathIndex?.has(candidate)) ?? null;
+  const matches = await Promise.all(candidates.map(async (candidate) => (await pathExists(candidate) ? candidate : null)));
+  return matches.find((candidate): candidate is string => candidate !== null) ?? null;
+}
+
+async function buildLocalArchivePathIndex(dataRoot: string): Promise<Set<string>> {
+  const roots = [
+    join(dataRoot, DATA_CACHE_DIR_NAME, "um"),
+    join(dataRoot, "v14-cross-sectional-cache", "um"),
+    join(dataRoot, "v7-derivatives-flow-cache", "market"),
+    join(dataRoot, "v5-7-external-cache", "archives"),
+    join(dataRoot, "v5-8-fresh-cache", "archives"),
+    join(dataRoot, "v5-9-1-untouched-cache", "archives"),
+    join(dataRoot, "v5-9-untouched-cache", "archives"),
+    join(dataRoot, "v10-execution-cache"),
+  ];
+  const files = new Set<string>();
+  const pending = [...roots];
+  while (pending.length > 0) {
+    const directory = pending.pop();
+    if (!directory) continue;
+    let entries;
+    try {
+      entries = await readdir(directory, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) pending.push(path);
+      else if (entry.isFile() && entry.name.endsWith(".zip")) files.add(path);
+    }
+  }
+  return files;
 }
 
 type ChecksumEvidence = Map<string, string>;
@@ -400,6 +433,7 @@ async function expectedChecksum(sourceUrl: string, priorEvidence: ChecksumEviden
   if (prior) return prior;
   const cached = checksumCache.get(sourceUrl);
   if (cached) return cached;
+  if (process.env.LFV_FETCH_CHECKSUMS !== "1") return null;
   const running = checksumRequests.get(sourceUrl);
   if (running) return running;
   const request = (async () => {
@@ -485,6 +519,25 @@ async function ensureArchiveFile(
 
   const actualSha256 = sha256Bytes(bytes);
   const expectedSha256 = await expectedChecksum(sourceUrl, priorEvidence);
+  if (!expectedSha256) {
+    return {
+      record: {
+        symbol,
+        timeframe,
+        period,
+        sourceUrl,
+        cachePath: path ? localArchiveRelativePath(dataRoot, path) : null,
+        status: "AVAILABLE",
+        bytes: bytes.byteLength,
+        rowCount: 0,
+        sha256: actualSha256,
+        expectedSha256: null,
+        checksumStatus: "FAIL",
+        error: "CHECKSUM_NOT_CACHED",
+      },
+      bytes: null,
+    };
+  }
   let rowCount = 0;
   try {
     if (timeframe === "funding") rowCount = countArchiveRows(bytes);
@@ -798,7 +851,8 @@ export async function runLfvDataGateV2(): Promise<{ freeze: FreezeV2; registry: 
   const { registry, registrySha256 } = await loadArchiveRegistry();
   if (freeze.archiveRegistryHash !== registrySha256) throw new Error("LFV data freeze v2 archive registry hash mismatch");
   const dataRoot = await chooseDataRoot();
-  const allowDownload = process.env.CI !== "true" && process.env.LFV_ALLOW_DOWNLOAD !== "0";
+  localArchivePathIndex = await buildLocalArchivePathIndex(dataRoot);
+  const allowDownload = process.env.CI !== "true" && process.env.LFV_ALLOW_DOWNLOAD === "1";
   await loadChecksumCache(dataRoot);
   const priorEvidence = await loadPriorChecksumEvidence();
   const daily = await loadDailyBars(registry, dataRoot, priorEvidence, allowDownload);
