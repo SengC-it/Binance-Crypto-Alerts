@@ -15,6 +15,13 @@ const required = [
 
 function hash(value: unknown): string { return createHash("sha256").update(JSON.stringify(value)).digest("hex"); }
 function assertCondition(condition: unknown, message: string): asserts condition { if (!condition) throw new Error(message); }
+function containsExactFundingPlaceholder(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(containsExactFundingPlaceholder);
+  if (!value || typeof value !== "object") return false;
+  return Object.entries(value).some(([key, nested]) =>
+    (key === "fundingR" && nested === -1) || containsExactFundingPlaceholder(nested),
+  );
+}
 
 async function main(): Promise<void> {
 const documents = new Map<string, unknown>();
@@ -67,7 +74,9 @@ for (const key of ["productionChanged", "productionEmail", "autoTrading", "priva
 
 const decision = documents.get("v14-promotion-decision.json") as Record<string, unknown>;
 assertCondition(decision.status === summary.result && decision.priorWindowsContaminatedForPromotion === true, "promotion decision mismatch");
-assertCondition(!JSON.stringify(summary).includes('"fundingR":-1'), "invalid -100% funding substitution remains");
+for (const [name, document] of documents) {
+  assertCondition(!containsExactFundingPlaceholder(document), `invalid -100% funding substitution remains in ${name}`);
+}
 assertCondition(String(documents.get("v14-promotion-decision.md")).includes(String(summary.result)), "promotion markdown mismatch");
 console.log(JSON.stringify({ stage: "v14_artifact_validation_complete", status: "V14_ARTIFACT_VALIDATION_PASS", result: summary.result, promotion: summary.EMAIL_PROMOTION_CANDIDATE }));
 }
