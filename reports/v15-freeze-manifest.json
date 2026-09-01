@@ -1,7 +1,7 @@
 {
   "schema": "v15-freeze-manifest-v1",
   "status": "FROZEN_BEFORE_RETURNS",
-  "generatedAt": "2026-09-01T14:26:42.669Z",
+  "generatedAt": "2026-09-01T15:24:22.126Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "branch": "feat/v15-spot-perp-lead-lag",
   "data": {
@@ -147,7 +147,7 @@
     "autoTrading": false,
     "privateBinanceApi": false
   },
-  "dataGateHash": "c79a9c5c180e25609f8fa2027d26e7b768cafaf27e5b549b6a61bfe5f4b118ed",
+  "dataGateHash": "b85ff9792e744167429fc951da045e1242de0c7d1b43de81d6ab7fec081dada5",
   "historicalReturnsRead": false,
-  "manifestSha256": "77e1091826c2e443d044645018ee19421cfdb38c1d92e22db2d4aab090f563b3"
+  "manifestSha256": "b949c524e9a048f3df0cde743bad3504bff0d9c9260b4febd6df34aa094c02f7"
 }

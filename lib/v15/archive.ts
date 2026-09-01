@@ -4,6 +4,14 @@ import { normalizeBinanceTimestamp, type V15Bar } from "@/lib/v15/lead-lag";
 
 export interface ZipEntry { name: string; data: Buffer; }
 
+export interface KlineIntegrity {
+  rowCount: number;
+  duplicateOpenTimes: number;
+  nonMonotonicOpenTimes: number;
+  invalidDurations: number;
+  cadenceCoverage: number;
+}
+
 export function readZipEntries(buffer: Buffer): ZipEntry[] {
   const entries: ZipEntry[] = [];
   let offset = 0;
@@ -52,6 +60,16 @@ export function parseKlineArchive(buffer: Buffer): V15Bar[] {
     takerBuyQuoteVolume: Number(fields[10] ?? 0),
     closeTime: normalizeBinanceTimestamp(fields[6]),
   })).filter((bar) => [bar.openTime, bar.open, bar.high, bar.low, bar.close, bar.quoteVolume, bar.takerBuyQuoteVolume, bar.closeTime].every(Number.isFinite));
+}
+
+export function validateKlineIntegrity(bars: V15Bar[]): KlineIntegrity {
+  const ordered = bars.slice().sort((left, right) => left.openTime - right.openTime);
+  const duplicates = ordered.slice(1).filter((bar, index) => bar.openTime === ordered[index].openTime).length;
+  const nonMonotonic = bars.slice(1).filter((bar, index) => bar.openTime <= bars[index].openTime).length;
+  const invalidDurations = bars.filter((bar) => bar.openTime >= bar.closeTime || bar.closeTime - bar.openTime > 5 * 60_000).length;
+  const cadencePairs = ordered.slice(1).filter((bar, index) => bar.openTime - ordered[index].openTime === 5 * 60_000).length;
+  const cadenceCoverage = ordered.length > 1 ? cadencePairs / (ordered.length - 1) : 0;
+  return { rowCount: bars.length, duplicateOpenTimes: duplicates, nonMonotonicOpenTimes: nonMonotonic, invalidDurations, cadenceCoverage };
 }
 
 export async function readKlineArchive(path: string): Promise<V15Bar[]> {

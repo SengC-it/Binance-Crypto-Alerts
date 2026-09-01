@@ -1,0 +1,108 @@
+{
+  "schema": "v15-data-freeze-v2",
+  "status": "FROZEN_BEFORE_RETURNS",
+  "sourceHead": "86e06307434b27feff7f78d228d419dd7b6fbdd9",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "originalFreeze": {
+    "commit": "f469138c314454b973c8d5fd764cae662b9c92d4",
+    "sha256": "77e1091826c2e443d044645018ee19421cfdb38c1d92e22db2d4aab090f563b3"
+  },
+  "alphaDefinitionsUnchanged": true,
+  "fixedAlphaDefinitions": {
+    "features": [
+      "spotReturn30",
+      "perpReturn30",
+      "spotQuoteVolume30",
+      "perpQuoteVolume30",
+      "spotTakerBuyQuote30",
+      "perpTakerBuyQuote30",
+      "spotFlow30",
+      "perpFlow30",
+      "direction",
+      "spotShock",
+      "leadStrength",
+      "spotDirectionalFlow",
+      "perpDirectionalFlow"
+    ],
+    "thresholds": {
+      "spotShock": "Q90",
+      "absoluteSpotFlow": "Q75",
+      "positiveLeadStrength": "Q80",
+      "lookback": "60d"
+    },
+    "decisionClock": "15m",
+    "featureWindow": "30m of closed 5m bars",
+    "execution": "next complete futures 5m open after the closed decision window",
+    "risk": {
+      "atrPeriod": 14,
+      "stopAtrMultiple": 1.5,
+      "takeProfitR": 2,
+      "maxHold": "4h",
+      "noOverlapSameSymbol": true
+    },
+    "liquidity": {
+      "lookback": "30d",
+      "participation": 0.0001,
+      "bothLegs": true
+    },
+    "costs": {
+      "feeBpsPerSide": 4,
+      "slippageBpsPerSide": 2,
+      "funding": "actual historical funding with mark-price settlement"
+    },
+    "manualDelays": [
+      "5m",
+      "15m",
+      "30m"
+    ],
+    "validation": {
+      "folds": [
+        2022,
+        2023,
+        2024
+      ],
+      "holdoutA": "2025",
+      "holdoutB": "2026-01/2026-07",
+      "placebos": true
+    }
+  },
+  "enumerationRule": "Enumerate every official Spot SYMBOLUSDT and USD-M perpetual SYMBOLUSDT monthly 5m prefix, including later-delisted symbols.",
+  "pitLifecycleRule": "At each timestamp require both legs to be available, at least 90 days old, and fully observed for the required lookback; never use today's survivor universe or future lifecycle information.",
+  "archiveRegistry": {
+    "path": "reports/v15-archive-registry.json",
+    "sha256": "ee6f46fb113da4e92e8752a8c98563ebb9ea59a0208fdbfac0a766f6b4b17202"
+  },
+  "stageBArchiveManifest": {
+    "path": "reports/v15-stage-b-archive-manifest.json",
+    "sha256": "cbd5de330d7384e4d6b82aa7e07e0f0d8522bbd344fc3ae7804213e8a1738ed9"
+  },
+  "costInputManifest": {
+    "path": "reports/v15-cost-input-manifest.json",
+    "sha256": "f65595f05e17e2938cbc5e6c03e4a79faf263ab59a8bd6b211f9a7d4b2515968"
+  },
+  "dataGate": {
+    "path": "reports/v15-data-gate.json",
+    "sha256": "7499f68486d9524bb35d11aa0cf410ebc5ab0a846bfd5464c4834bee7f797581",
+    "status": "FAIL"
+  },
+  "codeHashes": {
+    "timestampParser": "a90bbef854da828afe42e3c8640805db1a3238fabbd9e1462db075f88824e44e",
+    "featureEngine": "a90bbef854da828afe42e3c8640805db1a3238fabbd9e1462db075f88824e44e",
+    "executionEngine": "3da28db02bbc2d8314afed47279a1377cbc96c677fa515cb3a172104e9c23494",
+    "costEngine": "25bca88d33073f3956ea89b7c795b162ac22bed00e86d3ca58143e26e817bd8e",
+    "archiveParser": "290293cb9e0f9adc03a8f92d98966d25d3f62dff79c7dd20fffb480c88cdf8ac"
+  },
+  "historicalReturnsRead": false,
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false
+  },
+  "manifestSha256": "2c7f4f8c8cab95aede04de3a55b2a67f6de19396c736c066b9627ec4e18d6eff"
+}
