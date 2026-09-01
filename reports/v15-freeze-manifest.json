@@ -1,0 +1,153 @@
+{
+  "schema": "v15-freeze-manifest-v1",
+  "status": "FROZEN_BEFORE_RETURNS",
+  "generatedAt": "2026-09-01T14:26:42.669Z",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "data": {
+    "provider": "Binance Data Vision",
+    "period": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2026-07-31T23:59:59.999Z"
+    },
+    "interval": "5m",
+    "spot": "official spot klines",
+    "perpetual": "official USD-M futures klines",
+    "requiredChecksumCoverage": 1,
+    "noThirdParty": true
+  },
+  "pitUniverse": {
+    "allEligiblePairs": true,
+    "minimumAgeDays": 90,
+    "noCurrentUniverseBackfill": true,
+    "lifecycleIsPointInTime": true,
+    "formationCoverage": 0.98
+  },
+  "liquidity": {
+    "lookbackDays": 30,
+    "referenceCapitalUsdt": 10000,
+    "maxParticipation": 0.0001,
+    "bothLegsRequired": true,
+    "capacityOnly": true
+  },
+  "signalClock": {
+    "decisionInterval": "15m",
+    "sourceBars": "closed 5m only",
+    "decisionTimestampRule": "all input bars close before T",
+    "execution": "first complete futures 5m open after T",
+    "sameWindowExecution": false
+  },
+  "features": {
+    "exact": [
+      "spotReturn30",
+      "perpReturn30",
+      "spotQuoteVolume30",
+      "perpQuoteVolume30",
+      "spotTakerBuyQuote30",
+      "perpTakerBuyQuote30",
+      "spotFlow30",
+      "perpFlow30",
+      "direction",
+      "spotShock",
+      "leadStrength",
+      "spotDirectionalFlow",
+      "perpDirectionalFlow"
+    ],
+    "formulas": {
+      "spotFlow30": "2 * spotTakerBuyQuote30 / spotQuoteVolume30 - 1",
+      "perpFlow30": "2 * perpTakerBuyQuote30 / perpQuoteVolume30 - 1",
+      "leadStrength": "direction * (spotReturn30 - perpReturn30)"
+    },
+    "noLookahead": true
+  },
+  "thresholds": {
+    "perSymbolTrailingDays": 60,
+    "spotShock": "Q90",
+    "absoluteSpotFlow": "Q75",
+    "positiveLeadStrength": "Q80",
+    "fixedBeforeReturns": true,
+    "noSearch": true
+  },
+  "trade": {
+    "side": "same as spot shock direction",
+    "atr15m": 14,
+    "emergencyStop": "1.5 * ATR",
+    "takeProfit": "2R",
+    "maxHold": "4h",
+    "noOverlapSameSymbol": true,
+    "unfavorableSameBarOrder": "STOP first",
+    "diagnosticHorizons": [
+      "30m",
+      "1h",
+      "2h",
+      "4h"
+    ]
+  },
+  "costs": {
+    "takerFeeBpsPerSide": 4,
+    "baseSlippageBpsPerSide": 2,
+    "funding": "actual historical USD-M funding with mark-price settlement",
+    "stressRoundTripBps": [
+      5,
+      10,
+      20
+    ]
+  },
+  "manualDelays": [
+    "5m",
+    "15m",
+    "30m"
+  ],
+  "validation": {
+    "nestedPurgedWalkForward": true,
+    "oosYears": [
+      2022,
+      2023,
+      2024
+    ],
+    "warmupYear": 2021,
+    "holdoutA": "2025-01-01/2025-12-31",
+    "holdoutB": "2026-01-01/2026-07-31",
+    "noPostHoldoutTuning": true,
+    "placebos": [
+      "reverse direction",
+      "perp-led swap",
+      "time-matched random same symbol/month/hour"
+    ]
+  },
+  "gates": {
+    "oosTrades": 200,
+    "holdoutATrades": 50,
+    "holdoutBTrades": 30,
+    "oosNetR": ">0",
+    "oosAvgR": ">=0.10",
+    "oosPF": ">=1.30",
+    "oosMaxDD": "<=8R",
+    "positiveFoldRatio": ">=0.67",
+    "medianFoldNetR": ">0",
+    "baseNetR": ">0",
+    "stress5bpsNetR": ">0",
+    "stress10bpsNetR": ">0",
+    "holdoutNetR": ">0",
+    "holdoutAvgR": ">0",
+    "holdoutPF": ">=1.20",
+    "holdoutMaxDD": "<=6R",
+    "confidenceLCB": ">0",
+    "emailAvgMonthly": ">=2",
+    "emailMedianMonthly": ">=2",
+    "emailActiveMonthRatio": ">=0.75",
+    "emailMaxDroughtDays": "<=30"
+  },
+  "boundaries": {
+    "signalAndSmtpOnly": true,
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "autoTrading": false,
+    "privateBinanceApi": false
+  },
+  "dataGateHash": "c79a9c5c180e25609f8fa2027d26e7b768cafaf27e5b549b6a61bfe5f4b118ed",
+  "historicalReturnsRead": false,
+  "manifestSha256": "77e1091826c2e443d044645018ee19421cfdb38c1d92e22db2d4aab090f563b3"
+}

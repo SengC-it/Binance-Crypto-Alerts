@@ -1,0 +1,794 @@
+{
+  "schema": "v15-data-gate-v1",
+  "generatedAt": "2026-09-01T14:26:42.665Z",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "source": {
+    "provider": "Binance Data Vision",
+    "spotPath": "data/spot/monthly/klines/{symbol}/5m",
+    "futuresPath": "data/futures/um/monthly/klines/{symbol}/5m",
+    "interval": "5m",
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2026-07-31T23:59:59.999Z",
+    "officialOnly": true
+  },
+  "enumeration": {
+    "spotSymbols": 722,
+    "futuresSymbols": 829,
+    "sharedSymbols": 470,
+    "spotErrors": [
+      "FULL_ARCHIVE_ENUMERATION_NOT_COMPLETED: only BTCUSDT and ETHUSDT were probed before the data gate"
+    ],
+    "futuresErrors": [
+      "FULL_ARCHIVE_ENUMERATION_NOT_COMPLETED: only BTCUSDT and ETHUSDT were probed before the data gate"
+    ],
+    "archiveObjectsFound": 268
+  },
+  "pitUniverse": {
+    "rule": "At each 15m decision, both Spot SYMBOLUSDT and USD-M perpetual must have complete PIT 5m data, be listed at that time, and have at least 90 days of prior archive history; no current-universe backfill.",
+    "monthly": [
+      {
+        "month": "2021-01",
+        "eligiblePairs": 0,
+        "symbols": []
+      },
+      {
+        "month": "2021-02",
+        "eligiblePairs": 0,
+        "symbols": []
+      },
+      {
+        "month": "2021-03",
+        "eligiblePairs": 0,
+        "symbols": []
+      },
+      {
+        "month": "2021-04",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-05",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-06",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-07",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-08",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-09",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-10",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-11",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2021-12",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-01",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-02",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-03",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-04",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-05",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-06",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-07",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-08",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-09",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-10",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-11",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2022-12",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-01",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-02",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-03",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-04",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-05",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-06",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-07",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-08",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-09",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-10",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-11",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2023-12",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-01",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-02",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-03",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-04",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-05",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-06",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-07",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-08",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-09",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-10",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-11",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2024-12",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-01",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-02",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-03",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-04",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-05",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-06",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-07",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-08",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-09",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-10",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-11",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2025-12",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2026-01",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2026-02",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2026-03",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2026-04",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2026-05",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2026-06",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      },
+      {
+        "month": "2026-07",
+        "eligiblePairs": 2,
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT"
+        ]
+      }
+    ],
+    "medianEligiblePairs": 2,
+    "minimumEligiblePairs": 0,
+    "maximumEligiblePairs": 2,
+    "formationCoverage": 0.004064782470625595
+  },
+  "immutableArchives": {
+    "requiredArchiveSlots": 256,
+    "materializedArchiveSlots": 8,
+    "fullArchiveCoverage": 0.03125,
+    "checksumCoverage": 0.03125,
+    "sentinelResults": [
+      {
+        "exchange": "spot",
+        "symbol": "BTCUSDT",
+        "month": "2021-01",
+        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "5eda1c9f22259d37f6602ca3ee8072a670131939c7a4bc7e048a2a0077e03d6f",
+        "actualSha256": "5eda1c9f22259d37f6602ca3ee8072a670131939c7a4bc7e048a2a0077e03d6f",
+        "bytes": 502729,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds",
+        "error": null
+      },
+      {
+        "exchange": "spot",
+        "symbol": "BTCUSDT",
+        "month": "2025-01",
+        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "4ed2edba26630a98b6ac6102b41dad00e1542640336f0d571c5a7394b39df983",
+        "actualSha256": "4ed2edba26630a98b6ac6102b41dad00e1542640336f0d571c5a7394b39df983",
+        "bytes": 477793,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1735689600000000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "microseconds",
+        "error": null
+      },
+      {
+        "exchange": "spot",
+        "symbol": "ETHUSDT",
+        "month": "2021-01",
+        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "db96dc51d4a85d6d3c125592ade0af58b6379f14b87daa04ffc4e70e93f7193a",
+        "actualSha256": "db96dc51d4a85d6d3c125592ade0af58b6379f14b87daa04ffc4e70e93f7193a",
+        "bytes": 474504,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds",
+        "error": null
+      },
+      {
+        "exchange": "spot",
+        "symbol": "ETHUSDT",
+        "month": "2025-01",
+        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "356e860d31d3bf5cc7e26c1601716052acaee1352bf7cf01492d4da7b2bdaeb6",
+        "actualSha256": "356e860d31d3bf5cc7e26c1601716052acaee1352bf7cf01492d4da7b2bdaeb6",
+        "bytes": 452756,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1735689600000000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "microseconds",
+        "error": null
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "BTCUSDT",
+        "month": "2021-01",
+        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "121bc9248a2be75f5a3e0bb53ec00ae3a0fbd23cede41d6998073818438d5eb4",
+        "actualSha256": "121bc9248a2be75f5a3e0bb53ec00ae3a0fbd23cede41d6998073818438d5eb4",
+        "bytes": 435541,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds",
+        "error": null
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "BTCUSDT",
+        "month": "2025-01",
+        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "0c99422d64fa3cc58564cf77969fc5a96d6f44783c79ecfcf94b103753bf7570",
+        "actualSha256": "0c99422d64fa3cc58564cf77969fc5a96d6f44783c79ecfcf94b103753bf7570",
+        "bytes": 412755,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1735689600000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "milliseconds",
+        "error": null
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "ETHUSDT",
+        "month": "2021-01",
+        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "8dc831f63e33755739d465e586cbe3e520c1bbe1227b1790b17cd21bb9a547cd",
+        "actualSha256": "8dc831f63e33755739d465e586cbe3e520c1bbe1227b1790b17cd21bb9a547cd",
+        "bytes": 419836,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds",
+        "error": null
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "ETHUSDT",
+        "month": "2025-01",
+        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip",
+        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip.CHECKSUM",
+        "status": "PASS",
+        "expectedSha256": "eca9862b43bf3acaf341334d1b2297f800e62ba083ebdd063fc3e01d1c3416cf",
+        "actualSha256": "eca9862b43bf3acaf341334d1b2297f800e62ba083ebdd063fc3e01d1c3416cf",
+        "bytes": 420225,
+        "rowCount": 8928,
+        "rawFirstOpenTime": 1735689600000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "milliseconds",
+        "error": null
+      }
+    ],
+    "cachePolicy": "Verified ZIP and .CHECKSUM are written once; an existing path with a different digest is a hard failure."
+  },
+  "timestampNormalization": {
+    "status": "PASS",
+    "testedArchiveSamples": 8,
+    "rule": "Normalize source seconds/milliseconds/microseconds to UTC milliseconds; Spot and USD-M Futures are checked independently.",
+    "samples": [
+      {
+        "exchange": "spot",
+        "symbol": "BTCUSDT",
+        "month": "2021-01",
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds"
+      },
+      {
+        "exchange": "spot",
+        "symbol": "BTCUSDT",
+        "month": "2025-01",
+        "rawFirstOpenTime": 1735689600000000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "microseconds"
+      },
+      {
+        "exchange": "spot",
+        "symbol": "ETHUSDT",
+        "month": "2021-01",
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds"
+      },
+      {
+        "exchange": "spot",
+        "symbol": "ETHUSDT",
+        "month": "2025-01",
+        "rawFirstOpenTime": 1735689600000000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "microseconds"
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "BTCUSDT",
+        "month": "2021-01",
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds"
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "BTCUSDT",
+        "month": "2025-01",
+        "rawFirstOpenTime": 1735689600000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "milliseconds"
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "ETHUSDT",
+        "month": "2021-01",
+        "rawFirstOpenTime": 1609459200000,
+        "normalizedFirstOpenTime": 1609459200000,
+        "timestampUnit": "milliseconds"
+      },
+      {
+        "exchange": "futuresUm",
+        "symbol": "ETHUSDT",
+        "month": "2025-01",
+        "rawFirstOpenTime": 1735689600000,
+        "normalizedFirstOpenTime": 1735689600000,
+        "timestampUnit": "milliseconds"
+      }
+    ]
+  },
+  "completeness": {
+    "matchedBarCoverage": 0,
+    "trailingFeatureCoverage": 0,
+    "liquidityAdvCoverage": 0,
+    "note": "Full-pair 5m materialization did not complete; no returns or strategy metrics were read."
+  },
+  "requirements": {
+    "archiveChecksumCoverage": 1,
+    "matchedBarCoverage": 0.99,
+    "trailingFeatureCoverage": 0.98,
+    "pitFormationCoverage": 0.98
+  },
+  "status": "V15_DATA_INSUFFICIENT",
+  "reasons": [
+    "ARCHIVE_ENUMERATION_INCOMPLETE",
+    "PIT_ACTIONABLE_UNIVERSE_BELOW_20",
+    "PIT_FORMATION_COVERAGE_BELOW_98_PERCENT",
+    "IMMUTABLE_FULL_5M_ARCHIVE_SET_NOT_MATERIALIZED",
+    "ARCHIVE_CHECKSUM_COVERAGE_BELOW_100_PERCENT",
+    "MATCHED_BAR_COVERAGE_NOT_COMPUTED_FOR_FULL_ARCHIVE",
+    "TRAILING_FEATURE_COVERAGE_NOT_COMPUTED_FOR_FULL_ARCHIVE"
+  ],
+  "historicalReturnsRead": false
+}
