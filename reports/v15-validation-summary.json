@@ -2,14 +2,15 @@
   "schema": "v15-validation-summary-v1",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "branch": "feat/v15-spot-perp-lead-lag",
-  "freezeCommit": "f469138c314454b973c8d5fd764cae662b9c92d4",
-  "freezeSha256": "77e1091826c2e443d044645018ee19421cfdb38c1d92e22db2d4aab090f563b3",
-  "dataGate": "V15_DATA_INSUFFICIENT",
+  "freezeCommit": "12c87dcdfddd2e0d3d222dfc936d5897fb9f0626",
+  "freezeSha256": "b949c524e9a048f3df0cde743bad3504bff0d9c9260b4febd6df34aa094c02f7",
+  "dataFreezeV2Sha256": "2c7f4f8c8cab95aede04de3a55b2a67f6de19396c736c066b9627ec4e18d6eff",
+  "dataGate": "FAIL",
   "historicalReturnsRead": false,
-  "result": "V15_DATA_INSUFFICIENT",
+  "result": "V15_DATA_INSUFFICIENT_FINAL",
   "emailPromotionCandidate": "FAIL",
   "researchStop": "YES",
-  "reason": "DATA_GATE_FAIL: ARCHIVE_ENUMERATION_INCOMPLETE, PIT_ACTIONABLE_UNIVERSE_BELOW_20, PIT_FORMATION_COVERAGE_BELOW_98_PERCENT, IMMUTABLE_FULL_5M_ARCHIVE_SET_NOT_MATERIALIZED, ARCHIVE_CHECKSUM_COVERAGE_BELOW_100_PERCENT, MATCHED_BAR_COVERAGE_NOT_COMPUTED_FOR_FULL_ARCHIVE, TRAILING_FEATURE_COVERAGE_NOT_COMPUTED_FOR_FULL_ARCHIVE",
+  "reason": "DATA_GATE_FAIL: IMMUTABLE_FULL_5M_ARCHIVE_SET_NOT_MATERIALIZED, ARCHIVE_CHECKSUM_COVERAGE_BELOW_100_PERCENT, MATCHED_BAR_COVERAGE_BELOW_99_PERCENT, TRAILING_FEATURE_COVERAGE_BELOW_98_PERCENT, ADV_COVERAGE_BELOW_98_PERCENT, ACTUAL_FUNDING_ARCHIVE_NOT_MATERIALIZED, MARK_PRICE_SETTLEMENT_ARCHIVE_NOT_MATERIALIZED",
   "primaryOos": null,
   "years": {
     "2022": null,
@@ -30,6 +31,9 @@
     "productionChanged": false,
     "deploy": false,
     "merge": false,
-    "autoTrading": false
+    "autoTrading": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false
   }
 }
