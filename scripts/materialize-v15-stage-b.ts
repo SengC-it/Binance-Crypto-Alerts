@@ -14,8 +14,8 @@ const COST_STATE_PATH = resolve(REPORT_DIR, "v15-cost-materialization.json");
 const PRICE_CACHE_ROOT = resolve("data/raw/v15-spot-perp-lead-lag");
 const DIRECT_ROOT = "https://data.binance.vision";
 const PROXY = process.env.HTTPS_PROXY ? new ProxyAgent(process.env.HTTPS_PROXY) : undefined;
-const CONCURRENCY = 32;
-const CHECKPOINT_EVERY = 64;
+const CONCURRENCY = 64;
+const CHECKPOINT_EVERY = 128;
 
 type Exchange = "spot" | "futuresUm";
 
@@ -156,19 +156,40 @@ interface RawArchiveResult {
 }
 
 async function fetchRawArchive(sourceUrl: string, checksumUrl: string, cachePath: string, expectedBytes: number | null): Promise<RawArchiveResult> {
-  const checksumText = await request(checksumUrl, "text") as string;
-  const expectedSha256 = checksumValue(checksumText);
   let payload: Buffer;
   try {
+    const checksumText = await request(checksumUrl, "text") as string;
+    const expectedSha256 = checksumValue(checksumText);
     payload = await readFile(resolve(cachePath));
+    const actualSha256 = sha256(payload);
+    if (actualSha256 !== expectedSha256) throw new Error(`official checksum mismatch: expected ${expectedSha256}, got ${actualSha256}`);
+    if (expectedBytes !== null && payload.length !== expectedBytes) throw new Error(`archive byte length mismatch: expected ${expectedBytes}, got ${payload.length}`);
+    return await finishRawArchive(sourceUrl, checksumUrl, cachePath, expectedSha256, payload, actualSha256, expectedBytes);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    payload = await request(sourceUrl, "bytes") as Buffer;
-    await atomicWrite(resolve(cachePath), payload);
   }
+  const [checksumText, downloaded] = await Promise.all([
+    request(checksumUrl, "text"),
+    request(sourceUrl, "bytes"),
+  ]);
+  const expectedSha256 = checksumValue(checksumText as string);
+  payload = downloaded as Buffer;
   const actualSha256 = sha256(payload);
   if (actualSha256 !== expectedSha256) throw new Error(`official checksum mismatch: expected ${expectedSha256}, got ${actualSha256}`);
   if (expectedBytes !== null && payload.length !== expectedBytes) throw new Error(`archive byte length mismatch: expected ${expectedBytes}, got ${payload.length}`);
+  return await finishRawArchive(sourceUrl, checksumUrl, cachePath, expectedSha256, payload, actualSha256, expectedBytes);
+}
+
+async function finishRawArchive(sourceUrl: string, _checksumUrl: string, cachePath: string, expectedSha256: string, payload: Buffer, actualSha256: string, expectedBytes: number | null): Promise<RawArchiveResult> {
+  if (actualSha256 !== expectedSha256) throw new Error(`official checksum mismatch: expected ${expectedSha256}, got ${actualSha256}`);
+  if (expectedBytes !== null && payload.length !== expectedBytes) throw new Error(`archive byte length mismatch: expected ${expectedBytes}, got ${payload.length}`);
+  try {
+    const existing = await readFile(resolve(cachePath));
+    if (sha256(existing) !== actualSha256) throw new Error(`immutable cache collision at ${cachePath}`);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    await atomicWrite(resolve(cachePath), payload);
+  }
   const checksumPath = `${resolve(cachePath)}.CHECKSUM`;
   const canonicalChecksum = `${expectedSha256}  ${basename(sourceUrl)}\n`;
   try {
