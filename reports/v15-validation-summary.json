@@ -1,0 +1,35 @@
+{
+  "schema": "v15-validation-summary-v1",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "freezeCommit": "f469138c314454b973c8d5fd764cae662b9c92d4",
+  "freezeSha256": "77e1091826c2e443d044645018ee19421cfdb38c1d92e22db2d4aab090f563b3",
+  "dataGate": "V15_DATA_INSUFFICIENT",
+  "historicalReturnsRead": false,
+  "result": "V15_DATA_INSUFFICIENT",
+  "emailPromotionCandidate": "FAIL",
+  "researchStop": "YES",
+  "reason": "DATA_GATE_FAIL: ARCHIVE_ENUMERATION_INCOMPLETE, PIT_ACTIONABLE_UNIVERSE_BELOW_20, PIT_FORMATION_COVERAGE_BELOW_98_PERCENT, IMMUTABLE_FULL_5M_ARCHIVE_SET_NOT_MATERIALIZED, ARCHIVE_CHECKSUM_COVERAGE_BELOW_100_PERCENT, MATCHED_BAR_COVERAGE_NOT_COMPUTED_FOR_FULL_ARCHIVE, TRAILING_FEATURE_COVERAGE_NOT_COMPUTED_FOR_FULL_ARCHIVE",
+  "primaryOos": null,
+  "years": {
+    "2022": null,
+    "2023": null,
+    "2024": null
+  },
+  "holdoutA": null,
+  "holdoutB": null,
+  "long": null,
+  "short": null,
+  "placebos": null,
+  "cost": null,
+  "manualDelay": null,
+  "confidence": null,
+  "emailUtility": null,
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "autoTrading": false
+  }
+}

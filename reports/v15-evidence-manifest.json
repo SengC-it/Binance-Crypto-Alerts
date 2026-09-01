@@ -1,0 +1,20 @@
+{
+  "schema": "v15-evidence-manifest-v1",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "freezeSha256": "77e1091826c2e443d044645018ee19421cfdb38c1d92e22db2d4aab090f563b3",
+  "resultCommit": "f469138c314454b973c8d5fd764cae662b9c92d4",
+  "historicalReturnsRead": false,
+  "artifacts": {
+    "v15-data-gate.json": "0c1572c467c28979c5e3dea67c01b11f761cc66fef871af43d31daae27380da7",
+    "v15-freeze-manifest.json": "54ef3481bee12c77821d66a5f06193c646f4046d474e4810b45229135a289154",
+    "v15-oos-results.json": "577994b28ca956113e0deccd55c417322a34b73f5180e9b5e17125431c410d17",
+    "v15-holdouts.json": "577994b28ca956113e0deccd55c417322a34b73f5180e9b5e17125431c410d17",
+    "v15-placebos.json": "577994b28ca956113e0deccd55c417322a34b73f5180e9b5e17125431c410d17",
+    "v15-manual-delay.json": "577994b28ca956113e0deccd55c417322a34b73f5180e9b5e17125431c410d17",
+    "v15-cost-attribution.json": "577994b28ca956113e0deccd55c417322a34b73f5180e9b5e17125431c410d17",
+    "v15-validation-summary.json": "4b21c6cc9aee0fcf85c083906b2c134a1ec266ab1fbd3a7e288dece967deb1c8",
+    "v15-promotion-decision.json": "e44cb988c084ad4a3c0dbd5ea50c7035e6624cfccfa0768b525225d2c3279be2",
+    "v15-promotion-decision.md": "a1767ca0605886eef7eb41b141eba9bbf3b610c888b05c7dce680d59cf0441c6"
+  }
+}
