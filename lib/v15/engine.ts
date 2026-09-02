@@ -26,12 +26,16 @@ export interface V15PairDataset {
   futuresBars: V15Bar[];
   funding: V15FundingPoint[];
   eligible: boolean;
+  firstSpotTime?: number;
+  firstFuturesTime?: number;
 }
 
 export interface V15EngineOptions {
   startTime: number;
   endTime: number;
   referenceCapitalUsdt: number;
+  variant?: "primary" | "reverse-direction" | "perp-led-swap" | "random-direction";
+  retainFeatureSnapshots?: boolean;
 }
 
 export interface V15TradeRecord extends V15ReturnObservation {
@@ -209,7 +213,7 @@ function nextOpenAtOrAfter(bars: V15Bar[], timestamp: number): V15Bar | null {
   return nextExecutableOpen(bars, aligned);
 }
 
-function metricSet(trades: Array<Pick<V15TradeRecord, "grossR" | "feesR" | "slippageR" | "fundingR" | "netR" | "netPnl">>): V15MetricSet {
+function metricSet(trades: Array<Pick<V15TradeRecord, "grossR" | "feesR" | "slippageR" | "fundingR" | "netR" | "netPnl" | "exitTime">>): V15MetricSet {
   const grossRValue = trades.reduce((sum, trade) => sum + trade.grossR, 0);
   const feesR = trades.reduce((sum, trade) => sum + trade.feesR, 0);
   const slippageR = trades.reduce((sum, trade) => sum + trade.slippageR, 0);
@@ -218,10 +222,11 @@ function metricSet(trades: Array<Pick<V15TradeRecord, "grossR" | "feesR" | "slip
   const netPnl = trades.reduce((sum, trade) => sum + trade.netPnl, 0);
   const wins = trades.filter((trade) => trade.netR > 0).map((trade) => trade.netR);
   const losses = trades.filter((trade) => trade.netR < 0).map((trade) => trade.netR);
+  const ordered = trades.slice().sort((left, right) => (left.exitTime ?? 0) - (right.exitTime ?? 0));
   let equity = 0;
   let peak = 0;
   let maxDrawdownR = 0;
-  for (const trade of trades) {
+  for (const trade of ordered) {
     equity += trade.netR;
     peak = Math.max(peak, equity);
     maxDrawdownR = Math.max(maxDrawdownR, peak - equity);
@@ -313,6 +318,36 @@ function delayedTrades(dataset: V15PairDataset, primaryTrades: V15TradeRecord[],
   return { trades, expired };
 }
 
+function swapSpotPerp(feature: V15FeatureSnapshot): V15FeatureSnapshot {
+  const direction: 1 | -1 = feature.perpReturn30 >= 0 ? 1 : -1;
+  const spotReturn30 = feature.perpReturn30;
+  const perpReturn30 = feature.spotReturn30;
+  const spotFlow30 = feature.perpFlow30;
+  const perpFlow30 = feature.spotFlow30;
+  return {
+    ...feature,
+    direction,
+    spotReturn30,
+    perpReturn30,
+    spotFlow30,
+    perpFlow30,
+    spotQuoteVolume30: feature.perpQuoteVolume30,
+    perpQuoteVolume30: feature.spotQuoteVolume30,
+    spotTakerBuyQuote30: feature.perpTakerBuyQuote30,
+    perpTakerBuyQuote30: feature.spotTakerBuyQuote30,
+    spotShock: Math.abs(spotReturn30),
+    leadStrength: direction * (spotReturn30 - perpReturn30),
+    spotDirectionalFlow: direction * spotFlow30,
+    perpDirectionalFlow: direction * perpFlow30,
+  };
+}
+
+function deterministicDirection(symbol: string, timestamp: number): 1 | -1 {
+  let hash = 2166136261;
+  for (const character of `${symbol}:${timestamp}`) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
+  return (hash >>> 0) % 2 === 0 ? 1 : -1;
+}
+
 export function runFrozenV15(datasets: V15PairDataset[], options: V15EngineOptions): V15EngineResult {
   const allTrades: V15TradeRecord[] = [];
   const snapshots: V15FeatureSnapshot[] = [];
@@ -321,20 +356,27 @@ export function runFrozenV15(datasets: V15PairDataset[], options: V15EngineOptio
   let rejectedSignals = 0;
   const delayTrades: Record<5 | 15 | 30, V15TradeRecord[]> = { 5: [], 15: [], 30: [] };
   const delayExpired: Record<5 | 15 | 30, number> = { 5: 0, 15: 0, 30: 0 };
+  const variant = options.variant ?? "primary";
+  const retainFeatureSnapshots = options.retainFeatureSnapshots ?? true;
   for (const dataset of datasets.filter((item) => item.eligible)) {
     const spotBars = dataset.spotBars.slice().sort((left, right) => left.openTime - right.openTime);
     const futuresBars = dataset.futuresBars.slice().sort((left, right) => left.openTime - right.openTime);
     const normalizedDataset = { ...dataset, spotBars, futuresBars };
     const history: V15FeatureSnapshot[] = [];
     let lastExitTime = -Infinity;
+    const firstSpotTime = dataset.firstSpotTime ?? spotBars[0]?.openTime ?? options.startTime;
+    const firstFuturesTime = dataset.firstFuturesTime ?? futuresBars[0]?.openTime ?? options.startTime;
+    const minimumActionTime = Math.max(firstSpotTime, firstFuturesTime) + V15_CONSTANTS.minimumAgeMs;
     for (let decisionTime = options.startTime; decisionTime <= options.endTime; decisionTime += V15_CONSTANTS.decisionIntervalMs) {
+      if (decisionTime < minimumActionTime) continue;
       signalsEvaluated += 1;
-      const feature = featureAt(normalizedDataset, decisionTime);
-      if (!feature) {
+      const rawFeature = featureAt(normalizedDataset, decisionTime);
+      if (!rawFeature) {
         rejectedSignals += 1;
         continue;
       }
-      snapshots.push(feature);
+      const feature = variant === "perp-led-swap" ? swapSpotPerp(rawFeature) : rawFeature;
+      if (retainFeatureSnapshots) snapshots.push(feature);
       const cutoff = decisionTime - V15_CONSTANTS.quantileLookbackMs;
       while (history.length && history[0].decisionTime < cutoff) history.shift();
       const thresholds = buildPitThresholds(history);
@@ -359,7 +401,13 @@ export function runFrozenV15(datasets: V15PairDataset[], options: V15EngineOptio
         history.push(feature);
         continue;
       }
-      const trade = buildTrade(normalizedDataset, feature, decisionTime, entry, atr, options);
+      const tradeDirection: 1 | -1 = variant === "reverse-direction"
+        ? (feature.direction === 1 ? -1 : 1)
+        : variant === "random-direction"
+          ? deterministicDirection(dataset.symbol, decisionTime)
+          : feature.direction;
+      const tradeFeature = tradeDirection === feature.direction ? feature : { ...feature, direction: tradeDirection };
+      const trade = buildTrade(normalizedDataset, tradeFeature, decisionTime, entry, atr, options);
       if (!trade) {
         rejectedSignals += 1;
         history.push(feature);

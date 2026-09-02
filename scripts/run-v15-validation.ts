@@ -10,6 +10,7 @@ import {
   metricsForHorizon,
   metricsForSymbols,
   runFrozenV15,
+  confidenceForTrades,
   type V15EngineResult,
   type V15FundingPoint,
   type V15MetricSet,
@@ -699,12 +700,14 @@ function integrityIsValid(integrity: KlineIntegrity): boolean {
     && integrity.cadenceCoverage >= 0.99;
 }
 
-async function loadFrozenDatasets(stageB: StageBArchiveManifest, costs: CostInputManifest): Promise<V15PairDataset[]> {
+async function loadFrozenDataset(stageB: StageBArchiveManifest, costs: CostInputManifest, symbol: string): Promise<V15PairDataset> {
   if (stageB.actualUsedArchives.length !== stageB.requiredArchiveSlots) throw new Error("Stage B archive set is not fully materialized");
   if (costs.funding.coverage < 1 || costs.markPrice.coverage < 1) throw new Error("actual funding and mark-price inputs are not fully materialized");
   const actual = new Map(stageB.actualUsedArchives.map((row) => [row.exchange + "/" + row.symbol + "/" + row.month, row]));
-  const pairs = new Map<string, { spotBars: V15PairDataset["spotBars"]; futuresBars: V15PairDataset["futuresBars"] }>();
-  for (const requirement of stageB.requiredArchives) {
+  const requirements = stageB.requiredArchives.filter((requirement) => requirement.symbol === symbol);
+  const spotBars: V15PairDataset["spotBars"] = [];
+  const futuresBars: V15PairDataset["futuresBars"] = [];
+  for (const requirement of requirements) {
     const key = requirement.exchange + "/" + requirement.symbol + "/" + requirement.month;
     const record = actual.get(key);
     if (!record) throw new Error("missing immutable archive record: " + key);
@@ -712,21 +715,64 @@ async function loadFrozenDatasets(stageB: StageBArchiveManifest, costs: CostInpu
     if (sha256(bytes) !== record.sha256) throw new Error("immutable archive digest mismatch: " + record.cachePath);
     const bars = parseKlineArchive(bytes);
     if (!bars.length || !integrityIsValid(validateKlineIntegrity(bars))) throw new Error("invalid immutable archive: " + record.cachePath);
-    const current = pairs.get(requirement.symbol) ?? { spotBars: [], futuresBars: [] };
-    if (requirement.exchange === "spot") current.spotBars.push(...bars);
-    else current.futuresBars.push(...bars);
-    pairs.set(requirement.symbol, current);
+    if (requirement.exchange === "spot") spotBars.push(...bars);
+    else futuresBars.push(...bars);
   }
-  const fundingBySymbol = new Map<string, V15FundingPoint[]>();
-  for (const file of costs.funding.actualFiles) {
+  const funding: V15FundingPoint[] = [];
+  for (const file of costs.funding.actualFiles.filter((path) => path.replaceAll("\\", "/").includes(`/funding/${symbol}/`))) {
     const payload = JSON.parse(await readFile(resolve(file), "utf8")) as { symbol?: string; points?: V15FundingPoint[] };
-    if (!payload.symbol || !Array.isArray(payload.points)) throw new Error("invalid funding cache: " + file);
+    if (payload.symbol !== symbol || !Array.isArray(payload.points)) throw new Error("invalid funding cache: " + file);
     const points = payload.points.filter((point) => Number.isFinite(point.timestamp) && Number.isFinite(point.fundingRate) && Number.isFinite(point.markPrice) && point.markPrice > 0);
-    fundingBySymbol.set(payload.symbol, [...(fundingBySymbol.get(payload.symbol) ?? []), ...points]);
+    funding.push(...points);
   }
-  return [...pairs.entries()]
-    .map(([symbol, pair]) => ({ symbol, ...pair, funding: fundingBySymbol.get(symbol) ?? [], eligible: true }))
-    .filter((dataset) => dataset.spotBars.length > 0 && dataset.futuresBars.length > 0 && dataset.funding.length > 0);
+  if (!spotBars.length || !futuresBars.length || !funding.length) throw new Error(`incomplete frozen dataset: ${symbol}`);
+  return {
+    symbol,
+    spotBars,
+    futuresBars,
+    funding,
+    eligible: true,
+    firstSpotTime: Math.min(...spotBars.map((bar) => bar.openTime)),
+    firstFuturesTime: Math.min(...futuresBars.map((bar) => bar.openTime)),
+  };
+}
+
+type V15Variant = "primary" | "reverse-direction" | "perp-led-swap" | "random-direction";
+
+async function runFrozenVariantsBySymbol(stageB: StageBArchiveManifest, costs: CostInputManifest, variants: V15Variant[]): Promise<Record<V15Variant, V15EngineResult>> {
+  const symbols = [...new Set(stageB.requiredArchives.map((requirement) => requirement.symbol))].sort();
+  const accumulators = new Map<V15Variant, { signalsEvaluated: number; rawTriggers: number; rejectedSignals: number; trades: V15EngineResult["trades"]; delays: Record<5 | 15 | 30, { expired: number; trades: V15EngineResult["trades"] }> }>();
+  for (const variant of variants) accumulators.set(variant, { signalsEvaluated: 0, rawTriggers: 0, rejectedSignals: 0, trades: [], delays: { 5: { expired: 0, trades: [] }, 15: { expired: 0, trades: [] }, 30: { expired: 0, trades: [] } } });
+  for (let index = 0; index < symbols.length; index += 1) {
+    const symbol = symbols[index];
+    const dataset = await loadFrozenDataset(stageB, costs, symbol);
+    for (const variant of variants) {
+      const result = runFrozenV15([dataset], { startTime: START, endTime: END, referenceCapitalUsdt: 10_000, variant, retainFeatureSnapshots: false });
+      const accumulator = accumulators.get(variant)!;
+      accumulator.signalsEvaluated += result.signalsEvaluated;
+      accumulator.rawTriggers += result.rawTriggers;
+      accumulator.rejectedSignals += result.rejectedSignals;
+      accumulator.trades.push(...result.trades);
+      for (const delay of result.delayOutcomes) {
+        accumulator.delays[delay.delayMinutes].expired += delay.expiredBeforeEntry;
+        accumulator.delays[delay.delayMinutes].trades.push(...delay.trades);
+      }
+    }
+    if ((index + 1) % 10 === 0 || index + 1 === symbols.length) console.info(JSON.stringify({ phase: "result", variantRuns: variants, symbolsProcessed: index + 1, symbolsTotal: symbols.length }));
+  }
+  return Object.fromEntries(variants.map((variant) => {
+    const accumulator = accumulators.get(variant)!;
+    return [variant, {
+      signalsEvaluated: accumulator.signalsEvaluated,
+      rawTriggers: accumulator.rawTriggers,
+      rejectedSignals: accumulator.rejectedSignals,
+      trades: accumulator.trades,
+      featureSnapshots: [],
+      metrics: metricsAtStress(accumulator.trades, 0),
+      delayOutcomes: ([5, 15, 30] as const).map((delayMinutes) => ({ delayMinutes, expiredBeforeEntry: accumulator.delays[delayMinutes].expired, trades: accumulator.delays[delayMinutes].trades, metrics: metricsAtStress(accumulator.delays[delayMinutes].trades, 0) })),
+      confidence: confidenceForTrades(accumulator.trades),
+    } satisfies V15EngineResult];
+  })) as unknown as Record<V15Variant, V15EngineResult>;
 }
 
 function resultEmailUtility(trades: V15EngineResult["trades"]): Record<string, unknown> {
@@ -749,6 +795,37 @@ function resultEmailUtility(trades: V15EngineResult["trades"]): Record<string, u
     activeMonthRatio: monthly.filter((value) => value > 0).length / 36,
     maxDroughtDays: maxDroughtDays(inSample),
   };
+}
+
+function metricGate(metrics: V15MetricSet, rules: { trades: number; netR: number; avgR?: number; profitFactor: number; maxDrawdownR?: number }): boolean {
+  return metrics.trades >= rules.trades
+    && metrics.netR > rules.netR
+    && (rules.avgR === undefined || metrics.avgR >= rules.avgR)
+    && metrics.profitFactor >= rules.profitFactor
+    && (rules.maxDrawdownR === undefined || metrics.maxDrawdownR <= rules.maxDrawdownR);
+}
+
+function median(values: number[]): number {
+  const ordered = values.slice().sort((left, right) => left - right);
+  if (!ordered.length) return Number.NaN;
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2 ? ordered[middle] : (ordered[middle - 1] + ordered[middle]) / 2;
+}
+
+function yearMetricMap(trades: V15EngineResult["trades"]): Record<string, V15MetricSet> {
+  return Object.fromEntries([2022, 2023, 2024].map((year) => [
+    String(year),
+    metricsAtStress(windowTrades(trades, Date.UTC(year, 0, 1), Date.UTC(year, 11, 31, 23, 59, 59, 999)), 0),
+  ]));
+}
+
+function summarizeFoldGate(years: Record<string, V15MetricSet>): { positiveFoldRatio: number; medianFoldNetR: number } {
+  const foldNet = Object.values(years).map((metrics) => metrics.netR);
+  return { positiveFoldRatio: foldNet.filter((value) => value > 0).length / foldNet.length, medianFoldNetR: median(foldNet) };
+}
+
+function metricWithFold(metrics: V15MetricSet, folds: { positiveFoldRatio: number; medianFoldNetR: number }): Record<string, unknown> {
+  return { ...metricRecord(metrics), ...folds };
 }
 
 async function writeDataInsufficientResult(dataGate: DataGateReport, freezeSha256: string, dataFreezeSha256: string): Promise<void> {
@@ -796,45 +873,83 @@ async function runResult(): Promise<void> {
   }
   const stageB = JSON.parse(await readFile(resolve(REPORT_DIR, "v15-stage-b-archive-manifest.json"), "utf8")) as StageBArchiveManifest;
   const costs = JSON.parse(await readFile(resolve(REPORT_DIR, "v15-cost-input-manifest.json"), "utf8")) as CostInputManifest;
-  const datasets = await loadFrozenDatasets(stageB, costs);
-  const engine = runFrozenV15(datasets, { startTime: START, endTime: END, referenceCapitalUsdt: 10_000 });
+  const engines = await runFrozenVariantsBySymbol(stageB, costs, ["primary", "reverse-direction", "perp-led-swap", "random-direction"]);
+  const engine = engines.primary;
   const oosTrades = windowTrades(engine.trades, Date.UTC(2022, 0, 1), Date.UTC(2024, 11, 31, 23, 59, 59, 999));
   const holdoutATrades = windowTrades(engine.trades, Date.UTC(2025, 0, 1), Date.UTC(2025, 11, 31, 23, 59, 59, 999));
   const holdoutBTrades = windowTrades(engine.trades, Date.UTC(2026, 0, 1), END);
-  const base = metricRecord(metricsAtStress(oosTrades, 0));
-  const holdoutA = metricRecord(metricsAtStress(holdoutATrades, 0));
-  const holdoutB = metricRecord(metricsAtStress(holdoutBTrades, 0));
+  const baseMetrics = metricsAtStress(oosTrades, 0);
+  const holdoutAMetrics = metricsAtStress(holdoutATrades, 0);
+  const holdoutBMetrics = metricsAtStress(holdoutBTrades, 0);
+  const years = yearMetricMap(oosTrades);
+  const folds = summarizeFoldGate(years);
+  const base = metricWithFold(baseMetrics, folds);
+  const holdoutA = metricRecord(holdoutAMetrics);
+  const holdoutB = metricRecord(holdoutBMetrics);
   const delays = Object.fromEntries(engine.delayOutcomes.map((outcome) => [
-    outcome.delayMinutes + "m",
-    { expiredBeforeEntry: outcome.expiredBeforeEntry, metrics: metricRecord(metricsAtStress(windowTrades(outcome.trades, Date.UTC(2022, 0, 1), Date.UTC(2024, 11, 31, 23, 59, 59, 999)), 0)) },
+    outcome.delayMinutes + "m", {
+      expiredBeforeEntry: outcome.expiredBeforeEntry,
+      metrics: metricRecord(metricsAtStress(windowTrades(outcome.trades, Date.UTC(2022, 0, 1), Date.UTC(2024, 11, 31, 23, 59, 59, 999)), 0)),
+    },
   ]));
+  const delay15 = engine.delayOutcomes.find((outcome) => outcome.delayMinutes === 15)!;
+  const delay30 = engine.delayOutcomes.find((outcome) => outcome.delayMinutes === 30)!;
   const symbols = metricsForSymbols(oosTrades);
+  const stress5 = metricsAtStress(oosTrades, 5);
+  const stress10 = metricsAtStress(oosTrades, 10);
+  const stress20 = metricsAtStress(oosTrades, 20);
+  const emailUtility = resultEmailUtility(oosTrades);
+  const primaryGate = metricGate(baseMetrics, { trades: 200, netR: 0, avgR: 0.10, profitFactor: 1.30, maxDrawdownR: 8 })
+    && folds.positiveFoldRatio >= 0.67
+    && folds.medianFoldNetR > 0
+    && stress5.netR > 0
+    && stress10.netR > 0
+    && engine.confidence.lower95 > 0;
+  const holdoutGate = metricGate(holdoutAMetrics, { trades: 50, netR: 0, avgR: 0, profitFactor: 1.20, maxDrawdownR: 6 })
+    && metricGate(holdoutBMetrics, { trades: 30, netR: 0, avgR: 0, profitFactor: 1.20, maxDrawdownR: 6 });
+  const manualGate = delay15.metrics.netR > 0 && delay15.metrics.profitFactor >= 1.20
+    && delay30.metrics.netR > 0 && delay30.metrics.profitFactor >= 1.15;
+  const emailGate = Number(emailUtility.meanPerMonth) >= 2
+    && Number(emailUtility.medianPerMonth) >= 2
+    && Number(emailUtility.activeMonthRatio) >= 0.75
+    && Number(emailUtility.maxDroughtDays) <= 30;
+  const allGates = primaryGate && holdoutGate && manualGate && emailGate;
+  const classification = oosTrades.length < 200
+    ? "V15_INSUFFICIENT_SAMPLE"
+    : allGates
+      ? "V15_HISTORICAL_PASS_FORWARD_CONFIRMATION_REQUIRED"
+      : "V15_SPOT_PERP_LEAD_LAG_REJECTED";
+  const common = { baseline: BASELINE, branch: BRANCH, historicalReturnsRead: true, classification };
   const cost = {
     base,
-    "+5bps": metricRecord(metricsAtStress(oosTrades, 5)),
-    "+10bps": metricRecord(metricsAtStress(oosTrades, 10)),
-    "+20bps": metricRecord(metricsAtStress(oosTrades, 20)),
+    "+5bps": metricRecord(stress5),
+    "+10bps": metricRecord(stress10),
+    "+20bps": metricRecord(stress20),
     fixedHorizon: Object.fromEntries([30, 60, 120, 240].map((minutes) => [minutes + "m", metricRecord(metricsForHorizon(oosTrades, minutes * 60_000))])),
     symbolMetrics: Object.fromEntries(Object.entries(symbols).map(([symbol, metrics]) => [symbol, metricRecord(metrics)])),
-    emailUtility: resultEmailUtility(oosTrades),
+    emailUtility,
   };
-  const classification = oosTrades.length < 200 ? "V15_INSUFFICIENT_SAMPLE" : "V15_SPOT_PERP_LEAD_LAG_REJECTED";
-  const common = { baseline: BASELINE, branch: BRANCH, historicalReturnsRead: true, classification };
-  await writeJson("v15-oos-results.json", { schema: "v15-oos-results-v2", ...common, primary: base, rawTriggers: engine.rawTriggers, rejectedSignals: engine.rejectedSignals, years: Object.fromEntries([2022, 2023, 2024].map((year) => [year, metricRecord(metricsAtStress(windowTrades(oosTrades, Date.UTC(year, 0, 1), Date.UTC(year, 11, 31, 23, 59, 59, 999)), 0))])), long: metricRecord(metricsAtStress(oosTrades.filter((trade) => trade.direction === 1), 0)), short: metricRecord(metricsAtStress(oosTrades.filter((trade) => trade.direction === -1), 0)), confidence: engine.confidence, stress: cost });
+  const placeboMetrics = Object.fromEntries(Object.entries(engines).filter(([variant]) => variant !== "primary").map(([variant, placebo]) => [variant, {
+    oos: metricRecord(metricsAtStress(windowTrades(placebo.trades, Date.UTC(2022, 0, 1), Date.UTC(2024, 11, 31, 23, 59, 59, 999)), 0)),
+    holdoutA: metricRecord(metricsAtStress(windowTrades(placebo.trades, Date.UTC(2025, 0, 1), Date.UTC(2025, 11, 31, 23, 59, 59, 999)), 0)),
+    holdoutB: metricRecord(metricsAtStress(windowTrades(placebo.trades, Date.UTC(2026, 0, 1), END), 0)),
+  }]));
+  await writeJson("v15-oos-results.json", { schema: "v15-oos-results-v2", ...common, primary: base, rawTriggers: engine.rawTriggers, rejectedSignals: engine.rejectedSignals, years: Object.fromEntries(Object.entries(years).map(([year, metrics]) => [year, metricRecord(metrics)])), long: metricRecord(metricsAtStress(oosTrades.filter((trade) => trade.direction === 1), 0)), short: metricRecord(metricsAtStress(oosTrades.filter((trade) => trade.direction === -1), 0)), confidence: engine.confidence, stress: cost, gates: { primary: primaryGate, holdouts: holdoutGate, manualDelay: manualGate, emailUtility: emailGate } });
   await writeJson("v15-holdouts.json", { schema: "v15-holdouts-v2", ...common, holdoutA, holdoutB });
-  await writeJson("v15-placebos.json", { schema: "v15-placebos-v2", ...common, status: "NOT_RUN", reason: "Fixed placebo variants are not permitted until their separate frozen runner is materialized." });
+  await writeJson("v15-placebos.json", { schema: "v15-placebos-v2", ...common, status: "RUN", variants: placeboMetrics });
   await writeJson("v15-manual-delay.json", { schema: "v15-manual-delay-v2", ...common, delays });
   await writeJson("v15-cost-attribution.json", { schema: "v15-cost-attribution-v2", ...common, ...cost });
   await writeJson("v15-validation-summary.json", {
     schema: "v15-validation-summary-v2", baseline: BASELINE, branch: BRANCH, freezeCommit: currentHead(), freezeSha256, dataFreezeV2Sha256: dataFreezeSha256,
-    dataGate: "PASS", historicalReturnsRead: true, result: classification, emailPromotionCandidate: "FAIL", researchStop: "YES",
-    primaryOos: base, years: Object.fromEntries([2022, 2023, 2024].map((year) => [year, metricRecord(metricsAtStress(windowTrades(oosTrades, Date.UTC(year, 0, 1), Date.UTC(year, 11, 31, 23, 59, 59, 999)), 0))])),
+    dataGate: "PASS", historicalReturnsRead: true, result: classification, emailPromotionCandidate: allGates ? "PASS" : "FAIL", researchStop: "YES",
+    primaryOos: base, years: Object.fromEntries(Object.entries(years).map(([year, metrics]) => [year, metricRecord(metrics)])),
     holdoutA, holdoutB, long: metricRecord(metricsAtStress(oosTrades.filter((trade) => trade.direction === 1), 0)), short: metricRecord(metricsAtStress(oosTrades.filter((trade) => trade.direction === -1), 0)),
-    placebos: { status: "NOT_RUN" }, cost, manualDelay: delays, confidence: engine.confidence, emailUtility: resultEmailUtility(oosTrades),
+    placebos: { status: "RUN", variants: placeboMetrics }, cost, manualDelay: delays, confidence: engine.confidence, emailUtility,
+    gates: { primary: primaryGate, holdouts: holdoutGate, manualDelay: manualGate, emailUtility: emailGate },
     boundaries: { productionEmail: "OFF", productionChanged: false, deploy: false, merge: false, autoTrading: false, migration: false, privateBinanceApi: false, orderPlacement: false },
   });
-  await writeJson("v15-promotion-decision.json", { schema: "v15-promotion-decision-v2", ...common, emailPromotionCandidate: "FAIL", researchStop: "YES", historicalReturnsRead: true });
-  await writeText("v15-promotion-decision.md", ["# V15 Promotion Decision", "", "- Classification: **" + classification + "**", "- Data Gate: **PASS**", "- Email promotion: **FAIL** because the complete fixed placebo/holdout gate was not satisfied.", "- Production changed: **NO**", ""].join("\n"));
+  await writeJson("v15-promotion-decision.json", { schema: "v15-promotion-decision-v2", ...common, emailPromotionCandidate: allGates ? "PASS" : "FAIL", researchStop: "YES", historicalReturnsRead: true, gates: { primary: primaryGate, holdouts: holdoutGate, manualDelay: manualGate, emailUtility: emailGate } });
+  await writeText("v15-promotion-decision.md", ["# V15 Promotion Decision", "", "- Classification: **" + classification + "**", "- Data Gate: **PASS**", "- Email promotion candidate: **" + (allGates ? "PASS" : "FAIL") + "**", "- Primary gate: **" + (primaryGate ? "PASS" : "FAIL") + "**", "- Holdout gate: **" + (holdoutGate ? "PASS" : "FAIL") + "**", "- Manual delay gate: **" + (manualGate ? "PASS" : "FAIL") + "**", "- Email utility gate: **" + (emailGate ? "PASS" : "FAIL") + "**", "- Production changed: **NO**", ""].join("\n"));
   const files = ["v15-data-gate.json", "v15-archive-registry.json", "v15-stage-b-archive-manifest.json", "v15-cost-input-manifest.json", "v15-freeze-manifest.json", "v15-data-freeze-v2.json", "v15-oos-results.json", "v15-holdouts.json", "v15-placebos.json", "v15-manual-delay.json", "v15-cost-attribution.json", "v15-validation-summary.json", "v15-promotion-decision.json", "v15-promotion-decision.md"];
   const hashes: Record<string, string> = {};
   for (const file of files) hashes[file] = sha256(await readFile(resolve(REPORT_DIR, file)));
