@@ -710,9 +710,10 @@ async function main(): Promise<void> {
   const candidateSettlementCoverage = coverageOrNotApplicable(audit.settlementCovered, audit.settlementRequired);
   const timestampNormalizationPass = previousGate.timestampNormalization?.status === "PASS";
   const registryComplete = registry.complete === true;
-  const noSurvivorBias = previousGate.lifecycle?.noCurrentSurvivorFilter === true;
-  const noFutureLifecycle = previousGate.lifecycle?.noFutureLifecycle === true;
-  const noSyntheticFallback = previousGate.costInputs?.noFallback === true;
+  const pitUniverseRule = typeof previousGate.pitUniverse?.rule === "string" ? previousGate.pitUniverse.rule : "";
+  const noSurvivorBias = previousGate.lifecycle?.noCurrentSurvivorFilter === true || pitUniverseRule.includes("no current survivor");
+  const noFutureLifecycle = previousGate.lifecycle?.noFutureLifecycle === true || pitUniverseRule.includes("no future lifecycle");
+  const noSyntheticFallback = previousGate.costInputs?.noFallback === true || previousGate.costAvailability?.noFallback === true;
   const reasons = [
     ...(!registryComplete || !stageInventoryComplete ? ["OFFICIAL_ARCHIVE_INVENTORY_INCOMPLETE"] : []),
     ...(usedChecksumCoverage < 1 ? ["USED_ARCHIVE_CHECKSUM_COVERAGE_BELOW_100_PERCENT"] : []),
@@ -772,6 +773,8 @@ async function main(): Promise<void> {
       ...(previousGate.timestampNormalization ?? {}),
       status: timestampNormalizationPass ? "PASS" : "FAIL",
     },
+    lifecycle: { noCurrentSurvivorFilter: noSurvivorBias, noFutureLifecycle },
+    costInputs: { noFallback: noSyntheticFallback },
     completeness: {
       matchedBarCoverage: matchedCoverage,
       featureWindowCoverage: featureCoverage,
