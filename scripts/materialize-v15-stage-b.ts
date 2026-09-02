@@ -230,9 +230,10 @@ function archiveKey(row: { exchange: Exchange; symbol: string; month: string }):
 async function loadStageBState(stageB: StageBManifest, sourceHash: string): Promise<StageBState> {
   try {
     const state = await readJson<StageBState>(STAGE_B_STATE_PATH);
-    if (state.sourceStageBManifestSha256 !== sourceHash || state.requiredArchiveSlots !== stageB.requiredArchives.length) {
-      throw new Error("existing Stage B materialization state does not match the exact current Stage B manifest");
-    }
+    if (state.requiredArchiveSlots !== stageB.requiredArchives.length) throw new Error("existing Stage B materialization state does not match the exact current Stage B manifest");
+    const requiredKeys = new Set(stageB.requiredArchives.map(archiveKey));
+    if (state.records.some((record) => !requiredKeys.has(archiveKey(record)))) throw new Error("existing Stage B materialization state contains an archive outside the current frozen selection");
+    state.sourceStageBManifestSha256 = sourceHash;
     return state;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
