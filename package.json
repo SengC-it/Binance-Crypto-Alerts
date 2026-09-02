@@ -20,6 +20,7 @@
     "v15:prepare-stage-b": "tsx scripts/prepare-v15-stage-b.ts",
     "v15:materialize": "tsx scripts/materialize-v15-stage-b.ts",
     "v15:finalize-gate": "tsx scripts/finalize-v15-data-gate.ts",
+    "v15:finalize-gate-v3": "tsx scripts/finalize-v15-data-gate-v3.ts",
     "validate:v15:full": "tsx scripts/run-v15-validation.ts --phase=result",
     "validate:v15:artifact": "tsx scripts/validate-v15-artifact.ts"
   },
