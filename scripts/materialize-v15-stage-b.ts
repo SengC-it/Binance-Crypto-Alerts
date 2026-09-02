@@ -14,8 +14,8 @@ const COST_STATE_PATH = resolve(REPORT_DIR, "v15-cost-materialization.json");
 const PRICE_CACHE_ROOT = resolve("data/raw/v15-spot-perp-lead-lag");
 const DIRECT_ROOT = "https://data.binance.vision";
 const PROXY = process.env.HTTPS_PROXY ? new ProxyAgent(process.env.HTTPS_PROXY) : undefined;
-const CONCURRENCY = 128;
-const CHECKPOINT_EVERY = 256;
+const CONCURRENCY = 64;
+const CHECKPOINT_EVERY = 128;
 
 type Exchange = "spot" | "futuresUm";
 
