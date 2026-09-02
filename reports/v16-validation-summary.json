@@ -1,0 +1,52 @@
+{
+  "schema": "v16-validation-summary-v1",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v16-aggtrade-absorption",
+  "freezeSha256": "b9af07c66b1890acc9090a947b4e510fdb5b2dada749aec14fce4cea5f876f8f",
+  "dataInventorySha256": "d8e3b63b7e354d3bab0916c688b21004032385f180ede12a883ae0f9843ba315",
+  "dataGate": "FAIL",
+  "historicalReturnsRead": false,
+  "result": "V16_DATA_INSUFFICIENT_FINAL",
+  "emailPromotionCandidate": "FAIL",
+  "researchStop": "YES",
+  "reason": "DATA_GATE_FAIL: OFFICIAL_ARCHIVE_INVENTORY_INCOMPLETE, USED_ZIP_CHECKSUM_COVERAGE_BELOW_100_PERCENT, AGGTRADE_COVERAGE_BELOW_99_PERCENT, KLINE_COVERAGE_BELOW_99_PERCENT, AGGTRADE_TIMESTAMP_MONOTONICITY_NOT_PROVEN, AGGTRADE_ID_MONOTONICITY_NOT_PROVEN, AGGTRADE_DUPLICATE_COVERAGE_NOT_PROVEN, FEATURE_COVERAGE_BELOW_99_PERCENT, EXECUTION_PRICE_COVERAGE_BELOW_99_PERCENT, FUNDING_SETTLEMENT_COVERAGE_BELOW_100_PERCENT",
+  "reasons": [
+    "OFFICIAL_ARCHIVE_INVENTORY_INCOMPLETE",
+    "USED_ZIP_CHECKSUM_COVERAGE_BELOW_100_PERCENT",
+    "AGGTRADE_COVERAGE_BELOW_99_PERCENT",
+    "KLINE_COVERAGE_BELOW_99_PERCENT",
+    "AGGTRADE_TIMESTAMP_MONOTONICITY_NOT_PROVEN",
+    "AGGTRADE_ID_MONOTONICITY_NOT_PROVEN",
+    "AGGTRADE_DUPLICATE_COVERAGE_NOT_PROVEN",
+    "FEATURE_COVERAGE_BELOW_99_PERCENT",
+    "EXECUTION_PRICE_COVERAGE_BELOW_99_PERCENT",
+    "FUNDING_SETTLEMENT_COVERAGE_BELOW_100_PERCENT"
+  ],
+  "primaryOos": null,
+  "years": {
+    "2022": null,
+    "2023": null,
+    "2024": null
+  },
+  "holdoutA": null,
+  "holdoutB": null,
+  "btc": null,
+  "eth": null,
+  "buyAbsorptionShort": null,
+  "sellAbsorptionLong": null,
+  "placebos": null,
+  "cost": null,
+  "manualDelay": null,
+  "confidence": null,
+  "emailUtility": null,
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false
+  }
+}

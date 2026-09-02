@@ -1,0 +1,27 @@
+{
+  "schema": "v16-evidence-manifest-v1",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v16-aggtrade-absorption",
+  "freezeSha256": "b9af07c66b1890acc9090a947b4e510fdb5b2dada749aec14fce4cea5f876f8f",
+  "dataInventorySha256": "d8e3b63b7e354d3bab0916c688b21004032385f180ede12a883ae0f9843ba315",
+  "dataGateSha256": "8ab81995b1cf3ac26bc2bb3c49499030a6c3be1ed38a7d9d3d2937ddd21ccd09",
+  "resultCommit": null,
+  "historicalReturnsRead": false,
+  "artifacts": {
+    "v16-freeze-manifest.json": "c8c3d5fb99f74b3b8864dd00d0949ebb1cd61bff02f0378c1cd9c21603f341be",
+    "v16-data-inventory.json": "d8e3b63b7e354d3bab0916c688b21004032385f180ede12a883ae0f9843ba315",
+    "v16-data-gate.json": "8ab81995b1cf3ac26bc2bb3c49499030a6c3be1ed38a7d9d3d2937ddd21ccd09",
+    "v16-primary-oos.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-yearly.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-holdouts.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-instrument-sides.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-placebos.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-cost.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-manual-delay.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-confidence.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-email-utility.json": "655f27e7b711ba171038d80465ffc6b9ff2e420fb1d0494289dc9ce67f88d101",
+    "v16-validation-summary.json": "278452d95ec9013497d82c455cb43417b84b87b5f9a5480d45fafc705a8b5a8a",
+    "v16-promotion-decision.json": "63a61c7c63ca484e664771617bc68f1233b19cb68baa73a04fed79c17f39e7f7",
+    "v16-promotion-decision.md": "02777b3e9b0603cf3b101c71711d20558ab1098a90df560bc424748938153062"
+  }
+}
