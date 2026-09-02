@@ -107,6 +107,9 @@ export function buildFeatureSnapshot(
 ): V15FeatureSnapshot {
   const spot = requireWindow(spotBars, decisionTime);
   const perp = requireWindow(perpBars, decisionTime);
+  if (spot.some((bar, index) => bar.openTime !== perp[index].openTime)) {
+    throw new Error("V15 requires aligned Spot and Futures feature windows");
+  }
   if (spot[0].open <= 0 || perp[0].open <= 0 || spot.at(-1)!.close <= 0 || perp.at(-1)!.close <= 0) {
     throw new Error("V15 feature window contains a non-positive price");
   }

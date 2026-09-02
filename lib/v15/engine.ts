@@ -96,6 +96,7 @@ interface Aggregate15mBar {
   low: number;
   close: number;
   count: number;
+  openTimes: number[];
 }
 
 function lowerBound(values: number[], target: number): number {
@@ -159,16 +160,20 @@ function aggregate15m(bars: V15Bar[]): Aggregate15mBar[] {
     const openTime = Math.floor(bar.openTime / V15_CONSTANTS.decisionIntervalMs) * V15_CONSTANTS.decisionIntervalMs;
     const current = buckets.get(openTime);
     if (!current) {
-      buckets.set(openTime, { openTime, closeTime: bar.closeTime, open: bar.open, high: bar.high, low: bar.low, close: bar.close, count: 1 });
+      buckets.set(openTime, { openTime, closeTime: bar.closeTime, open: bar.open, high: bar.high, low: bar.low, close: bar.close, count: 1, openTimes: [bar.openTime] });
     } else {
       current.closeTime = Math.max(current.closeTime, bar.closeTime);
       current.high = Math.max(current.high, bar.high);
       current.low = Math.min(current.low, bar.low);
       current.close = bar.close;
       current.count += 1;
+      current.openTimes.push(bar.openTime);
     }
   }
-  return [...buckets.values()].filter((bar) => bar.count === 3).sort((left, right) => left.openTime - right.openTime);
+  return [...buckets.values()].filter((bar) => bar.count === 3).filter((bar) => {
+    const times = bar.openTimes.slice().sort((left, right) => left - right);
+    return times.every((time, index) => time === bar.openTime + index * 5 * 60_000);
+  }).sort((left, right) => left.openTime - right.openTime);
 }
 
 function atr15mAt(bars: V15Bar[], entryTime: number): number | null {

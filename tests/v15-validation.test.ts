@@ -60,6 +60,13 @@ describe("V15 spot-led perpetual catch-up primitives", () => {
     expect(() => buildFeatureSnapshot("BTCUSDT", decisionTime, bars, bars)).toThrow("consecutive");
   });
 
+  it("requires Spot and Futures feature windows to be time aligned", () => {
+    const decisionTime = Date.UTC(2024, 0, 1, 10, 0);
+    const spot = featureWindow(decisionTime, decisionTime - 30 * 60_000);
+    const perp = featureWindow(decisionTime, decisionTime - 30 * 60_000).map((item) => ({ ...item, openTime: item.openTime - 1, closeTime: item.closeTime - 1 }));
+    expect(() => buildFeatureSnapshot("BTCUSDT", decisionTime, spot, perp)).toThrow("aligned");
+  });
+
   it("builds fixed PIT thresholds without a parameter search", () => {
     const base = (spotShock: number, flow: number, lead: number): V15FeatureSnapshot => ({
       decisionTime: 1, symbol: "BTCUSDT", direction: 1, spotReturn30: spotShock, perpReturn30: spotShock - lead,
