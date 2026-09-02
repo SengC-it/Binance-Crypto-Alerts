@@ -1,0 +1,205 @@
+{
+  "schema": "v16-freeze-manifest-v1",
+  "status": "FROZEN_BEFORE_RETURNS",
+  "generatedAt": "2026-09-02T17:17:35.697Z",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v16-aggtrade-absorption",
+  "source": {
+    "provider": "Binance Data Vision",
+    "baseUrl": "https://data.binance.vision",
+    "market": "USD-M perpetual",
+    "officialOnly": true,
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2026-07-31T23:59:59.999Z",
+    "archives": [
+      "aggTrades",
+      "klines/1m",
+      "klines/5m",
+      "fundingRate",
+      "markPriceKlines"
+    ],
+    "noThirdPartyPriceData": true,
+    "immutableCacheRequired": true,
+    "checksumRequired": "100% of every used ZIP"
+  },
+  "universe": {
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "fixedNamedInstrumentUniverse": true,
+    "selectionRule": "Pre-registered BTCUSDT and ETHUSDT USD-M perpetuals; never select by historical returns.",
+    "noPostResultUniverseTuning": true
+  },
+  "flowFeatures": {
+    "aggTradeFields": [
+      "price",
+      "qty",
+      "timestamp",
+      "isBuyerMaker"
+    ],
+    "aggressiveBuyRule": "isBuyerMaker=false",
+    "aggressiveSellRule": "isBuyerMaker=true",
+    "window": "trailing 30 minutes ending before each decision timestamp",
+    "values": [
+      "buyQuote",
+      "sellQuote",
+      "totalQuote",
+      "flowImbalance",
+      "return30m",
+      "highLowRange30m",
+      "realizedVol30m",
+      "VWAP30m"
+    ],
+    "flowImbalance": "(buyQuote - sellQuote) / totalQuote",
+    "priceResponse": "same-direction return response, PIT trailing 60-day distribution",
+    "noFutureTradesInFeatures": true
+  },
+  "absorption": {
+    "distribution": "per instrument, trailing 60-day PIT distribution at T",
+    "flowThresholds": {
+      "buy": "Q90",
+      "sell": "Q10"
+    },
+    "priceResponseThreshold": "Q50",
+    "buyAbsorption": "flowImbalance >= Q90 and same-direction return response below PIT Q50 => SHORT",
+    "sellAbsorption": "flowImbalance <= Q10 and absolute downside response below PIT Q50 => LONG",
+    "directionIsReversed": true,
+    "parameterSearch": false
+  },
+  "decisionClock": {
+    "cadence": "15m",
+    "inputs": [
+      "aggTrades observed before T",
+      "closed bars before T"
+    ],
+    "sameWindowExecution": false
+  },
+  "execution": {
+    "primary": "first futures 5m open after T",
+    "noSameWindowExecution": true,
+    "noSignalCandleCloseFallback": true
+  },
+  "risk": {
+    "atr": "15m ATR14",
+    "stop": "1.5 ATR",
+    "takeProfit": "2R",
+    "maxHold": "4h",
+    "overlap": "same symbol positions do not overlap",
+    "sameBarStopTakeProfit": "unfavorable direction; Stop first"
+  },
+  "costs": {
+    "fee": "4bps per side",
+    "slippage": "2bps per side",
+    "funding": "actual historical funding rows at actual timestamps only",
+    "missingFundingSettlement": "funding=0 only when no settlement occurred; occurred-but-missing is DATA_UNAVAILABLE",
+    "markPrice": "actual historical mark price",
+    "fixedFundingScheduleFallback": false,
+    "stressBps": [
+      5,
+      10,
+      20
+    ]
+  },
+  "manualDelay": {
+    "delays": [
+      "5m",
+      "15m",
+      "30m"
+    ],
+    "execution": "actual delayed entry",
+    "expiredWhen": "theoretical trade reaches Stop/TP before delayed entry",
+    "thirtyMinuteRequirement": "NetR > 0 and suitable for email use"
+  },
+  "validation": {
+    "warmup": [
+      2021
+    ],
+    "primaryOos": [
+      2022,
+      2023,
+      2024
+    ],
+    "holdoutA": [
+      2025
+    ],
+    "holdoutB": "2026-01 through 2026-07",
+    "method": "nested purged walk-forward",
+    "holdoutFrozenBeforeResults": true,
+    "directionReport": [
+      "BUY absorption => SHORT",
+      "SELL absorption => LONG"
+    ],
+    "instrumentReport": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "capitalSimulations": [
+      1000,
+      2000,
+      10000
+    ]
+  },
+  "placebos": {
+    "sameDirection": "same flow, trade with the flow",
+    "randomMatchedTimestamp": "same symbol/month/hour matched timestamp",
+    "nonAbsorbedFlow": "extreme flow with normal strong price response"
+  },
+  "gates": {
+    "usedZipChecksumCoverage": 1,
+    "aggTradeCoverage": ">=99% per instrument",
+    "klineCoverage": 0.99,
+    "featureCoverage": ">=99%",
+    "executionPriceCoverage": ">=99%",
+    "fundingSettlementCoverage": "100% of actually required settlements",
+    "oos": {
+      "trades": ">=200",
+      "netR": ">0",
+      "avgR": ">=0.10",
+      "pf": ">=1.30",
+      "maxDdR": "<=8",
+      "positiveYearRatio": ">=2/3",
+      "medianYearNetR": ">0",
+      "plus5bps": ">0",
+      "plus10bps": ">0"
+    },
+    "holdouts": {
+      "eachTrades": ">=50 A / >=30 B",
+      "netR": ">0",
+      "pf": ">=1.20",
+      "maxDdR": "<=6"
+    },
+    "manual": {
+      "delay15m": {
+        "netR": ">0",
+        "pf": ">=1.20"
+      },
+      "delay30m": {
+        "netR": ">0",
+        "pf": ">=1.15"
+      }
+    },
+    "confidence": "block bootstrap AvgR 95% LCB > 0",
+    "emailUtility": {
+      "meanSignalsPerMonth": ">=2",
+      "medianSignalsPerMonth": ">=2",
+      "activeMonthRatio": ">=75%",
+      "maxDrought": "<=30d"
+    }
+  },
+  "boundaries": {
+    "system": "SIGNAL + SMTP ONLY",
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "accountBalanceOrPositions": false,
+    "v15Changed": false
+  },
+  "historicalReturnsRead": false,
+  "manifestSha256": "b9af07c66b1890acc9090a947b4e510fdb5b2dada749aec14fce4cea5f876f8f"
+}
