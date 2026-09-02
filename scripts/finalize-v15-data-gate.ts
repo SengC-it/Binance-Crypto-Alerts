@@ -141,6 +141,13 @@ async function main(): Promise<void> {
   dataFreeze.costInputManifest = { ...dataFreeze.costInputManifest, sha256: await fileHash(COST_PATH) };
   dataFreeze.dataGate = { path: "reports/v15-data-gate.json", sha256: await fileHash(GATE_PATH), status: gate.status };
   dataFreeze.materialization = { stageBState: { path: "reports/v15-stage-b-materialization.json", sha256: await fileHash(STAGE_B_STATE_PATH) }, costState: { path: "reports/v15-cost-materialization.json", sha256: await fileHash(COST_STATE_PATH) }, coverage: gate.completeness };
+  dataFreeze.codeHashes = {
+    timestampParser: await fileHash(resolve("lib/v15/lead-lag.ts")),
+    featureEngine: await fileHash(resolve("lib/v15/lead-lag.ts")),
+    executionEngine: await fileHash(resolve("lib/v15/engine.ts")),
+    costEngine: await fileHash(resolve("lib/v15/cost.ts")),
+    archiveParser: await fileHash(resolve("lib/v15/archive.ts")),
+  };
   dataFreeze.historicalReturnsRead = false;
   await writeJson(DATA_FREEZE_PATH, { ...dataFreeze, manifestSha256: stableHash(dataFreeze) });
   console.info(JSON.stringify({ phase: "finalize-gate", status: gate.status, reasons, pairs: pairs.length, matchedCoverage, featureCoverage, advCoverage }));

@@ -62,7 +62,7 @@ async function main(): Promise<void> {
     if (result.researchStop !== "YES") fail("research stop is not recorded");
     for (const file of ["v15-oos-results.json", "v15-holdouts.json", "v15-placebos.json", "v15-manual-delay.json", "v15-cost-attribution.json", "v15-promotion-decision.json", "v15-promotion-decision.md", "v15-evidence-manifest.json"]) await readFile(resolve(REPORT_DIR, file));
   }
-  console.info(JSON.stringify({ artifact: "v15", status: "PASS", freezeSha256: manifestHash, resultWritten: Boolean(result), historicalReturnsRead: false }));
+  console.info(JSON.stringify({ artifact: "v15", status: "PASS", freezeSha256: manifestHash, resultWritten: Boolean(result), historicalReturnsRead: result?.historicalReturnsRead ?? false }));
 }
 
 main().catch((error: unknown) => {

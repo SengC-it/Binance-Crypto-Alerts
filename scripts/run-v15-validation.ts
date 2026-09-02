@@ -430,7 +430,7 @@ function buildCostInputManifest(pitUniverse: DataGateReport["pitUniverse"]): Cos
   return {
     schema: "v15-cost-input-manifest-v1",
     funding: {
-      sourceTemplate: `${DIRECT_ROOT}/data/futures/um/daily/fundingRate/{symbol}/{symbol}-fundingRate-{date}.zip`,
+      sourceTemplate: `${DIRECT_ROOT}/data/futures/um/monthly/fundingRate/{symbol}/{symbol}-fundingRate-{month}.zip`,
       requiredSymbolMonths,
       materializedSymbolMonths: 0,
       coverage: 0,
