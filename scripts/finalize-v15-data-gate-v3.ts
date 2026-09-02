@@ -298,7 +298,7 @@ function trailingAdv(index: BarIndex, timestamp: number): { available: boolean; 
   const start = lowerBound(index.closeTimes, timestamp - V15_ADV_LOOKBACK_MS);
   const end = lowerBound(index.closeTimes, timestamp);
   const observedBars = end - start;
-  const internalGaps = observedBars > 1 ? index.gapPrefix[end - 1] - index.gapPrefix[start] : 0;
+  const internalGaps = observedBars > 1 ? index.gapPrefix[end] - index.gapPrefix[start + 1] : 0;
   return {
     available: observedBars === V15_ADV_LOOKBACK_BARS && internalGaps === 0,
     quoteVolume: index.prefixQuoteVolume[end] - index.prefixQuoteVolume[start],
@@ -429,17 +429,26 @@ async function processSymbol(
   const minimumActionTime = Math.max(firstSpotTime, firstFuturesTime) + V15_CONSTANTS.minimumAgeMs;
   const rows: DecisionRow[] = [];
   let decisionTimestamps = 0;
+  let advAvailable = 0;
   for (const month of months) {
     const start = Math.max(START, monthStart(month));
     const end = Math.min(END + V15_CONSTANTS.decisionIntervalMs, nextMonthStart(month));
     for (let decisionTime = start; decisionTime < end && decisionTime <= END; decisionTime += V15_CONSTANTS.decisionIntervalMs) {
       if (decisionTime < minimumActionTime) continue;
       decisionTimestamps += 1;
-      const feature = featureAt(data.symbol, decisionTime, spot, futures);
-      if (!feature) continue;
       const spotAdv = trailingAdv(spot, decisionTime);
       const futuresAdv = trailingAdv(futures, decisionTime);
-      rows.push({ decisionTime, feature, adv: { available: spotAdv.available && futuresAdv.available, spotQuoteVolume: spotAdv.quoteVolume, futuresQuoteVolume: futuresAdv.quoteVolume, spotObservedBars: spotAdv.observedBars, futuresObservedBars: futuresAdv.observedBars } });
+      const adv = {
+        available: spotAdv.available && futuresAdv.available,
+        spotQuoteVolume: spotAdv.quoteVolume,
+        futuresQuoteVolume: futuresAdv.quoteVolume,
+        spotObservedBars: spotAdv.observedBars,
+        futuresObservedBars: futuresAdv.observedBars,
+      };
+      if (adv.available) advAvailable += 1;
+      const feature = featureAt(data.symbol, decisionTime, spot, futures);
+      if (!feature) continue;
+      rows.push({ decisionTime, feature, adv });
     }
   }
 
@@ -450,7 +459,7 @@ async function processSymbol(
   const audit: SymbolAudit = {
     decisionTimestamps,
     featureWindows: rows.length,
-    advAvailable: rows.filter((row) => row.adv.available).length,
+    advAvailable,
     rawTriggers: 0,
     dataUnavailableSignals: 0,
     capacityRejected: 0,
@@ -696,7 +705,7 @@ async function main(): Promise<void> {
 
   const audit = sumAudits(audits);
   const featureCoverage = audit.decisionTimestamps ? audit.featureWindows / audit.decisionTimestamps : 0;
-  const advCoverage = audit.featureWindows ? audit.advAvailable / audit.featureWindows : 0;
+  const advCoverage = audit.decisionTimestamps ? audit.advAvailable / audit.decisionTimestamps : 0;
   const candidateExecutionCoverage = coverageOrNotApplicable(audit.executionAvailable, audit.candidates);
   const candidateSettlementCoverage = coverageOrNotApplicable(audit.settlementCovered, audit.settlementRequired);
   const timestampNormalizationPass = previousGate.timestampNormalization?.status === "PASS";
