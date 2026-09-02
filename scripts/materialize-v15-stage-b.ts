@@ -288,6 +288,8 @@ async function runPrice(): Promise<void> {
     actualUsedArchives,
   };
   await writeJson(STAGE_B_PATH, updated);
+  state.sourceStageBManifestSha256 = sha256(Buffer.from(`${JSON.stringify(updated, null, 2)}\n`, "utf8"));
+  await writeJson(STAGE_B_STATE_PATH, state);
   console.info(JSON.stringify({ phase: "price", status: "PASS", materializedArchiveSlots: actualUsedArchives.length }));
 }
 

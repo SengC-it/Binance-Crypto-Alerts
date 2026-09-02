@@ -19,6 +19,7 @@
     "v15:freeze": "tsx scripts/run-v15-validation.ts --phase=freeze",
     "v15:prepare-stage-b": "tsx scripts/prepare-v15-stage-b.ts",
     "v15:materialize": "tsx scripts/materialize-v15-stage-b.ts",
+    "v15:finalize-gate": "tsx scripts/finalize-v15-data-gate.ts",
     "validate:v15:full": "tsx scripts/run-v15-validation.ts --phase=result",
     "validate:v15:artifact": "tsx scripts/validate-v15-artifact.ts"
   },
