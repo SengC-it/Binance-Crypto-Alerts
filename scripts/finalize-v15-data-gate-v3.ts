@@ -711,8 +711,14 @@ async function main(): Promise<void> {
   const timestampNormalizationPass = previousGate.timestampNormalization?.status === "PASS";
   const registryComplete = registry.complete === true;
   const pitUniverseRule = typeof previousGate.pitUniverse?.rule === "string" ? previousGate.pitUniverse.rule : "";
-  const noSurvivorBias = previousGate.lifecycle?.noCurrentSurvivorFilter === true || pitUniverseRule.includes("no current survivor");
-  const noFutureLifecycle = previousGate.lifecycle?.noFutureLifecycle === true || pitUniverseRule.includes("no future lifecycle");
+  const pitLifecycleRule = typeof dataFreezeV2.pitLifecycleRule === "string" ? dataFreezeV2.pitLifecycleRule : "";
+  const noSurvivorBias = previousGate.lifecycle?.noCurrentSurvivorFilter === true
+    || pitUniverseRule.includes("no current survivor")
+    || pitUniverseRule.includes("no current-survivor")
+    || pitLifecycleRule.includes("never use today's survivor universe");
+  const noFutureLifecycle = previousGate.lifecycle?.noFutureLifecycle === true
+    || pitUniverseRule.includes("no future lifecycle")
+    || pitLifecycleRule.includes("future lifecycle information");
   const noSyntheticFallback = previousGate.costInputs?.noFallback === true || previousGate.costAvailability?.noFallback === true;
   const reasons = [
     ...(!registryComplete || !stageInventoryComplete ? ["OFFICIAL_ARCHIVE_INVENTORY_INCOMPLETE"] : []),
