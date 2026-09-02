@@ -1,0 +1,70 @@
+{
+  "schema": "v15-data-freeze-v3",
+  "status": "FROZEN_BEFORE_RETURNS",
+  "sourceHead": "adb2bf8a87ae9c29c69a3bcc3fba5f973386b7ff",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "originalFreeze": {
+    "commit": "f469138c314454b973c8d5fd764cae662b9c92d4",
+    "sha256": "77e1091826c2e443d044645018ee19421cfdb38c1d92e22db2d4"
+  },
+  "dataFreezeV2Sha256": "80a0b7d8738f78f9e4885a29905650edc3c9ce3a5f3d2f48fedf7acda0e7c971",
+  "alphaDefinitionsUnchanged": true,
+  "alphaDefinitionHashes": {
+    "fixedAlphaDefinitions": "9bd420fa993542ca0d915cfe58017920fff6e55a790e15fe24e34d49b9bd2f36",
+    "thresholds": "eb2d3f1085231f35dab7c9aa91f72235f57efb8b89cab11252227ceb2a25961d",
+    "trade": "fd11a4ad9198b9ec3582d5e2db7e6fb40619610c28d9146d5b87fb7303dbe300",
+    "validation": "500f6bcfc6caba61284ea3cbce55762bb0bac54995ee55bcc40f1856dbaaced6"
+  },
+  "invalidArchiveExclusionHash": "7c09aec32d48fb9120f20926723e37a0409e4b0912a1077f12f98efd6c1a868d",
+  "invalidPairMonths": [
+    "CGPTUSDT/2026-04",
+    "PHAUSDT/2026-07",
+    "RVNUSDT/2021-12",
+    "SANDUSDT/2021-12",
+    "SCRTUSDT/2026-02",
+    "SCUSDT/2021-12",
+    "SFPUSDT/2021-12",
+    "SKLUSDT/2021-12",
+    "SOLUSDT/2021-12",
+    "SRMUSDT/2021-12",
+    "STMXUSDT/2021-12",
+    "STORJUSDT/2021-12",
+    "SUSHIUSDT/2021-12",
+    "SXPUSDT/2021-12",
+    "TLMUSDT/2021-12",
+    "TOMOUSDT/2021-12",
+    "TRBUSDT/2021-12",
+    "TRXUSDT/2021-12",
+    "UNFIUSDT/2021-12",
+    "XEMUSDT/2021-12",
+    "XMRUSDT/2021-12",
+    "XTZUSDT/2021-12",
+    "YFIIUSDT/2021-12",
+    "ZBTUSDT/2026-05",
+    "ZECUSDT/2021-12",
+    "ZENUSDT/2021-12",
+    "ZILUSDT/2021-12",
+    "ZRXUSDT/2021-12"
+  ],
+  "advCoverageDefinitionHash": "7b35228856dd35af98704117d7f78c510a46cba29f7c1ee32280bcbce345c854",
+  "costAvailabilityDefinitionHash": "c542a37b5071727836351c964190daa398198451fe89d2420ea6719f4eecc5a9",
+  "candidateSettlementCoverageDefinitionHash": "541d09cf045c8746f003c3b040f7f6acf8150084922748c07d6f174aa2e0b9db",
+  "dataGateV3": {
+    "path": "reports/v15-data-gate-v3.json",
+    "sha256": "b00ce31cf37d35a457db52d87d4ca57ee4eea6594e219d2a8406bfae7e109eaf",
+    "status": "FAIL"
+  },
+  "historicalReturnsRead": false,
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false
+  },
+  "manifestSha256": "8ea15304e27a0e5da5b376abc21d85839160c71835aac648e0740808796d2ecc"
+}

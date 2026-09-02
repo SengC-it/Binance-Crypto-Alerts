@@ -75,7 +75,7 @@
   },
   "stageBArchiveManifest": {
     "path": "reports/v15-stage-b-archive-manifest.json",
-    "sha256": "b0d8f51d336777e85519a62a9f56f2806c418128b6f5cf96669fe49a3b67db62"
+    "sha256": "7946902d6508b1b6da52565ba6961422b282f8e3aa97defdb63d9bfa6136382b"
   },
   "costInputManifest": {
     "path": "reports/v15-cost-input-manifest.json",
@@ -83,7 +83,7 @@
   },
   "dataGate": {
     "path": "reports/v15-data-gate.json",
-    "sha256": "e3e63337eac54b07cd2a94cf5f5171aaccfbdbf91d6d4f45f8b993d274ae84a5",
+    "sha256": "b00ce31cf37d35a457db52d87d4ca57ee4eea6594e219d2a8406bfae7e109eaf",
     "status": "FAIL"
   },
   "codeHashes": {
@@ -163,5 +163,5 @@
       "note": "Coverage is measured from the complete immutable Stage B pair-month inventory; feature windows use only matched consecutive closed 5m bars and ADV requires positive quote volume on both legs. Invalid or unreadable archives remain in denominators and fail the gate."
     }
   },
-  "manifestSha256": "fe784afe203360908a22fb4ba6bfb4313ed15f9a734e52c3bbab60af0fca9033"
+  "manifestSha256": "80a0b7d8738f78f9e4885a29905650edc3c9ce3a5f3d2f48fedf7acda0e7c971"
 }

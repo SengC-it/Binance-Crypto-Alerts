@@ -1,6 +1,6 @@
 {
-  "schema": "v15-data-gate-v2",
-  "generatedAt": "2026-09-02T09:40:06.029Z",
+  "schema": "v15-data-gate-v3",
+  "generatedAt": "2026-09-02T16:30:04.891Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "branch": "feat/v15-spot-perp-lead-lag",
   "source": {
@@ -12,32 +12,108 @@
     "end": "2026-07-31T23:59:59.999Z",
     "officialOnly": true
   },
-  "enumeration": {
-    "spotSymbols": 722,
-    "futuresSymbols": 829,
-    "sharedSymbols": 470,
-    "spotErrors": [],
-    "futuresErrors": [],
-    "archiveObjectsFound": 44605
-  },
-  "archiveRegistry": {
-    "path": "reports/v15-archive-registry.json",
-    "complete": true,
-    "records": 470,
-    "months": 67
-  },
-  "stageB": {
-    "path": "reports/v15-stage-b-archive-manifest.json",
+  "archiveInventory": {
+    "officialRegistryComplete": true,
+    "stageInventoryComplete": true,
     "requiredArchiveSlots": 29642,
     "materializedArchiveSlots": 29642,
-    "checksumCoverage": 1,
-    "missingMetadataSlots": 0,
-    "validArchiveSlots": 29614,
-    "integrityCoverage": 0.9990553943728493,
-    "inventoryComplete": true
+    "validArchiveSlots": 29586,
+    "invalidArchiveSlots": 56,
+    "usedArchiveSlots": 29586,
+    "usedChecksumCoverage": 1,
+    "usedIntegrityCoverage": 1,
+    "invalidPairMonths": [
+      "CGPTUSDT/2026-04",
+      "PHAUSDT/2026-07",
+      "RVNUSDT/2021-12",
+      "SANDUSDT/2021-12",
+      "SCRTUSDT/2026-02",
+      "SCUSDT/2021-12",
+      "SFPUSDT/2021-12",
+      "SKLUSDT/2021-12",
+      "SOLUSDT/2021-12",
+      "SRMUSDT/2021-12",
+      "STMXUSDT/2021-12",
+      "STORJUSDT/2021-12",
+      "SUSHIUSDT/2021-12",
+      "SXPUSDT/2021-12",
+      "TLMUSDT/2021-12",
+      "TOMOUSDT/2021-12",
+      "TRBUSDT/2021-12",
+      "TRXUSDT/2021-12",
+      "UNFIUSDT/2021-12",
+      "XEMUSDT/2021-12",
+      "XMRUSDT/2021-12",
+      "XTZUSDT/2021-12",
+      "YFIIUSDT/2021-12",
+      "ZBTUSDT/2026-05",
+      "ZECUSDT/2021-12",
+      "ZENUSDT/2021-12",
+      "ZILUSDT/2021-12",
+      "ZRXUSDT/2021-12"
+    ],
+    "invalidArchiveKeys": [
+      "futuresUm/CGPTUSDT/2026-04",
+      "futuresUm/PHAUSDT/2026-07",
+      "futuresUm/RVNUSDT/2021-12",
+      "futuresUm/SANDUSDT/2021-12",
+      "futuresUm/SCRTUSDT/2026-02",
+      "futuresUm/SCUSDT/2021-12",
+      "futuresUm/SFPUSDT/2021-12",
+      "futuresUm/SKLUSDT/2021-12",
+      "futuresUm/SOLUSDT/2021-12",
+      "futuresUm/SRMUSDT/2021-12",
+      "futuresUm/STMXUSDT/2021-12",
+      "futuresUm/STORJUSDT/2021-12",
+      "futuresUm/SUSHIUSDT/2021-12",
+      "futuresUm/SXPUSDT/2021-12",
+      "futuresUm/TLMUSDT/2021-12",
+      "futuresUm/TOMOUSDT/2021-12",
+      "futuresUm/TRBUSDT/2021-12",
+      "futuresUm/TRXUSDT/2021-12",
+      "futuresUm/UNFIUSDT/2021-12",
+      "futuresUm/XEMUSDT/2021-12",
+      "futuresUm/XMRUSDT/2021-12",
+      "futuresUm/XTZUSDT/2021-12",
+      "futuresUm/YFIIUSDT/2021-12",
+      "futuresUm/ZBTUSDT/2026-05",
+      "futuresUm/ZECUSDT/2021-12",
+      "futuresUm/ZENUSDT/2021-12",
+      "futuresUm/ZILUSDT/2021-12",
+      "futuresUm/ZRXUSDT/2021-12",
+      "spot/CGPTUSDT/2026-04",
+      "spot/PHAUSDT/2026-07",
+      "spot/RVNUSDT/2021-12",
+      "spot/SANDUSDT/2021-12",
+      "spot/SCRTUSDT/2026-02",
+      "spot/SCUSDT/2021-12",
+      "spot/SFPUSDT/2021-12",
+      "spot/SKLUSDT/2021-12",
+      "spot/SOLUSDT/2021-12",
+      "spot/SRMUSDT/2021-12",
+      "spot/STMXUSDT/2021-12",
+      "spot/STORJUSDT/2021-12",
+      "spot/SUSHIUSDT/2021-12",
+      "spot/SXPUSDT/2021-12",
+      "spot/TLMUSDT/2021-12",
+      "spot/TOMOUSDT/2021-12",
+      "spot/TRBUSDT/2021-12",
+      "spot/TRXUSDT/2021-12",
+      "spot/UNFIUSDT/2021-12",
+      "spot/XEMUSDT/2021-12",
+      "spot/XMRUSDT/2021-12",
+      "spot/XTZUSDT/2021-12",
+      "spot/YFIIUSDT/2021-12",
+      "spot/ZBTUSDT/2026-05",
+      "spot/ZECUSDT/2021-12",
+      "spot/ZENUSDT/2021-12",
+      "spot/ZILUSDT/2021-12",
+      "spot/ZRXUSDT/2021-12"
+    ],
+    "invalidArchiveExclusionHash": "7c09aec32d48fb9120f20926723e37a0409e4b0912a1077f12f98efd6c1a868d"
   },
   "pitUniverse": {
-    "rule": "At each 15m decision, both Spot SYMBOLUSDT and USD-M perpetual must have complete PIT 5m data, be listed at that time, and have at least 90 days of prior archive history; no current-universe backfill.",
+    "rule": "At each decision timestamp require both lifecycle-eligible legs and exclude any pair-month with an official missing or integrity-invalid archive; no current-survivor universe and no future lifecycle information.",
     "monthly": [
       {
         "month": "2021-01",
@@ -14341,202 +14417,47 @@
     "medianEligiblePairs": 187,
     "minimumEligiblePairs": 0,
     "maximumEligiblePairs": 378,
-    "formationCoverage": 0.4413782153064465
+    "formationCoverage": 0.4413782153064465,
+    "eligiblePairMonthsAfterIntegrityExclusion": 14793,
+    "invalidPairMonthsExcluded": 28
   },
-  "immutableArchives": {
-    "requiredArchiveSlots": 29642,
-    "materializedArchiveSlots": 29642,
-    "fullArchiveCoverage": 1,
-    "checksumCoverage": 1,
-    "sentinelResults": [
-      {
-        "exchange": "spot",
-        "symbol": "BTCUSDT",
-        "month": "2021-01",
-        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "5eda1c9f22259d37f6602ca3ee8072a670131939c7a4bc7e048a2a0077e03d6f",
-        "actualSha256": "5eda1c9f22259d37f6602ca3ee8072a670131939c7a4bc7e048a2a0077e03d6f",
-        "bytes": 502729,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1609459200000,
-        "normalizedFirstOpenTime": 1609459200000,
-        "timestampUnit": "milliseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      },
-      {
-        "exchange": "spot",
-        "symbol": "BTCUSDT",
-        "month": "2025-01",
-        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "4ed2edba26630a98b6ac6102b41dad00e1542640336f0d571c5a7394b39df983",
-        "actualSha256": "4ed2edba26630a98b6ac6102b41dad00e1542640336f0d571c5a7394b39df983",
-        "bytes": 477793,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1735689600000000,
-        "normalizedFirstOpenTime": 1735689600000,
-        "timestampUnit": "microseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      },
-      {
-        "exchange": "spot",
-        "symbol": "ETHUSDT",
-        "month": "2021-01",
-        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "db96dc51d4a85d6d3c125592ade0af58b6379f14b87daa04ffc4e70e93f7193a",
-        "actualSha256": "db96dc51d4a85d6d3c125592ade0af58b6379f14b87daa04ffc4e70e93f7193a",
-        "bytes": 474504,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1609459200000,
-        "normalizedFirstOpenTime": 1609459200000,
-        "timestampUnit": "milliseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      },
-      {
-        "exchange": "spot",
-        "symbol": "ETHUSDT",
-        "month": "2025-01",
-        "sourceUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "356e860d31d3bf5cc7e26c1601716052acaee1352bf7cf01492d4da7b2bdaeb6",
-        "actualSha256": "356e860d31d3bf5cc7e26c1601716052acaee1352bf7cf01492d4da7b2bdaeb6",
-        "bytes": 452756,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1735689600000000,
-        "normalizedFirstOpenTime": 1735689600000,
-        "timestampUnit": "microseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      },
-      {
-        "exchange": "futuresUm",
-        "symbol": "BTCUSDT",
-        "month": "2021-01",
-        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "121bc9248a2be75f5a3e0bb53ec00ae3a0fbd23cede41d6998073818438d5eb4",
-        "actualSha256": "121bc9248a2be75f5a3e0bb53ec00ae3a0fbd23cede41d6998073818438d5eb4",
-        "bytes": 435541,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1609459200000,
-        "normalizedFirstOpenTime": 1609459200000,
-        "timestampUnit": "milliseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      },
-      {
-        "exchange": "futuresUm",
-        "symbol": "BTCUSDT",
-        "month": "2025-01",
-        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "0c99422d64fa3cc58564cf77969fc5a96d6f44783c79ecfcf94b103753bf7570",
-        "actualSha256": "0c99422d64fa3cc58564cf77969fc5a96d6f44783c79ecfcf94b103753bf7570",
-        "bytes": 412755,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1735689600000,
-        "normalizedFirstOpenTime": 1735689600000,
-        "timestampUnit": "milliseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      },
-      {
-        "exchange": "futuresUm",
-        "symbol": "ETHUSDT",
-        "month": "2021-01",
-        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2021-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "8dc831f63e33755739d465e586cbe3e520c1bbe1227b1790b17cd21bb9a547cd",
-        "actualSha256": "8dc831f63e33755739d465e586cbe3e520c1bbe1227b1790b17cd21bb9a547cd",
-        "bytes": 419836,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1609459200000,
-        "normalizedFirstOpenTime": 1609459200000,
-        "timestampUnit": "milliseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      },
-      {
-        "exchange": "futuresUm",
-        "symbol": "ETHUSDT",
-        "month": "2025-01",
-        "sourceUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip",
-        "checksumUrl": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/5m/ETHUSDT-5m-2025-01.zip.CHECKSUM",
-        "status": "PASS",
-        "expectedSha256": "eca9862b43bf3acaf341334d1b2297f800e62ba083ebdd063fc3e01d1c3416cf",
-        "actualSha256": "eca9862b43bf3acaf341334d1b2297f800e62ba083ebdd063fc3e01d1c3416cf",
-        "bytes": 420225,
-        "rowCount": 8928,
-        "rawFirstOpenTime": 1735689600000,
-        "normalizedFirstOpenTime": 1735689600000,
-        "timestampUnit": "milliseconds",
-        "integrity": {
-          "rowCount": 8928,
-          "duplicateOpenTimes": 0,
-          "nonMonotonicOpenTimes": 0,
-          "invalidDurations": 0,
-          "cadenceCoverage": 1
-        },
-        "error": null
-      }
+  "eligibility": {
+    "decisionTimestamps": 40659648,
+    "featureEligibleTimestamps": 39166230,
+    "advEligibleTimestamps": 38709465,
+    "invalidPairMonthsExcluded": [
+      "CGPTUSDT/2026-04",
+      "PHAUSDT/2026-07",
+      "RVNUSDT/2021-12",
+      "SANDUSDT/2021-12",
+      "SCRTUSDT/2026-02",
+      "SCUSDT/2021-12",
+      "SFPUSDT/2021-12",
+      "SKLUSDT/2021-12",
+      "SOLUSDT/2021-12",
+      "SRMUSDT/2021-12",
+      "STMXUSDT/2021-12",
+      "STORJUSDT/2021-12",
+      "SUSHIUSDT/2021-12",
+      "SXPUSDT/2021-12",
+      "TLMUSDT/2021-12",
+      "TOMOUSDT/2021-12",
+      "TRBUSDT/2021-12",
+      "TRXUSDT/2021-12",
+      "UNFIUSDT/2021-12",
+      "XEMUSDT/2021-12",
+      "XMRUSDT/2021-12",
+      "XTZUSDT/2021-12",
+      "YFIIUSDT/2021-12",
+      "ZBTUSDT/2026-05",
+      "ZECUSDT/2021-12",
+      "ZENUSDT/2021-12",
+      "ZILUSDT/2021-12",
+      "ZRXUSDT/2021-12"
     ],
-    "cachePolicy": "Verified ZIP and official .CHECKSUM are written once; existing paths are digest-checked before reuse.",
-    "validIntegrityArchiveSlots": 29614,
-    "validIntegrityCoverage": 0.9990553943728493
+    "ageRule": "90 calendar days from the earlier official first-availability month of each leg",
+    "featureRule": "six consecutive closed 5m bars and a complete frozen 60d feature history for a candidate",
+    "unavailableTimestampsAreExcluded": true
   },
   "timestampNormalization": {
     "status": "PASS",
@@ -14609,88 +14530,6771 @@
       }
     ]
   },
-  "completeness": {
-    "matchedBarCoverage": 0.9960386789401069,
-    "trailingFeatureCoverage": 0.9999702465015825,
-    "liquidityAdvCoverage": 0.9703123945752649,
-    "audit": {
-      "pairMonths": 14821,
-      "comparablePairMonths": 14821,
-      "pairCoverage": 1,
-      "comparableBars": 129816794,
-      "matchedBars": 129302548,
-      "validFeatureWindows": 129224656,
-      "possibleFeatureWindows": 129228501,
-      "advPassingPairMonths": 14381,
-      "archiveIntegrityFailures": 28,
-      "archiveReadFailures": 0,
-      "archiveIntegrityFailureKeys": [
-        "spot/CGPTUSDT/2026-04",
-        "spot/PHAUSDT/2026-07",
-        "spot/RVNUSDT/2021-12",
-        "spot/SANDUSDT/2021-12",
-        "spot/SCRTUSDT/2026-02",
-        "spot/SCUSDT/2021-12",
-        "spot/SFPUSDT/2021-12",
-        "spot/SKLUSDT/2021-12",
-        "spot/SOLUSDT/2021-12",
-        "spot/SRMUSDT/2021-12",
-        "spot/STMXUSDT/2021-12",
-        "spot/STORJUSDT/2021-12",
-        "spot/SUSHIUSDT/2021-12",
-        "spot/SXPUSDT/2021-12",
-        "spot/TLMUSDT/2021-12",
-        "spot/TOMOUSDT/2021-12",
-        "spot/TRBUSDT/2021-12",
-        "spot/TRXUSDT/2021-12",
-        "spot/UNFIUSDT/2021-12",
-        "spot/XEMUSDT/2021-12",
-        "spot/XMRUSDT/2021-12",
-        "spot/XTZUSDT/2021-12",
-        "spot/YFIIUSDT/2021-12",
-        "spot/ZBTUSDT/2026-05",
-        "spot/ZECUSDT/2021-12",
-        "spot/ZENUSDT/2021-12",
-        "spot/ZILUSDT/2021-12",
-        "spot/ZRXUSDT/2021-12"
-      ],
-      "archiveReadFailureDetails": []
-    },
-    "note": "Coverage is measured from the complete immutable Stage B pair-month inventory; feature windows use only matched consecutive closed 5m bars and ADV requires positive quote volume on both legs. Invalid or unreadable archives remain in denominators and fail the gate."
-  },
-  "costInputs": {
-    "path": "reports/v15-cost-input-manifest.json",
-    "fundingCoverage": 0.9831320423723096,
-    "markPriceCoverage": 0.9831320423723096,
-    "noFallback": true,
-    "fundingArchiveCoverage": 0.9831320423723096,
-    "markPriceArchiveCoverage": 0.9831320423723096,
-    "fundingSettlementCoverage": 0.9831320423723096,
-    "requiredSymbolMonths": 14821,
-    "usableSymbolMonths": 14571,
-    "failedSymbolMonths": 250,
-    "inventoryComplete": true
-  },
   "lifecycle": {
     "noCurrentSurvivorFilter": true,
     "noFutureLifecycle": true
   },
-  "requirements": {
-    "archiveChecksumCoverage": 1,
-    "matchedBarCoverage": 0.99,
-    "trailingFeatureCoverage": 0.98,
-    "pitFormationCoverage": 0.98,
-    "fundingCoverage": 1,
-    "markPriceCoverage": 1
+  "costInputs": {
+    "noFallback": true
+  },
+  "completeness": {
+    "matchedBarCoverage": 0.9960315171880839,
+    "featureWindowCoverage": 0.9632702673668007,
+    "trailing30dAdvCoverage": 0.9520364022826759,
+    "audit": {
+      "pairMonthsRequired": 14821,
+      "pairMonthsUsed": 14793,
+      "comparableBars": 129567904,
+      "matchedBars": 129053716,
+      "decisionTimestamps": 40659648,
+      "featureEligibleTimestamps": 39166230,
+      "advAvailableTimestamps": 38709465
+    },
+    "priorV2Audit": {
+      "matchedBarCoverage": 0.9960315171880839,
+      "featureCoverage": null,
+      "advCoverage": null
+    }
+  },
+  "costAvailability": {
+    "globalPairMonthFundingArchiveCoverage": 0.9831320423723096,
+    "globalPairMonthMarkArchiveCoverage": 0.9831320423723096,
+    "globalPairMonthUsableSettlementCoverage": 0.9831320423723096,
+    "requiredPairMonths": 14821,
+    "fundingArchiveAvailable": 14571,
+    "markArchiveAvailable": 14571,
+    "usableSettlementPairMonths": 14571,
+    "inventoryComplete": true,
+    "noFallback": true,
+    "definition": "Global funding/mark archive availability is descriptive only. A candidate requires real fundingRate and markPrice inputs only for scheduled funding settlements in its potential entry-to-entry-plus-4h hold window; irrelevant missing months do not fail the experiment. No fallback or synthetic value is allowed.",
+    "definitionHash": "c542a37b5071727836351c964190daa398198451fe89d2420ea6719f4eecc5a9"
+  },
+  "candidates": {
+    "rawTriggers": 104718,
+    "dataUnavailableSignals": 29417,
+    "capacityRejected": 71271,
+    "executionCandidates": 4030,
+    "executionAvailable": 4030,
+    "executionMissing": 0,
+    "executionPriceCoverage": 1,
+    "settlementRequiredCandidates": 2014,
+    "settlementCoveredCandidates": 1180,
+    "settlementNotRequiredCandidates": 2016,
+    "settlementCoverage": 0.5858987090367428,
+    "settlementMissing": [
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1627476300000,
+        "entryTime": 1627476300000,
+        "requiredTimestamps": [
+          1627488000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1628630100000,
+        "entryTime": 1628630100000,
+        "requiredTimestamps": [
+          1628640000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1638142200000,
+        "entryTime": 1638142200000,
+        "requiredTimestamps": [
+          1638144000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1638682200000,
+        "entryTime": 1638682200000,
+        "requiredTimestamps": [
+          1638691200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1638937800000,
+        "entryTime": 1638937800000,
+        "requiredTimestamps": [
+          1638950400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1639259100000,
+        "entryTime": 1639259100000,
+        "requiredTimestamps": [
+          1639267200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1639260000000,
+        "entryTime": 1639260000000,
+        "requiredTimestamps": [
+          1639267200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1639284300000,
+        "entryTime": 1639284300000,
+        "requiredTimestamps": [
+          1639296000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1639484100000,
+        "entryTime": 1639484100000,
+        "requiredTimestamps": [
+          1639497600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1641502800000,
+        "entryTime": 1641502800000,
+        "requiredTimestamps": [
+          1641513600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1641558600000,
+        "entryTime": 1641558600000,
+        "requiredTimestamps": [
+          1641571200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1641960000000,
+        "entryTime": 1641960000000,
+        "requiredTimestamps": [
+          1641974400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1642084200000,
+        "entryTime": 1642084200000,
+        "requiredTimestamps": [
+          1642089600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1642087800000,
+        "entryTime": 1642087800000,
+        "requiredTimestamps": [
+          1642089600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1642401000000,
+        "entryTime": 1642401000000,
+        "requiredTimestamps": [
+          1642406400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1642423500000,
+        "entryTime": 1642423500000,
+        "requiredTimestamps": [
+          1642435200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1642518000000,
+        "entryTime": 1642518000000,
+        "requiredTimestamps": [
+          1642521600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1642831200000,
+        "entryTime": 1642831200000,
+        "requiredTimestamps": [
+          1642838400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1643173200000,
+        "entryTime": 1643173200000,
+        "requiredTimestamps": [
+          1643184000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1643233500000,
+        "entryTime": 1643233500000,
+        "requiredTimestamps": [
+          1643241600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1643292900000,
+        "entryTime": 1643292900000,
+        "requiredTimestamps": [
+          1643299200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1643982300000,
+        "entryTime": 1643982300000,
+        "requiredTimestamps": [
+          1643990400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1644385500000,
+        "entryTime": 1644385500000,
+        "requiredTimestamps": [
+          1644393600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1645572600000,
+        "entryTime": 1645572600000,
+        "requiredTimestamps": [
+          1645574400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1645592400000,
+        "entryTime": 1645592400000,
+        "requiredTimestamps": [
+          1645603200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1646023500000,
+        "entryTime": 1646023500000,
+        "requiredTimestamps": [
+          1646035200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1646227800000,
+        "entryTime": 1646227800000,
+        "requiredTimestamps": [
+          1646236800000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1646829900000,
+        "entryTime": 1646829900000,
+        "requiredTimestamps": [
+          1646841600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1646830800000,
+        "entryTime": 1646830800000,
+        "requiredTimestamps": [
+          1646841600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1649457000000,
+        "entryTime": 1649457000000,
+        "requiredTimestamps": [
+          1649462400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1649773800000,
+        "entryTime": 1649773800000,
+        "requiredTimestamps": [
+          1649779200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1709709300000,
+        "entryTime": 1709709300000,
+        "requiredTimestamps": [
+          1709712000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1709710200000,
+        "entryTime": 1709710200000,
+        "requiredTimestamps": [
+          1709712000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1710773100000,
+        "entryTime": 1710773100000,
+        "requiredTimestamps": [
+          1710777600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1710919800000,
+        "entryTime": 1710919800000,
+        "requiredTimestamps": [
+          1710921600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1712664900000,
+        "entryTime": 1712664900000,
+        "requiredTimestamps": [
+          1712678400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1736264700000,
+        "entryTime": 1736264700000,
+        "requiredTimestamps": [
+          1736265600000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1738451700000,
+        "entryTime": 1738451700000,
+        "requiredTimestamps": [
+          1738454400000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1743951600000,
+        "entryTime": 1743951600000,
+        "requiredTimestamps": [
+          1743955200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1748586600000,
+        "entryTime": 1748586600000,
+        "requiredTimestamps": [
+          1748592000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1753337700000,
+        "entryTime": 1753337700000,
+        "requiredTimestamps": [
+          1753344000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1755498600000,
+        "entryTime": 1755498600000,
+        "requiredTimestamps": [
+          1755504000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1755518400000,
+        "entryTime": 1755518400000,
+        "requiredTimestamps": [
+          1755532800000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1760218200000,
+        "entryTime": 1760218200000,
+        "requiredTimestamps": [
+          1760227200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1760657400000,
+        "entryTime": 1760657400000,
+        "requiredTimestamps": [
+          1760659200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1760682600000,
+        "entryTime": 1760682600000,
+        "requiredTimestamps": [
+          1760688000000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1761803100000,
+        "entryTime": 1761803100000,
+        "requiredTimestamps": [
+          1761811200000
+        ]
+      },
+      {
+        "symbol": "ADAUSDT",
+        "decisionTime": 1762574400000,
+        "entryTime": 1762574400000,
+        "requiredTimestamps": [
+          1762588800000
+        ]
+      },
+      {
+        "symbol": "AGIXUSDT",
+        "decisionTime": 1710773100000,
+        "entryTime": 1710773100000,
+        "requiredTimestamps": [
+          1710777600000
+        ]
+      },
+      {
+        "symbol": "AGIXUSDT",
+        "decisionTime": 1710849600000,
+        "entryTime": 1710849600000,
+        "requiredTimestamps": [
+          1710864000000
+        ]
+      },
+      {
+        "symbol": "ALGOUSDT",
+        "decisionTime": 1638563400000,
+        "entryTime": 1638563400000,
+        "requiredTimestamps": [
+          1638576000000
+        ]
+      },
+      {
+        "symbol": "ALGOUSDT",
+        "decisionTime": 1638592200000,
+        "entryTime": 1638592200000,
+        "requiredTimestamps": [
+          1638604800000
+        ]
+      },
+      {
+        "symbol": "ALGOUSDT",
+        "decisionTime": 1638657000000,
+        "entryTime": 1638657000000,
+        "requiredTimestamps": [
+          1638662400000
+        ]
+      },
+      {
+        "symbol": "ALGOUSDT",
+        "decisionTime": 1638744300000,
+        "entryTime": 1638744300000,
+        "requiredTimestamps": [
+          1638748800000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1638590400000,
+        "entryTime": 1638590400000,
+        "requiredTimestamps": [
+          1638604800000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1638659700000,
+        "entryTime": 1638659700000,
+        "requiredTimestamps": [
+          1638662400000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1638746100000,
+        "entryTime": 1638746100000,
+        "requiredTimestamps": [
+          1638748800000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1638770400000,
+        "entryTime": 1638770400000,
+        "requiredTimestamps": [
+          1638777600000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1638968400000,
+        "entryTime": 1638968400000,
+        "requiredTimestamps": [
+          1638979200000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1639149300000,
+        "entryTime": 1639149300000,
+        "requiredTimestamps": [
+          1639152000000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1639287000000,
+        "entryTime": 1639287000000,
+        "requiredTimestamps": [
+          1639296000000
+        ]
+      },
+      {
+        "symbol": "ALICEUSDT",
+        "decisionTime": 1640012400000,
+        "entryTime": 1640012400000,
+        "requiredTimestamps": [
+          1640016000000
+        ]
+      },
+      {
+        "symbol": "APTUSDT",
+        "decisionTime": 1677737700000,
+        "entryTime": 1677737700000,
+        "requiredTimestamps": [
+          1677744000000
+        ]
+      },
+      {
+        "symbol": "ARBUSDT",
+        "decisionTime": 1710852300000,
+        "entryTime": 1710852300000,
+        "requiredTimestamps": [
+          1710864000000
+        ]
+      },
+      {
+        "symbol": "ATOMUSDT",
+        "decisionTime": 1638649800000,
+        "entryTime": 1638649800000,
+        "requiredTimestamps": [
+          1638662400000
+        ]
+      },
+      {
+        "symbol": "ATOMUSDT",
+        "decisionTime": 1639177200000,
+        "entryTime": 1639177200000,
+        "requiredTimestamps": [
+          1639180800000
+        ]
+      },
+      {
+        "symbol": "ATOMUSDT",
+        "decisionTime": 1640990700000,
+        "entryTime": 1640990700000,
+        "requiredTimestamps": [
+          1640995200000
+        ]
+      },
+      {
+        "symbol": "ATOMUSDT",
+        "decisionTime": 1642890600000,
+        "entryTime": 1642890600000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "ATOMUSDT",
+        "decisionTime": 1642891500000,
+        "entryTime": 1642891500000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "ATOMUSDT",
+        "decisionTime": 1644500700000,
+        "entryTime": 1644500700000,
+        "requiredTimestamps": [
+          1644508800000
+        ]
+      },
+      {
+        "symbol": "ATOMUSDT",
+        "decisionTime": 1645446600000,
+        "entryTime": 1645446600000,
+        "requiredTimestamps": [
+          1645459200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1642831200000,
+        "entryTime": 1642831200000,
+        "requiredTimestamps": [
+          1642838400000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1642860000000,
+        "entryTime": 1642860000000,
+        "requiredTimestamps": [
+          1642867200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1642860900000,
+        "entryTime": 1642860900000,
+        "requiredTimestamps": [
+          1642867200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1642887900000,
+        "entryTime": 1642887900000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1643178600000,
+        "entryTime": 1643178600000,
+        "requiredTimestamps": [
+          1643184000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1644442200000,
+        "entryTime": 1644442200000,
+        "requiredTimestamps": [
+          1644451200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1644610500000,
+        "entryTime": 1644610500000,
+        "requiredTimestamps": [
+          1644624000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1644611400000,
+        "entryTime": 1644611400000,
+        "requiredTimestamps": [
+          1644624000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1644622200000,
+        "entryTime": 1644622200000,
+        "requiredTimestamps": [
+          1644624000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1645596900000,
+        "entryTime": 1645596900000,
+        "requiredTimestamps": [
+          1645603200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1645794900000,
+        "entryTime": 1645794900000,
+        "requiredTimestamps": [
+          1645804800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1646228700000,
+        "entryTime": 1646228700000,
+        "requiredTimestamps": [
+          1646236800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1647522000000,
+        "entryTime": 1647522000000,
+        "requiredTimestamps": [
+          1647532800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1649772900000,
+        "entryTime": 1649772900000,
+        "requiredTimestamps": [
+          1649779200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1649773800000,
+        "entryTime": 1649773800000,
+        "requiredTimestamps": [
+          1649779200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1651528800000,
+        "entryTime": 1651528800000,
+        "requiredTimestamps": [
+          1651536000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1651696200000,
+        "entryTime": 1651696200000,
+        "requiredTimestamps": [
+          1651708800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1651823100000,
+        "entryTime": 1651823100000,
+        "requiredTimestamps": [
+          1651824000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1651928400000,
+        "entryTime": 1651928400000,
+        "requiredTimestamps": [
+          1651939200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1652219100000,
+        "entryTime": 1652219100000,
+        "requiredTimestamps": [
+          1652227200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1652274000000,
+        "entryTime": 1652274000000,
+        "requiredTimestamps": [
+          1652284800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1653002100000,
+        "entryTime": 1653002100000,
+        "requiredTimestamps": [
+          1653004800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1653406200000,
+        "entryTime": 1653406200000,
+        "requiredTimestamps": [
+          1653408000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1653407100000,
+        "entryTime": 1653407100000,
+        "requiredTimestamps": [
+          1653408000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1653606000000,
+        "entryTime": 1653606000000,
+        "requiredTimestamps": [
+          1653609600000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1653751800000,
+        "entryTime": 1653751800000,
+        "requiredTimestamps": [
+          1653753600000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1702473300000,
+        "entryTime": 1702473300000,
+        "requiredTimestamps": [
+          1702483200000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1704608100000,
+        "entryTime": 1704608100000,
+        "requiredTimestamps": [
+          1704614400000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1705004100000,
+        "entryTime": 1705004100000,
+        "requiredTimestamps": [
+          1705017600000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1710309600000,
+        "entryTime": 1710309600000,
+        "requiredTimestamps": [
+          1710316800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1710919800000,
+        "entryTime": 1710919800000,
+        "requiredTimestamps": [
+          1710921600000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1713022200000,
+        "entryTime": 1713022200000,
+        "requiredTimestamps": [
+          1713024000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1736284500000,
+        "entryTime": 1736284500000,
+        "requiredTimestamps": [
+          1736294400000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1738795500000,
+        "entryTime": 1738795500000,
+        "requiredTimestamps": [
+          1738800000000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1758267900000,
+        "entryTime": 1758267900000,
+        "requiredTimestamps": [
+          1758268800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1759122900000,
+        "entryTime": 1759122900000,
+        "requiredTimestamps": [
+          1759132800000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1760166000000,
+        "entryTime": 1760166000000,
+        "requiredTimestamps": [
+          1760169600000
+        ]
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "decisionTime": 1760213700000,
+        "entryTime": 1760213700000,
+        "requiredTimestamps": [
+          1760227200000
+        ]
+      },
+      {
+        "symbol": "AXSUSDT",
+        "decisionTime": 1639726200000,
+        "entryTime": 1639726200000,
+        "requiredTimestamps": [
+          1639728000000
+        ]
+      },
+      {
+        "symbol": "BATUSDT",
+        "decisionTime": 1638135900000,
+        "entryTime": 1638135900000,
+        "requiredTimestamps": [
+          1638144000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1627041600000,
+        "entryTime": 1627041600000,
+        "requiredTimestamps": [
+          1627056000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1627887600000,
+        "entryTime": 1627887600000,
+        "requiredTimestamps": [
+          1627891200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1639599300000,
+        "entryTime": 1639599300000,
+        "requiredTimestamps": [
+          1639612800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1643378400000,
+        "entryTime": 1643378400000,
+        "requiredTimestamps": [
+          1643385600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1643467500000,
+        "entryTime": 1643467500000,
+        "requiredTimestamps": [
+          1643472000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1643839200000,
+        "entryTime": 1643839200000,
+        "requiredTimestamps": [
+          1643846400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1644501600000,
+        "entryTime": 1644501600000,
+        "requiredTimestamps": [
+          1644508800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1646063100000,
+        "entryTime": 1646063100000,
+        "requiredTimestamps": [
+          1646064000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1646118900000,
+        "entryTime": 1646118900000,
+        "requiredTimestamps": [
+          1646121600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1648134900000,
+        "entryTime": 1648134900000,
+        "requiredTimestamps": [
+          1648137600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1649168100000,
+        "entryTime": 1649168100000,
+        "requiredTimestamps": [
+          1649174400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1649773800000,
+        "entryTime": 1649773800000,
+        "requiredTimestamps": [
+          1649779200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1650123000000,
+        "entryTime": 1650123000000,
+        "requiredTimestamps": [
+          1650124800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1652076900000,
+        "entryTime": 1652076900000,
+        "requiredTimestamps": [
+          1652083200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1652303700000,
+        "entryTime": 1652303700000,
+        "requiredTimestamps": [
+          1652313600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1653057900000,
+        "entryTime": 1653057900000,
+        "requiredTimestamps": [
+          1653062400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1653058800000,
+        "entryTime": 1653058800000,
+        "requiredTimestamps": [
+          1653062400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1653345900000,
+        "entryTime": 1653345900000,
+        "requiredTimestamps": [
+          1653350400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1659022200000,
+        "entryTime": 1659022200000,
+        "requiredTimestamps": [
+          1659024000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1659023100000,
+        "entryTime": 1659023100000,
+        "requiredTimestamps": [
+          1659024000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1659568500000,
+        "entryTime": 1659568500000,
+        "requiredTimestamps": [
+          1659571200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1660135500000,
+        "entryTime": 1660135500000,
+        "requiredTimestamps": [
+          1660147200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1660544100000,
+        "entryTime": 1660544100000,
+        "requiredTimestamps": [
+          1660550400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1660837500000,
+        "entryTime": 1660837500000,
+        "requiredTimestamps": [
+          1660838400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1660978800000,
+        "entryTime": 1660978800000,
+        "requiredTimestamps": [
+          1660982400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1661816700000,
+        "entryTime": 1661816700000,
+        "requiredTimestamps": [
+          1661817600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1667765700000,
+        "entryTime": 1667765700000,
+        "requiredTimestamps": [
+          1667779200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1669212000000,
+        "entryTime": 1669212000000,
+        "requiredTimestamps": [
+          1669219200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1676560500000,
+        "entryTime": 1676560500000,
+        "requiredTimestamps": [
+          1676563200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1677253500000,
+        "entryTime": 1677253500000,
+        "requiredTimestamps": [
+          1677254400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1678623300000,
+        "entryTime": 1678623300000,
+        "requiredTimestamps": [
+          1678636800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1678660200000,
+        "entryTime": 1678660200000,
+        "requiredTimestamps": [
+          1678665600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1679147100000,
+        "entryTime": 1679147100000,
+        "requiredTimestamps": [
+          1679155200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1679180400000,
+        "entryTime": 1679180400000,
+        "requiredTimestamps": [
+          1679184000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1702476000000,
+        "entryTime": 1702476000000,
+        "requiredTimestamps": [
+          1702483200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1704003300000,
+        "entryTime": 1704003300000,
+        "requiredTimestamps": [
+          1704009600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1712902500000,
+        "entryTime": 1712902500000,
+        "requiredTimestamps": [
+          1712908800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1713163500000,
+        "entryTime": 1713163500000,
+        "requiredTimestamps": [
+          1713168000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1716272100000,
+        "entryTime": 1716272100000,
+        "requiredTimestamps": [
+          1716278400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1718025300000,
+        "entryTime": 1718025300000,
+        "requiredTimestamps": [
+          1718035200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1718033400000,
+        "entryTime": 1718033400000,
+        "requiredTimestamps": [
+          1718035200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1718050500000,
+        "entryTime": 1718050500000,
+        "requiredTimestamps": [
+          1718064000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1722699000000,
+        "entryTime": 1722699000000,
+        "requiredTimestamps": [
+          1722700800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1723384800000,
+        "entryTime": 1723384800000,
+        "requiredTimestamps": [
+          1723392000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1724706900000,
+        "entryTime": 1724706900000,
+        "requiredTimestamps": [
+          1724716800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1726805700000,
+        "entryTime": 1726805700000,
+        "requiredTimestamps": [
+          1726819200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1729053900000,
+        "entryTime": 1729053900000,
+        "requiredTimestamps": [
+          1729065600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1737355500000,
+        "entryTime": 1737355500000,
+        "requiredTimestamps": [
+          1737360000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1739374200000,
+        "entryTime": 1739374200000,
+        "requiredTimestamps": [
+          1739376000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1739512800000,
+        "entryTime": 1739512800000,
+        "requiredTimestamps": [
+          1739520000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1740952800000,
+        "entryTime": 1740952800000,
+        "requiredTimestamps": [
+          1740960000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1743077700000,
+        "entryTime": 1743077700000,
+        "requiredTimestamps": [
+          1743091200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1743078600000,
+        "entryTime": 1743078600000,
+        "requiredTimestamps": [
+          1743091200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1746832500000,
+        "entryTime": 1746832500000,
+        "requiredTimestamps": [
+          1746835200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1746833400000,
+        "entryTime": 1746833400000,
+        "requiredTimestamps": [
+          1746835200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1746970200000,
+        "entryTime": 1746970200000,
+        "requiredTimestamps": [
+          1746979200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1747111500000,
+        "entryTime": 1747111500000,
+        "requiredTimestamps": [
+          1747123200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1747812600000,
+        "entryTime": 1747812600000,
+        "requiredTimestamps": [
+          1747814400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1748001600000,
+        "entryTime": 1748001600000,
+        "requiredTimestamps": [
+          1748016000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1748002500000,
+        "entryTime": 1748002500000,
+        "requiredTimestamps": [
+          1748016000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1748003400000,
+        "entryTime": 1748003400000,
+        "requiredTimestamps": [
+          1748016000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1749224700000,
+        "entryTime": 1749224700000,
+        "requiredTimestamps": [
+          1749225600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1750543200000,
+        "entryTime": 1750543200000,
+        "requiredTimestamps": [
+          1750550400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1750602600000,
+        "entryTime": 1750602600000,
+        "requiredTimestamps": [
+          1750608000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1750710600000,
+        "entryTime": 1750710600000,
+        "requiredTimestamps": [
+          1750723200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1753337700000,
+        "entryTime": 1753337700000,
+        "requiredTimestamps": [
+          1753344000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1754002800000,
+        "entryTime": 1754002800000,
+        "requiredTimestamps": [
+          1754006400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1754748000000,
+        "entryTime": 1754748000000,
+        "requiredTimestamps": [
+          1754755200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1759476600000,
+        "entryTime": 1759476600000,
+        "requiredTimestamps": [
+          1759478400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1759526100000,
+        "entryTime": 1759526100000,
+        "requiredTimestamps": [
+          1759536000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1759675500000,
+        "entryTime": 1759675500000,
+        "requiredTimestamps": [
+          1759680000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1759812300000,
+        "entryTime": 1759812300000,
+        "requiredTimestamps": [
+          1759824000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1759905000000,
+        "entryTime": 1759905000000,
+        "requiredTimestamps": [
+          1759910400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1760166000000,
+        "entryTime": 1760166000000,
+        "requiredTimestamps": [
+          1760169600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1760509800000,
+        "entryTime": 1760509800000,
+        "requiredTimestamps": [
+          1760515200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1760683500000,
+        "entryTime": 1760683500000,
+        "requiredTimestamps": [
+          1760688000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1760684400000,
+        "entryTime": 1760684400000,
+        "requiredTimestamps": [
+          1760688000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1760685300000,
+        "entryTime": 1760685300000,
+        "requiredTimestamps": [
+          1760688000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1760686200000,
+        "entryTime": 1760686200000,
+        "requiredTimestamps": [
+          1760688000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1760822100000,
+        "entryTime": 1760822100000,
+        "requiredTimestamps": [
+          1760832000000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1761721200000,
+        "entryTime": 1761721200000,
+        "requiredTimestamps": [
+          1761724800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1762149600000,
+        "entryTime": 1762149600000,
+        "requiredTimestamps": [
+          1762156800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1762235100000,
+        "entryTime": 1762235100000,
+        "requiredTimestamps": [
+          1762243200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1768403700000,
+        "entryTime": 1768403700000,
+        "requiredTimestamps": [
+          1768406400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1768491900000,
+        "entryTime": 1768491900000,
+        "requiredTimestamps": [
+          1768492800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1768915800000,
+        "entryTime": 1768915800000,
+        "requiredTimestamps": [
+          1768924800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1770241500000,
+        "entryTime": 1770241500000,
+        "requiredTimestamps": [
+          1770249600000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1770643800000,
+        "entryTime": 1770643800000,
+        "requiredTimestamps": [
+          1770652800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1770995700000,
+        "entryTime": 1770995700000,
+        "requiredTimestamps": [
+          1770998400000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1780299900000,
+        "entryTime": 1780299900000,
+        "requiredTimestamps": [
+          1780300800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1780529400000,
+        "entryTime": 1780529400000,
+        "requiredTimestamps": [
+          1780531200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1780530300000,
+        "entryTime": 1780530300000,
+        "requiredTimestamps": [
+          1780531200000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1781011800000,
+        "entryTime": 1781011800000,
+        "requiredTimestamps": [
+          1781020800000
+        ]
+      },
+      {
+        "symbol": "BNBUSDT",
+        "decisionTime": 1781537400000,
+        "entryTime": 1781537400000,
+        "requiredTimestamps": [
+          1781539200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1625005800000,
+        "entryTime": 1625005800000,
+        "requiredTimestamps": [
+          1625011200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1627335900000,
+        "entryTime": 1627335900000,
+        "requiredTimestamps": [
+          1627344000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1627426800000,
+        "entryTime": 1627426800000,
+        "requiredTimestamps": [
+          1627430400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1627454700000,
+        "entryTime": 1627454700000,
+        "requiredTimestamps": [
+          1627459200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1638135900000,
+        "entryTime": 1638135900000,
+        "requiredTimestamps": [
+          1638144000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1638543600000,
+        "entryTime": 1638543600000,
+        "requiredTimestamps": [
+          1638547200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1638978300000,
+        "entryTime": 1638978300000,
+        "requiredTimestamps": [
+          1638979200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1640177100000,
+        "entryTime": 1640177100000,
+        "requiredTimestamps": [
+          1640188800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1642086900000,
+        "entryTime": 1642086900000,
+        "requiredTimestamps": [
+          1642089600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1642512600000,
+        "entryTime": 1642512600000,
+        "requiredTimestamps": [
+          1642521600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1642721400000,
+        "entryTime": 1642721400000,
+        "requiredTimestamps": [
+          1642723200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1642796100000,
+        "entryTime": 1642796100000,
+        "requiredTimestamps": [
+          1642809600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1642863600000,
+        "entryTime": 1642863600000,
+        "requiredTimestamps": [
+          1642867200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1642882500000,
+        "entryTime": 1642882500000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1642923000000,
+        "entryTime": 1642923000000,
+        "requiredTimestamps": [
+          1642924800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1643114700000,
+        "entryTime": 1643114700000,
+        "requiredTimestamps": [
+          1643126400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1643985000000,
+        "entryTime": 1643985000000,
+        "requiredTimestamps": [
+          1643990400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1644507000000,
+        "entryTime": 1644507000000,
+        "requiredTimestamps": [
+          1644508800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1646685000000,
+        "entryTime": 1646685000000,
+        "requiredTimestamps": [
+          1646697600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1647034200000,
+        "entryTime": 1647034200000,
+        "requiredTimestamps": [
+          1647043200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1647232200000,
+        "entryTime": 1647232200000,
+        "requiredTimestamps": [
+          1647244800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1647872100000,
+        "entryTime": 1647872100000,
+        "requiredTimestamps": [
+          1647878400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1648448100000,
+        "entryTime": 1648448100000,
+        "requiredTimestamps": [
+          1648454400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1649085300000,
+        "entryTime": 1649085300000,
+        "requiredTimestamps": [
+          1649088000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1649161800000,
+        "entryTime": 1649161800000,
+        "requiredTimestamps": [
+          1649174400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1649164500000,
+        "entryTime": 1649164500000,
+        "requiredTimestamps": [
+          1649174400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1651015800000,
+        "entryTime": 1651015800000,
+        "requiredTimestamps": [
+          1651017600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1652302800000,
+        "entryTime": 1652302800000,
+        "requiredTimestamps": [
+          1652313600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1652304600000,
+        "entryTime": 1652304600000,
+        "requiredTimestamps": [
+          1652313600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1652391000000,
+        "entryTime": 1652391000000,
+        "requiredTimestamps": [
+          1652400000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1652652900000,
+        "entryTime": 1652652900000,
+        "requiredTimestamps": [
+          1652659200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1652887800000,
+        "entryTime": 1652887800000,
+        "requiredTimestamps": [
+          1652889600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1653076800000,
+        "entryTime": 1653076800000,
+        "requiredTimestamps": [
+          1653091200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1653345000000,
+        "entryTime": 1653345000000,
+        "requiredTimestamps": [
+          1653350400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1664547300000,
+        "entryTime": 1664547300000,
+        "requiredTimestamps": [
+          1664553600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1664552700000,
+        "entryTime": 1664552700000,
+        "requiredTimestamps": [
+          1664553600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1673729100000,
+        "entryTime": 1673729100000,
+        "requiredTimestamps": [
+          1673740800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1679551200000,
+        "entryTime": 1679551200000,
+        "requiredTimestamps": [
+          1679558400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1687414500000,
+        "entryTime": 1687414500000,
+        "requiredTimestamps": [
+          1687420800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1697779800000,
+        "entryTime": 1697779800000,
+        "requiredTimestamps": [
+          1697788800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1705159800000,
+        "entryTime": 1705159800000,
+        "requiredTimestamps": [
+          1705161600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1705418100000,
+        "entryTime": 1705418100000,
+        "requiredTimestamps": [
+          1705420800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1707489000000,
+        "entryTime": 1707489000000,
+        "requiredTimestamps": [
+          1707494400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1710863100000,
+        "entryTime": 1710863100000,
+        "requiredTimestamps": [
+          1710864000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1712589300000,
+        "entryTime": 1712589300000,
+        "requiredTimestamps": [
+          1712592000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1715804100000,
+        "entryTime": 1715804100000,
+        "requiredTimestamps": [
+          1715817600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1722582000000,
+        "entryTime": 1722582000000,
+        "requiredTimestamps": [
+          1722585600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1722699000000,
+        "entryTime": 1722699000000,
+        "requiredTimestamps": [
+          1722700800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1722699900000,
+        "entryTime": 1722699900000,
+        "requiredTimestamps": [
+          1722700800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1724164200000,
+        "entryTime": 1724164200000,
+        "requiredTimestamps": [
+          1724169600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1724856300000,
+        "entryTime": 1724856300000,
+        "requiredTimestamps": [
+          1724860800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1727188200000,
+        "entryTime": 1727188200000,
+        "requiredTimestamps": [
+          1727193600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1737172800000,
+        "entryTime": 1737172800000,
+        "requiredTimestamps": [
+          1737187200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1741786200000,
+        "entryTime": 1741786200000,
+        "requiredTimestamps": [
+          1741795200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1743086700000,
+        "entryTime": 1743086700000,
+        "requiredTimestamps": [
+          1743091200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1743087600000,
+        "entryTime": 1743087600000,
+        "requiredTimestamps": [
+          1743091200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1745245800000,
+        "entryTime": 1745245800000,
+        "requiredTimestamps": [
+          1745251200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1747111500000,
+        "entryTime": 1747111500000,
+        "requiredTimestamps": [
+          1747123200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1747233000000,
+        "entryTime": 1747233000000,
+        "requiredTimestamps": [
+          1747238400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1747637100000,
+        "entryTime": 1747637100000,
+        "requiredTimestamps": [
+          1747641600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1749798900000,
+        "entryTime": 1749798900000,
+        "requiredTimestamps": [
+          1749801600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1750404600000,
+        "entryTime": 1750404600000,
+        "requiredTimestamps": [
+          1750406400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1750599900000,
+        "entryTime": 1750599900000,
+        "requiredTimestamps": [
+          1750608000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1750602600000,
+        "entryTime": 1750602600000,
+        "requiredTimestamps": [
+          1750608000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1750866300000,
+        "entryTime": 1750866300000,
+        "requiredTimestamps": [
+          1750867200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1753654500000,
+        "entryTime": 1753654500000,
+        "requiredTimestamps": [
+          1753660800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1754005500000,
+        "entryTime": 1754005500000,
+        "requiredTimestamps": [
+          1754006400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1755495900000,
+        "entryTime": 1755495900000,
+        "requiredTimestamps": [
+          1755504000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1760481900000,
+        "entryTime": 1760481900000,
+        "requiredTimestamps": [
+          1760486400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1761194700000,
+        "entryTime": 1761194700000,
+        "requiredTimestamps": [
+          1761206400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1761779700000,
+        "entryTime": 1761779700000,
+        "requiredTimestamps": [
+          1761782400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1761838200000,
+        "entryTime": 1761838200000,
+        "requiredTimestamps": [
+          1761840000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1761912900000,
+        "entryTime": 1761912900000,
+        "requiredTimestamps": [
+          1761926400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1762498800000,
+        "entryTime": 1762498800000,
+        "requiredTimestamps": [
+          1762502400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1763451000000,
+        "entryTime": 1763451000000,
+        "requiredTimestamps": [
+          1763452800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1763451900000,
+        "entryTime": 1763451900000,
+        "requiredTimestamps": [
+          1763452800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1763941500000,
+        "entryTime": 1763941500000,
+        "requiredTimestamps": [
+          1763942400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1764129600000,
+        "entryTime": 1764129600000,
+        "requiredTimestamps": [
+          1764144000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1764854100000,
+        "entryTime": 1764854100000,
+        "requiredTimestamps": [
+          1764864000000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1764948600000,
+        "entryTime": 1764948600000,
+        "requiredTimestamps": [
+          1764950400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1767796200000,
+        "entryTime": 1767796200000,
+        "requiredTimestamps": [
+          1767801600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1768488300000,
+        "entryTime": 1768488300000,
+        "requiredTimestamps": [
+          1768492800000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1769869800000,
+        "entryTime": 1769869800000,
+        "requiredTimestamps": [
+          1769875200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1770241500000,
+        "entryTime": 1770241500000,
+        "requiredTimestamps": [
+          1770249600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1771968600000,
+        "entryTime": 1771968600000,
+        "requiredTimestamps": [
+          1771977600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1773032400000,
+        "entryTime": 1773032400000,
+        "requiredTimestamps": [
+          1773043200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1773035100000,
+        "entryTime": 1773035100000,
+        "requiredTimestamps": [
+          1773043200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1773758700000,
+        "entryTime": 1773758700000,
+        "requiredTimestamps": [
+          1773763200000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1774280700000,
+        "entryTime": 1774280700000,
+        "requiredTimestamps": [
+          1774281600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1776174300000,
+        "entryTime": 1776174300000,
+        "requiredTimestamps": [
+          1776182400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1777905900000,
+        "entryTime": 1777905900000,
+        "requiredTimestamps": [
+          1777910400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1778165100000,
+        "entryTime": 1778165100000,
+        "requiredTimestamps": [
+          1778169600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1781066700000,
+        "entryTime": 1781066700000,
+        "requiredTimestamps": [
+          1781078400000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1781620200000,
+        "entryTime": 1781620200000,
+        "requiredTimestamps": [
+          1781625600000
+        ]
+      },
+      {
+        "symbol": "BTCUSDT",
+        "decisionTime": 1784301300000,
+        "entryTime": 1784301300000,
+        "requiredTimestamps": [
+          1784304000000
+        ]
+      },
+      {
+        "symbol": "CHRUSDT",
+        "decisionTime": 1638603900000,
+        "entryTime": 1638603900000,
+        "requiredTimestamps": [
+          1638604800000
+        ]
+      },
+      {
+        "symbol": "CHRUSDT",
+        "decisionTime": 1638826200000,
+        "entryTime": 1638826200000,
+        "requiredTimestamps": [
+          1638835200000
+        ]
+      },
+      {
+        "symbol": "CHRUSDT",
+        "decisionTime": 1638827100000,
+        "entryTime": 1638827100000,
+        "requiredTimestamps": [
+          1638835200000
+        ]
+      },
+      {
+        "symbol": "CHZUSDT",
+        "decisionTime": 1625640300000,
+        "entryTime": 1625640300000,
+        "requiredTimestamps": [
+          1625644800000
+        ]
+      },
+      {
+        "symbol": "CHZUSDT",
+        "decisionTime": 1638828900000,
+        "entryTime": 1638828900000,
+        "requiredTimestamps": [
+          1638835200000
+        ]
+      },
+      {
+        "symbol": "CHZUSDT",
+        "decisionTime": 1638937800000,
+        "entryTime": 1638937800000,
+        "requiredTimestamps": [
+          1638950400000
+        ]
+      },
+      {
+        "symbol": "CHZUSDT",
+        "decisionTime": 1638973800000,
+        "entryTime": 1638973800000,
+        "requiredTimestamps": [
+          1638979200000
+        ]
+      },
+      {
+        "symbol": "CHZUSDT",
+        "decisionTime": 1639149300000,
+        "entryTime": 1639149300000,
+        "requiredTimestamps": [
+          1639152000000
+        ]
+      },
+      {
+        "symbol": "CHZUSDT",
+        "decisionTime": 1668843900000,
+        "entryTime": 1668843900000,
+        "requiredTimestamps": [
+          1668844800000
+        ]
+      },
+      {
+        "symbol": "CRVUSDT",
+        "decisionTime": 1641279600000,
+        "entryTime": 1641279600000,
+        "requiredTimestamps": [
+          1641283200000
+        ]
+      },
+      {
+        "symbol": "CRVUSDT",
+        "decisionTime": 1643122800000,
+        "entryTime": 1643122800000,
+        "requiredTimestamps": [
+          1643126400000
+        ]
+      },
+      {
+        "symbol": "CRVUSDT",
+        "decisionTime": 1643123700000,
+        "entryTime": 1643123700000,
+        "requiredTimestamps": [
+          1643126400000
+        ]
+      },
+      {
+        "symbol": "CRVUSDT",
+        "decisionTime": 1643662800000,
+        "entryTime": 1643662800000,
+        "requiredTimestamps": [
+          1643673600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1626875100000,
+        "entryTime": 1626875100000,
+        "requiredTimestamps": [
+          1626883200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1628308800000,
+        "entryTime": 1628308800000,
+        "requiredTimestamps": [
+          1628323200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1628341200000,
+        "entryTime": 1628341200000,
+        "requiredTimestamps": [
+          1628352000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1628351100000,
+        "entryTime": 1628351100000,
+        "requiredTimestamps": [
+          1628352000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1628716500000,
+        "entryTime": 1628716500000,
+        "requiredTimestamps": [
+          1628726400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1638658800000,
+        "entryTime": 1638658800000,
+        "requiredTimestamps": [
+          1638662400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1639546200000,
+        "entryTime": 1639546200000,
+        "requiredTimestamps": [
+          1639555200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1639579500000,
+        "entryTime": 1639579500000,
+        "requiredTimestamps": [
+          1639584000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1640059200000,
+        "entryTime": 1640059200000,
+        "requiredTimestamps": [
+          1640073600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1641819600000,
+        "entryTime": 1641819600000,
+        "requiredTimestamps": [
+          1641830400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1641942900000,
+        "entryTime": 1641942900000,
+        "requiredTimestamps": [
+          1641945600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1642716900000,
+        "entryTime": 1642716900000,
+        "requiredTimestamps": [
+          1642723200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1643813100000,
+        "entryTime": 1643813100000,
+        "requiredTimestamps": [
+          1643817600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1644247800000,
+        "entryTime": 1644247800000,
+        "requiredTimestamps": [
+          1644249600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1646227800000,
+        "entryTime": 1646227800000,
+        "requiredTimestamps": [
+          1646236800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1646725500000,
+        "entryTime": 1646725500000,
+        "requiredTimestamps": [
+          1646726400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1649979000000,
+        "entryTime": 1649979000000,
+        "requiredTimestamps": [
+          1649980800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1651936500000,
+        "entryTime": 1651936500000,
+        "requiredTimestamps": [
+          1651939200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1652364000000,
+        "entryTime": 1652364000000,
+        "requiredTimestamps": [
+          1652371200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1652652000000,
+        "entryTime": 1652652000000,
+        "requiredTimestamps": [
+          1652659200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1653028200000,
+        "entryTime": 1653028200000,
+        "requiredTimestamps": [
+          1653033600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1667911500000,
+        "entryTime": 1667911500000,
+        "requiredTimestamps": [
+          1667923200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1668030300000,
+        "entryTime": 1668030300000,
+        "requiredTimestamps": [
+          1668038400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1668288600000,
+        "entryTime": 1668288600000,
+        "requiredTimestamps": [
+          1668297600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1675265400000,
+        "entryTime": 1675265400000,
+        "requiredTimestamps": [
+          1675267200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1675319400000,
+        "entryTime": 1675319400000,
+        "requiredTimestamps": [
+          1675324800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1676386800000,
+        "entryTime": 1676386800000,
+        "requiredTimestamps": [
+          1676390400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1713218400000,
+        "entryTime": 1713218400000,
+        "requiredTimestamps": [
+          1713225600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1713222000000,
+        "entryTime": 1713222000000,
+        "requiredTimestamps": [
+          1713225600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1722699900000,
+        "entryTime": 1722699900000,
+        "requiredTimestamps": [
+          1722700800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1723388400000,
+        "entryTime": 1723388400000,
+        "requiredTimestamps": [
+          1723392000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1738453500000,
+        "entryTime": 1738453500000,
+        "requiredTimestamps": [
+          1738454400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1741695300000,
+        "entryTime": 1741695300000,
+        "requiredTimestamps": [
+          1741708800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1742849100000,
+        "entryTime": 1742849100000,
+        "requiredTimestamps": [
+          1742860800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1743083100000,
+        "entryTime": 1743083100000,
+        "requiredTimestamps": [
+          1743091200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1744173900000,
+        "entryTime": 1744173900000,
+        "requiredTimestamps": [
+          1744185600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1746677700000,
+        "entryTime": 1746677700000,
+        "requiredTimestamps": [
+          1746691200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1746946800000,
+        "entryTime": 1746946800000,
+        "requiredTimestamps": [
+          1746950400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1747140300000,
+        "entryTime": 1747140300000,
+        "requiredTimestamps": [
+          1747152000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1747667700000,
+        "entryTime": 1747667700000,
+        "requiredTimestamps": [
+          1747670400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1749154500000,
+        "entryTime": 1749154500000,
+        "requiredTimestamps": [
+          1749168000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1750605300000,
+        "entryTime": 1750605300000,
+        "requiredTimestamps": [
+          1750608000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1750683600000,
+        "entryTime": 1750683600000,
+        "requiredTimestamps": [
+          1750694400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1751609700000,
+        "entryTime": 1751609700000,
+        "requiredTimestamps": [
+          1751616000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1751637600000,
+        "entryTime": 1751637600000,
+        "requiredTimestamps": [
+          1751644800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1752421500000,
+        "entryTime": 1752421500000,
+        "requiredTimestamps": [
+          1752422400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1752933600000,
+        "entryTime": 1752933600000,
+        "requiredTimestamps": [
+          1752940800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1752934500000,
+        "entryTime": 1752934500000,
+        "requiredTimestamps": [
+          1752940800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1752939000000,
+        "entryTime": 1752939000000,
+        "requiredTimestamps": [
+          1752940800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1758255300000,
+        "entryTime": 1758255300000,
+        "requiredTimestamps": [
+          1758268800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1758520800000,
+        "entryTime": 1758520800000,
+        "requiredTimestamps": [
+          1758528000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1758609000000,
+        "entryTime": 1758609000000,
+        "requiredTimestamps": [
+          1758614400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1759819500000,
+        "entryTime": 1759819500000,
+        "requiredTimestamps": [
+          1759824000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1760160600000,
+        "entryTime": 1760160600000,
+        "requiredTimestamps": [
+          1760169600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1760161500000,
+        "entryTime": 1760161500000,
+        "requiredTimestamps": [
+          1760169600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1762149600000,
+        "entryTime": 1762149600000,
+        "requiredTimestamps": [
+          1762156800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1762346700000,
+        "entryTime": 1762346700000,
+        "requiredTimestamps": [
+          1762358400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1762435800000,
+        "entryTime": 1762435800000,
+        "requiredTimestamps": [
+          1762444800000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1762558200000,
+        "entryTime": 1762558200000,
+        "requiredTimestamps": [
+          1762560000000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1762611300000,
+        "entryTime": 1762611300000,
+        "requiredTimestamps": [
+          1762617600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1764100800000,
+        "entryTime": 1764100800000,
+        "requiredTimestamps": [
+          1764115200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1765553400000,
+        "entryTime": 1765553400000,
+        "requiredTimestamps": [
+          1765555200000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1769841000000,
+        "entryTime": 1769841000000,
+        "requiredTimestamps": [
+          1769846400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1770996600000,
+        "entryTime": 1770996600000,
+        "requiredTimestamps": [
+          1770998400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1772291700000,
+        "entryTime": 1772291700000,
+        "requiredTimestamps": [
+          1772294400000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1779023700000,
+        "entryTime": 1779023700000,
+        "requiredTimestamps": [
+          1779033600000
+        ]
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "decisionTime": 1779084900000,
+        "entryTime": 1779084900000,
+        "requiredTimestamps": [
+          1779091200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1627887600000,
+        "entryTime": 1627887600000,
+        "requiredTimestamps": [
+          1627891200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1638657900000,
+        "entryTime": 1638657900000,
+        "requiredTimestamps": [
+          1638662400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1638774000000,
+        "entryTime": 1638774000000,
+        "requiredTimestamps": [
+          1638777600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1638974700000,
+        "entryTime": 1638974700000,
+        "requiredTimestamps": [
+          1638979200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1639428300000,
+        "entryTime": 1639428300000,
+        "requiredTimestamps": [
+          1639440000000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1639484100000,
+        "entryTime": 1639484100000,
+        "requiredTimestamps": [
+          1639497600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1640177100000,
+        "entryTime": 1640177100000,
+        "requiredTimestamps": [
+          1640188800000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1640724300000,
+        "entryTime": 1640724300000,
+        "requiredTimestamps": [
+          1640736000000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1640784600000,
+        "entryTime": 1640784600000,
+        "requiredTimestamps": [
+          1640793600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1640817900000,
+        "entryTime": 1640817900000,
+        "requiredTimestamps": [
+          1640822400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1640898000000,
+        "entryTime": 1640898000000,
+        "requiredTimestamps": [
+          1640908800000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1641593700000,
+        "entryTime": 1641593700000,
+        "requiredTimestamps": [
+          1641600000000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1641677400000,
+        "entryTime": 1641677400000,
+        "requiredTimestamps": [
+          1641686400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1642087800000,
+        "entryTime": 1642087800000,
+        "requiredTimestamps": [
+          1642089600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1642829400000,
+        "entryTime": 1642829400000,
+        "requiredTimestamps": [
+          1642838400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1642890600000,
+        "entryTime": 1642890600000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1643234400000,
+        "entryTime": 1643234400000,
+        "requiredTimestamps": [
+          1643241600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1643377500000,
+        "entryTime": 1643377500000,
+        "requiredTimestamps": [
+          1643385600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1643983200000,
+        "entryTime": 1643983200000,
+        "requiredTimestamps": [
+          1643990400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1644242400000,
+        "entryTime": 1644242400000,
+        "requiredTimestamps": [
+          1644249600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1644845400000,
+        "entryTime": 1644845400000,
+        "requiredTimestamps": [
+          1644854400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1645601400000,
+        "entryTime": 1645601400000,
+        "requiredTimestamps": [
+          1645603200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1645681500000,
+        "entryTime": 1645681500000,
+        "requiredTimestamps": [
+          1645689600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1645704000000,
+        "entryTime": 1645704000000,
+        "requiredTimestamps": [
+          1645718400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1645859700000,
+        "entryTime": 1645859700000,
+        "requiredTimestamps": [
+          1645862400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1646062200000,
+        "entryTime": 1646062200000,
+        "requiredTimestamps": [
+          1646064000000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1646118900000,
+        "entryTime": 1646118900000,
+        "requiredTimestamps": [
+          1646121600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1648823400000,
+        "entryTime": 1648823400000,
+        "requiredTimestamps": [
+          1648828800000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1648825200000,
+        "entryTime": 1648825200000,
+        "requiredTimestamps": [
+          1648828800000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1650434400000,
+        "entryTime": 1650434400000,
+        "requiredTimestamps": [
+          1650441600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1650580200000,
+        "entryTime": 1650580200000,
+        "requiredTimestamps": [
+          1650585600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1650637800000,
+        "entryTime": 1650637800000,
+        "requiredTimestamps": [
+          1650643200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1650727800000,
+        "entryTime": 1650727800000,
+        "requiredTimestamps": [
+          1650729600000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1652680800000,
+        "entryTime": 1652680800000,
+        "requiredTimestamps": [
+          1652688000000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1652790600000,
+        "entryTime": 1652790600000,
+        "requiredTimestamps": [
+          1652803200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1652823900000,
+        "entryTime": 1652823900000,
+        "requiredTimestamps": [
+          1652832000000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1652935500000,
+        "entryTime": 1652935500000,
+        "requiredTimestamps": [
+          1652947200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1652941800000,
+        "entryTime": 1652941800000,
+        "requiredTimestamps": [
+          1652947200000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1652998500000,
+        "entryTime": 1652998500000,
+        "requiredTimestamps": [
+          1653004800000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1653343200000,
+        "entryTime": 1653343200000,
+        "requiredTimestamps": [
+          1653350400000
+        ]
+      },
+      {
+        "symbol": "DOTUSDT",
+        "decisionTime": 1653605100000,
+        "entryTime": 1653605100000,
+        "requiredTimestamps": [
+          1653609600000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1638113400000,
+        "entryTime": 1638113400000,
+        "requiredTimestamps": [
+          1638115200000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1638545400000,
+        "entryTime": 1638545400000,
+        "requiredTimestamps": [
+          1638547200000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1638684900000,
+        "entryTime": 1638684900000,
+        "requiredTimestamps": [
+          1638691200000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1638716400000,
+        "entryTime": 1638716400000,
+        "requiredTimestamps": [
+          1638720000000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1638746100000,
+        "entryTime": 1638746100000,
+        "requiredTimestamps": [
+          1638748800000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1638970200000,
+        "entryTime": 1638970200000,
+        "requiredTimestamps": [
+          1638979200000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1639580400000,
+        "entryTime": 1639580400000,
+        "requiredTimestamps": [
+          1639584000000
+        ]
+      },
+      {
+        "symbol": "EGLDUSDT",
+        "decisionTime": 1639611000000,
+        "entryTime": 1639611000000,
+        "requiredTimestamps": [
+          1639612800000
+        ]
+      },
+      {
+        "symbol": "ENAUSDT",
+        "decisionTime": 1737350100000,
+        "entryTime": 1737350100000,
+        "requiredTimestamps": [
+          1737360000000
+        ]
+      },
+      {
+        "symbol": "ENAUSDT",
+        "decisionTime": 1738641600000,
+        "entryTime": 1738641600000,
+        "requiredTimestamps": [
+          1738656000000
+        ]
+      },
+      {
+        "symbol": "ENAUSDT",
+        "decisionTime": 1754744400000,
+        "entryTime": 1754744400000,
+        "requiredTimestamps": [
+          1754755200000
+        ]
+      },
+      {
+        "symbol": "ENAUSDT",
+        "decisionTime": 1759159800000,
+        "entryTime": 1759159800000,
+        "requiredTimestamps": [
+          1759161600000
+        ]
+      },
+      {
+        "symbol": "ENJUSDT",
+        "decisionTime": 1638651600000,
+        "entryTime": 1638651600000,
+        "requiredTimestamps": [
+          1638662400000
+        ]
+      },
+      {
+        "symbol": "ETCUSDT",
+        "decisionTime": 1625001300000,
+        "entryTime": 1625001300000,
+        "requiredTimestamps": [
+          1625011200000
+        ]
+      },
+      {
+        "symbol": "ETCUSDT",
+        "decisionTime": 1625486400000,
+        "entryTime": 1625486400000,
+        "requiredTimestamps": [
+          1625500800000
+        ]
+      },
+      {
+        "symbol": "ETCUSDT",
+        "decisionTime": 1626269400000,
+        "entryTime": 1626269400000,
+        "requiredTimestamps": [
+          1626278400000
+        ]
+      },
+      {
+        "symbol": "ETCUSDT",
+        "decisionTime": 1627329600000,
+        "entryTime": 1627329600000,
+        "requiredTimestamps": [
+          1627344000000
+        ]
+      },
+      {
+        "symbol": "ETCUSDT",
+        "decisionTime": 1650572100000,
+        "entryTime": 1650572100000,
+        "requiredTimestamps": [
+          1650585600000
+        ]
+      },
+      {
+        "symbol": "ETCUSDT",
+        "decisionTime": 1663426800000,
+        "entryTime": 1663426800000,
+        "requiredTimestamps": [
+          1663430400000
+        ]
+      },
+      {
+        "symbol": "ETCUSDT",
+        "decisionTime": 1664055000000,
+        "entryTime": 1664055000000,
+        "requiredTimestamps": [
+          1664064000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1626957000000,
+        "entryTime": 1626957000000,
+        "requiredTimestamps": [
+          1626969600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1627331400000,
+        "entryTime": 1627331400000,
+        "requiredTimestamps": [
+          1627344000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1627790400000,
+        "entryTime": 1627790400000,
+        "requiredTimestamps": [
+          1627804800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1628433900000,
+        "entryTime": 1628433900000,
+        "requiredTimestamps": [
+          1628438400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1628434800000,
+        "entryTime": 1628434800000,
+        "requiredTimestamps": [
+          1628438400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1638142200000,
+        "entryTime": 1638142200000,
+        "requiredTimestamps": [
+          1638144000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1638717300000,
+        "entryTime": 1638717300000,
+        "requiredTimestamps": [
+          1638720000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1639375200000,
+        "entryTime": 1639375200000,
+        "requiredTimestamps": [
+          1639382400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1639428300000,
+        "entryTime": 1639428300000,
+        "requiredTimestamps": [
+          1639440000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1639433700000,
+        "entryTime": 1639433700000,
+        "requiredTimestamps": [
+          1639440000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1639599300000,
+        "entryTime": 1639599300000,
+        "requiredTimestamps": [
+          1639612800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1639752300000,
+        "entryTime": 1639752300000,
+        "requiredTimestamps": [
+          1639756800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1643841900000,
+        "entryTime": 1643841900000,
+        "requiredTimestamps": [
+          1643846400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1644848100000,
+        "entryTime": 1644848100000,
+        "requiredTimestamps": [
+          1644854400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1644985800000,
+        "entryTime": 1644985800000,
+        "requiredTimestamps": [
+          1644998400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1646322300000,
+        "entryTime": 1646322300000,
+        "requiredTimestamps": [
+          1646323200000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1648222200000,
+        "entryTime": 1648222200000,
+        "requiredTimestamps": [
+          1648224000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1648736100000,
+        "entryTime": 1648736100000,
+        "requiredTimestamps": [
+          1648742400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1648738800000,
+        "entryTime": 1648738800000,
+        "requiredTimestamps": [
+          1648742400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1649863800000,
+        "entryTime": 1649863800000,
+        "requiredTimestamps": [
+          1649865600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1650257100000,
+        "entryTime": 1650257100000,
+        "requiredTimestamps": [
+          1650268800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1652220000000,
+        "entryTime": 1652220000000,
+        "requiredTimestamps": [
+          1652227200000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1652299200000,
+        "entryTime": 1652299200000,
+        "requiredTimestamps": [
+          1652313600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1652391900000,
+        "entryTime": 1652391900000,
+        "requiredTimestamps": [
+          1652400000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1660568400000,
+        "entryTime": 1660568400000,
+        "requiredTimestamps": [
+          1660579200000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1663254900000,
+        "entryTime": 1663254900000,
+        "requiredTimestamps": [
+          1663257600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1664055000000,
+        "entryTime": 1664055000000,
+        "requiredTimestamps": [
+          1664064000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1664293500000,
+        "entryTime": 1664293500000,
+        "requiredTimestamps": [
+          1664294400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1664808300000,
+        "entryTime": 1664808300000,
+        "requiredTimestamps": [
+          1664812800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1668976200000,
+        "entryTime": 1668976200000,
+        "requiredTimestamps": [
+          1668988800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1673904600000,
+        "entryTime": 1673904600000,
+        "requiredTimestamps": [
+          1673913600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1675465200000,
+        "entryTime": 1675465200000,
+        "requiredTimestamps": [
+          1675468800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1676063700000,
+        "entryTime": 1676063700000,
+        "requiredTimestamps": [
+          1676073600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1677365100000,
+        "entryTime": 1677365100000,
+        "requiredTimestamps": [
+          1677369600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1678745700000,
+        "entryTime": 1678745700000,
+        "requiredTimestamps": [
+          1678752000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1699249500000,
+        "entryTime": 1699249500000,
+        "requiredTimestamps": [
+          1699257600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1705675500000,
+        "entryTime": 1705675500000,
+        "requiredTimestamps": [
+          1705680000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1726805700000,
+        "entryTime": 1726805700000,
+        "requiredTimestamps": [
+          1726819200000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1746021600000,
+        "entryTime": 1746021600000,
+        "requiredTimestamps": [
+          1746028800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1750082400000,
+        "entryTime": 1750082400000,
+        "requiredTimestamps": [
+          1750089600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1750430700000,
+        "entryTime": 1750430700000,
+        "requiredTimestamps": [
+          1750435200000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1750543200000,
+        "entryTime": 1750543200000,
+        "requiredTimestamps": [
+          1750550400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1751411700000,
+        "entryTime": 1751411700000,
+        "requiredTimestamps": [
+          1751414400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1753192800000,
+        "entryTime": 1753192800000,
+        "requiredTimestamps": [
+          1753200000000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1754828100000,
+        "entryTime": 1754828100000,
+        "requiredTimestamps": [
+          1754841600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1756105200000,
+        "entryTime": 1756105200000,
+        "requiredTimestamps": [
+          1756108800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1759464000000,
+        "entryTime": 1759464000000,
+        "requiredTimestamps": [
+          1759478400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1760305500000,
+        "entryTime": 1760305500000,
+        "requiredTimestamps": [
+          1760313600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1761779700000,
+        "entryTime": 1761779700000,
+        "requiredTimestamps": [
+          1761782400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1762787700000,
+        "entryTime": 1762787700000,
+        "requiredTimestamps": [
+          1762790400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1762865100000,
+        "entryTime": 1762865100000,
+        "requiredTimestamps": [
+          1762876800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1762866000000,
+        "entryTime": 1762866000000,
+        "requiredTimestamps": [
+          1762876800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1763757000000,
+        "entryTime": 1763757000000,
+        "requiredTimestamps": [
+          1763769600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1763883000000,
+        "entryTime": 1763883000000,
+        "requiredTimestamps": [
+          1763884800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1764942300000,
+        "entryTime": 1764942300000,
+        "requiredTimestamps": [
+          1764950400000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1768996800000,
+        "entryTime": 1768996800000,
+        "requiredTimestamps": [
+          1769011200000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1770790500000,
+        "entryTime": 1770790500000,
+        "requiredTimestamps": [
+          1770796800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1771074000000,
+        "entryTime": 1771074000000,
+        "requiredTimestamps": [
+          1771084800000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1774280700000,
+        "entryTime": 1774280700000,
+        "requiredTimestamps": [
+          1774281600000
+        ]
+      },
+      {
+        "symbol": "ETHUSDT",
+        "decisionTime": 1779889500000,
+        "entryTime": 1779889500000,
+        "requiredTimestamps": [
+          1779897600000
+        ]
+      },
+      {
+        "symbol": "FETUSDT",
+        "decisionTime": 1710310500000,
+        "entryTime": 1710310500000,
+        "requiredTimestamps": [
+          1710316800000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1639601100000,
+        "entryTime": 1639601100000,
+        "requiredTimestamps": [
+          1639612800000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1641565800000,
+        "entryTime": 1641565800000,
+        "requiredTimestamps": [
+          1641571200000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1642164300000,
+        "entryTime": 1642164300000,
+        "requiredTimestamps": [
+          1642176000000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1642721400000,
+        "entryTime": 1642721400000,
+        "requiredTimestamps": [
+          1642723200000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1643028300000,
+        "entryTime": 1643028300000,
+        "requiredTimestamps": [
+          1643040000000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1643211900000,
+        "entryTime": 1643211900000,
+        "requiredTimestamps": [
+          1643212800000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1678519800000,
+        "entryTime": 1678519800000,
+        "requiredTimestamps": [
+          1678521600000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1678891500000,
+        "entryTime": 1678891500000,
+        "requiredTimestamps": [
+          1678896000000
+        ]
+      },
+      {
+        "symbol": "FILUSDT",
+        "decisionTime": 1709361900000,
+        "entryTime": 1709361900000,
+        "requiredTimestamps": [
+          1709366400000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1638652500000,
+        "entryTime": 1638652500000,
+        "requiredTimestamps": [
+          1638662400000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1638774900000,
+        "entryTime": 1638774900000,
+        "requiredTimestamps": [
+          1638777600000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1639148400000,
+        "entryTime": 1639148400000,
+        "requiredTimestamps": [
+          1639152000000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1639428300000,
+        "entryTime": 1639428300000,
+        "requiredTimestamps": [
+          1639440000000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1639755900000,
+        "entryTime": 1639755900000,
+        "requiredTimestamps": [
+          1639756800000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1639858500000,
+        "entryTime": 1639858500000,
+        "requiredTimestamps": [
+          1639872000000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1640037600000,
+        "entryTime": 1640037600000,
+        "requiredTimestamps": [
+          1640044800000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1640410200000,
+        "entryTime": 1640410200000,
+        "requiredTimestamps": [
+          1640419200000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1640466900000,
+        "entryTime": 1640466900000,
+        "requiredTimestamps": [
+          1640476800000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1640671200000,
+        "entryTime": 1640671200000,
+        "requiredTimestamps": [
+          1640678400000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1640780100000,
+        "entryTime": 1640780100000,
+        "requiredTimestamps": [
+          1640793600000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1640784600000,
+        "entryTime": 1640784600000,
+        "requiredTimestamps": [
+          1640793600000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1640838600000,
+        "entryTime": 1640838600000,
+        "requiredTimestamps": [
+          1640851200000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1641279600000,
+        "entryTime": 1641279600000,
+        "requiredTimestamps": [
+          1641283200000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1641281400000,
+        "entryTime": 1641281400000,
+        "requiredTimestamps": [
+          1641283200000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1641425400000,
+        "entryTime": 1641425400000,
+        "requiredTimestamps": [
+          1641427200000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1642891500000,
+        "entryTime": 1642891500000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1643233500000,
+        "entryTime": 1643233500000,
+        "requiredTimestamps": [
+          1643241600000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1643402700000,
+        "entryTime": 1643402700000,
+        "requiredTimestamps": [
+          1643414400000
+        ]
+      },
+      {
+        "symbol": "FTMUSDT",
+        "decisionTime": 1645482600000,
+        "entryTime": 1645482600000,
+        "requiredTimestamps": [
+          1645488000000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1644191100000,
+        "entryTime": 1644191100000,
+        "requiredTimestamps": [
+          1644192000000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1644410700000,
+        "entryTime": 1644410700000,
+        "requiredTimestamps": [
+          1644422400000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1644610500000,
+        "entryTime": 1644610500000,
+        "requiredTimestamps": [
+          1644624000000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1644640200000,
+        "entryTime": 1644640200000,
+        "requiredTimestamps": [
+          1644652800000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1644783300000,
+        "entryTime": 1644783300000,
+        "requiredTimestamps": [
+          1644796800000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1644911100000,
+        "entryTime": 1644911100000,
+        "requiredTimestamps": [
+          1644912000000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1645480800000,
+        "entryTime": 1645480800000,
+        "requiredTimestamps": [
+          1645488000000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1645657200000,
+        "entryTime": 1645657200000,
+        "requiredTimestamps": [
+          1645660800000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1645820100000,
+        "entryTime": 1645820100000,
+        "requiredTimestamps": [
+          1645833600000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1646228700000,
+        "entryTime": 1646228700000,
+        "requiredTimestamps": [
+          1646236800000
+        ]
+      },
+      {
+        "symbol": "GALAUSDT",
+        "decisionTime": 1648818000000,
+        "entryTime": 1648818000000,
+        "requiredTimestamps": [
+          1648828800000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1638142200000,
+        "entryTime": 1638142200000,
+        "requiredTimestamps": [
+          1638144000000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1638516600000,
+        "entryTime": 1638516600000,
+        "requiredTimestamps": [
+          1638518400000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1638595800000,
+        "entryTime": 1638595800000,
+        "requiredTimestamps": [
+          1638604800000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1641741300000,
+        "entryTime": 1641741300000,
+        "requiredTimestamps": [
+          1641744000000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1642687200000,
+        "entryTime": 1642687200000,
+        "requiredTimestamps": [
+          1642694400000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1642833000000,
+        "entryTime": 1642833000000,
+        "requiredTimestamps": [
+          1642838400000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1642892400000,
+        "entryTime": 1642892400000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1643982300000,
+        "entryTime": 1643982300000,
+        "requiredTimestamps": [
+          1643990400000
+        ]
+      },
+      {
+        "symbol": "ICPUSDT",
+        "decisionTime": 1644159600000,
+        "entryTime": 1644159600000,
+        "requiredTimestamps": [
+          1644163200000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1638544500000,
+        "entryTime": 1638544500000,
+        "requiredTimestamps": [
+          1638547200000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1639006200000,
+        "entryTime": 1639006200000,
+        "requiredTimestamps": [
+          1639008000000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1639746900000,
+        "entryTime": 1639746900000,
+        "requiredTimestamps": [
+          1639756800000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1639777500000,
+        "entryTime": 1639777500000,
+        "requiredTimestamps": [
+          1639785600000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1640034900000,
+        "entryTime": 1640034900000,
+        "requiredTimestamps": [
+          1640044800000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1640587500000,
+        "entryTime": 1640587500000,
+        "requiredTimestamps": [
+          1640592000000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1640729700000,
+        "entryTime": 1640729700000,
+        "requiredTimestamps": [
+          1640736000000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1642632300000,
+        "entryTime": 1642632300000,
+        "requiredTimestamps": [
+          1642636800000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1707636600000,
+        "entryTime": 1707636600000,
+        "requiredTimestamps": [
+          1707638400000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1710863100000,
+        "entryTime": 1710863100000,
+        "requiredTimestamps": [
+          1710864000000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1760624100000,
+        "entryTime": 1760624100000,
+        "requiredTimestamps": [
+          1760630400000
+        ]
+      },
+      {
+        "symbol": "LINKUSDT",
+        "decisionTime": 1762580700000,
+        "entryTime": 1762580700000,
+        "requiredTimestamps": [
+          1762588800000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1638540900000,
+        "entryTime": 1638540900000,
+        "requiredTimestamps": [
+          1638547200000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1639725300000,
+        "entryTime": 1639725300000,
+        "requiredTimestamps": [
+          1639728000000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1639777500000,
+        "entryTime": 1639777500000,
+        "requiredTimestamps": [
+          1639785600000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1639979100000,
+        "entryTime": 1639979100000,
+        "requiredTimestamps": [
+          1639987200000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1640671200000,
+        "entryTime": 1640671200000,
+        "requiredTimestamps": [
+          1640678400000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1641015000000,
+        "entryTime": 1641015000000,
+        "requiredTimestamps": [
+          1641024000000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1711341900000,
+        "entryTime": 1711341900000,
+        "requiredTimestamps": [
+          1711353600000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1739394000000,
+        "entryTime": 1739394000000,
+        "requiredTimestamps": [
+          1739404800000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1741234500000,
+        "entryTime": 1741234500000,
+        "requiredTimestamps": [
+          1741248000000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1741791600000,
+        "entryTime": 1741791600000,
+        "requiredTimestamps": [
+          1741795200000
+        ]
+      },
+      {
+        "symbol": "LTCUSDT",
+        "decisionTime": 1743145200000,
+        "entryTime": 1743145200000,
+        "requiredTimestamps": [
+          1743148800000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1638140400000,
+        "entryTime": 1638140400000,
+        "requiredTimestamps": [
+          1638144000000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1638769500000,
+        "entryTime": 1638769500000,
+        "requiredTimestamps": [
+          1638777600000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1638770400000,
+        "entryTime": 1638770400000,
+        "requiredTimestamps": [
+          1638777600000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1638828900000,
+        "entryTime": 1638828900000,
+        "requiredTimestamps": [
+          1638835200000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1638936000000,
+        "entryTime": 1638936000000,
+        "requiredTimestamps": [
+          1638950400000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1640008800000,
+        "entryTime": 1640008800000,
+        "requiredTimestamps": [
+          1640016000000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1640183400000,
+        "entryTime": 1640183400000,
+        "requiredTimestamps": [
+          1640188800000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1643382900000,
+        "entryTime": 1643382900000,
+        "requiredTimestamps": [
+          1643385600000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1645684200000,
+        "entryTime": 1645684200000,
+        "requiredTimestamps": [
+          1645689600000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1645766100000,
+        "entryTime": 1645766100000,
+        "requiredTimestamps": [
+          1645776000000
+        ]
+      },
+      {
+        "symbol": "LUNAUSDT",
+        "decisionTime": 1645767000000,
+        "entryTime": 1645767000000,
+        "requiredTimestamps": [
+          1645776000000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1641509100000,
+        "entryTime": 1641509100000,
+        "requiredTimestamps": [
+          1641513600000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1642888800000,
+        "entryTime": 1642888800000,
+        "requiredTimestamps": [
+          1642896000000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1643237100000,
+        "entryTime": 1643237100000,
+        "requiredTimestamps": [
+          1643241600000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1643987700000,
+        "entryTime": 1643987700000,
+        "requiredTimestamps": [
+          1643990400000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1645419600000,
+        "entryTime": 1645419600000,
+        "requiredTimestamps": [
+          1645430400000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1645629300000,
+        "entryTime": 1645629300000,
+        "requiredTimestamps": [
+          1645632000000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1645657200000,
+        "entryTime": 1645657200000,
+        "requiredTimestamps": [
+          1645660800000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1645767900000,
+        "entryTime": 1645767900000,
+        "requiredTimestamps": [
+          1645776000000
+        ]
+      },
+      {
+        "symbol": "MANAUSDT",
+        "decisionTime": 1645830000000,
+        "entryTime": 1645830000000,
+        "requiredTimestamps": [
+          1645833600000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1638363600000,
+        "entryTime": 1638363600000,
+        "requiredTimestamps": [
+          1638374400000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1638717300000,
+        "entryTime": 1638717300000,
+        "requiredTimestamps": [
+          1638720000000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1638970200000,
+        "entryTime": 1638970200000,
+        "requiredTimestamps": [
+          1638979200000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1639379700000,
+        "entryTime": 1639379700000,
+        "requiredTimestamps": [
+          1639382400000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1639582200000,
+        "entryTime": 1639582200000,
+        "requiredTimestamps": [
+          1639584000000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1643377500000,
+        "entryTime": 1643377500000,
+        "requiredTimestamps": [
+          1643385600000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1644244200000,
+        "entryTime": 1644244200000,
+        "requiredTimestamps": [
+          1644249600000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1644264000000,
+        "entryTime": 1644264000000,
+        "requiredTimestamps": [
+          1644278400000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1644265800000,
+        "entryTime": 1644265800000,
+        "requiredTimestamps": [
+          1644278400000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1644843600000,
+        "entryTime": 1644843600000,
+        "requiredTimestamps": [
+          1644854400000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1645653600000,
+        "entryTime": 1645653600000,
+        "requiredTimestamps": [
+          1645660800000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1676561400000,
+        "entryTime": 1676561400000,
+        "requiredTimestamps": [
+          1676563200000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1676562300000,
+        "entryTime": 1676562300000,
+        "requiredTimestamps": [
+          1676563200000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1676579400000,
+        "entryTime": 1676579400000,
+        "requiredTimestamps": [
+          1676592000000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1677253500000,
+        "entryTime": 1677253500000,
+        "requiredTimestamps": [
+          1677254400000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1679089500000,
+        "entryTime": 1679089500000,
+        "requiredTimestamps": [
+          1679097600000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1679297400000,
+        "entryTime": 1679297400000,
+        "requiredTimestamps": [
+          1679299200000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1704750300000,
+        "entryTime": 1704750300000,
+        "requiredTimestamps": [
+          1704758400000
+        ]
+      },
+      {
+        "symbol": "MATICUSDT",
+        "decisionTime": 1705416300000,
+        "entryTime": 1705416300000,
+        "requiredTimestamps": [
+          1705420800000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1641447000000,
+        "entryTime": 1641447000000,
+        "requiredTimestamps": [
+          1641456000000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1641816000000,
+        "entryTime": 1641816000000,
+        "requiredTimestamps": [
+          1641830400000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1641816900000,
+        "entryTime": 1641816900000,
+        "requiredTimestamps": [
+          1641830400000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1642796100000,
+        "entryTime": 1642796100000,
+        "requiredTimestamps": [
+          1642809600000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1642859100000,
+        "entryTime": 1642859100000,
+        "requiredTimestamps": [
+          1642867200000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1643117400000,
+        "entryTime": 1643117400000,
+        "requiredTimestamps": [
+          1643126400000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1643177700000,
+        "entryTime": 1643177700000,
+        "requiredTimestamps": [
+          1643184000000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1643178600000,
+        "entryTime": 1643178600000,
+        "requiredTimestamps": [
+          1643184000000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1643233500000,
+        "entryTime": 1643233500000,
+        "requiredTimestamps": [
+          1643241600000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1643269500000,
+        "entryTime": 1643269500000,
+        "requiredTimestamps": [
+          1643270400000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1643290200000,
+        "entryTime": 1643290200000,
+        "requiredTimestamps": [
+          1643299200000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1645629300000,
+        "entryTime": 1645629300000,
+        "requiredTimestamps": [
+          1645632000000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1714055400000,
+        "entryTime": 1714055400000,
+        "requiredTimestamps": [
+          1714060800000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1715581800000,
+        "entryTime": 1715581800000,
+        "requiredTimestamps": [
+          1715587200000
+        ]
+      },
+      {
+        "symbol": "NEARUSDT",
+        "decisionTime": 1781786700000,
+        "entryTime": 1781786700000,
+        "requiredTimestamps": [
+          1781798400000
+        ]
+      },
+      {
+        "symbol": "ONEUSDT",
+        "decisionTime": 1642459500000,
+        "entryTime": 1642459500000,
+        "requiredTimestamps": [
+          1642464000000
+        ]
+      },
+      {
+        "symbol": "ONEUSDT",
+        "decisionTime": 1642541400000,
+        "entryTime": 1642541400000,
+        "requiredTimestamps": [
+          1642550400000
+        ]
+      },
+      {
+        "symbol": "ONEUSDT",
+        "decisionTime": 1643205600000,
+        "entryTime": 1643205600000,
+        "requiredTimestamps": [
+          1643212800000
+        ]
+      },
+      {
+        "symbol": "ONEUSDT",
+        "decisionTime": 1643234400000,
+        "entryTime": 1643234400000,
+        "requiredTimestamps": [
+          1643241600000
+        ]
+      },
+      {
+        "symbol": "ONEUSDT",
+        "decisionTime": 1643838300000,
+        "entryTime": 1643838300000,
+        "requiredTimestamps": [
+          1643846400000
+        ]
+      },
+      {
+        "symbol": "ONEUSDT",
+        "decisionTime": 1644213600000,
+        "entryTime": 1644213600000,
+        "requiredTimestamps": [
+          1644220800000
+        ]
+      },
+      {
+        "symbol": "OPUSDT",
+        "decisionTime": 1706629500000,
+        "entryTime": 1706629500000,
+        "requiredTimestamps": [
+          1706630400000
+        ]
+      },
+      {
+        "symbol": "OPUSDT",
+        "decisionTime": 1710859500000,
+        "entryTime": 1710859500000,
+        "requiredTimestamps": [
+          1710864000000
+        ]
+      },
+      {
+        "symbol": "OPUSDT",
+        "decisionTime": 1711347300000,
+        "entryTime": 1711347300000,
+        "requiredTimestamps": [
+          1711353600000
+        ]
+      },
+      {
+        "symbol": "PAXGUSDT",
+        "decisionTime": 1772292600000,
+        "entryTime": 1772292600000,
+        "requiredTimestamps": [
+          1772294400000
+        ]
+      },
+      {
+        "symbol": "PENGUUSDT",
+        "decisionTime": 1753938000000,
+        "entryTime": 1753938000000,
+        "requiredTimestamps": [
+          1753948800000
+        ]
+      },
+      {
+        "symbol": "RNDRUSDT",
+        "decisionTime": 1713218400000,
+        "entryTime": 1713218400000,
+        "requiredTimestamps": [
+          1713225600000
+        ]
+      },
+      {
+        "symbol": "SEIUSDT",
+        "decisionTime": 1705150800000,
+        "entryTime": 1705150800000,
+        "requiredTimestamps": [
+          1705161600000
+        ]
+      },
+      {
+        "symbol": "SEIUSDT",
+        "decisionTime": 1705675500000,
+        "entryTime": 1705675500000,
+        "requiredTimestamps": [
+          1705680000000
+        ]
+      },
+      {
+        "symbol": "SEIUSDT",
+        "decisionTime": 1710776700000,
+        "entryTime": 1710776700000,
+        "requiredTimestamps": [
+          1710777600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1624832100000,
+        "entryTime": 1624832100000,
+        "requiredTimestamps": [
+          1624838400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1627330500000,
+        "entryTime": 1627330500000,
+        "requiredTimestamps": [
+          1627344000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1661027400000,
+        "entryTime": 1661027400000,
+        "requiredTimestamps": [
+          1661040000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1661032800000,
+        "entryTime": 1661032800000,
+        "requiredTimestamps": [
+          1661040000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1662878700000,
+        "entryTime": 1662878700000,
+        "requiredTimestamps": [
+          1662883200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1663193700000,
+        "entryTime": 1663193700000,
+        "requiredTimestamps": [
+          1663200000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1663567200000,
+        "entryTime": 1663567200000,
+        "requiredTimestamps": [
+          1663574400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1664577000000,
+        "entryTime": 1664577000000,
+        "requiredTimestamps": [
+          1664582400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1664577900000,
+        "entryTime": 1664577900000,
+        "requiredTimestamps": [
+          1664582400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1668456000000,
+        "entryTime": 1668456000000,
+        "requiredTimestamps": [
+          1668470400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1668465900000,
+        "entryTime": 1668465900000,
+        "requiredTimestamps": [
+          1668470400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1669291200000,
+        "entryTime": 1669291200000,
+        "requiredTimestamps": [
+          1669305600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1678449600000,
+        "entryTime": 1678449600000,
+        "requiredTimestamps": [
+          1678464000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1678565700000,
+        "entryTime": 1678565700000,
+        "requiredTimestamps": [
+          1678579200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1679382900000,
+        "entryTime": 1679382900000,
+        "requiredTimestamps": [
+          1679385600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1705416300000,
+        "entryTime": 1705416300000,
+        "requiredTimestamps": [
+          1705420800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1710365400000,
+        "entryTime": 1710365400000,
+        "requiredTimestamps": [
+          1710374400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1710774000000,
+        "entryTime": 1710774000000,
+        "requiredTimestamps": [
+          1710777600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1718745300000,
+        "entryTime": 1718745300000,
+        "requiredTimestamps": [
+          1718755200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1719991800000,
+        "entryTime": 1719991800000,
+        "requiredTimestamps": [
+          1719993600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1720703700000,
+        "entryTime": 1720703700000,
+        "requiredTimestamps": [
+          1720713600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1721421000000,
+        "entryTime": 1721421000000,
+        "requiredTimestamps": [
+          1721433600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1723069800000,
+        "entryTime": 1723069800000,
+        "requiredTimestamps": [
+          1723075200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1723389300000,
+        "entryTime": 1723389300000,
+        "requiredTimestamps": [
+          1723392000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1724853600000,
+        "entryTime": 1724853600000,
+        "requiredTimestamps": [
+          1724860800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1727188200000,
+        "entryTime": 1727188200000,
+        "requiredTimestamps": [
+          1727193600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1730099700000,
+        "entryTime": 1730099700000,
+        "requiredTimestamps": [
+          1730102400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1737355500000,
+        "entryTime": 1737355500000,
+        "requiredTimestamps": [
+          1737360000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1738647000000,
+        "entryTime": 1738647000000,
+        "requiredTimestamps": [
+          1738656000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1741786200000,
+        "entryTime": 1741786200000,
+        "requiredTimestamps": [
+          1741795200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1746718200000,
+        "entryTime": 1746718200000,
+        "requiredTimestamps": [
+          1746720000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1746972000000,
+        "entryTime": 1746972000000,
+        "requiredTimestamps": [
+          1746979200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1749563100000,
+        "entryTime": 1749563100000,
+        "requiredTimestamps": [
+          1749571200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1750716900000,
+        "entryTime": 1750716900000,
+        "requiredTimestamps": [
+          1750723200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1752873300000,
+        "entryTime": 1752873300000,
+        "requiredTimestamps": [
+          1752883200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1753329600000,
+        "entryTime": 1753329600000,
+        "requiredTimestamps": [
+          1753344000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1753337700000,
+        "entryTime": 1753337700000,
+        "requiredTimestamps": [
+          1753344000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1755925200000,
+        "entryTime": 1755925200000,
+        "requiredTimestamps": [
+          1755936000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1757490300000,
+        "entryTime": 1757490300000,
+        "requiredTimestamps": [
+          1757491200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1758689100000,
+        "entryTime": 1758689100000,
+        "requiredTimestamps": [
+          1758700800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1760243400000,
+        "entryTime": 1760243400000,
+        "requiredTimestamps": [
+          1760256000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1761658200000,
+        "entryTime": 1761658200000,
+        "requiredTimestamps": [
+          1761667200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1761681600000,
+        "entryTime": 1761681600000,
+        "requiredTimestamps": [
+          1761696000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1762235100000,
+        "entryTime": 1762235100000,
+        "requiredTimestamps": [
+          1762243200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1762236000000,
+        "entryTime": 1762236000000,
+        "requiredTimestamps": [
+          1762243200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1762786800000,
+        "entryTime": 1762786800000,
+        "requiredTimestamps": [
+          1762790400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1763414100000,
+        "entryTime": 1763414100000,
+        "requiredTimestamps": [
+          1763424000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1763728200000,
+        "entryTime": 1763728200000,
+        "requiredTimestamps": [
+          1763740800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1763730000000,
+        "entryTime": 1763730000000,
+        "requiredTimestamps": [
+          1763740800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1764337500000,
+        "entryTime": 1764337500000,
+        "requiredTimestamps": [
+          1764345600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1765520100000,
+        "entryTime": 1765520100000,
+        "requiredTimestamps": [
+          1765526400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1766071800000,
+        "entryTime": 1766071800000,
+        "requiredTimestamps": [
+          1766073600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1769774400000,
+        "entryTime": 1769774400000,
+        "requiredTimestamps": [
+          1769788800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1770150600000,
+        "entryTime": 1770150600000,
+        "requiredTimestamps": [
+          1770163200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1770235200000,
+        "entryTime": 1770235200000,
+        "requiredTimestamps": [
+          1770249600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1770354900000,
+        "entryTime": 1770354900000,
+        "requiredTimestamps": [
+          1770364800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1770417900000,
+        "entryTime": 1770417900000,
+        "requiredTimestamps": [
+          1770422400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1770420600000,
+        "entryTime": 1770420600000,
+        "requiredTimestamps": [
+          1770422400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1770421500000,
+        "entryTime": 1770421500000,
+        "requiredTimestamps": [
+          1770422400000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1771197300000,
+        "entryTime": 1771197300000,
+        "requiredTimestamps": [
+          1771200000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1775139300000,
+        "entryTime": 1775139300000,
+        "requiredTimestamps": [
+          1775145600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1780433100000,
+        "entryTime": 1780433100000,
+        "requiredTimestamps": [
+          1780444800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1780893900000,
+        "entryTime": 1780893900000,
+        "requiredTimestamps": [
+          1780905600000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1781011800000,
+        "entryTime": 1781011800000,
+        "requiredTimestamps": [
+          1781020800000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1781388000000,
+        "entryTime": 1781388000000,
+        "requiredTimestamps": [
+          1781395200000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1781844300000,
+        "entryTime": 1781844300000,
+        "requiredTimestamps": [
+          1781856000000
+        ]
+      },
+      {
+        "symbol": "SOLUSDT",
+        "decisionTime": 1782711900000,
+        "entryTime": 1782711900000,
+        "requiredTimestamps": [
+          1782720000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1709710200000,
+        "entryTime": 1709710200000,
+        "requiredTimestamps": [
+          1709712000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1710853200000,
+        "entryTime": 1710853200000,
+        "requiredTimestamps": [
+          1710864000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1710914400000,
+        "entryTime": 1710914400000,
+        "requiredTimestamps": [
+          1710921600000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1727678700000,
+        "entryTime": 1727678700000,
+        "requiredTimestamps": [
+          1727683200000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1730095200000,
+        "entryTime": 1730095200000,
+        "requiredTimestamps": [
+          1730102400000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1738647000000,
+        "entryTime": 1738647000000,
+        "requiredTimestamps": [
+          1738656000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1738654200000,
+        "entryTime": 1738654200000,
+        "requiredTimestamps": [
+          1738656000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1741329000000,
+        "entryTime": 1741329000000,
+        "requiredTimestamps": [
+          1741334400000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1741784400000,
+        "entryTime": 1741784400000,
+        "requiredTimestamps": [
+          1741795200000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1743487200000,
+        "entryTime": 1743487200000,
+        "requiredTimestamps": [
+          1743494400000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1745384400000,
+        "entryTime": 1745384400000,
+        "requiredTimestamps": [
+          1745395200000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1745469000000,
+        "entryTime": 1745469000000,
+        "requiredTimestamps": [
+          1745481600000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1745478900000,
+        "entryTime": 1745478900000,
+        "requiredTimestamps": [
+          1745481600000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1745559900000,
+        "entryTime": 1745559900000,
+        "requiredTimestamps": [
+          1745568000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1745618400000,
+        "entryTime": 1745618400000,
+        "requiredTimestamps": [
+          1745625600000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1745675100000,
+        "entryTime": 1745675100000,
+        "requiredTimestamps": [
+          1745683200000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1746023400000,
+        "entryTime": 1746023400000,
+        "requiredTimestamps": [
+          1746028800000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1746369000000,
+        "entryTime": 1746369000000,
+        "requiredTimestamps": [
+          1746374400000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1746571500000,
+        "entryTime": 1746571500000,
+        "requiredTimestamps": [
+          1746576000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1746879300000,
+        "entryTime": 1746879300000,
+        "requiredTimestamps": [
+          1746892800000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1748008800000,
+        "entryTime": 1748008800000,
+        "requiredTimestamps": [
+          1748016000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1750858200000,
+        "entryTime": 1750858200000,
+        "requiredTimestamps": [
+          1750867200000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1751290200000,
+        "entryTime": 1751290200000,
+        "requiredTimestamps": [
+          1751299200000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1755922500000,
+        "entryTime": 1755922500000,
+        "requiredTimestamps": [
+          1755936000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1756845000000,
+        "entryTime": 1756845000000,
+        "requiredTimestamps": [
+          1756857600000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1757854800000,
+        "entryTime": 1757854800000,
+        "requiredTimestamps": [
+          1757865600000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1758141900000,
+        "entryTime": 1758141900000,
+        "requiredTimestamps": [
+          1758153600000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1758897000000,
+        "entryTime": 1758897000000,
+        "requiredTimestamps": [
+          1758902400000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1761539400000,
+        "entryTime": 1761539400000,
+        "requiredTimestamps": [
+          1761552000000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1762810200000,
+        "entryTime": 1762810200000,
+        "requiredTimestamps": [
+          1762819200000
+        ]
+      },
+      {
+        "symbol": "SUIUSDT",
+        "decisionTime": 1764079200000,
+        "entryTime": 1764079200000,
+        "requiredTimestamps": [
+          1764086400000
+        ]
+      },
+      {
+        "symbol": "TAOUSDT",
+        "decisionTime": 1762979400000,
+        "entryTime": 1762979400000,
+        "requiredTimestamps": [
+          1762992000000
+        ]
+      },
+      {
+        "symbol": "THETAUSDT",
+        "decisionTime": 1627425900000,
+        "entryTime": 1627425900000,
+        "requiredTimestamps": [
+          1627430400000
+        ]
+      },
+      {
+        "symbol": "THETAUSDT",
+        "decisionTime": 1628522100000,
+        "entryTime": 1628522100000,
+        "requiredTimestamps": [
+          1628524800000
+        ]
+      },
+      {
+        "symbol": "TRUMPUSDT",
+        "decisionTime": 1750253400000,
+        "entryTime": 1750253400000,
+        "requiredTimestamps": [
+          1750262400000
+        ]
+      },
+      {
+        "symbol": "TRXUSDT",
+        "decisionTime": 1741704300000,
+        "entryTime": 1741704300000,
+        "requiredTimestamps": [
+          1741708800000
+        ]
+      },
+      {
+        "symbol": "TRXUSDT",
+        "decisionTime": 1744837200000,
+        "entryTime": 1744837200000,
+        "requiredTimestamps": [
+          1744848000000
+        ]
+      },
+      {
+        "symbol": "TRXUSDT",
+        "decisionTime": 1747139400000,
+        "entryTime": 1747139400000,
+        "requiredTimestamps": [
+          1747152000000
+        ]
+      },
+      {
+        "symbol": "TRXUSDT",
+        "decisionTime": 1747292400000,
+        "entryTime": 1747292400000,
+        "requiredTimestamps": [
+          1747296000000
+        ]
+      },
+      {
+        "symbol": "VETUSDT",
+        "decisionTime": 1638252900000,
+        "entryTime": 1638252900000,
+        "requiredTimestamps": [
+          1638259200000
+        ]
+      },
+      {
+        "symbol": "VETUSDT",
+        "decisionTime": 1638457200000,
+        "entryTime": 1638457200000,
+        "requiredTimestamps": [
+          1638460800000
+        ]
+      },
+      {
+        "symbol": "VETUSDT",
+        "decisionTime": 1638831600000,
+        "entryTime": 1638831600000,
+        "requiredTimestamps": [
+          1638835200000
+        ]
+      },
+      {
+        "symbol": "VETUSDT",
+        "decisionTime": 1639426500000,
+        "entryTime": 1639426500000,
+        "requiredTimestamps": [
+          1639440000000
+        ]
+      },
+      {
+        "symbol": "VETUSDT",
+        "decisionTime": 1639725300000,
+        "entryTime": 1639725300000,
+        "requiredTimestamps": [
+          1639728000000
+        ]
+      },
+      {
+        "symbol": "WIFUSDT",
+        "decisionTime": 1722699900000,
+        "entryTime": 1722699900000,
+        "requiredTimestamps": [
+          1722700800000
+        ]
+      },
+      {
+        "symbol": "WIFUSDT",
+        "decisionTime": 1724850900000,
+        "entryTime": 1724850900000,
+        "requiredTimestamps": [
+          1724860800000
+        ]
+      },
+      {
+        "symbol": "WIFUSDT",
+        "decisionTime": 1738646100000,
+        "entryTime": 1738646100000,
+        "requiredTimestamps": [
+          1738656000000
+        ]
+      },
+      {
+        "symbol": "WIFUSDT",
+        "decisionTime": 1740946500000,
+        "entryTime": 1740946500000,
+        "requiredTimestamps": [
+          1740960000000
+        ]
+      },
+      {
+        "symbol": "WIFUSDT",
+        "decisionTime": 1741039200000,
+        "entryTime": 1741039200000,
+        "requiredTimestamps": [
+          1741046400000
+        ]
+      },
+      {
+        "symbol": "WIFUSDT",
+        "decisionTime": 1749224700000,
+        "entryTime": 1749224700000,
+        "requiredTimestamps": [
+          1749225600000
+        ]
+      },
+      {
+        "symbol": "WLDUSDT",
+        "decisionTime": 1738646100000,
+        "entryTime": 1738646100000,
+        "requiredTimestamps": [
+          1738656000000
+        ]
+      },
+      {
+        "symbol": "WLDUSDT",
+        "decisionTime": 1759176900000,
+        "entryTime": 1759176900000,
+        "requiredTimestamps": [
+          1759190400000
+        ]
+      },
+      {
+        "symbol": "WLDUSDT",
+        "decisionTime": 1782279900000,
+        "entryTime": 1782279900000,
+        "requiredTimestamps": [
+          1782288000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1627305300000,
+        "entryTime": 1627305300000,
+        "requiredTimestamps": [
+          1627315200000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1638596700000,
+        "entryTime": 1638596700000,
+        "requiredTimestamps": [
+          1638604800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1639428300000,
+        "entryTime": 1639428300000,
+        "requiredTimestamps": [
+          1639440000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1639434600000,
+        "entryTime": 1639434600000,
+        "requiredTimestamps": [
+          1639440000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1639725300000,
+        "entryTime": 1639725300000,
+        "requiredTimestamps": [
+          1639728000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1641015000000,
+        "entryTime": 1641015000000,
+        "requiredTimestamps": [
+          1641024000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1643117400000,
+        "entryTime": 1643117400000,
+        "requiredTimestamps": [
+          1643126400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1644702300000,
+        "entryTime": 1644702300000,
+        "requiredTimestamps": [
+          1644710400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1644842700000,
+        "entryTime": 1644842700000,
+        "requiredTimestamps": [
+          1644854400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1644843600000,
+        "entryTime": 1644843600000,
+        "requiredTimestamps": [
+          1644854400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1645341300000,
+        "entryTime": 1645341300000,
+        "requiredTimestamps": [
+          1645344000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1664058600000,
+        "entryTime": 1664058600000,
+        "requiredTimestamps": [
+          1664064000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1664481600000,
+        "entryTime": 1664481600000,
+        "requiredTimestamps": [
+          1664496000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1664975700000,
+        "entryTime": 1664975700000,
+        "requiredTimestamps": [
+          1664985600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1665001800000,
+        "entryTime": 1665001800000,
+        "requiredTimestamps": [
+          1665014400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1673422200000,
+        "entryTime": 1673422200000,
+        "requiredTimestamps": [
+          1673424000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1674446400000,
+        "entryTime": 1674446400000,
+        "requiredTimestamps": [
+          1674460800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1676675700000,
+        "entryTime": 1676675700000,
+        "requiredTimestamps": [
+          1676678400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1677451500000,
+        "entryTime": 1677451500000,
+        "requiredTimestamps": [
+          1677456000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1678478400000,
+        "entryTime": 1678478400000,
+        "requiredTimestamps": [
+          1678492800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1678479300000,
+        "entryTime": 1678479300000,
+        "requiredTimestamps": [
+          1678492800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1679521500000,
+        "entryTime": 1679521500000,
+        "requiredTimestamps": [
+          1679529600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1699971300000,
+        "entryTime": 1699971300000,
+        "requiredTimestamps": [
+          1699977600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1705419900000,
+        "entryTime": 1705419900000,
+        "requiredTimestamps": [
+          1705420800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1706621400000,
+        "entryTime": 1706621400000,
+        "requiredTimestamps": [
+          1706630400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1710371700000,
+        "entryTime": 1710371700000,
+        "requiredTimestamps": [
+          1710374400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1719835200000,
+        "entryTime": 1719835200000,
+        "requiredTimestamps": [
+          1719849600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1720670400000,
+        "entryTime": 1720670400000,
+        "requiredTimestamps": [
+          1720684800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1725607800000,
+        "entryTime": 1725607800000,
+        "requiredTimestamps": [
+          1725609600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1726463700000,
+        "entryTime": 1726463700000,
+        "requiredTimestamps": [
+          1726473600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1738647000000,
+        "entryTime": 1738647000000,
+        "requiredTimestamps": [
+          1738656000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1738788300000,
+        "entryTime": 1738788300000,
+        "requiredTimestamps": [
+          1738800000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1741695300000,
+        "entryTime": 1741695300000,
+        "requiredTimestamps": [
+          1741708800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1743083100000,
+        "entryTime": 1743083100000,
+        "requiredTimestamps": [
+          1743091200000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1745854200000,
+        "entryTime": 1745854200000,
+        "requiredTimestamps": [
+          1745856000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1748585700000,
+        "entryTime": 1748585700000,
+        "requiredTimestamps": [
+          1748592000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1750077900000,
+        "entryTime": 1750077900000,
+        "requiredTimestamps": [
+          1750089600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1750599900000,
+        "entryTime": 1750599900000,
+        "requiredTimestamps": [
+          1750608000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1750716900000,
+        "entryTime": 1750716900000,
+        "requiredTimestamps": [
+          1750723200000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1751059800000,
+        "entryTime": 1751059800000,
+        "requiredTimestamps": [
+          1751068800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1751402700000,
+        "entryTime": 1751402700000,
+        "requiredTimestamps": [
+          1751414400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1752093000000,
+        "entryTime": 1752093000000,
+        "requiredTimestamps": [
+          1752105600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1752210900000,
+        "entryTime": 1752210900000,
+        "requiredTimestamps": [
+          1752220800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1757057400000,
+        "entryTime": 1757057400000,
+        "requiredTimestamps": [
+          1757059200000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1760156100000,
+        "entryTime": 1760156100000,
+        "requiredTimestamps": [
+          1760169600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1760846400000,
+        "entryTime": 1760846400000,
+        "requiredTimestamps": [
+          1760860800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1760996700000,
+        "entryTime": 1760996700000,
+        "requiredTimestamps": [
+          1761004800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1761221700000,
+        "entryTime": 1761221700000,
+        "requiredTimestamps": [
+          1761235200000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1761316200000,
+        "entryTime": 1761316200000,
+        "requiredTimestamps": [
+          1761321600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1761768000000,
+        "entryTime": 1761768000000,
+        "requiredTimestamps": [
+          1761782400000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1762146900000,
+        "entryTime": 1762146900000,
+        "requiredTimestamps": [
+          1762156800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1762616700000,
+        "entryTime": 1762616700000,
+        "requiredTimestamps": [
+          1762617600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1763739900000,
+        "entryTime": 1763739900000,
+        "requiredTimestamps": [
+          1763740800000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1763757000000,
+        "entryTime": 1763757000000,
+        "requiredTimestamps": [
+          1763769600000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1766003400000,
+        "entryTime": 1766003400000,
+        "requiredTimestamps": [
+          1766016000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1766706300000,
+        "entryTime": 1766706300000,
+        "requiredTimestamps": [
+          1766707200000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1769027400000,
+        "entryTime": 1769027400000,
+        "requiredTimestamps": [
+          1769040000000
+        ]
+      },
+      {
+        "symbol": "XRPUSDT",
+        "decisionTime": 1780436700000,
+        "entryTime": 1780436700000,
+        "requiredTimestamps": [
+          1780444800000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1761656400000,
+        "entryTime": 1761656400000,
+        "requiredTimestamps": [
+          1761667200000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1762209000000,
+        "entryTime": 1762209000000,
+        "requiredTimestamps": [
+          1762214400000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1762818300000,
+        "entryTime": 1762818300000,
+        "requiredTimestamps": [
+          1762819200000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1763216100000,
+        "entryTime": 1763216100000,
+        "requiredTimestamps": [
+          1763222400000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1763242200000,
+        "entryTime": 1763242200000,
+        "requiredTimestamps": [
+          1763251200000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1768779000000,
+        "entryTime": 1768779000000,
+        "requiredTimestamps": [
+          1768780800000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1768917600000,
+        "entryTime": 1768917600000,
+        "requiredTimestamps": [
+          1768924800000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1769007600000,
+        "entryTime": 1769007600000,
+        "requiredTimestamps": [
+          1769011200000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1779545700000,
+        "entryTime": 1779545700000,
+        "requiredTimestamps": [
+          1779552000000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1780436700000,
+        "entryTime": 1780436700000,
+        "requiredTimestamps": [
+          1780444800000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1780921800000,
+        "entryTime": 1780921800000,
+        "requiredTimestamps": [
+          1780934400000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1781077500000,
+        "entryTime": 1781077500000,
+        "requiredTimestamps": [
+          1781078400000
+        ]
+      },
+      {
+        "symbol": "ZECUSDT",
+        "decisionTime": 1781620200000,
+        "entryTime": 1781620200000,
+        "requiredTimestamps": [
+          1781625600000
+        ]
+      }
+    ],
+    "settlementDefinition": "Candidate settlement coverage is covered execution candidates with every required 8h funding timestamp mapped to a real normalized funding point and positive mark price, divided by execution candidates whose potential 4h window crosses at least one funding settlement; candidates with no required settlement are reported separately and are not penalized.",
+    "settlementDefinitionHash": "541d09cf045c8746f003c3b040f7f6acf8150084922748c07d6f174aa2e0b9db"
+  },
+  "definitions": {
+    "adv": "For every otherwise-eligible 15m decision timestamp, both Spot and Futures must contain exactly the complete trailing 30 calendar days of closed 5m bars before T; zero quote volume remains observed data and is not treated as missing. ADV value is the observed quote-volume sum divided by 30 days and capacity is evaluated separately against the frozen 0.0001 participation limit.",
+    "advCoverageDefinitionHash": "7b35228856dd35af98704117d7f78c510a46cba29f7c1ee32280bcbce345c854",
+    "invalidPairMonthStatus": "DATA_UNAVAILABLE_PAIR_MONTH",
+    "usedArchiveIntegrity": "Only Spot/Futures archives with checksum-verified PASS integrity enter the eligible dataset; invalid pair-months are excluded, never repaired or forward-filled.",
+    "noLookahead": "Only closed 5m bars are used for features and trailing ADV; execution uses only the next futures 5m openTime/open price; no exit fields or future outcome are read."
+  },
+  "gates": {
+    "officialArchiveInventory": true,
+    "usedChecksumCoverage": true,
+    "usedArchiveIntegrity": true,
+    "matchedBars": true,
+    "featureWindows": false,
+    "trailing30dAdv": false,
+    "candidateExecutionPrice": true,
+    "candidateSettlementInputs": false,
+    "timestampNormalization": true,
+    "noSurvivorBias": true,
+    "noFutureLifecycle": true,
+    "noSyntheticFallback": true
   },
   "status": "FAIL",
+  "classification": "V15_DATA_INSUFFICIENT_FINAL",
   "reasons": [
-    "ARCHIVE_INTEGRITY_BELOW_REQUIRED_COVERAGE",
-    "ADV_COVERAGE_BELOW_98_PERCENT",
-    "ACTUAL_FUNDING_ARCHIVE_NOT_MATERIALIZED",
-    "MARK_PRICE_ARCHIVE_NOT_MATERIALIZED",
-    "MARK_PRICE_SETTLEMENT_ARCHIVE_NOT_MATERIALIZED"
+    "FEATURE_WINDOW_COVERAGE_BELOW_98_PERCENT",
+    "TRAILING_30D_ADV_COVERAGE_BELOW_98_PERCENT",
+    "CANDIDATE_SETTLEMENT_INPUT_COVERAGE_BELOW_100_PERCENT"
   ],
   "historicalReturnsRead": false,
-  "classification": "V15_DATA_INSUFFICIENT_FINAL"
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false
+  }
 }
