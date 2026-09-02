@@ -39,6 +39,7 @@ interface StageBManifest {
   requiredArchives: StageBRequirement[];
   actualUsedArchives: Array<{ exchange: Exchange; symbol: string; month: string; cachePath: string; sha256: string; bytes: number }>;
   immutablePolicy: string;
+  symbolLifecycle?: Record<string, { firstSpotMonth: string | null; firstFuturesMonth: string | null }>;
 }
 
 interface DataGateReport {
@@ -140,6 +141,10 @@ async function main(): Promise<void> {
     requiredArchives: requirements,
     actualUsedArchives,
     immutablePolicy: "Every materialized ZIP must be verified against its official .CHECKSUM before first write; an existing cache path with a different digest is a hard failure.",
+    symbolLifecycle: Object.fromEntries([...eligibleBySymbol.keys()].sort().map((symbol) => {
+      const record = registry.records.find((item) => item.symbol === symbol)!;
+      return [symbol, { firstSpotMonth: record.spotAvailableMonths[0] ?? null, firstFuturesMonth: record.futuresAvailableMonths[0] ?? null }];
+    })),
   };
   await writeJson(STAGE_B_PATH, manifest);
 

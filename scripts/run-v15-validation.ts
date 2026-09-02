@@ -84,6 +84,7 @@ interface StageBArchiveManifest {
   requiredArchives: StageBArchiveRequirement[];
   actualUsedArchives: Array<{ exchange: Exchange; symbol: string; month: string; cachePath: string; sha256: string; bytes: number }>;
   immutablePolicy: string;
+  symbolLifecycle?: Record<string, { firstSpotMonth: string | null; firstFuturesMonth: string | null }>;
 }
 
 interface CostInputManifest {
@@ -732,8 +733,12 @@ async function loadFrozenDataset(stageB: StageBArchiveManifest, costs: CostInput
     futuresBars,
     funding,
     eligible: true,
-    firstSpotTime: Math.min(...spotBars.map((bar) => bar.openTime)),
-    firstFuturesTime: Math.min(...futuresBars.map((bar) => bar.openTime)),
+    firstSpotTime: stageB.symbolLifecycle?.[symbol]?.firstSpotMonth
+      ? Date.parse(`${stageB.symbolLifecycle[symbol].firstSpotMonth}-01T00:00:00.000Z`)
+      : Math.min(...spotBars.map((bar) => bar.openTime)),
+    firstFuturesTime: stageB.symbolLifecycle?.[symbol]?.firstFuturesMonth
+      ? Date.parse(`${stageB.symbolLifecycle[symbol].firstFuturesMonth}-01T00:00:00.000Z`)
+      : Math.min(...futuresBars.map((bar) => bar.openTime)),
   };
 }
 
