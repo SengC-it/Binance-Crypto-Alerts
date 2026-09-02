@@ -147,7 +147,7 @@
     "autoTrading": false,
     "privateBinanceApi": false
   },
-  "dataGateHash": "b85ff9792e744167429fc951da045e1242de0c7d1b43de81d6ab7fec081dada5",
+  "dataGateHash": "46b44beec4f3c0dcde597c68e53c17930bd3d478889819e7944dd7f6cdf149e7",
   "historicalReturnsRead": false,
-  "manifestSha256": "b949c524e9a048f3df0cde743bad3504bff0d9c9260b4febd6df34aa094c02f7"
+  "manifestSha256": "aeb721b523cc50ed011818086b0f7bbed6c4815f214edbbb263593e0a6f9ca02"
 }

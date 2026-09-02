@@ -14,7 +14,7 @@ const COST_STATE_PATH = resolve(REPORT_DIR, "v15-cost-materialization.json");
 const PRICE_CACHE_ROOT = resolve("data/raw/v15-spot-perp-lead-lag");
 const DIRECT_ROOT = "https://data.binance.vision";
 const PROXY = process.env.HTTPS_PROXY ? new ProxyAgent(process.env.HTTPS_PROXY) : undefined;
-const CONCURRENCY = 64;
+const CONCURRENCY = 32;
 const CHECKPOINT_EVERY = 128;
 
 type Exchange = "spot" | "futuresUm";
@@ -244,14 +244,15 @@ async function loadStageBState(stageB: StageBManifest, sourceHash: string): Prom
 
 async function materializePriceArchive(requirement: StageBRequirement): Promise<ArchiveRecord> {
   const base: ArchiveRecord = { ...requirement, expectedSha256: null, actualSha256: null, bytes: null, rowCount: null, integrity: null, status: "FAIL", error: null };
+  let raw: RawArchiveResult | null = null;
   try {
-    const raw = await fetchRawArchive(requirement.sourceUrl, requirement.checksumUrl, requirement.cachePath, requirement.expectedBytes);
+    raw = await fetchRawArchive(requirement.sourceUrl, requirement.checksumUrl, requirement.cachePath, requirement.expectedBytes);
     const bars = parseKlineArchive(raw.payload);
     const integrity = validateKlineIntegrity(bars);
     if (!bars.length || !validKline(integrity)) throw new Error(`kline integrity failed: ${JSON.stringify(integrity)}`);
     return { ...base, expectedSha256: raw.expectedSha256, actualSha256: raw.actualSha256, bytes: raw.bytes, rowCount: bars.length, integrity, status: "PASS" };
   } catch (error) {
-    return { ...base, error: error instanceof Error ? error.message : String(error) };
+    return { ...base, expectedSha256: raw?.expectedSha256 ?? null, actualSha256: raw?.actualSha256 ?? null, bytes: raw?.bytes ?? null, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -370,8 +371,10 @@ async function materializeCostPair(pair: CostPair): Promise<CostRecord> {
     markPriceUrl: urls.markPriceUrl, markPriceChecksumUrl: `${urls.markPriceUrl}.CHECKSUM`, markPriceCachePath: markPriceCache, markPriceExpectedSha256: null, markPriceActualSha256: null, markPriceBytes: null,
     normalizedPath, normalizedSha256: null, points: 0, status: "FAIL", error: null,
   };
+  let funding: RawArchiveResult | null = null;
+  let mark: RawArchiveResult | null = null;
   try {
-    const [funding, mark] = await Promise.all([
+    [funding, mark] = await Promise.all([
       fetchRawArchive(urls.fundingUrl, `${urls.fundingUrl}.CHECKSUM`, fundingCache, null),
       fetchRawArchive(urls.markPriceUrl, `${urls.markPriceUrl}.CHECKSUM`, markPriceCache, null),
     ]);
@@ -384,7 +387,16 @@ async function materializeCostPair(pair: CostPair): Promise<CostRecord> {
     const normalizedSha256 = await writeNormalized(normalizedPath, { symbol: pair.symbol, month: pair.month, points });
     return { ...base, fundingExpectedSha256: funding.expectedSha256, fundingActualSha256: funding.actualSha256, fundingBytes: funding.bytes, markPriceExpectedSha256: mark.expectedSha256, markPriceActualSha256: mark.actualSha256, markPriceBytes: mark.bytes, normalizedSha256, points: points.length, status: "PASS" };
   } catch (error) {
-    return { ...base, error: error instanceof Error ? error.message : String(error) };
+    return {
+      ...base,
+      fundingExpectedSha256: funding?.expectedSha256 ?? null,
+      fundingActualSha256: funding?.actualSha256 ?? null,
+      fundingBytes: funding?.bytes ?? null,
+      markPriceExpectedSha256: mark?.expectedSha256 ?? null,
+      markPriceActualSha256: mark?.actualSha256 ?? null,
+      markPriceBytes: mark?.bytes ?? null,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }
 

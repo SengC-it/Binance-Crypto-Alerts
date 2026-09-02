@@ -1,7 +1,7 @@
 {
   "schema": "v15-data-freeze-v2",
   "status": "FROZEN_BEFORE_RETURNS",
-  "sourceHead": "86e06307434b27feff7f78d228d419dd7b6fbdd9",
+  "sourceHead": "ed2e1755c1c36958f7710ca8f7cfea192d562b1d",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "branch": "feat/v15-spot-perp-lead-lag",
   "originalFreeze": {
@@ -75,21 +75,21 @@
   },
   "stageBArchiveManifest": {
     "path": "reports/v15-stage-b-archive-manifest.json",
-    "sha256": "cbd5de330d7384e4d6b82aa7e07e0f0d8522bbd344fc3ae7804213e8a1738ed9"
+    "sha256": "b0d8f51d336777e85519a62a9f56f2806c418128b6f5cf96669fe49a3b67db62"
   },
   "costInputManifest": {
     "path": "reports/v15-cost-input-manifest.json",
-    "sha256": "f65595f05e17e2938cbc5e6c03e4a79faf263ab59a8bd6b211f9a7d4b2515968"
+    "sha256": "5acec8a670468dbec07f3d056920a631a288a0abd504b5a93d61a8e5106e47be"
   },
   "dataGate": {
     "path": "reports/v15-data-gate.json",
-    "sha256": "7499f68486d9524bb35d11aa0cf410ebc5ab0a846bfd5464c4834bee7f797581",
+    "sha256": "e3e63337eac54b07cd2a94cf5f5171aaccfbdbf91d6d4f45f8b993d274ae84a5",
     "status": "FAIL"
   },
   "codeHashes": {
-    "timestampParser": "a90bbef854da828afe42e3c8640805db1a3238fabbd9e1462db075f88824e44e",
-    "featureEngine": "a90bbef854da828afe42e3c8640805db1a3238fabbd9e1462db075f88824e44e",
-    "executionEngine": "3da28db02bbc2d8314afed47279a1377cbc96c677fa515cb3a172104e9c23494",
+    "timestampParser": "8b29f2be9bce3d1bca43f4d8e713467544a557d9990ad83cadeafdf9b74ecf45",
+    "featureEngine": "8b29f2be9bce3d1bca43f4d8e713467544a557d9990ad83cadeafdf9b74ecf45",
+    "executionEngine": "10c358c3e87c45e99bb8eb2ca32b7bc36fbceaba98f92cde7babe86fe2ea6957",
     "costEngine": "25bca88d33073f3956ea89b7c795b162ac22bed00e86d3ca58143e26e817bd8e",
     "archiveParser": "290293cb9e0f9adc03a8f92d98966d25d3f62dff79c7dd20fffb480c88cdf8ac"
   },
@@ -104,5 +104,64 @@
     "privateBinanceApi": false,
     "orderPlacement": false
   },
-  "manifestSha256": "2c7f4f8c8cab95aede04de3a55b2a67f6de19396c736c066b9627ec4e18d6eff"
+  "materialization": {
+    "stageBState": {
+      "path": "reports/v15-stage-b-materialization.json",
+      "sha256": "15dd3d299fbae09d0588b9e6e32abd02d796408fd4aa545b8b6fcac000797382"
+    },
+    "costState": {
+      "path": "reports/v15-cost-materialization.json",
+      "sha256": "8a3334d5ff56fdab80e9c87ef2c430a5ab5977335f9332686dd8328b146fcfdd"
+    },
+    "coverage": {
+      "matchedBarCoverage": 0.9960386789401069,
+      "trailingFeatureCoverage": 0.9999702465015825,
+      "liquidityAdvCoverage": 0.9703123945752649,
+      "audit": {
+        "pairMonths": 14821,
+        "comparablePairMonths": 14821,
+        "pairCoverage": 1,
+        "comparableBars": 129816794,
+        "matchedBars": 129302548,
+        "validFeatureWindows": 129224656,
+        "possibleFeatureWindows": 129228501,
+        "advPassingPairMonths": 14381,
+        "archiveIntegrityFailures": 28,
+        "archiveReadFailures": 0,
+        "archiveIntegrityFailureKeys": [
+          "spot/CGPTUSDT/2026-04",
+          "spot/PHAUSDT/2026-07",
+          "spot/RVNUSDT/2021-12",
+          "spot/SANDUSDT/2021-12",
+          "spot/SCRTUSDT/2026-02",
+          "spot/SCUSDT/2021-12",
+          "spot/SFPUSDT/2021-12",
+          "spot/SKLUSDT/2021-12",
+          "spot/SOLUSDT/2021-12",
+          "spot/SRMUSDT/2021-12",
+          "spot/STMXUSDT/2021-12",
+          "spot/STORJUSDT/2021-12",
+          "spot/SUSHIUSDT/2021-12",
+          "spot/SXPUSDT/2021-12",
+          "spot/TLMUSDT/2021-12",
+          "spot/TOMOUSDT/2021-12",
+          "spot/TRBUSDT/2021-12",
+          "spot/TRXUSDT/2021-12",
+          "spot/UNFIUSDT/2021-12",
+          "spot/XEMUSDT/2021-12",
+          "spot/XMRUSDT/2021-12",
+          "spot/XTZUSDT/2021-12",
+          "spot/YFIIUSDT/2021-12",
+          "spot/ZBTUSDT/2026-05",
+          "spot/ZECUSDT/2021-12",
+          "spot/ZENUSDT/2021-12",
+          "spot/ZILUSDT/2021-12",
+          "spot/ZRXUSDT/2021-12"
+        ],
+        "archiveReadFailureDetails": []
+      },
+      "note": "Coverage is measured from the complete immutable Stage B pair-month inventory; feature windows use only matched consecutive closed 5m bars and ADV requires positive quote volume on both legs. Invalid or unreadable archives remain in denominators and fail the gate."
+    }
+  },
+  "manifestSha256": "fe784afe203360908a22fb4ba6bfb4313ed15f9a734e52c3bbab60af0fca9033"
 }

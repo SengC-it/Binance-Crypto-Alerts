@@ -1,6 +1,6 @@
 {
   "schema": "v15-data-gate-v2",
-  "generatedAt": "2026-09-01T15:24:22.118Z",
+  "generatedAt": "2026-09-02T09:40:06.029Z",
   "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
   "branch": "feat/v15-spot-perp-lead-lag",
   "source": {
@@ -28,10 +28,13 @@
   },
   "stageB": {
     "path": "reports/v15-stage-b-archive-manifest.json",
-    "requiredArchiveSlots": 27798,
-    "materializedArchiveSlots": 8,
-    "checksumCoverage": 0.0002877904885243543,
-    "missingMetadataSlots": 0
+    "requiredArchiveSlots": 29642,
+    "materializedArchiveSlots": 29642,
+    "checksumCoverage": 1,
+    "missingMetadataSlots": 0,
+    "validArchiveSlots": 29614,
+    "integrityCoverage": 0.9990553943728493,
+    "inventoryComplete": true
   },
   "pitUniverse": {
     "rule": "At each 15m decision, both Spot SYMBOLUSDT and USD-M perpetual must have complete PIT 5m data, be listed at that time, and have at least 90 days of prior archive history; no current-universe backfill.",
@@ -14341,10 +14344,10 @@
     "formationCoverage": 0.4413782153064465
   },
   "immutableArchives": {
-    "requiredArchiveSlots": 27798,
-    "materializedArchiveSlots": 8,
-    "fullArchiveCoverage": 0.0002877904885243543,
-    "checksumCoverage": 0.0002877904885243543,
+    "requiredArchiveSlots": 29642,
+    "materializedArchiveSlots": 29642,
+    "fullArchiveCoverage": 1,
+    "checksumCoverage": 1,
     "sentinelResults": [
       {
         "exchange": "spot",
@@ -14531,7 +14534,9 @@
         "error": null
       }
     ],
-    "cachePolicy": "Verified ZIP and .CHECKSUM are written once; an existing path with a different digest is a hard failure."
+    "cachePolicy": "Verified ZIP and official .CHECKSUM are written once; existing paths are digest-checked before reuse.",
+    "validIntegrityArchiveSlots": 29614,
+    "validIntegrityCoverage": 0.9990553943728493
   },
   "timestampNormalization": {
     "status": "PASS",
@@ -14605,16 +14610,66 @@
     ]
   },
   "completeness": {
-    "matchedBarCoverage": 0,
-    "trailingFeatureCoverage": 0,
-    "liquidityAdvCoverage": 0,
-    "note": "Coverage requirements are not met; no returns or strategy metrics were read."
+    "matchedBarCoverage": 0.9960386789401069,
+    "trailingFeatureCoverage": 0.9999702465015825,
+    "liquidityAdvCoverage": 0.9703123945752649,
+    "audit": {
+      "pairMonths": 14821,
+      "comparablePairMonths": 14821,
+      "pairCoverage": 1,
+      "comparableBars": 129816794,
+      "matchedBars": 129302548,
+      "validFeatureWindows": 129224656,
+      "possibleFeatureWindows": 129228501,
+      "advPassingPairMonths": 14381,
+      "archiveIntegrityFailures": 28,
+      "archiveReadFailures": 0,
+      "archiveIntegrityFailureKeys": [
+        "spot/CGPTUSDT/2026-04",
+        "spot/PHAUSDT/2026-07",
+        "spot/RVNUSDT/2021-12",
+        "spot/SANDUSDT/2021-12",
+        "spot/SCRTUSDT/2026-02",
+        "spot/SCUSDT/2021-12",
+        "spot/SFPUSDT/2021-12",
+        "spot/SKLUSDT/2021-12",
+        "spot/SOLUSDT/2021-12",
+        "spot/SRMUSDT/2021-12",
+        "spot/STMXUSDT/2021-12",
+        "spot/STORJUSDT/2021-12",
+        "spot/SUSHIUSDT/2021-12",
+        "spot/SXPUSDT/2021-12",
+        "spot/TLMUSDT/2021-12",
+        "spot/TOMOUSDT/2021-12",
+        "spot/TRBUSDT/2021-12",
+        "spot/TRXUSDT/2021-12",
+        "spot/UNFIUSDT/2021-12",
+        "spot/XEMUSDT/2021-12",
+        "spot/XMRUSDT/2021-12",
+        "spot/XTZUSDT/2021-12",
+        "spot/YFIIUSDT/2021-12",
+        "spot/ZBTUSDT/2026-05",
+        "spot/ZECUSDT/2021-12",
+        "spot/ZENUSDT/2021-12",
+        "spot/ZILUSDT/2021-12",
+        "spot/ZRXUSDT/2021-12"
+      ],
+      "archiveReadFailureDetails": []
+    },
+    "note": "Coverage is measured from the complete immutable Stage B pair-month inventory; feature windows use only matched consecutive closed 5m bars and ADV requires positive quote volume on both legs. Invalid or unreadable archives remain in denominators and fail the gate."
   },
   "costInputs": {
     "path": "reports/v15-cost-input-manifest.json",
-    "fundingCoverage": 0,
-    "markPriceCoverage": 0,
-    "noFallback": true
+    "fundingCoverage": 0.9831320423723096,
+    "markPriceCoverage": 0.9831320423723096,
+    "noFallback": true,
+    "fundingArchiveCoverage": 0.9831320423723096,
+    "markPriceArchiveCoverage": 0.9831320423723096,
+    "fundingSettlementCoverage": 0.9831320423723096,
+    "requiredSymbolMonths": 14821,
+    "usableSymbolMonths": 14571,
+    "failedSymbolMonths": 250,
+    "inventoryComplete": true
   },
   "lifecycle": {
     "noCurrentSurvivorFilter": true,
@@ -14630,12 +14685,10 @@
   },
   "status": "FAIL",
   "reasons": [
-    "IMMUTABLE_FULL_5M_ARCHIVE_SET_NOT_MATERIALIZED",
-    "ARCHIVE_CHECKSUM_COVERAGE_BELOW_100_PERCENT",
-    "MATCHED_BAR_COVERAGE_BELOW_99_PERCENT",
-    "TRAILING_FEATURE_COVERAGE_BELOW_98_PERCENT",
+    "ARCHIVE_INTEGRITY_BELOW_REQUIRED_COVERAGE",
     "ADV_COVERAGE_BELOW_98_PERCENT",
     "ACTUAL_FUNDING_ARCHIVE_NOT_MATERIALIZED",
+    "MARK_PRICE_ARCHIVE_NOT_MATERIALIZED",
     "MARK_PRICE_SETTLEMENT_ARCHIVE_NOT_MATERIALIZED"
   ],
   "historicalReturnsRead": false,
