@@ -355,19 +355,38 @@ function firstLifecycleTime(value: string | null | undefined, fallback: number):
 async function loadValidPairs(
   stageB: StageManifest,
   stageState: StageState,
-): Promise<{ symbols: Map<string, SymbolData>; invalidPairMonths: string[]; validArchiveKeys: Set<string>; matched: number; comparable: number; validPairMonths: number }> {
+  onSymbol: (data: SymbolData) => Promise<void>,
+): Promise<{ symbolCount: number; invalidPairMonths: string[]; validArchiveKeys: Set<string>; matched: number; comparable: number; validPairMonths: number }> {
   const records = new Map(stageState.records.map((record) => [archiveKey(record), record]));
-  const pairNames = [...new Set(stageB.requiredArchives.map(pairKey))].sort();
-  const symbols = new Map<string, SymbolData>();
+  const requirementsByPair = new Map<string, { spot?: Requirement; futures?: Requirement }>();
+  for (const requirement of stageB.requiredArchives) {
+    const pair = requirementsByPair.get(pairKey(requirement)) ?? {};
+    if (requirement.exchange === "spot") pair.spot = requirement;
+    else pair.futures = requirement;
+    requirementsByPair.set(pairKey(requirement), pair);
+  }
+  const pairNames = [...requirementsByPair.keys()].sort();
   const invalidPairMonths: string[] = [];
   const validArchiveKeys = new Set<string>();
   let matched = 0;
   let comparable = 0;
+  let validPairMonths = 0;
+  let symbolCount = 0;
+  let current: SymbolData | null = null;
+
+  async function flushCurrent(): Promise<void> {
+    if (!current) return;
+    await onSymbol(current);
+    symbolCount += 1;
+    current = null;
+  }
 
   for (let index = 0; index < pairNames.length; index += 1) {
     const [symbol, month] = pairNames[index].split("/");
-    const spotRequirement = stageB.requiredArchives.find((row) => row.exchange === "spot" && row.symbol === symbol && row.month === month);
-    const futuresRequirement = stageB.requiredArchives.find((row) => row.exchange === "futuresUm" && row.symbol === symbol && row.month === month);
+    if (current && current.symbol !== symbol) await flushCurrent();
+    const pairRequirements = requirementsByPair.get(pairNames[index]);
+    const spotRequirement = pairRequirements?.spot;
+    const futuresRequirement = pairRequirements?.futures;
     const spotRecord = spotRequirement ? records.get(archiveKey(spotRequirement)) : undefined;
     const futuresRecord = futuresRequirement ? records.get(archiveKey(futuresRequirement)) : undefined;
     if (!spotRequirement || !futuresRequirement || !stateRecordIsValid(spotRecord) || !stateRecordIsValid(futuresRecord)) {
@@ -380,26 +399,20 @@ async function loadValidPairs(
       validArchiveKeys.add(archiveKey(futuresRequirement));
       matched += matchedCount(spotBars, futuresBars);
       comparable += Math.max(spotBars.length, futuresBars.length);
-      const current = symbols.get(symbol) ?? {
-        symbol,
-        months: [],
-        spotBars: [],
-        futuresBars: [],
-        firstSpotTime: Number.POSITIVE_INFINITY,
-        firstFuturesTime: Number.POSITIVE_INFINITY,
-      };
+      current ??= { symbol, months: [], spotBars: [], futuresBars: [], firstSpotTime: Number.POSITIVE_INFINITY, firstFuturesTime: Number.POSITIVE_INFINITY };
       current.months.push(month);
       current.spotBars.push(...spotBars);
       current.futuresBars.push(...futuresBars);
       current.firstSpotTime = Math.min(current.firstSpotTime, spotBars[0]?.openTime ?? Number.POSITIVE_INFINITY);
       current.firstFuturesTime = Math.min(current.firstFuturesTime, futuresBars[0]?.openTime ?? Number.POSITIVE_INFINITY);
-      symbols.set(symbol, current);
+      validPairMonths += 1;
     } catch {
       invalidPairMonths.push(pairNames[index]);
     }
     if ((index + 1) % 25 === 0 || index + 1 === pairNames.length) console.info(JSON.stringify({ phase: "v3-load", pairMonthsProcessed: index + 1, pairMonthsTotal: pairNames.length }));
   }
-  return { symbols, invalidPairMonths: [...new Set(invalidPairMonths)].sort(), validArchiveKeys, matched, comparable, validPairMonths: pairNames.length - new Set(invalidPairMonths).size };
+  await flushCurrent();
+  return { symbolCount, invalidPairMonths: [...new Set(invalidPairMonths)].sort(), validArchiveKeys, matched, comparable, validPairMonths };
 }
 
 async function processSymbol(
@@ -433,7 +446,6 @@ async function processSymbol(
   const shockQuantile = new FenwickQuantile(rows.map((row) => row.feature.spotShock));
   const flowQuantile = new FenwickQuantile(rows.map((row) => Math.abs(row.feature.spotFlow30)));
   const leadQuantile = new FenwickQuantile(rows.map((row) => row.feature.leadStrength).filter((value) => value > 0));
-  const history: V15FeatureSnapshot[] = [];
   let historyStart = 0;
   const audit: SymbolAudit = {
     decisionTimestamps,
@@ -520,7 +532,6 @@ async function processSymbol(
     shockQuantile.add(row.feature.spotShock, 1);
     flowQuantile.add(Math.abs(row.feature.spotFlow30), 1);
     if (row.feature.leadStrength > 0) leadQuantile.add(row.feature.leadStrength, 1);
-    history.push(row.feature);
   }
   return audit;
 }
@@ -650,7 +661,14 @@ async function main(): Promise<void> {
   const extraStageKeys = [...stageKeyAudit].filter((key) => !requiredArchiveKeys.has(key));
   const stageInventoryComplete = stageState.records.length === stageB.requiredArchiveSlots && missingStageKeys.length === 0 && extraStageKeys.length === 0 && stageDuplicates.length === 0;
 
-  const loaded = await loadValidPairs(stageB, stageState);
+  const costRecords = new Map(costState.records.map((record) => [pairKey(record), record]));
+  const audits: SymbolAudit[] = [];
+  let symbolsProcessed = 0;
+  const loaded = await loadValidPairs(stageB, stageState, async (symbol) => {
+    audits.push(await processSymbol(symbol, stageB.symbolLifecycle?.[symbol.symbol], costRecords, new Map()));
+    symbolsProcessed += 1;
+    console.info(JSON.stringify({ phase: "v3-events", symbolsProcessed, symbolsTotal: null }));
+  });
   const invalidPairMonths = loaded.invalidPairMonths;
   const invalidArchiveKeys = stageB.requiredArchives.filter((requirement) => invalidPairMonths.includes(pairKey(requirement))).map(archiveKey).sort();
   const validArchiveSlots = stageB.requiredArchives.length - invalidArchiveKeys.length;
@@ -663,7 +681,6 @@ async function main(): Promise<void> {
   const usedIntegrityCoverage = usedArchiveSlots ? 1 : 0;
   const matchedCoverage = loaded.comparable ? loaded.matched / loaded.comparable : 0;
 
-  const costRecords = new Map(costState.records.map((record) => [pairKey(record), record]));
   const requiredCostKeys = new Set([...new Set(stageB.requiredArchives.map(pairKey))]);
   const costKeys = new Set(costState.records.map(pairKey));
   const missingCostKeys = [...requiredCostKeys].filter((key) => !costKeys.has(key));
@@ -677,14 +694,6 @@ async function main(): Promise<void> {
   const globalMarkCoverage = requiredCostKeys.size ? markArchiveAvailable / requiredCostKeys.size : 0;
   const globalSettlementCoverage = requiredCostKeys.size ? settlementRecordsAvailable / requiredCostKeys.size : 0;
 
-  const fundingCache = new Map<string, Map<number, number> | null>();
-  const audits: SymbolAudit[] = [];
-  const symbols = [...loaded.symbols.values()].sort((left, right) => left.symbol.localeCompare(right.symbol));
-  for (let index = 0; index < symbols.length; index += 1) {
-    const symbol = symbols[index];
-    audits.push(await processSymbol(symbol, stageB.symbolLifecycle?.[symbol.symbol], costRecords, fundingCache));
-    if ((index + 1) % 10 === 0 || index + 1 === symbols.length) console.info(JSON.stringify({ phase: "v3-events", symbolsProcessed: index + 1, symbolsTotal: symbols.length }));
-  }
   const audit = sumAudits(audits);
   const featureCoverage = audit.decisionTimestamps ? audit.featureWindows / audit.decisionTimestamps : 0;
   const advCoverage = audit.featureWindows ? audit.advAvailable / audit.featureWindows : 0;
