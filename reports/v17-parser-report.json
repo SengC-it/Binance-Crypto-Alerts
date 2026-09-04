@@ -1,0 +1,116 @@
+{
+  "schema": "v17-parser-report-v1",
+  "source": {
+    "provider": "Binance Data Vision",
+    "officialOnly": true,
+    "noSyntheticData": true,
+    "noCurrentSurvivorUniverse": true,
+    "noForwardFill": true
+  },
+  "bySymbol": {
+    "BTCUSDT": {
+      "candles15m": {
+        "expectedRows": 195648,
+        "validRows": 195648,
+        "coverage": 1,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true
+      },
+      "candles1h": {
+        "expectedRows": 48912,
+        "validRows": 48912,
+        "coverage": 1,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true
+      },
+      "marks5m": {
+        "validRows": 584347,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true
+      },
+      "funding": {
+        "rows": 6114,
+        "validRows": 6114,
+        "invalidRows": 67,
+        "timestampMonotonic": true,
+        "duplicateTimestamps": 0,
+        "firstTimestamp": 1609459200002,
+        "lastTimestamp": 1785513600000
+      }
+    },
+    "ETHUSDT": {
+      "candles15m": {
+        "expectedRows": 195648,
+        "validRows": 195648,
+        "coverage": 1,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true
+      },
+      "candles1h": {
+        "expectedRows": 48912,
+        "validRows": 48912,
+        "coverage": 1,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true
+      },
+      "marks5m": {
+        "validRows": 586074,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true
+      },
+      "funding": {
+        "rows": 6114,
+        "validRows": 6114,
+        "invalidRows": 67,
+        "timestampMonotonic": true,
+        "duplicateTimestamps": 0,
+        "firstTimestamp": 1609459200002,
+        "lastTimestamp": 1785513600000
+      }
+    }
+  },
+  "fundingSettlement": {
+    "required": 12228,
+    "covered": 12192,
+    "coverage": 0.9970559371933267,
+    "missing": 36
+  },
+  "pit180dFundingHistory": {
+    "eligibleEvents": 12228,
+    "coveredEvents": 11148,
+    "coverage": 0.9116781157998037
+  },
+  "preReturn8h": {
+    "eligibleEvents": 12228,
+    "coveredEvents": 12224,
+    "coverage": 0.9996728819103696
+  },
+  "postFunding30m": {
+    "eligibleEvents": 12228,
+    "coveredEvents": 12228,
+    "coverage": 1
+  },
+  "executionPrice": {
+    "eligibleEvents": 12228,
+    "coveredEvents": 12228,
+    "coverage": 1
+  },
+  "atr14": {
+    "eligibleEvents": 12228,
+    "coveredEvents": 12226,
+    "coverage": 0.9998364409551849
+  },
+  "noSyntheticFallback": true,
+  "archiveSlots": {
+    "expected": 536,
+    "checksumVerified": 536,
+    "parseComplete": false
+  },
+  "generatedAt": "2026-09-04T14:09:28.374Z"
+}
