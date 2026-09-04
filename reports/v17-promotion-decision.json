@@ -1,0 +1,12 @@
+{
+  "schema": "v17-promotion-decision-v1",
+  "classification": "V17_DATA_INSUFFICIENT_FINAL",
+  "dataGate": "FAIL",
+  "historicalReturnsRead": false,
+  "emailPromotionCandidate": "FAIL",
+  "researchStop": "YES",
+  "reasons": [
+    "markSettlementCoverage",
+    "pit180dFundingHistory"
+  ]
+}

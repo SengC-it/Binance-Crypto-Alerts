@@ -1,0 +1,6 @@
+{
+  "status": "NOT_RUN",
+  "reason": "DATA_GATE_FAIL: markSettlementCoverage, pit180dFundingHistory",
+  "historicalReturnsRead": false,
+  "metrics": null
+}

@@ -1,0 +1,170 @@
+{
+  "schema": "v17-data-gate-v1",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v17-crowding-failed-continuation",
+  "source": "Binance Data Vision USD-M official monthly archives",
+  "inventorySha256": "6573bc1b9ea0e50146ee4b7313f9991dccdd91fb08b1bb6fbb4781360c115997",
+  "cacheManifestSha256": "a410d9246a2040ab47aaf4264b1c501e5446fcf7398704eb05fde8f9333fb6ad",
+  "parserReportSha256": "cb23c576f4246b8dcf8ec84d5564ed545caa9b04e5a7f4610f8c8c8349148f4f",
+  "expectedArchiveSlots": 536,
+  "verifiedArchiveSlots": 536,
+  "coverage": {
+    "fifteenMinute": 1,
+    "oneHour": 1,
+    "funding": 1,
+    "fundingSettlement": 0.9970559371933267,
+    "pit180d": 0.9116781157998037,
+    "preReturn8h": 0.9996728819103696,
+    "postFunding30m": 1,
+    "execution": 1,
+    "atr14": 0.9998364409551849
+  },
+  "gates": {
+    "officialArchiveInventoryComplete": true,
+    "usedZipChecksumCoverage": true,
+    "kline15mCoverage": true,
+    "kline1hCoverage": true,
+    "fundingRowValidity": true,
+    "fundingTimestampMonotonicity": true,
+    "markSettlementCoverage": false,
+    "pit180dFundingHistory": false,
+    "preReturn8hAvailability": true,
+    "postFunding30mAvailability": true,
+    "executionPriceCoverage": true,
+    "atrAvailability": true,
+    "noSyntheticFallback": true
+  },
+  "status": "FAIL",
+  "classification": "V17_DATA_INSUFFICIENT_FINAL",
+  "reasons": [
+    "markSettlementCoverage",
+    "pit180dFundingHistory"
+  ],
+  "historicalReturnsRead": false,
+  "boundaries": {
+    "productionChanged": "NO",
+    "productionEmail": "OFF",
+    "deploy": "NO",
+    "merge": "NO",
+    "migration": "NO",
+    "autoTrading": "NO",
+    "privateBinanceApi": "NO",
+    "orderPlacement": "NO"
+  },
+  "parser": {
+    "schema": "v17-parser-report-v1",
+    "source": {
+      "provider": "Binance Data Vision",
+      "officialOnly": true,
+      "noSyntheticData": true,
+      "noCurrentSurvivorUniverse": true,
+      "noForwardFill": true
+    },
+    "bySymbol": {
+      "BTCUSDT": {
+        "candles15m": {
+          "expectedRows": 195648,
+          "validRows": 195648,
+          "coverage": 1,
+          "duplicateOpenTimes": 0,
+          "nonMonotonicOpenTimes": 0,
+          "cadencePass": true
+        },
+        "candles1h": {
+          "expectedRows": 48912,
+          "validRows": 48912,
+          "coverage": 1,
+          "duplicateOpenTimes": 0,
+          "nonMonotonicOpenTimes": 0,
+          "cadencePass": true
+        },
+        "marks5m": {
+          "validRows": 584347,
+          "duplicateOpenTimes": 0,
+          "nonMonotonicOpenTimes": 0,
+          "cadencePass": true
+        },
+        "funding": {
+          "rows": 6114,
+          "validRows": 6114,
+          "invalidRows": 0,
+          "timestampMonotonic": true,
+          "duplicateTimestamps": 0,
+          "firstTimestamp": 1609459200002,
+          "lastTimestamp": 1785513600000
+        }
+      },
+      "ETHUSDT": {
+        "candles15m": {
+          "expectedRows": 195648,
+          "validRows": 195648,
+          "coverage": 1,
+          "duplicateOpenTimes": 0,
+          "nonMonotonicOpenTimes": 0,
+          "cadencePass": true
+        },
+        "candles1h": {
+          "expectedRows": 48912,
+          "validRows": 48912,
+          "coverage": 1,
+          "duplicateOpenTimes": 0,
+          "nonMonotonicOpenTimes": 0,
+          "cadencePass": true
+        },
+        "marks5m": {
+          "validRows": 586074,
+          "duplicateOpenTimes": 0,
+          "nonMonotonicOpenTimes": 0,
+          "cadencePass": true
+        },
+        "funding": {
+          "rows": 6114,
+          "validRows": 6114,
+          "invalidRows": 0,
+          "timestampMonotonic": true,
+          "duplicateTimestamps": 0,
+          "firstTimestamp": 1609459200002,
+          "lastTimestamp": 1785513600000
+        }
+      }
+    },
+    "fundingSettlement": {
+      "required": 12228,
+      "covered": 12192,
+      "coverage": 0.9970559371933267,
+      "missing": 36
+    },
+    "pit180dFundingHistory": {
+      "eligibleEvents": 12228,
+      "coveredEvents": 11148,
+      "coverage": 0.9116781157998037
+    },
+    "preReturn8h": {
+      "eligibleEvents": 12228,
+      "coveredEvents": 12224,
+      "coverage": 0.9996728819103696
+    },
+    "postFunding30m": {
+      "eligibleEvents": 12228,
+      "coveredEvents": 12228,
+      "coverage": 1
+    },
+    "executionPrice": {
+      "eligibleEvents": 12228,
+      "coveredEvents": 12228,
+      "coverage": 1
+    },
+    "atr14": {
+      "eligibleEvents": 12228,
+      "coveredEvents": 12226,
+      "coverage": 0.9998364409551849
+    },
+    "noSyntheticFallback": true,
+    "archiveSlots": {
+      "expected": 536,
+      "checksumVerified": 536,
+      "parseComplete": true
+    },
+    "generatedAt": "2026-09-04T14:20:00.341Z"
+  }
+}

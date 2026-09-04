@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { V17_CACHE_MANIFEST_PATH, V17_DATA_ROOT, V17_INVENTORY_PATH, V17_PARSER_REPORT_PATH, V17_BASELINE, V17_BRANCH, readJson, sha256, parseMaterializedArchives, type V17CacheManifest, type V17OfficialInventory, type V17ParserReport } from "../lib/v17/data";
+import { V17_CACHE_MANIFEST_PATH, V17_INVENTORY_PATH, V17_PARSER_REPORT_PATH, V17_BASELINE, V17_BRANCH, readJson, sha256, type V17CacheManifest, type V17OfficialInventory, type V17ParserReport } from "../lib/v17/data";
 
 const REPORT_DIR = resolve("reports");
 const FREEZE_PATH = resolve(REPORT_DIR, "v17-freeze-manifest.json");
@@ -54,13 +54,13 @@ async function main(): Promise<void> {
   if (freeze.baseline !== V17_BASELINE || freeze.branch !== V17_BRANCH || freeze.status !== "FROZEN_BEFORE_RETURNS" || freeze.historicalReturnsRead !== false) throw new Error("V17 Freeze is not valid or claims returns were read");
   const inventory = await readJson<V17OfficialInventory>(V17_INVENTORY_PATH);
   const cache = await readJson<V17CacheManifest>(V17_CACHE_MANIFEST_PATH);
-  const parsed = await parseMaterializedArchives(cache);
+  const parser = await readJson<V17ParserReport>(V17_PARSER_REPORT_PATH);
   await writeJson("v17-official-inventory.json", inventory);
-  await writeJson("v17-cache-manifest.json", parsed.cache);
-  await writeJson("v17-parser-report.json", parsed.report);
-  const gates = gatesFor(inventory, parsed.cache, parsed.report);
+  await writeJson("v17-cache-manifest.json", cache);
+  await writeJson("v17-parser-report.json", parser);
+  const gates = gatesFor(inventory, cache, parser);
   const reasons = Object.entries(gates).filter(([, passed]) => !passed).map(([name]) => name);
-  const gate = { schema: "v17-data-gate-v1", baseline: V17_BASELINE, branch: V17_BRANCH, source: "Binance Data Vision USD-M official monthly archives", inventorySha256: await fileSha256(V17_INVENTORY_PATH), cacheManifestSha256: await fileSha256(V17_CACHE_MANIFEST_PATH), parserReportSha256: await fileSha256(V17_PARSER_REPORT_PATH), expectedArchiveSlots: inventory.expectedSlots, verifiedArchiveSlots: parsed.cache.verifiedArchiveSlots, coverage: { fifteenMinute: minBySymbol(parsed.report, "coverage"), oneHour: Math.min(parsed.report.bySymbol.BTCUSDT.candles1h.coverage, parsed.report.bySymbol.ETHUSDT.candles1h.coverage), funding: Math.min(...Object.values(parsed.report.bySymbol).map((symbol) => symbol.funding.rows ? symbol.funding.validRows / symbol.funding.rows : 0)), fundingSettlement: parsed.report.fundingSettlement.coverage, pit180d: parsed.report.pit180dFundingHistory.coverage, preReturn8h: parsed.report.preReturn8h.coverage, postFunding30m: parsed.report.postFunding30m.coverage, execution: parsed.report.executionPrice.coverage, atr14: parsed.report.atr14.coverage }, gates, status: reasons.length ? "FAIL" : "PASS", classification: reasons.length ? "V17_DATA_INSUFFICIENT_FINAL" : "DATA_GATE_PASS", reasons, historicalReturnsRead: false, boundaries: boundaries(), parser: parsed.report };
+  const gate = { schema: "v17-data-gate-v1", baseline: V17_BASELINE, branch: V17_BRANCH, source: "Binance Data Vision USD-M official monthly archives", inventorySha256: await fileSha256(V17_INVENTORY_PATH), cacheManifestSha256: await fileSha256(V17_CACHE_MANIFEST_PATH), parserReportSha256: await fileSha256(V17_PARSER_REPORT_PATH), expectedArchiveSlots: inventory.expectedSlots, verifiedArchiveSlots: cache.verifiedArchiveSlots, coverage: { fifteenMinute: minBySymbol(parser, "coverage"), oneHour: Math.min(parser.bySymbol.BTCUSDT.candles1h.coverage, parser.bySymbol.ETHUSDT.candles1h.coverage), funding: Math.min(...Object.values(parser.bySymbol).map((symbol) => symbol.funding.rows ? symbol.funding.validRows / symbol.funding.rows : 0)), fundingSettlement: parser.fundingSettlement.coverage, pit180d: parser.pit180dFundingHistory.coverage, preReturn8h: parser.preReturn8h.coverage, postFunding30m: parser.postFunding30m.coverage, execution: parser.executionPrice.coverage, atr14: parser.atr14.coverage }, gates, status: reasons.length ? "FAIL" : "PASS", classification: reasons.length ? "V17_DATA_INSUFFICIENT_FINAL" : "DATA_GATE_PASS", reasons, historicalReturnsRead: false, boundaries: boundaries(), parser };
   await writeJson("v17-data-gate.json", gate);
   if (reasons.length) await writeFailClosedArtifacts(gate, freeze);
   console.info(JSON.stringify({ phase: "v17-data-gate", status: gate.status, classification: gate.classification, reasons, coverage: gate.coverage, historicalReturnsRead: false }));

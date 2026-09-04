@@ -1,0 +1,25 @@
+{
+  "schema": "v17-validation-summary-v1",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v17-crowding-failed-continuation",
+  "freezeSha256": "1e84e8d5757e599febab90a765d547ff4e96cf9f05ca152e657a95f27f7740fb",
+  "dataGate": "FAIL",
+  "historicalReturnsRead": false,
+  "result": "V17_DATA_INSUFFICIENT_FINAL",
+  "emailPromotionCandidate": "FAIL",
+  "researchStop": "YES",
+  "reasons": [
+    "markSettlementCoverage",
+    "pit180dFundingHistory"
+  ],
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": "NO",
+    "deploy": "NO",
+    "merge": "NO",
+    "migration": "NO",
+    "autoTrading": "NO",
+    "privateBinanceApi": "NO",
+    "orderPlacement": "NO"
+  }
+}
