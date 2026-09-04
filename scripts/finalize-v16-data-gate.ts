@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   loadCacheManifest,
@@ -133,7 +133,7 @@ async function writeNoResultArtifacts(gate: JsonRecord, freeze: JsonRecord, inve
   });
   await writeJson("v16-promotion-decision.json", { schema: "v16-promotion-decision-v2", classification: "V16_DATA_INSUFFICIENT_FINAL", dataGate: gate.status, dataGateReasons: reasons, historicalReturnsRead: false, emailPromotionCandidate: "FAIL", researchStop: "YES", reason });
   await writeJson("v16-promotion-decision.md", { classification: "V16_DATA_INSUFFICIENT_FINAL", dataGate: "FAIL", reasons, historicalReturns: "NOT READ", promotion: "FAIL", researchStop: "YES", productionChanged: "NO" });
-  const artifactNames = ["v16-freeze-manifest.json", "v16-data-freeze-v2.json", "v16-data-inventory.json", "v16-data-gate.json", "v16-data-gate-v2.json", "v16-parser-report.json", ...resultNames, "v16-validation-summary.json", "v16-promotion-decision.json", "v16-promotion-decision.md"];
+  const artifactNames = ["v16-freeze-manifest.json", "v16-data-freeze-v2.json", "v16-data-inventory.json", "v16-official-inventory.json", "v16-cache-manifest.json", "v16-parser-report.json", "v16-data-gate.json", "v16-data-gate-v2.json", ...resultNames, "v16-validation-summary.json", "v16-promotion-decision.json", "v16-promotion-decision.md"];
   const artifacts: JsonRecord = {};
   for (const name of artifactNames) {
     try { artifacts[name] = await sha256File(resolve(REPORT_DIR, name)); } catch { artifacts[name] = null; }
@@ -195,6 +195,9 @@ async function main(): Promise<void> {
   };
   await writeJson("v16-data-inventory.json", { schema: "v16-data-inventory-v2", ...inventory, cacheManifest: { schema: cache.schema, records: cache.records.length, checksumVerified: verifiedRecords.length }, parserReport: { path: "data/raw/v16-aggtrade-absorption/parser-report.json", sha256: parserHash }, diagnostics: parser });
   await writeJson("v16-data-inventory-v2.json", await readJson(resolve(REPORT_DIR, "v16-data-inventory.json")));
+  await copyFile(INVENTORY_PATH, resolve(REPORT_DIR, "v16-official-inventory.json"));
+  await copyFile(resolve(DATA_ROOT, "manifest.json"), resolve(REPORT_DIR, "v16-cache-manifest.json"));
+  await copyFile(V16_PARSER_REPORT, resolve(REPORT_DIR, "v16-parser-report.json"));
   await writeJson("v16-data-gate.json", gate);
   await writeJson("v16-data-gate-v2.json", gate);
   if (gateResult.status === "FAIL") await writeNoResultArtifacts(gate, freeze, await sha256File(resolve(REPORT_DIR, "v16-data-inventory.json")), parserHash);
