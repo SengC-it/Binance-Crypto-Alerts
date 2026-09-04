@@ -36,14 +36,19 @@ export interface V16CoverageInput {
   materializedArchiveSlots: number;
   usedArchiveSlots: number;
   usedZipChecksumCoverage: number;
+  officialArchiveInventoryComplete?: boolean;
   aggTradeCoverage: Record<V16Symbol, number>;
   klineCoverage: Record<V16Symbol, number>;
   timestampMonotonicity: Record<V16Symbol, boolean>;
   aggTradeIdMonotonicity: Record<V16Symbol, boolean>;
+  aggTradeFieldValidity?: Record<V16Symbol, boolean>;
   duplicateCoverage: Record<V16Symbol, number>;
+  klineCadence?: Record<V16Symbol, boolean>;
+  fundingFieldValidity?: Record<V16Symbol, boolean>;
   featureCoverage: number;
   executionPriceCoverage: number;
   fundingSettlementCoverage: number;
+  markSettlementCoverage?: number;
 }
 
 export interface V16DataGateResult {
@@ -57,10 +62,14 @@ export interface V16DataGateResult {
     klineCoverage: boolean;
     timestampMonotonicity: boolean;
     aggTradeIdMonotonicity: boolean;
+    aggTradeFieldValidity: boolean;
     duplicateCoverage: boolean;
+    klineCadence: boolean;
     featureCoverage: boolean;
     executionPriceCoverage: boolean;
     fundingSettlementCoverage: boolean;
+    markSettlementCoverage: boolean;
+    fundingFieldValidity: boolean;
   };
 }
 
@@ -87,7 +96,7 @@ export function expectedV16ArchiveSlots(): V16ArchiveSlot[] {
           symbol,
           month,
           url: `${baseUrl}/${directory}/${fileName}`,
-          localPath: `data/raw/v16-aggtrade-absorption/${directory}/${symbol}/${fileName}`,
+          localPath: `data/raw/v16-aggtrade-absorption/${dataset === "aggTrades" ? `${directory}/${month}` : directory}/${fileName}`,
         });
       }
     }
@@ -98,15 +107,15 @@ export function expectedV16ArchiveSlots(): V16ArchiveSlot[] {
 export function archiveLocation(dataset: V16DatasetKind, symbol: V16Symbol, month: string): { directory: string; fileName: string } {
   switch (dataset) {
     case "aggTrades":
-      return { directory: "aggTrades", fileName: `${symbol}-aggTrades-${month}.zip` };
+      return { directory: `aggTrades/${symbol}`, fileName: `${symbol}-aggTrades-${month}.zip` };
     case "klines-1m":
-      return { directory: "klines/1m", fileName: `${symbol}-1m-${month}.zip` };
+      return { directory: `klines/${symbol}/1m`, fileName: `${symbol}-1m-${month}.zip` };
     case "klines-5m":
-      return { directory: "klines/5m", fileName: `${symbol}-5m-${month}.zip` };
+      return { directory: `klines/${symbol}/5m`, fileName: `${symbol}-5m-${month}.zip` };
     case "fundingRate":
-      return { directory: "fundingRate", fileName: `${symbol}-fundingRate-${month}.zip` };
+      return { directory: `fundingRate/${symbol}`, fileName: `${symbol}-fundingRate-${month}.zip` };
     case "markPriceKlines":
-      return { directory: "markPriceKlines", fileName: `${symbol}-markPriceKlines-${month}.zip` };
+      return { directory: `markPriceKlines/${symbol}/5m`, fileName: `${symbol}-5m-${month}.zip` };
   }
 }
 
@@ -115,18 +124,26 @@ export function evaluateV16DataGate(input: V16CoverageInput): V16DataGateResult 
   const klineCoverage = Math.min(...V16_SYMBOLS.map((symbol) => input.klineCoverage[symbol]));
   const timestampMonotonicity = V16_SYMBOLS.every((symbol) => input.timestampMonotonicity[symbol]);
   const aggTradeIdMonotonicity = V16_SYMBOLS.every((symbol) => input.aggTradeIdMonotonicity[symbol]);
+  const aggTradeFieldValidity = input.aggTradeFieldValidity === undefined || V16_SYMBOLS.every((symbol) => input.aggTradeFieldValidity?.[symbol] === true);
   const duplicateCoverage = V16_SYMBOLS.every((symbol) => input.duplicateCoverage[symbol] >= 1);
+  const klineCadence = input.klineCadence === undefined || V16_SYMBOLS.every((symbol) => input.klineCadence?.[symbol] === true);
+  const markSettlementCoverage = input.markSettlementCoverage ?? input.fundingSettlementCoverage;
+  const fundingFieldValidity = input.fundingFieldValidity === undefined || V16_SYMBOLS.every((symbol) => input.fundingFieldValidity?.[symbol] === true);
   const gates = {
-    officialArchiveInventory: input.requiredArchiveSlots > 0 && input.materializedArchiveSlots === input.requiredArchiveSlots,
+    officialArchiveInventory: (input.officialArchiveInventoryComplete ?? true) && input.requiredArchiveSlots > 0 && input.materializedArchiveSlots === input.requiredArchiveSlots,
     usedZipChecksum: input.usedArchiveSlots > 0 && input.usedZipChecksumCoverage >= V16_GATE_THRESHOLDS.usedZipChecksumCoverage,
     aggTradeCoverage: aggTradeCoverage >= V16_GATE_THRESHOLDS.aggTradeCoverage,
     klineCoverage: klineCoverage >= V16_GATE_THRESHOLDS.klineCoverage,
     timestampMonotonicity,
     aggTradeIdMonotonicity,
+    aggTradeFieldValidity,
     duplicateCoverage,
+    klineCadence,
     featureCoverage: input.featureCoverage >= V16_GATE_THRESHOLDS.featureCoverage,
     executionPriceCoverage: input.executionPriceCoverage >= V16_GATE_THRESHOLDS.executionPriceCoverage,
     fundingSettlementCoverage: input.fundingSettlementCoverage >= V16_GATE_THRESHOLDS.fundingSettlementCoverage,
+    markSettlementCoverage: markSettlementCoverage >= V16_GATE_THRESHOLDS.fundingSettlementCoverage,
+    fundingFieldValidity,
   };
   const reasons: string[] = [];
   if (!gates.officialArchiveInventory) reasons.push("OFFICIAL_ARCHIVE_INVENTORY_INCOMPLETE");
@@ -135,10 +152,14 @@ export function evaluateV16DataGate(input: V16CoverageInput): V16DataGateResult 
   if (!gates.klineCoverage) reasons.push("KLINE_COVERAGE_BELOW_99_PERCENT");
   if (!gates.timestampMonotonicity) reasons.push("AGGTRADE_TIMESTAMP_MONOTONICITY_NOT_PROVEN");
   if (!gates.aggTradeIdMonotonicity) reasons.push("AGGTRADE_ID_MONOTONICITY_NOT_PROVEN");
+  if (!gates.aggTradeFieldValidity) reasons.push("AGGTRADE_FIELD_VALIDITY_FAILED");
   if (!gates.duplicateCoverage) reasons.push("AGGTRADE_DUPLICATE_COVERAGE_NOT_PROVEN");
+  if (!gates.klineCadence) reasons.push("KLINE_CADENCE_NOT_PROVEN");
   if (!gates.featureCoverage) reasons.push("FEATURE_COVERAGE_BELOW_99_PERCENT");
   if (!gates.executionPriceCoverage) reasons.push("EXECUTION_PRICE_COVERAGE_BELOW_99_PERCENT");
   if (!gates.fundingSettlementCoverage) reasons.push("FUNDING_SETTLEMENT_COVERAGE_BELOW_100_PERCENT");
+  if (!gates.markSettlementCoverage) reasons.push("MARK_SETTLEMENT_COVERAGE_BELOW_100_PERCENT");
+  if (!gates.fundingFieldValidity) reasons.push("FUNDING_FIELD_VALIDITY_FAILED");
   const status = reasons.length === 0 ? "PASS" : "FAIL";
   return {
     status,

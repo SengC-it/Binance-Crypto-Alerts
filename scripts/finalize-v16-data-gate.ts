@@ -1,207 +1,121 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
+  loadCacheManifest,
+  sha256File,
+  V16_PARSER_REPORT,
+  type ParserReport,
+} from "../lib/v16/data-engine";
+import {
   evaluateV16DataGate,
-  expectedV16ArchiveSlots,
   V16_BASELINE,
   V16_BRANCH,
   V16_END,
   V16_START,
   V16_SYMBOLS,
-  type V16ArchiveSlot,
   type V16CoverageInput,
-  type V16DatasetKind,
   type V16Symbol,
-} from "@/lib/v16/data-gate";
+} from "../lib/v16/data-gate";
 
 const REPORT_DIR = resolve("reports");
-const CACHE_ROOT = resolve("data/raw/v16-aggtrade-absorption");
-const CACHE_MANIFEST = resolve(CACHE_ROOT, "manifest.json");
+const DATA_ROOT = resolve("data/raw/v16-aggtrade-absorption");
+const INVENTORY_PATH = resolve(DATA_ROOT, "official-inventory.json");
+const DATA_FREEZE_PATH = resolve(REPORT_DIR, "v16-data-freeze-v2.json");
 
 type JsonRecord = Record<string, unknown>;
-
-interface CacheRecord {
-  dataset: V16DatasetKind;
-  symbol: V16Symbol;
-  month: string;
-  sha256: string;
-  bytes: number;
-  checksumVerified: boolean;
-  integrity: "PASS" | "FAIL";
-  coverage?: JsonRecord;
-}
-
-interface CacheManifest {
-  records: CacheRecord[];
-  coverage?: JsonRecord;
-  proofs?: JsonRecord;
-}
-
-function sha256(value: string | Buffer): string {
-  return createHash("sha256").update(value).digest("hex");
-}
 
 function asRecord(value: unknown): JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : {};
 }
 
-function numberOr(value: unknown, fallback: number): number {
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function numberOr(value: unknown, fallback = 0): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
-function booleanOr(value: unknown, fallback: boolean): boolean {
+function boolOr(value: unknown, fallback = false): boolean {
   return typeof value === "boolean" ? value : fallback;
 }
 
-function mapMetric(source: JsonRecord, key: string, fallback: number): Record<V16Symbol, number> {
+function symbolBoolean(source: JsonRecord, key: string): Record<V16Symbol, boolean> {
   const value = asRecord(source[key]);
-  return {
-    BTCUSDT: numberOr(value.BTCUSDT, fallback),
-    ETHUSDT: numberOr(value.ETHUSDT, fallback),
-  };
+  return { BTCUSDT: boolOr(value.BTCUSDT), ETHUSDT: boolOr(value.ETHUSDT) };
 }
 
-function mapBoolean(source: JsonRecord, key: string, fallback: boolean): Record<V16Symbol, boolean> {
-  const value = asRecord(source[key]);
-  return {
-    BTCUSDT: booleanOr(value.BTCUSDT, fallback),
-    ETHUSDT: booleanOr(value.ETHUSDT, fallback),
-  };
+function monthCoverage(parsed: number, available: number): number {
+  return available === 0 ? 0 : parsed / available;
 }
 
-function mapKey(record: Pick<CacheRecord, "dataset" | "symbol" | "month">): string {
-  return `${record.dataset}|${record.symbol}|${record.month}`;
-}
-
-async function readCacheManifest(): Promise<CacheManifest | null> {
-  try {
-    const value = JSON.parse(await readFile(CACHE_MANIFEST, "utf8")) as JsonRecord;
-    const records = Array.isArray(value.records) ? value.records : [];
-    return {
-      records: records.filter((record): record is CacheRecord => {
-        const item = asRecord(record);
-        return typeof item.dataset === "string" && typeof item.symbol === "string" && typeof item.month === "string" && typeof item.sha256 === "string" && typeof item.bytes === "number" && typeof item.checksumVerified === "boolean" && (item.integrity === "PASS" || item.integrity === "FAIL");
-      }),
-      coverage: asRecord(value.coverage),
-      proofs: asRecord(value.proofs),
-    };
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
-    throw error;
+function aggTradeCoverage(parser: ParserReport, inventory: JsonRecord): Record<V16Symbol, number> {
+  const records = asArray(inventory.records).map(asRecord);
+  const result = {} as Record<V16Symbol, number>;
+  for (const symbol of V16_SYMBOLS) {
+    const available = records.filter((record) => record.dataset === "aggTrades" && record.symbol === symbol && record.availability !== "OFFICIAL_UNAVAILABLE").length;
+    const summary = parser.bySymbol[symbol];
+    const first = summary.aggTradeFirstTimestamp;
+    const last = summary.aggTradeLastTimestamp;
+    const start = Date.parse(V16_START);
+    const end = Date.parse(V16_END);
+    const rangeCovered = first !== null && last !== null && first <= start + 900_000 && last >= end - 86_400_000;
+    result[symbol] = Math.min(monthCoverage(summary.aggTradeMonths, available), rangeCovered ? 1 : 0);
   }
+  return result;
 }
 
-async function fileHash(path: string): Promise<string> {
-  return sha256((await readFile(path, "utf8")).replace(/\r\n/g, "\n"));
-}
-
-async function inspectSlots(slots: V16ArchiveSlot[], cache: CacheManifest | null): Promise<{ inventory: JsonRecord; validRecords: CacheRecord[] }> {
-  const records = new Map((cache?.records ?? []).map((record) => [mapKey(record), record]));
-  const inspected: JsonRecord[] = [];
-  const validRecords: CacheRecord[] = [];
-  let materialized = 0;
-  let invalid = 0;
-  for (const slot of slots) {
-    const record = records.get(mapKey(slot));
-    const absolutePath = resolve(slot.localPath);
-    let status: "MISSING" | "CHECKSUM_UNVERIFIED" | "INTEGRITY_FAIL" | "PASS" = "MISSING";
-    let actualBytes: number | null = null;
-    let actualSha256: string | null = null;
-    try {
-      actualBytes = (await stat(absolutePath)).size;
-      materialized += 1;
-      if (!record || record.bytes !== actualBytes || !record.checksumVerified || record.sha256.length !== 64) {
-        status = "CHECKSUM_UNVERIFIED";
-      } else {
-        actualSha256 = sha256(await readFile(absolutePath));
-        if (actualSha256 !== record.sha256) status = "CHECKSUM_UNVERIFIED";
-        else if (record.integrity !== "PASS") status = "INTEGRITY_FAIL";
-        else {
-          status = "PASS";
-          validRecords.push(record);
-        }
-      }
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    }
-    if (status !== "MISSING" && status !== "PASS") invalid += 1;
-    inspected.push({
-      ...slot,
-      status,
-      declaredSha256: record?.sha256 ?? null,
-      declaredBytes: record?.bytes ?? null,
-      actualSha256,
-      actualBytes,
-    });
+function klineCoverage(parser: ParserReport, inventory: JsonRecord): Record<V16Symbol, number> {
+  const records = asArray(inventory.records).map(asRecord);
+  const result = {} as Record<V16Symbol, number>;
+  for (const symbol of V16_SYMBOLS) {
+    const available1m = records.filter((record) => record.dataset === "klines-1m" && record.symbol === symbol && record.availability !== "OFFICIAL_UNAVAILABLE").length;
+    const available5m = records.filter((record) => record.dataset === "klines-5m" && record.symbol === symbol && record.availability !== "OFFICIAL_UNAVAILABLE").length;
+    const summary = parser.bySymbol[symbol];
+    const months1m = monthCoverage(summary.kline1mMonths, available1m);
+    const months5m = monthCoverage(summary.kline5mMonths, available5m);
+    const rows1m = summary.kline1mExpectedRows === 0 ? 0 : summary.kline1mValidRows / summary.kline1mExpectedRows;
+    const rows5m = summary.kline5mExpectedRows === 0 ? 0 : summary.kline5mValidRows / summary.kline5mExpectedRows;
+    result[symbol] = Math.min(months1m, months5m, rows1m, rows5m);
   }
-  const used = validRecords.length;
-  const inventory = {
-    schema: "v16-data-inventory-v1",
-    source: { provider: "Binance Data Vision", officialOnly: true, start: V16_START, end: V16_END, cacheRoot: "data/raw/v16-aggtrade-absorption", remoteDownloadPerformed: false },
-    cacheManifestPresent: cache !== null,
-    requiredArchiveSlots: slots.length,
-    materializedArchiveSlots: materialized,
-    validArchiveSlots: used,
-    invalidArchiveSlots: invalid,
-    usedArchiveSlots: used,
-    usedZipChecksumCoverage: used === 0 ? 0 : validRecords.length / used,
-    slots: inspected,
-  };
-  return { inventory, validRecords };
+  return result;
 }
 
-function coverageInput(inventory: JsonRecord, cache: CacheManifest | null): V16CoverageInput {
-  const coverage = cache?.coverage ?? {};
-  const proofs = cache?.proofs ?? {};
-  return {
-    requiredArchiveSlots: numberOr(inventory.requiredArchiveSlots, 0),
-    materializedArchiveSlots: numberOr(inventory.materializedArchiveSlots, 0),
-    usedArchiveSlots: numberOr(inventory.usedArchiveSlots, 0),
-    usedZipChecksumCoverage: numberOr(inventory.usedZipChecksumCoverage, 0),
-    aggTradeCoverage: mapMetric(coverage, "aggTradeCoverage", 0),
-    klineCoverage: mapMetric(coverage, "klineCoverage", 0),
-    timestampMonotonicity: mapBoolean(proofs, "timestampMonotonicity", false),
-    aggTradeIdMonotonicity: mapBoolean(proofs, "aggTradeIdMonotonicity", false),
-    duplicateCoverage: mapMetric(coverage, "duplicateCoverage", 0),
-    featureCoverage: numberOr(coverage.featureCoverage, 0),
-    executionPriceCoverage: numberOr(coverage.executionPriceCoverage, 0),
-    fundingSettlementCoverage: numberOr(coverage.fundingSettlementCoverage, 0),
-  };
+function boundaries(): JsonRecord {
+  return { productionEmail: "OFF", productionChanged: false, deploy: false, merge: false, migration: false, autoTrading: false, privateBinanceApi: false, orderPlacement: false };
 }
 
 async function writeJson(name: string, value: unknown): Promise<void> {
+  await mkdir(REPORT_DIR, { recursive: true });
   await writeFile(resolve(REPORT_DIR, name), `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
-async function writeNoResultArtifacts(gate: JsonRecord, freeze: JsonRecord, inventoryHash: string): Promise<void> {
-  const reason = `DATA_GATE_FAIL: ${asArray(gate.reasons).join(", ")}`;
+async function readJson(path: string): Promise<JsonRecord> {
+  return JSON.parse(await readFile(path, "utf8")) as JsonRecord;
+}
+
+async function writeNoResultArtifacts(gate: JsonRecord, freeze: JsonRecord, inventoryHash: string, parserHash: string): Promise<void> {
+  const reasons = asArray(gate.reasons).map(String);
+  const reason = `DATA_GATE_FAIL: ${reasons.join(", ")}`;
   const notRun = { status: "NOT_RUN", reason, historicalReturnsRead: false, metrics: null };
-  const resultArtifacts = [
-    "v16-primary-oos.json",
-    "v16-yearly.json",
-    "v16-holdouts.json",
-    "v16-instrument-sides.json",
-    "v16-placebos.json",
-    "v16-cost.json",
-    "v16-manual-delay.json",
-    "v16-confidence.json",
-    "v16-email-utility.json",
-  ];
-  for (const name of resultArtifacts) await writeJson(name, notRun);
+  const resultNames = ["v16-primary-oos.json", "v16-yearly.json", "v16-holdouts.json", "v16-instrument-sides.json", "v16-placebos.json", "v16-cost.json", "v16-manual-delay.json", "v16-confidence.json", "v16-email-utility.json"];
+  for (const name of resultNames) await writeJson(name, notRun);
   await writeJson("v16-validation-summary.json", {
-    schema: "v16-validation-summary-v1",
+    schema: "v16-validation-summary-v2",
     baseline: V16_BASELINE,
     branch: V16_BRANCH,
     freezeSha256: freeze.manifestSha256,
+    dataFreezeV2Sha256: await sha256File(DATA_FREEZE_PATH),
     dataInventorySha256: inventoryHash,
+    parserReportSha256: parserHash,
     dataGate: gate.status,
     historicalReturnsRead: false,
     result: "V16_DATA_INSUFFICIENT_FINAL",
     emailPromotionCandidate: "FAIL",
     researchStop: "YES",
     reason,
-    reasons: gate.reasons,
+    reasons,
     primaryOos: null,
     years: { "2022": null, "2023": null, "2024": null },
     holdoutA: null,
@@ -217,88 +131,74 @@ async function writeNoResultArtifacts(gate: JsonRecord, freeze: JsonRecord, inve
     emailUtility: null,
     boundaries: boundaries(),
   });
-  await writeJson("v16-promotion-decision.json", {
-    schema: "v16-promotion-decision-v1",
-    classification: "V16_DATA_INSUFFICIENT_FINAL",
-    dataGate: gate.status,
-    dataGateReasons: gate.reasons,
-    historicalReturnsRead: false,
-    emailPromotionCandidate: "FAIL",
-    researchStop: "YES",
-    reason,
-  });
-  await writeJson("v16-promotion-decision.md", {
-    classification: "V16_DATA_INSUFFICIENT_FINAL",
-    dataGate: "FAIL",
-    reasons: gate.reasons,
-    historicalReturns: "NOT READ",
-    promotion: "FAIL",
-    researchStop: "YES",
-    productionChanged: "NO",
-  });
-  const names = ["v16-freeze-manifest.json", "v16-data-inventory.json", "v16-data-gate.json", ...resultArtifacts, "v16-validation-summary.json", "v16-promotion-decision.json", "v16-promotion-decision.md"];
+  await writeJson("v16-promotion-decision.json", { schema: "v16-promotion-decision-v2", classification: "V16_DATA_INSUFFICIENT_FINAL", dataGate: gate.status, dataGateReasons: reasons, historicalReturnsRead: false, emailPromotionCandidate: "FAIL", researchStop: "YES", reason });
+  await writeJson("v16-promotion-decision.md", { classification: "V16_DATA_INSUFFICIENT_FINAL", dataGate: "FAIL", reasons, historicalReturns: "NOT READ", promotion: "FAIL", researchStop: "YES", productionChanged: "NO" });
+  const artifactNames = ["v16-freeze-manifest.json", "v16-data-freeze-v2.json", "v16-data-inventory.json", "v16-data-gate.json", "v16-data-gate-v2.json", "v16-parser-report.json", ...resultNames, "v16-validation-summary.json", "v16-promotion-decision.json", "v16-promotion-decision.md"];
   const artifacts: JsonRecord = {};
-  for (const name of names) artifacts[name] = await fileHash(resolve(REPORT_DIR, name));
-  await writeJson("v16-evidence-manifest.json", {
-    schema: "v16-evidence-manifest-v1",
-    baseline: V16_BASELINE,
-    branch: V16_BRANCH,
-    freezeSha256: freeze.manifestSha256,
-    dataInventorySha256: inventoryHash,
-    dataGateSha256: await fileHash(resolve(REPORT_DIR, "v16-data-gate.json")),
-    resultCommit: null,
-    historicalReturnsRead: false,
-    artifacts,
-  });
-}
-
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function boundaries(): JsonRecord {
-  return { productionEmail: "OFF", productionChanged: false, deploy: false, merge: false, migration: false, autoTrading: false, privateBinanceApi: false, orderPlacement: false };
+  for (const name of artifactNames) {
+    try { artifacts[name] = await sha256File(resolve(REPORT_DIR, name)); } catch { artifacts[name] = null; }
+  }
+  await writeJson("v16-evidence-manifest.json", { schema: "v16-evidence-manifest-v2", baseline: V16_BASELINE, branch: V16_BRANCH, originalFreezeSha256: freeze.manifestSha256, dataFreezeV2Sha256: await sha256File(DATA_FREEZE_PATH), dataInventorySha256: inventoryHash, parserReportSha256: parserHash, dataGateSha256: await sha256File(resolve(REPORT_DIR, "v16-data-gate-v2.json")), resultCommit: null, historicalReturnsRead: false, artifacts });
 }
 
 async function main(): Promise<void> {
-  await mkdir(REPORT_DIR, { recursive: true });
-  const freeze = JSON.parse(await readFile(resolve(REPORT_DIR, "v16-freeze-manifest.json"), "utf8")) as JsonRecord;
-  if (freeze.baseline !== V16_BASELINE || freeze.branch !== V16_BRANCH || freeze.status !== "FROZEN_BEFORE_RETURNS" || freeze.historicalReturnsRead !== false) throw new Error("V16 freeze manifest is not valid or claims returns were read");
-  const slots = expectedV16ArchiveSlots();
-  const cache = await readCacheManifest();
-  const { inventory, validRecords } = await inspectSlots(slots, cache);
-  const inventoryWithEvidence = {
-    ...inventory,
-    cacheRecordCount: cache?.records.length ?? 0,
-    validRecordCount: validRecords.length,
-    coverage: cache?.coverage ?? null,
-    proofs: cache?.proofs ?? null,
-    note: cache === null ? "No immutable V16 archive manifest is present; no remote download or substitute V15 cache was used." : "Only checksum-verified PASS records are eligible; missing or invalid archives are DATA_UNAVAILABLE and are not repaired or forward-filled.",
+  const freeze = await readJson(resolve(REPORT_DIR, "v16-freeze-manifest.json"));
+  if (freeze.baseline !== V16_BASELINE || freeze.branch !== V16_BRANCH || freeze.status !== "FROZEN_BEFORE_RETURNS" || freeze.historicalReturnsRead !== false) throw new Error("Original V16 Freeze is invalid or claims historical returns were read");
+  const dataFreeze = await readJson(DATA_FREEZE_PATH);
+  if (dataFreeze.schema !== "v16-data-freeze-v2" || dataFreeze.status !== "FROZEN_BEFORE_RETURNS" || dataFreeze.historicalReturnsRead !== false || dataFreeze.originalFreeze === undefined) throw new Error("V16 data Freeze v2 is missing or not frozen before returns");
+  const inventory = await readJson(INVENTORY_PATH);
+  const parser = await readJson(V16_PARSER_REPORT) as unknown as ParserReport;
+  const cache = await loadCacheManifest();
+  const inventoryHash = await sha256File(INVENTORY_PATH);
+  const parserHash = await sha256File(V16_PARSER_REPORT);
+  const availableRecords = asArray(inventory.records).map(asRecord).filter((record) => record.availability !== "OFFICIAL_UNAVAILABLE");
+  const verifiedRecords = cache.records.filter((record) => record.status === "CHECKSUM_VERIFIED" && record.checksumVerified && record.actualSha256 === record.expectedSha256);
+  const input: V16CoverageInput = {
+    requiredArchiveSlots: availableRecords.length,
+    materializedArchiveSlots: verifiedRecords.length,
+    usedArchiveSlots: verifiedRecords.length,
+    usedZipChecksumCoverage: verifiedRecords.length === 0 ? 0 : verifiedRecords.filter((record) => record.expectedSha256 !== null && record.actualSha256 === record.expectedSha256).length / verifiedRecords.length,
+    officialArchiveInventoryComplete: inventory.enumerationComplete === true && numberOr(inventory.checksumUnavailableSlots) === 0,
+    aggTradeCoverage: aggTradeCoverage(parser, inventory),
+    klineCoverage: klineCoverage(parser, inventory),
+    timestampMonotonicity: symbolBoolean(parser.proofs as unknown as JsonRecord, "timestampMonotonicity"),
+    aggTradeIdMonotonicity: symbolBoolean(parser.proofs as unknown as JsonRecord, "aggTradeIdMonotonicity"),
+    aggTradeFieldValidity: symbolBoolean(parser.proofs as unknown as JsonRecord, "aggTradeFieldValidity"),
+    duplicateCoverage: { BTCUSDT: parser.proofs.duplicateFree.BTCUSDT ? 1 : 0, ETHUSDT: parser.proofs.duplicateFree.ETHUSDT ? 1 : 0 },
+    klineCadence: parser.proofs.klineCadence,
+    fundingFieldValidity: symbolBoolean(parser.proofs as unknown as JsonRecord, "fundingFieldValidity"),
+    featureCoverage: Math.min(parser.featureCoverage.BTCUSDT, parser.featureCoverage.ETHUSDT),
+    executionPriceCoverage: Math.min(parser.executionPriceCoverage.BTCUSDT, parser.executionPriceCoverage.ETHUSDT),
+    fundingSettlementCoverage: parser.fundingSettlement.coverage,
+    markSettlementCoverage: parser.markSettlement.coverage,
   };
-  await writeJson("v16-data-inventory.json", inventoryWithEvidence);
-  const inventoryHash = await fileHash(resolve(REPORT_DIR, "v16-data-inventory.json"));
-  const input = coverageInput(inventoryWithEvidence, cache);
-  const result = evaluateV16DataGate(input);
+  const gateResult = evaluateV16DataGate(input);
   const gate: JsonRecord = {
-    schema: "v16-data-gate-v1",
+    schema: "v16-data-gate-v2",
     generatedAt: new Date().toISOString(),
     baseline: V16_BASELINE,
     branch: V16_BRANCH,
-    freezeSha256: freeze.manifestSha256,
-    dataInventory: { path: "reports/v16-data-inventory.json", sha256: inventoryHash },
-    source: { provider: "Binance Data Vision", officialOnly: true, instruments: [...V16_SYMBOLS], start: V16_START, end: V16_END, noThirdPartyPriceData: true },
-    archiveInventory: inventoryWithEvidence,
-    coverage: input,
-    gates: result.gates,
-    status: result.status,
-    classification: result.classification,
-    reasons: result.reasons,
+    originalFreeze: { commit: "da77ba6c83e9066658d331972353d05b8341c152", manifestSha256: freeze.manifestSha256 },
+    dataFreezeV2: { path: "reports/v16-data-freeze-v2.json", sha256: await sha256File(DATA_FREEZE_PATH) },
+    dataInventory: { path: "data/raw/v16-aggtrade-absorption/official-inventory.json", sha256: inventoryHash },
+    parserReport: { path: "data/raw/v16-aggtrade-absorption/parser-report.json", sha256: parserHash },
+    source: { provider: "Binance Data Vision", officialOnly: true, instruments: [...V16_SYMBOLS], start: V16_START, end: V16_END, noThirdPartyPriceData: true, noV15Substitute: true },
+    archiveInventory: { expectedSlots: inventory.expectedSlots, officialRequiredSlots: availableRecords.length, officialAvailableSlots: inventory.officialAvailableSlots, officialUnavailableSlots: inventory.officialUnavailableSlots, checksumUnavailableSlots: inventory.checksumUnavailableSlots, materializedArchiveSlots: verifiedRecords.length, usedArchiveSlots: verifiedRecords.length, usedZipChecksumCoverage: input.usedZipChecksumCoverage, cacheManifest: cache.schema },
+    coverage: { ...input, featureCoverageBySymbol: parser.featureCoverage, executionPriceCoverageBySymbol: parser.executionPriceCoverage, fundingSettlement: parser.fundingSettlement, markSettlement: parser.markSettlement },
+    diagnostics: { bySymbol: parser.bySymbol, aggTrades: parser.aggTrades, klines: parser.klines, funding: parser.funding, proofs: parser.proofs },
+    gates: gateResult.gates,
+    status: gateResult.status,
+    classification: gateResult.classification,
+    reasons: gateResult.reasons,
     historicalReturnsRead: false,
     boundaries: boundaries(),
   };
+  await writeJson("v16-data-inventory.json", { schema: "v16-data-inventory-v2", ...inventory, cacheManifest: { schema: cache.schema, records: cache.records.length, checksumVerified: verifiedRecords.length }, parserReport: { path: "data/raw/v16-aggtrade-absorption/parser-report.json", sha256: parserHash }, diagnostics: parser });
+  await writeJson("v16-data-inventory-v2.json", await readJson(resolve(REPORT_DIR, "v16-data-inventory.json")));
   await writeJson("v16-data-gate.json", gate);
-  if (result.status === "FAIL") await writeNoResultArtifacts(gate, freeze, inventoryHash);
-  console.info(JSON.stringify({ phase: "v16-data-gate", status: result.status, classification: result.classification, reasons: result.reasons, requiredArchiveSlots: input.requiredArchiveSlots, materializedArchiveSlots: input.materializedArchiveSlots, usedZipChecksumCoverage: input.usedZipChecksumCoverage, aggTradeCoverage: input.aggTradeCoverage, klineCoverage: input.klineCoverage, featureCoverage: input.featureCoverage, executionPriceCoverage: input.executionPriceCoverage, fundingSettlementCoverage: input.fundingSettlementCoverage, historicalReturnsRead: false }));
+  await writeJson("v16-data-gate-v2.json", gate);
+  if (gateResult.status === "FAIL") await writeNoResultArtifacts(gate, freeze, await sha256File(resolve(REPORT_DIR, "v16-data-inventory.json")), parserHash);
+  console.info(JSON.stringify({ phase: "v16-data-gate-v2", status: gateResult.status, classification: gateResult.classification, reasons: gateResult.reasons, archive: gate.archiveInventory, coverage: input, historicalReturnsRead: false }));
 }
 
 main().catch((error: unknown) => {

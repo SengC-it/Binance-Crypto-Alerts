@@ -1,10 +1,14 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { sha256File } from "../lib/v16/data-engine";
 
+const REPORT_DIR = resolve("reports");
+const DATA_ROOT = resolve("data/raw/v16-aggtrade-absorption");
 const BASELINE = "7b9e5d82f471ee3c9fec07e00101263c8d84e953";
 const BRANCH = "feat/v16-aggtrade-absorption";
-const REPORT_DIR = resolve("reports");
+const ORIGINAL_FREEZE_COMMIT = "da77ba6c83e9066658d331972353d05b8341c152";
+const ORIGINAL_FREEZE_SHA = "b9af07c66b1890acc9090a947b4e510fdb5b2dada749aec14fce4cea5f876f8f";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -12,85 +16,106 @@ function hash(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-async function readJson(name: string): Promise<JsonRecord> {
-  return JSON.parse(await readFile(resolve(REPORT_DIR, name), "utf8")) as JsonRecord;
-}
-
-async function fileHash(name: string): Promise<string> {
-  return hash((await readFile(resolve(REPORT_DIR, name), "utf8")).replace(/\r\n/g, "\n"));
-}
-
-function asRecord(value: unknown, label: string): JsonRecord {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) throw new Error(`V16 artifact validation failed: ${label} is not an object`);
-  return value as JsonRecord;
-}
-
-function asArray(value: unknown, label: string): unknown[] {
-  if (!Array.isArray(value)) throw new Error(`V16 artifact validation failed: ${label} is not an array`);
-  return value;
+async function readJson(path: string): Promise<JsonRecord> {
+  return JSON.parse(await readFile(path, "utf8")) as JsonRecord;
 }
 
 function fail(message: string): never {
   throw new Error(`V16 artifact validation failed: ${message}`);
 }
 
+function asRecord(value: unknown, label: string): JsonRecord {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) fail(`${label} is not an object`);
+  return value as JsonRecord;
+}
+
+function asArray(value: unknown, label: string): unknown[] {
+  if (!Array.isArray(value)) fail(`${label} is not an array`);
+  return value;
+}
+
+function expect(value: boolean, message: string): void {
+  if (!value) fail(message);
+}
+
 async function main(): Promise<void> {
-  const freeze = await readJson("v16-freeze-manifest.json");
+  const freeze = await readJson(resolve(REPORT_DIR, "v16-freeze-manifest.json"));
   const freezeHash = freeze.manifestSha256;
   const freezeBody = { ...freeze };
   delete freezeBody.manifestSha256;
-  if (typeof freezeHash !== "string" || freezeHash !== hash(JSON.stringify(freezeBody))) fail("freeze manifest SHA-256 mismatch");
-  if (freeze.schema !== "v16-freeze-manifest-v1" || freeze.status !== "FROZEN_BEFORE_RETURNS") fail("freeze manifest status drift");
-  if (freeze.baseline !== BASELINE || freeze.branch !== BRANCH || freeze.historicalReturnsRead !== false) fail("freeze manifest identity drift");
-  const boundaries = asRecord(freeze.boundaries, "freeze boundaries");
-  if (boundaries.productionEmail !== "OFF" || boundaries.productionChanged !== false || boundaries.deploy !== false || boundaries.merge !== false || boundaries.migration !== false || boundaries.autoTrading !== false || boundaries.privateBinanceApi !== false || boundaries.orderPlacement !== false) fail("freeze production boundary drift");
+  expect(typeof freezeHash === "string" && freezeHash === hash(JSON.stringify(freezeBody)), "original freeze SHA-256 mismatch");
+  expect(freeze.schema === "v16-freeze-manifest-v1" && freeze.status === "FROZEN_BEFORE_RETURNS", "original freeze status drift");
+  expect(freeze.baseline === BASELINE && freeze.branch === BRANCH && freeze.historicalReturnsRead === false, "original freeze identity drift");
+  expect(freezeHash === ORIGINAL_FREEZE_SHA, "original freeze manifest SHA drift");
+  const freezeBoundaries = asRecord(freeze.boundaries, "original freeze boundaries");
+  expect(freezeBoundaries.productionEmail === "OFF" && freezeBoundaries.productionChanged === false && freezeBoundaries.deploy === false && freezeBoundaries.merge === false && freezeBoundaries.migration === false && freezeBoundaries.autoTrading === false && freezeBoundaries.privateBinanceApi === false && freezeBoundaries.orderPlacement === false, "original freeze production boundary drift");
 
-  const inventory = await readJson("v16-data-inventory.json");
-  const inventoryHash = await fileHash("v16-data-inventory.json");
-  if (inventory.schema !== "v16-data-inventory-v1" || inventory.source === undefined) fail("data inventory schema drift");
-  const requiredArchiveSlots = inventory.requiredArchiveSlots;
-  const slots = asArray(inventory.slots, "data inventory slots");
-  if (typeof requiredArchiveSlots !== "number" || slots.length !== requiredArchiveSlots) fail("data inventory slot count drift");
-  if (inventory.cacheManifestPresent !== false || inventory.materializedArchiveSlots !== 0 || inventory.validArchiveSlots !== 0 || inventory.usedArchiveSlots !== 0) fail("unexpected local V16 archive cache state");
+  const dataFreeze = await readJson(resolve(REPORT_DIR, "v16-data-freeze-v2.json"));
+  const dataFreezeHash = dataFreeze.manifestSha256;
+  const dataFreezeBody = { ...dataFreeze };
+  delete dataFreezeBody.manifestSha256;
+  expect(typeof dataFreezeHash === "string" && dataFreezeHash === hash(JSON.stringify(dataFreezeBody)), "data Freeze v2 SHA-256 mismatch");
+  expect(dataFreeze.schema === "v16-data-freeze-v2" && dataFreeze.status === "FROZEN_BEFORE_RETURNS" && dataFreeze.historicalReturnsRead === false, "data Freeze v2 status drift");
+  const originalLink = asRecord(dataFreeze.originalFreeze, "data Freeze v2 original freeze");
+  expect(originalLink.commit === ORIGINAL_FREEZE_COMMIT && originalLink.manifestSha256 === ORIGINAL_FREEZE_SHA, "data Freeze v2 original freeze link drift");
+  const dataBoundaries = asRecord(dataFreeze.boundaries, "data Freeze v2 boundaries");
+  expect(dataBoundaries.productionEmail === "OFF" && dataBoundaries.productionChanged === false && dataBoundaries.deploy === false && dataBoundaries.merge === false && dataBoundaries.migration === false && dataBoundaries.autoTrading === false, "data Freeze v2 production boundary drift");
 
-  const gate = await readJson("v16-data-gate.json");
-  if (gate.schema !== "v16-data-gate-v1" || gate.baseline !== BASELINE || gate.branch !== BRANCH) fail("data gate identity drift");
-  if (gate.freezeSha256 !== freezeHash || gate.historicalReturnsRead !== false) fail("data gate freeze/returns provenance drift");
-  if (gate.status !== "FAIL" || gate.classification !== "V16_DATA_INSUFFICIENT_FINAL") fail("data gate must fail closed before returns");
-  const reasons = asArray(gate.reasons, "data gate reasons");
-  if (reasons.length === 0) fail("data gate has no failure reason");
-  const gateInventory = asRecord(gate.archiveInventory, "data gate archive inventory");
-  if (gateInventory.requiredArchiveSlots !== requiredArchiveSlots || gateInventory.materializedArchiveSlots !== 0 || gateInventory.usedArchiveSlots !== 0) fail("data gate inventory drift");
-  const gateInventoryLink = asRecord(gate.dataInventory, "data gate data inventory");
-  if (gateInventoryLink.path !== "reports/v16-data-inventory.json" || gateInventoryLink.sha256 !== inventoryHash) fail("data gate inventory link drift");
+  const inventory = await readJson(resolve(DATA_ROOT, "official-inventory.json"));
+  expect(inventory.schema === "v16-official-inventory-v1" && inventory.provider === "Binance Data Vision" && inventory.officialOnly === true, "official inventory identity drift");
+  expect(inventory.expectedSlots === 670 && typeof inventory.enumerationSha256 === "string" && inventory.enumerationComplete === true, "official inventory completeness drift");
+  const inventoryRecords = asArray(inventory.records, "official inventory records").map((value) => asRecord(value, "official inventory record"));
+  expect(inventoryRecords.length === inventory.expectedSlots, "official inventory record count drift");
+
+  const cache = await readJson(resolve(DATA_ROOT, "manifest.json"));
+  expect(cache.schema === "v16-cache-manifest-v2" && cache.enumerationSha256 === inventory.enumerationSha256 && cache.sealed === false, "cache manifest provenance drift");
+  const cacheRecords = asArray(cache.records, "cache records").map((value) => asRecord(value, "cache record"));
+  expect(cacheRecords.length === inventoryRecords.length, "cache record count drift");
+  const availableKeys = new Set(inventoryRecords.filter((record) => record.availability === "AVAILABLE").map((record) => `${record.dataset}|${record.symbol}|${record.month}`));
+  const verifiedRecords = cacheRecords.filter((record) => record.status === "CHECKSUM_VERIFIED" && record.checksumVerified === true && typeof record.expectedSha256 === "string" && record.expectedSha256 === record.actualSha256);
+  expect(cacheRecords.every((record) => record.availability === "OFFICIAL_UNAVAILABLE" || record.availability === "CHECKSUM_UNAVAILABLE" || availableKeys.has(`${record.dataset}|${record.symbol}|${record.month}`)), "cache contains an unknown archive key");
+  expect(verifiedRecords.every((record) => record.bytes === record.remoteBytes && typeof record.localPath === "string" && typeof record.url === "string" && typeof record.checksumUrl === "string"), "verified cache record provenance incomplete");
+
+  const parser = await readJson(resolve(DATA_ROOT, "parser-report.json"));
+  expect(parser.schema === "v16-parser-report-v1", "parser report schema drift");
+  const parserSource = asRecord(parser.source, "parser source");
+  expect(parserSource.noSyntheticData === true && parserSource.noV15Substitute === true, "parser source substitution/synthetic-data boundary drift");
+  const proofs = asRecord(parser.proofs, "parser proofs");
+  expect(proofs.noSyntheticData === true, "parser synthetic-data proof missing");
+
+  const gate = await readJson(resolve(REPORT_DIR, "v16-data-gate-v2.json"));
+  const legacyGate = await readJson(resolve(REPORT_DIR, "v16-data-gate.json"));
+  expect(JSON.stringify(gate) === JSON.stringify(legacyGate), "legacy and v2 data gate artifacts differ");
+  expect(gate.schema === "v16-data-gate-v2" && gate.baseline === BASELINE && gate.branch === BRANCH && gate.historicalReturnsRead === false, "data gate identity/returns provenance drift");
+  const gateOriginal = asRecord(gate.originalFreeze, "data gate original freeze");
+  expect(gateOriginal.commit === ORIGINAL_FREEZE_COMMIT && gateOriginal.manifestSha256 === ORIGINAL_FREEZE_SHA, "data gate original freeze link drift");
+  const gateFreeze = asRecord(gate.dataFreezeV2, "data gate data Freeze v2");
+  expect(gateFreeze.sha256 === dataFreezeHash, "data gate data Freeze v2 hash drift");
   const gateBoundaries = asRecord(gate.boundaries, "data gate boundaries");
-  if (gateBoundaries.productionEmail !== "OFF" || gateBoundaries.productionChanged !== false || gateBoundaries.deploy !== false || gateBoundaries.merge !== false || gateBoundaries.migration !== false || gateBoundaries.autoTrading !== false) fail("data gate production boundary drift");
-
-  const summary = await readJson("v16-validation-summary.json");
-  if (summary.baseline !== BASELINE || summary.branch !== BRANCH || summary.freezeSha256 !== freezeHash || summary.dataInventorySha256 !== inventoryHash) fail("summary provenance drift");
-  if (summary.dataGate !== "FAIL" || summary.historicalReturnsRead !== false || summary.result !== "V16_DATA_INSUFFICIENT_FINAL" || summary.emailPromotionCandidate !== "FAIL" || summary.researchStop !== "YES") fail("summary fail-closed state drift");
-  if (summary.reasons === undefined || JSON.stringify(summary.reasons) !== JSON.stringify(reasons)) fail("summary reasons drift");
-  if (summary.reason !== `DATA_GATE_FAIL: ${reasons.join(", ")}`) fail("summary reason drift");
-
-  const promotion = await readJson("v16-promotion-decision.json");
-  if (promotion.classification !== "V16_DATA_INSUFFICIENT_FINAL" || promotion.dataGate !== "FAIL" || promotion.historicalReturnsRead !== false || promotion.emailPromotionCandidate !== "FAIL" || promotion.researchStop !== "YES") fail("promotion decision drift");
-  if (promotion.dataGateReasons === undefined || JSON.stringify(promotion.dataGateReasons) !== JSON.stringify(reasons)) fail("promotion decision reasons drift");
-
-  const resultNames = ["v16-primary-oos.json", "v16-yearly.json", "v16-holdouts.json", "v16-instrument-sides.json", "v16-placebos.json", "v16-cost.json", "v16-manual-delay.json", "v16-confidence.json", "v16-email-utility.json"];
-  for (const name of resultNames) {
-    const result = await readJson(name);
-    if (result.status !== "NOT_RUN" || result.historicalReturnsRead !== false || result.metrics !== null) fail(`${name} is not a truthful NOT_RUN artifact`);
+  expect(gateBoundaries.productionEmail === "OFF" && gateBoundaries.productionChanged === false && gateBoundaries.deploy === false && gateBoundaries.merge === false && gateBoundaries.migration === false && gateBoundaries.autoTrading === false, "data gate production boundary drift");
+  const gateArchive = asRecord(gate.archiveInventory, "data gate archive inventory");
+  expect(gateArchive.materializedArchiveSlots === verifiedRecords.length && gateArchive.usedArchiveSlots === verifiedRecords.length, "data gate/cache materialization count drift");
+  expect(gate.status === "PASS" || gate.status === "FAIL", "data gate status invalid");
+  if (gate.status === "FAIL") {
+    expect(gate.classification === "V16_DATA_INSUFFICIENT_FINAL", "failed data gate classification drift");
+    expect(gate.historicalReturnsRead === false, "returns were read after failed data gate");
+    for (const name of ["v16-primary-oos.json", "v16-yearly.json", "v16-holdouts.json", "v16-instrument-sides.json", "v16-placebos.json", "v16-cost.json", "v16-manual-delay.json", "v16-confidence.json", "v16-email-utility.json"]) {
+      const result = await readJson(resolve(REPORT_DIR, name));
+      expect(result.status === "NOT_RUN" && result.historicalReturnsRead === false && result.metrics === null, `${name} is not a truthful NOT_RUN artifact`);
+    }
+    const summary = await readJson(resolve(REPORT_DIR, "v16-validation-summary.json"));
+    expect(summary.result === "V16_DATA_INSUFFICIENT_FINAL" && summary.historicalReturnsRead === false && summary.dataGate === "FAIL", "failed summary is not fail-closed");
+    const decision = await readJson(resolve(REPORT_DIR, "v16-promotion-decision.json"));
+    expect(decision.classification === "V16_DATA_INSUFFICIENT_FINAL" && decision.historicalReturnsRead === false && decision.researchStop === "YES", "failed promotion decision is not fail-closed");
   }
-
-  const evidence = await readJson("v16-evidence-manifest.json");
-  if (evidence.schema !== "v16-evidence-manifest-v1" || evidence.baseline !== BASELINE || evidence.branch !== BRANCH) fail("evidence manifest identity drift");
-  if (evidence.freezeSha256 !== freezeHash || evidence.dataInventorySha256 !== inventoryHash || evidence.dataGateSha256 !== await fileHash("v16-data-gate.json") || evidence.resultCommit !== null || evidence.historicalReturnsRead !== false) fail("evidence manifest provenance drift");
+  const evidence = await readJson(resolve(REPORT_DIR, "v16-evidence-manifest.json"));
+  expect(evidence.schema === "v16-evidence-manifest-v2" && evidence.baseline === BASELINE && evidence.branch === BRANCH && evidence.originalFreezeSha256 === ORIGINAL_FREEZE_SHA && evidence.dataFreezeV2Sha256 === dataFreezeHash && evidence.historicalReturnsRead === false, "evidence manifest provenance drift");
   const artifacts = asRecord(evidence.artifacts, "evidence artifacts");
-  const names = ["v16-freeze-manifest.json", "v16-data-inventory.json", "v16-data-gate.json", ...resultNames, "v16-validation-summary.json", "v16-promotion-decision.json", "v16-promotion-decision.md"];
-  for (const name of names) {
-    if (artifacts[name] !== await fileHash(name)) fail(`evidence artifact hash mismatch: ${name}`);
+  for (const [name, expected] of Object.entries(artifacts)) {
+    if (typeof expected !== "string") continue;
+    expect(expected === await sha256File(resolve(REPORT_DIR, name)), `evidence artifact hash mismatch: ${name}`);
   }
-  console.info(JSON.stringify({ artifact: "v16", status: "PASS", dataGate: gate.status, classification: gate.classification, historicalReturnsRead: false, resultArtifacts: "NOT_RUN" }));
+  console.info(JSON.stringify({ artifact: "v16", status: "PASS", dataGate: gate.status, classification: gate.classification, verifiedArchives: verifiedRecords.length, historicalReturnsRead: false }));
 }
 
 main().catch((error: unknown) => {

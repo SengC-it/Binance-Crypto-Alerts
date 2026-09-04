@@ -16,6 +16,8 @@
     "validate": "tsx scripts/run-validation.ts",
     "backtest": "tsx scripts/run-backtest.ts",
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
+    "v16:materialize": "tsx scripts/materialize-v16-official-data.ts --all",
+    "v16:data-freeze": "tsx scripts/create-v16-data-freeze-v2.ts",
     "v16:freeze": "tsx scripts/create-v16-freeze.ts",
     "v16:data-gate": "tsx scripts/finalize-v16-data-gate.ts",
     "validate:v16:artifact": "tsx scripts/validate-v16-artifact.ts"

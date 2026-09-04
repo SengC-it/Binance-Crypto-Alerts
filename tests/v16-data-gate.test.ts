@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluateV16DataGate,
+  archiveLocation,
   expectedV16ArchiveSlots,
   V16_BRANCH,
   V16_GATE_THRESHOLDS,
@@ -8,6 +9,7 @@ import {
   v16Months,
   type V16CoverageInput,
 } from "../lib/v16/data-gate";
+import { parseAggTradeFields } from "../lib/v16/data-engine";
 
 function completeInput(): V16CoverageInput {
   const archiveSlots = expectedV16ArchiveSlots().length;
@@ -33,6 +35,10 @@ describe("V16 Data Gate", () => {
     expect(V16_SYMBOLS).toEqual(["BTCUSDT", "ETHUSDT"]);
     expect(v16Months()).toHaveLength(67);
     expect(expectedV16ArchiveSlots()).toHaveLength(67 * 2 * 5);
+    expect(archiveLocation("aggTrades", "BTCUSDT", "2021-01")).toEqual({ directory: "aggTrades/BTCUSDT", fileName: "BTCUSDT-aggTrades-2021-01.zip" });
+    expect(archiveLocation("klines-1m", "ETHUSDT", "2021-01")).toEqual({ directory: "klines/ETHUSDT/1m", fileName: "ETHUSDT-1m-2021-01.zip" });
+    expect(archiveLocation("markPriceKlines", "BTCUSDT", "2021-01")).toEqual({ directory: "markPriceKlines/BTCUSDT/5m", fileName: "BTCUSDT-5m-2021-01.zip" });
+    expect(expectedV16ArchiveSlots().find((slot) => slot.dataset === "markPriceKlines" && slot.symbol === "BTCUSDT" && slot.month === "2021-01")?.url).toBe("https://data.binance.vision/data/futures/um/monthly/markPriceKlines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip");
   });
 
   it("passes a complete, fully proven pre-returns data fixture", () => {
@@ -70,5 +76,19 @@ describe("V16 Data Gate", () => {
     expect(evaluateV16DataGate(input).gates.aggTradeCoverage).toBe(false);
     input.aggTradeCoverage = { BTCUSDT: V16_GATE_THRESHOLDS.aggTradeCoverage, ETHUSDT: 1 };
     expect(evaluateV16DataGate(input).gates.aggTradeCoverage).toBe(true);
+  });
+
+  it("parses and validates all required aggregate-trade fields", () => {
+    expect(parseAggTradeFields(["42", "100.5", "0.25", "40", "42", "1700000000123", "0"])).toEqual({
+      aggregateTradeId: 42,
+      price: 100.5,
+      quantity: 0.25,
+      firstTradeId: 40,
+      lastTradeId: 42,
+      timestamp: 1700000000123,
+      isBuyerMaker: false,
+    });
+    expect(parseAggTradeFields(["42", "100.5", "0.25", "40", "42", "1700000000123", "unknown"])).toBeNull();
+    expect(parseAggTradeFields(["42", "bad", "0.25", "40", "42", "1700000000123", "1"])).toBeNull();
   });
 });

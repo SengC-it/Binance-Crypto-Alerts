@@ -1,0 +1,58 @@
+{
+  "schema": "v16-data-freeze-v2",
+  "status": "FROZEN_BEFORE_RETURNS",
+  "generatedAt": "2026-09-04T10:18:40.978Z",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v16-aggtrade-absorption",
+  "originalFreeze": {
+    "commit": "da77ba6c83e9066658d331972353d05b8341c152",
+    "manifestSha256": "b9af07c66b1890acc9090a947b4e510fdb5b2dada749aec14fce4cea5f876f8f"
+  },
+  "officialEnumeration": {
+    "path": "data/raw/v16-aggtrade-absorption/official-inventory.json",
+    "enumerationSha256": "9d34c3e8e1f225c3cbf54c803627d0773830756d6395444c2741771141f7fcc5",
+    "inventoryFileSha256": "979dc9fe55853c1fc166dd8e5b6995b8327142399b1c11282e8306692b245d8d",
+    "expectedSlots": 670,
+    "officialAvailableSlots": 670,
+    "officialUnavailableSlots": 0,
+    "checksumUnavailableSlots": 0
+  },
+  "cacheManifest": {
+    "path": "data/raw/v16-aggtrade-absorption/manifest.json",
+    "sha256": "61815aea4d25129b1fd4840da4e68851be686958793c475b2b895b1b2d063830",
+    "schema": "v16-cache-manifest-v2",
+    "sealed": true
+  },
+  "sourceFiles": {
+    "materializer": "e111bac83ea440025815860ade22c3fd35c3bb3e4ce5ab192fce1ca000cacb0a",
+    "dataEngine": "88891530f9fe7f3432e4befdadf155589c7a62623781a335ab7ad60b7638f462",
+    "dataGate": "c353ffb9a6607a739e8eeb358a9a26b3b5ecd9ec4be233789f182d6112b3b8ad"
+  },
+  "semantics": {
+    "funding": "Use only official fundingRate calc_time rows; no fixed 8h clock; no row means no settlement and funding=0; occurred-but-missing archive is DATA_UNAVAILABLE.",
+    "mark": "Use only official markPriceKlines 5m candle containing an actual funding timestamp; no synthetic or forward-filled mark input.",
+    "features": "At each 15m decision T use only aggTrades timestamp<T and closed 5m bars ending before T; trailing 30m window and trailing 60d PIT quantiles.",
+    "execution": "Use the first complete futures 5m open after T; never use the signal candle close as execution price.",
+    "fundingSha256": "de313faac0bee96d089eaa1f663373fb872de09c588ee5f7499a10875671c63b",
+    "markSha256": "e866f1d498a74176fe49b1e423a5136c232b2a5c071df7c5dc078f158230c143",
+    "featureSha256": "7e8666e532975866edcd8123b5315d0bf1da6654f574f6dde1779addd4ead58b",
+    "executionSha256": "bf163e374fce49a4f8cbbb5a293a8ae5d0d775de6d704888a780f3768b096f12"
+  },
+  "alphaRules": {
+    "unchanged": true,
+    "originalSha256": "a57862a263add5bf45a10837d1e54a9cd747b7a23c0f4dc2a6deda8158207b74",
+    "currentSha256": "a57862a263add5bf45a10837d1e54a9cd747b7a23c0f4dc2a6deda8158207b74"
+  },
+  "historicalReturnsRead": false,
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "autoTrading": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false
+  },
+  "manifestSha256": "9fefcace38703d16ca46abe004d9922fc22d262ef86fe7107158dc19f3231df8"
+}
