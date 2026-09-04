@@ -1,6 +1,7 @@
 {
-  "classification": "V17_DATA_INSUFFICIENT_FINAL",
-  "historicalReturns": "NOT READ",
+  "classification": "V17_CROWDING_FAILED_CONTINUATION_REJECTED",
+  "dataGate": "PASS",
+  "historicalReturns": "READ ONCE AFTER FREEZE",
   "promotion": "FAIL",
   "researchStop": "YES"
 }

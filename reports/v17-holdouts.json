@@ -1,6 +1,38 @@
 {
-  "status": "NOT_RUN",
-  "reason": "DATA_GATE_FAIL: markSettlementCoverage, pit180dFundingHistory",
-  "historicalReturnsRead": false,
-  "metrics": null
+  "status": "COMPLETE",
+  "historicalReturnsRead": true,
+  "metrics": {
+    "A": {
+      "trades": 169,
+      "wins": 55,
+      "losses": 114,
+      "winRate": 0.3254437869822485,
+      "grossR": -21.17120441836375,
+      "feesR": 26.97244994968099,
+      "slippageR": 13.486224974840495,
+      "fundingR": 0,
+      "netR": -61.629879342885246,
+      "netPnL": -6162.9879342885215,
+      "avgR": -0.3646738422655932,
+      "PF": 0.5325902597887037,
+      "maxDD": 63.56397889914376,
+      "CVaR95": -1.8121358708606028
+    },
+    "B": {
+      "trades": 99,
+      "wins": 34,
+      "losses": 65,
+      "winRate": 0.3434343434343434,
+      "grossR": -7.325279033437926,
+      "feesR": 15.503861249384288,
+      "slippageR": 7.751930624692144,
+      "fundingR": 0,
+      "netR": -30.581070907514366,
+      "netPnL": -3058.107090751435,
+      "avgR": -0.30889970613650874,
+      "PF": 0.5803051796187296,
+      "maxDD": 32.33392398284261,
+      "CVaR95": -1.7025966935298635
+    }
+  }
 }

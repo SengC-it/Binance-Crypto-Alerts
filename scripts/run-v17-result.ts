@@ -60,7 +60,8 @@ function futureHorizon(datasets: V17ParsedDatasets, events: V17SignalEvent[], ho
   return { observations: values.length, averageDirectionalReturn: values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0 };
 }
 
-function timeMatchedRandom(events: V17SignalEvent[], datasets: V17ParsedDatasets): V17Trade[] {
+function timeMatchedRandom(events: V17SignalEvent[], datasets: V17ParsedDatasets, primaryTrades: V17Trade[]): V17Trade[] {
+  const tradeByKey = new Map(primaryTrades.map((trade) => [`${trade.symbol}:${trade.fundingTimestamp}`, trade]));
   const trades: V17Trade[] = [];
   for (let index = 0; index < events.length; index += 1) {
     const event = events[index];
@@ -73,9 +74,8 @@ function timeMatchedRandom(events: V17SignalEvent[], datasets: V17ParsedDatasets
     });
     if (!sameBucket.length) continue;
     const shifted = sameBucket[index % sameBucket.length];
-    const pseudo: V17SignalEvent = { ...event, fundingTimestamp: shifted.timestamp, decisionTime: shifted.timestamp + 30 * 60_000 };
-    const result = runEngine({ BTCUSDT: datasets.BTCUSDT, ETHUSDT: datasets.ETHUSDT }, "PRIMARY", 0, pseudo.fundingTimestamp, pseudo.fundingTimestamp);
-    trades.push(...result.trades.slice(0, 1));
+    const shiftedTrade = tradeByKey.get(`${event.symbol}:${shifted.timestamp}`);
+    if (shiftedTrade) trades.push(shiftedTrade);
   }
   return trades;
 }
@@ -110,7 +110,7 @@ async function main(): Promise<void> {
   const confidence = bootstrap(oos.trades.map((trade) => trade.netR));
   const yearlyPositive = yearResults.filter((result) => result.netR > 0).length / yearResults.length;
   const primary = { ...metric(oos.metrics), stress5bps: oos.trades.reduce((sum, trade) => sum + trade.stressNetR[5], 0), stress10bps: oos.trades.reduce((sum, trade) => sum + trade.stressNetR[10], 0), stress20bps: oos.trades.reduce((sum, trade) => sum + trade.stressNetR[20], 0), signalsEvaluated: oos.signalsEvaluated, rawTriggers: oos.rawTriggers, rejectedSignals: oos.rejectedSignals };
-  const families = { primary: primary, extremeFundingOnly: metric(runEngine(parsed.datasets, "EXTREME_FUNDING_ONLY", 0, Date.parse("2022-01-01T00:00:00.000Z"), Date.parse("2024-12-31T23:59:59.999Z")).metrics), continuationDirection: metric(runEngine(parsed.datasets, "CONTINUATION_DIRECTION", 0, Date.parse("2022-01-01T00:00:00.000Z"), Date.parse("2024-12-31T23:59:59.999Z")).metrics), timeMatchedRandom: metric(metricsFor(timeMatchedRandom(primaryEvents, parsed.datasets))) };
+  const families = { primary: primary, extremeFundingOnly: metric(runEngine(parsed.datasets, "EXTREME_FUNDING_ONLY", 0, Date.parse("2022-01-01T00:00:00.000Z"), Date.parse("2024-12-31T23:59:59.999Z")).metrics), continuationDirection: metric(runEngine(parsed.datasets, "CONTINUATION_DIRECTION", 0, Date.parse("2022-01-01T00:00:00.000Z"), Date.parse("2024-12-31T23:59:59.999Z")).metrics), timeMatchedRandom: metric(metricsFor(timeMatchedRandom(primaryEvents, parsed.datasets, oos.trades))) };
   const instrument = Object.fromEntries(((["BTCUSDT", "ETHUSDT"] as const).map((symbol: V17Symbol) => [symbol, metric(metricsFor(oos.trades.filter((trade) => trade.symbol === symbol)))])));
   const directions = { crowdedLongToShort: metric(metricsFor(oos.trades.filter((trade) => trade.crowdingSide === "CROWDED_LONG"))), crowdedShortToLong: metric(metricsFor(oos.trades.filter((trade) => trade.crowdingSide === "CROWDED_SHORT"))) };
   const placebos = { extremeFundingOnly: families.extremeFundingOnly, continuationDirection: families.continuationDirection, timeMatchedRandom: families.timeMatchedRandom, primaryImprovementOverExtremeFunding: oos.metrics.netR - (families.extremeFundingOnly.netR ?? 0) };

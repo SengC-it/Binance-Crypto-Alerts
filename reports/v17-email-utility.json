@@ -1,6 +1,10 @@
 {
-  "status": "NOT_RUN",
-  "reason": "DATA_GATE_FAIL: markSettlementCoverage, pit180dFundingHistory",
-  "historicalReturnsRead": false,
-  "metrics": null
+  "status": "COMPLETE",
+  "historicalReturnsRead": true,
+  "metrics": {
+    "meanPerMonth": 20.833333333333332,
+    "medianPerMonth": 18,
+    "activeMonthRatio": 1,
+    "maxDroughtDays": 47.333333333333336
+  }
 }

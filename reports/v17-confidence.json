@@ -1,6 +1,12 @@
 {
-  "status": "NOT_RUN",
-  "reason": "DATA_GATE_FAIL: markSettlementCoverage, pit180dFundingHistory",
-  "historicalReturnsRead": false,
-  "metrics": null
+  "status": "COMPLETE",
+  "historicalReturnsRead": true,
+  "metrics": {
+    "average": -0.23510157047687183,
+    "ci95": [
+      -0.3050888273630936,
+      -0.16762288789292815
+    ],
+    "lcb95": -0.3050888273630936
+  }
 }
