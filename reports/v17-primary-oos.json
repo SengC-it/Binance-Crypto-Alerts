@@ -1,0 +1,26 @@
+{
+  "status": "COMPLETE",
+  "historicalReturnsRead": true,
+  "metrics": {
+    "trades": 750,
+    "wins": 276,
+    "losses": 474,
+    "winRate": 0.368,
+    "grossR": 12.948792816074432,
+    "feesR": 126.18331378248553,
+    "slippageR": 63.09165689124276,
+    "fundingR": 0,
+    "netR": -176.32617785765387,
+    "netPnL": -17632.617785765422,
+    "avgR": -0.23510157047687183,
+    "PF": 0.6769943177138174,
+    "maxDD": 189.73904282096134,
+    "CVaR95": -1.9071698479395227,
+    "stress5bps": -255.1907489717074,
+    "stress10bps": -334.05532008576125,
+    "stress20bps": -491.78446231386806,
+    "signalsEvaluated": 2674,
+    "rawTriggers": 2674,
+    "rejectedSignals": 1924
+  }
+}

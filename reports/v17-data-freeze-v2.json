@@ -1,0 +1,86 @@
+{
+  "schema": "v17-data-freeze-v2",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v17-crowding-failed-continuation",
+  "status": "FROZEN_BEFORE_RETURNS",
+  "historicalReturnsRead": false,
+  "lineage": {
+    "productionBaseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+    "originalFreezeCommit": "c09e462330788c5f3e290a86d7fa6c02e9431c5b",
+    "originalFreezeManifestSha256": "5b438583ae859f972c5b0c81b295bb4432a1e717ce321151f79fbbbc095e1b8a",
+    "parserCorrectnessCommit": "bb3a189eec29df9f2ef8c3820454c6630f1ccd03",
+    "priorDataGateResultCommit": "1045caee352321eab2f18f41e3be40970465de30"
+  },
+  "source": {
+    "provider": "Binance Data Vision",
+    "officialOnly": true,
+    "noSyntheticData": true,
+    "noForwardFill": true,
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2026-07-31T23:59:59.999Z",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "inventorySha256": "6573bc1b9ea0e50146ee4b7313f9991dccdd91fb08b1bb6fbb4781360c115997",
+    "cacheManifestSha256": "a410d9246a2040ab47aaf4264b1c501e5446fcf7398704eb05fde8f9333fb6ad",
+    "parserReportSha256": "cb23c576f4246b8dcf8ec84d5564ed545caa9b04e5a7f4610f8c8c8349148f4f"
+  },
+  "alphaDefinitionsUnchanged": true,
+  "parameters": {
+    "fundingLookbackDays": 180,
+    "minimumFundingHistoryDays": 90,
+    "fundingQuantiles": {
+      "long": 0.9,
+      "short": 0.1
+    },
+    "preReturnHours": 8,
+    "continuationMinutes": 30,
+    "continuationQuantile": 0.5,
+    "atrPeriod": 14,
+    "stopAtr": 1.5,
+    "rewardRisk": 2,
+    "maxHoldHours": 6,
+    "takerFeeBpsPerSide": 4,
+    "baseSlippageBpsPerSide": 2,
+    "stressRoundTripBps": [
+      5,
+      10,
+      20
+    ],
+    "manualDelayMinutes": [
+      5,
+      15,
+      30
+    ]
+  },
+  "semantics": {
+    "fundingHistory": "funding rows in [F-180d,F); available span before F must be >=90d; future rows excluded",
+    "pitDenominator": "eligible evaluation events only; warmup and under-90d events reported separately",
+    "responseQ50": "prior 180d valid reference extreme events with funding/pre-return/post data by symbol and crowding side; current F excluded; current response gate does not define reference eligibility",
+    "priceAtFunding": "latest fully closed USD-M futures 15m close strictly before F; mark price is settlement-only",
+    "markSettlement": "only future funding rows in (entry,entry+6h] for theoretical candidates require marks; zero required settlements is valid"
+  },
+  "codeProvenance": {
+    "engineSha256": "fa7fdd6bcb21f3fd66840c783e4508bb76b09c7dbda59934ead8f8b82d023341",
+    "preReturnAssessmentSha256": "a56074b61b6e391be70392f41875eaadf1149b3bb995bb27704a0040d76c215e",
+    "parameterSha256": "84c2839f6f818aa9035ff39d769135f07d1454214353f9abf6c801cd88a76853"
+  },
+  "gates": {
+    "noArchiveChanges": true,
+    "noParameterSearch": true,
+    "noHistoricalReturnsRead": true,
+    "preReturnOnly": true
+  },
+  "boundaries": {
+    "productionChanged": "NO",
+    "productionEmail": "OFF",
+    "deploy": "NO",
+    "merge": "NO",
+    "migration": "NO",
+    "autoTrading": "NO",
+    "privateBinanceApi": "NO",
+    "orderPlacement": "NO"
+  },
+  "manifestSha256": "74dac9053dfebcd689de166e4400cea526ae39b8a5441c88cc0f1ed6d58d85c0"
+}

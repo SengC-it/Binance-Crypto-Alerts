@@ -1,0 +1,22 @@
+{
+  "status": "COMPLETE",
+  "historicalReturnsRead": true,
+  "metrics": {
+    "1h": {
+      "observations": 750,
+      "averageDirectionalReturn": 0.0031438342343900845
+    },
+    "2h": {
+      "observations": 750,
+      "averageDirectionalReturn": 0.0031879733425212494
+    },
+    "4h": {
+      "observations": 750,
+      "averageDirectionalReturn": 0.0028646414541167583
+    },
+    "6h": {
+      "observations": 750,
+      "averageDirectionalReturn": 0.003191064359168239
+    }
+  }
+}

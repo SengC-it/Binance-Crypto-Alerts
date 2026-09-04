@@ -1,0 +1,8 @@
+{
+  "schema": "v17-promotion-decision-v1",
+  "classification": "V17_CROWDING_FAILED_CONTINUATION_REJECTED",
+  "dataGate": "PASS",
+  "historicalReturnsRead": true,
+  "emailPromotionCandidate": "FAIL",
+  "researchStop": "YES"
+}

@@ -1,0 +1,10 @@
+{
+  "status": "COMPLETE",
+  "historicalReturnsRead": true,
+  "metrics": {
+    "meanPerMonth": 20.833333333333332,
+    "medianPerMonth": 18,
+    "activeMonthRatio": 1,
+    "maxDroughtDays": 47.333333333333336
+  }
+}
