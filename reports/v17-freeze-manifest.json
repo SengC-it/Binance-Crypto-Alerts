@@ -28,13 +28,13 @@
     "archiveInventory": "complete deterministic symbol/month/dataset enumeration",
     "checksumPolicy": "every used ZIP must match its official .CHECKSUM before first write",
     "inventorySha256": "6573bc1b9ea0e50146ee4b7313f9991dccdd91fb08b1bb6fbb4781360c115997",
-    "cacheManifestSha256": "ca3a03f07cb636e0b2550b54f704fe521fff0ae7267cf16d41dcbcfc0484b5cd",
-    "parserReportSha256": "dfa356009f2826159fe6c4aa2ba94839cf6e8f12ea4e851f6cab59981c0b5caf",
+    "cacheManifestSha256": "a410d9246a2040ab47aaf4264b1c501e5446fcf7398704eb05fde8f9333fb6ad",
+    "parserReportSha256": "cb23c576f4246b8dcf8ec84d5564ed545caa9b04e5a7f4610f8c8c8349148f4f",
     "inventorySlots": 536,
     "inventoryChecksumListed": 536,
     "cacheSealed": true,
     "checksumVerifiedSlots": 536,
-    "parseComplete": false
+    "parseComplete": true
   },
   "signal": {
     "fundingClock": "actual fundingRate timestamp; never rounded to 00/08/16 UTC",
@@ -182,5 +182,5 @@
     "privateBinanceApi": "NO",
     "orderPlacement": "NO"
   },
-  "manifestSha256": "5b438583ae859f972c5b0c81b295bb4432a1e717ce321151f79fbbbc095e1b8a"
+  "manifestSha256": "1e84e8d5757e599febab90a765d547ff4e96cf9f05ca152e657a95f27f7740fb"
 }

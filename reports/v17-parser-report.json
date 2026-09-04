@@ -34,7 +34,7 @@
       "funding": {
         "rows": 6114,
         "validRows": 6114,
-        "invalidRows": 67,
+        "invalidRows": 0,
         "timestampMonotonic": true,
         "duplicateTimestamps": 0,
         "firstTimestamp": 1609459200002,
@@ -67,7 +67,7 @@
       "funding": {
         "rows": 6114,
         "validRows": 6114,
-        "invalidRows": 67,
+        "invalidRows": 0,
         "timestampMonotonic": true,
         "duplicateTimestamps": 0,
         "firstTimestamp": 1609459200002,
@@ -110,7 +110,7 @@
   "archiveSlots": {
     "expected": 536,
     "checksumVerified": 536,
-    "parseComplete": false
+    "parseComplete": true
   },
-  "generatedAt": "2026-09-04T14:09:28.374Z"
+  "generatedAt": "2026-09-04T14:20:00.341Z"
 }

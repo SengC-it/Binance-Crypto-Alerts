@@ -226,6 +226,7 @@ export function parseFundingArchive(buffer: Buffer): { rows: V17FundingPoint[]; 
   const parsed: V17FundingPoint[] = [];
   let invalidRows = 0;
   for (const fields of rows(buffer)) {
+    if (fields[0]?.trim().toLowerCase() === "calc_time") continue;
     const timestamp = numberAt(fields, 0);
     const fundingRate = numberAt(fields, 2);
     if (timestamp === null || fundingRate === null || timestamp <= 0) {
@@ -430,7 +431,7 @@ export async function parseMaterializedArchives(manifest: V17CacheManifest): Pro
   const bySymbol = {} as Record<V17Symbol, V17ParserSymbolReport>;
   for (const symbol of V17_SYMBOLS) bySymbol[symbol] = { candles15m: { expectedRows: 0, validRows: 0, coverage: 0, duplicateOpenTimes: 0, nonMonotonicOpenTimes: 0, cadencePass: true }, candles1h: { expectedRows: 0, validRows: 0, coverage: 0, duplicateOpenTimes: 0, nonMonotonicOpenTimes: 0, cadencePass: true }, marks5m: { validRows: 0, duplicateOpenTimes: 0, nonMonotonicOpenTimes: 0, cadencePass: true }, funding: { rows: 0, validRows: 0, invalidRows: 0, timestampMonotonic: true, duplicateTimestamps: 0, firstTimestamp: null, lastTimestamp: null } };
   for (const record of manifest.records) {
-    if (record.status !== "CHECKSUM_VERIFIED") continue;
+    if (record.status !== "CHECKSUM_VERIFIED" && record.status !== "PARSED") continue;
     const parsed = parseArchive(await readFile(resolve(record.cachePath)), record.dataset);
     const data = datasets[record.symbol];
     if (record.dataset === "fundingRate") data.funding.push(...(parsed.funding ?? []));
