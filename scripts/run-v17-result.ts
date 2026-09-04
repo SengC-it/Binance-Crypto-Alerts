@@ -4,8 +4,8 @@ import { parseMaterializedArchives, readJson, V17_BASELINE, V17_BRANCH, V17_END,
 import { buildSignalEvents, metricsFor, runDelayMatrix, runEngine, type V17Metrics, type V17SignalEvent, type V17Trade } from "../lib/v17/engine";
 
 const REPORT_DIR = resolve("reports");
-const FREEZE_PATH = resolve(REPORT_DIR, "v17-freeze-manifest.json");
-const GATE_PATH = resolve(REPORT_DIR, "v17-data-gate.json");
+const FREEZE_PATH = resolve(REPORT_DIR, "v17-data-freeze-v2.json");
+const GATE_PATH = resolve(REPORT_DIR, "v17-data-gate-v2.json");
 const RESULT_NAMES = ["v17-primary-oos.json", "v17-yearly.json", "v17-holdouts.json", "v17-instrument-sides.json", "v17-directions.json", "v17-placebos.json", "v17-cost.json", "v17-manual-delay.json", "v17-fixed-horizon.json", "v17-confidence.json", "v17-email-utility.json"];
 
 async function writeJson(name: string, value: unknown): Promise<void> { await mkdir(REPORT_DIR, { recursive: true }); await writeFile(resolve(REPORT_DIR, name), `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
@@ -92,7 +92,7 @@ async function writeFailClosed(freeze: Record<string, unknown>, gate: Record<str
 async function main(): Promise<void> {
   const freeze = await readJson<Record<string, unknown>>(FREEZE_PATH);
   const gate = await readJson<Record<string, unknown>>(GATE_PATH);
-  if (freeze.baseline !== V17_BASELINE || freeze.branch !== V17_BRANCH || freeze.historicalReturnsRead !== false) throw new Error("V17 freeze provenance invalid");
+  if (freeze.baseline !== V17_BASELINE || freeze.branch !== V17_BRANCH || freeze.schema !== "v17-data-freeze-v2" || freeze.status !== "FROZEN_BEFORE_RETURNS" || freeze.historicalReturnsRead !== false) throw new Error("V17 data freeze v2 provenance invalid");
   if (gate.status === "FAIL") {
     await writeFailClosed(freeze, gate);
     console.info(JSON.stringify({ phase: "v17-result", status: "NOT_RUN", classification: "V17_DATA_INSUFFICIENT_FINAL", historicalReturnsRead: false }));

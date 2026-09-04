@@ -32,6 +32,8 @@ export interface V17SignalEvent {
   postReturn30m: number;
   continuationResponse: number;
   responseQ50: number | null;
+  referenceEligible: boolean;
+  priceSource: "USD_M_FUTURES_15M_CLOSED_CLOSE";
   primaryEligible: boolean;
   rejectionReason: string | null;
 }
@@ -130,8 +132,21 @@ export function quantile(values: number[], probability: number): number | null {
   return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower);
 }
 
-function priorWindow(points: V17FundingPoint[], timestamp: number): V17FundingPoint[] {
-  return points.filter((point) => point.timestamp < timestamp && point.timestamp >= timestamp - V17_PARAMETERS.fundingLookbackDays * 86_400_000);
+export function fundingHistoryBefore(points: V17FundingPoint[], timestamp: number): V17FundingPoint[] {
+  return points.filter((point) => point.timestamp < timestamp && point.timestamp >= timestamp - V17_PARAMETERS.fundingLookbackDays * 86_400_000).sort((left, right) => left.timestamp - right.timestamp);
+}
+
+export function fundingHistorySpanDays(points: V17FundingPoint[], timestamp: number): number {
+  const history = fundingHistoryBefore(points, timestamp);
+  return history.length ? (timestamp - history[0].timestamp) / 86_400_000 : 0;
+}
+
+export function hasMinimumFundingHistory(points: V17FundingPoint[], timestamp: number): boolean {
+  return fundingHistorySpanDays(points, timestamp) >= V17_PARAMETERS.minimumFundingHistoryDays;
+}
+
+export function responseQ50FromReferences(references: Array<{ timestamp: number; response: number }>, timestamp: number): number | null {
+  return quantile(references.filter((reference) => reference.timestamp < timestamp && reference.timestamp >= timestamp - V17_PARAMETERS.fundingLookbackDays * 86_400_000).map((reference) => reference.response), V17_PARAMETERS.continuationQuantile);
 }
 
 function markAt(marks: V17Candle[], timestamp: number): number | null {
@@ -140,19 +155,23 @@ function markAt(marks: V17Candle[], timestamp: number): number | null {
   return bar && timestamp <= bar.closeTime ? bar.open : null;
 }
 
-function closedAtOrBefore(candles: V17Candle[], timestamp: number): V17Candle | null {
-  const index = upperBound(candles, timestamp, (bar) => bar.closeTime) - 1;
+export function latestClosedCandleBefore(candles: V17Candle[], timestamp: number): V17Candle | null {
+  const index = upperBound(candles, timestamp - 1, (bar) => bar.closeTime) - 1;
   return index >= 0 ? candles[index] : null;
 }
 
-function preReturn8h(candles: V17Candle[], timestamp: number): number | null {
-  const current = closedAtOrBefore(candles, timestamp - 1);
-  const prior = closedAtOrBefore(candles, timestamp - V17_PARAMETERS.preReturnHours * 3_600_000);
+export function priceAtFunding(candles: V17Candle[], timestamp: number): number | null {
+  return latestClosedCandleBefore(candles, timestamp)?.close ?? null;
+}
+
+export function preReturn8h(candles: V17Candle[], timestamp: number): number | null {
+  const current = latestClosedCandleBefore(candles, timestamp);
+  const prior = latestClosedCandleBefore(candles, timestamp - V17_PARAMETERS.preReturnHours * 3_600_000 + 1);
   if (!current || !prior || prior.close <= 0) return null;
   return current.close / prior.close - 1;
 }
 
-function postReturn30m(candles: V17Candle[], fundingTimestamp: number, priceAtFunding: number): number | null {
+export function postReturn30m(candles: V17Candle[], fundingTimestamp: number, priceAtFunding: number): number | null {
   const decisionTime = fundingDecisionTime(fundingTimestamp);
   const start = Math.floor(fundingTimestamp / (15 * 60_000)) * (15 * 60_000);
   const first = lowerBound(candles, start, (bar) => bar.openTime);
@@ -162,43 +181,41 @@ function postReturn30m(candles: V17Candle[], fundingTimestamp: number, priceAtFu
   return second.close / priceAtFunding - 1;
 }
 
-function responseHistory(events: V17SignalEvent[], symbol: V17Symbol, side: CrowdingSide, timestamp: number): number[] {
-  return events.filter((event) => event.symbol === symbol && event.crowdingSide === side && event.fundingTimestamp < timestamp && event.fundingTimestamp >= timestamp - V17_PARAMETERS.fundingLookbackDays * 86_400_000 && event.rejectionReason === null).map((event) => event.continuationResponse);
-}
-
 export function buildSignalEvents(datasets: V17ParsedDatasets): V17SignalEvent[] {
   const events: V17SignalEvent[] = [];
   for (const symbol of ["BTCUSDT", "ETHUSDT"] as const) {
     const data = datasets[symbol];
+    const referenceResponses: Record<CrowdingSide, Array<{ timestamp: number; response: number }>> = { CROWDED_LONG: [], CROWDED_SHORT: [] };
     for (const funding of data.funding) {
-      const history = priorWindow(data.funding, funding.timestamp);
-      if (!history.length || history[history.length - 1].timestamp > funding.timestamp - V17_PARAMETERS.minimumFundingHistoryDays * 86_400_000) continue;
+      const history = fundingHistoryBefore(data.funding, funding.timestamp);
+      if (!hasMinimumFundingHistory(data.funding, funding.timestamp)) continue;
       const q90 = quantile(history.map((point) => point.fundingRate), V17_PARAMETERS.fundingQuantiles.long);
       const q10 = quantile(history.map((point) => point.fundingRate), V17_PARAMETERS.fundingQuantiles.short);
       const crowdingSide: CrowdingSide | null = q90 !== null && funding.fundingRate >= q90 ? "CROWDED_LONG" : q10 !== null && funding.fundingRate <= q10 ? "CROWDED_SHORT" : null;
       if (!crowdingSide) continue;
       const directionSign = crowdingSide === "CROWDED_LONG" ? 1 : -1;
       const impulse = preReturn8h(data.candles15m, funding.timestamp);
-      const mark = markAt(data.marks5m, funding.timestamp);
-      const post = mark === null ? null : postReturn30m(data.candles15m, funding.timestamp, mark);
+      const price = priceAtFunding(data.candles15m, funding.timestamp);
+      const post = price === null ? null : postReturn30m(data.candles15m, funding.timestamp, price);
       const response = post === null ? null : directionSign * post;
-      const previous = responseHistory(events, symbol, crowdingSide, funding.timestamp);
-      const responseQ50 = quantile(previous, V17_PARAMETERS.continuationQuantile);
+      const responseQ50 = responseQ50FromReferences(referenceResponses[crowdingSide], funding.timestamp);
+      const referenceEligible = impulse !== null && price !== null && post !== null && response !== null;
       let rejectionReason: string | null = null;
       if (impulse === null) rejectionReason = "PRE_RETURN_8H_UNAVAILABLE";
       else if ((crowdingSide === "CROWDED_LONG" && impulse <= 0) || (crowdingSide === "CROWDED_SHORT" && impulse >= 0)) rejectionReason = "FUNDING_PRICE_DIRECTION_MISMATCH";
-      else if (mark === null) rejectionReason = "FUNDING_MARK_UNAVAILABLE";
+      else if (price === null) rejectionReason = "FUNDING_PRICE_UNAVAILABLE";
       else if (post === null || response === null) rejectionReason = "POST_FUNDING_30M_UNAVAILABLE";
       else if (responseQ50 === null) rejectionReason = "CONTINUATION_HISTORY_UNAVAILABLE";
       else if (response > responseQ50) rejectionReason = "CONTINUATION_NOT_FAILED";
-      const event: V17SignalEvent = { symbol, fundingTimestamp: funding.timestamp, fundingRate: funding.fundingRate, crowdingSide, direction: crowdingSide === "CROWDED_LONG" ? -1 : 1, preReturn8h: impulse ?? Number.NaN, priceAtFunding: mark ?? Number.NaN, decisionTime: fundingDecisionTime(funding.timestamp), postReturn30m: post ?? Number.NaN, continuationResponse: response ?? Number.NaN, responseQ50, primaryEligible: rejectionReason === null, rejectionReason };
+      const event: V17SignalEvent = { symbol, fundingTimestamp: funding.timestamp, fundingRate: funding.fundingRate, crowdingSide, direction: crowdingSide === "CROWDED_LONG" ? -1 : 1, preReturn8h: impulse ?? Number.NaN, priceAtFunding: price ?? Number.NaN, decisionTime: fundingDecisionTime(funding.timestamp), postReturn30m: post ?? Number.NaN, continuationResponse: response ?? Number.NaN, responseQ50, referenceEligible, priceSource: "USD_M_FUTURES_15M_CLOSED_CLOSE", primaryEligible: rejectionReason === null, rejectionReason };
       events.push(event);
+      if (referenceEligible) referenceResponses[crowdingSide].push({ timestamp: funding.timestamp, response: response as number });
     }
   }
   return events.sort((left, right) => left.fundingTimestamp - right.fundingTimestamp || left.symbol.localeCompare(right.symbol));
 }
 
-function atrAt(candles: V17Candle[], entryIndex: number): number | null {
+export function atrAt(candles: V17Candle[], entryIndex: number): number | null {
   if (entryIndex < V17_PARAMETERS.atrPeriod + 1) return null;
   const ranges: number[] = [];
   for (let index = entryIndex - V17_PARAMETERS.atrPeriod; index < entryIndex; index += 1) {

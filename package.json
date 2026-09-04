@@ -18,7 +18,9 @@
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
     "v17:prepare": "tsx scripts/prepare-v17-data.ts",
     "v17:freeze": "tsx scripts/create-v17-freeze.ts",
+    "v17:freeze:v2": "tsx scripts/create-v17-data-freeze-v2.ts",
     "v17:data-gate": "tsx scripts/finalize-v17-data-gate.ts",
+    "v17:data-gate:v2": "tsx scripts/finalize-v17-data-gate-v2.ts",
     "v17:result": "tsx scripts/run-v17-result.ts",
     "validate:v17:artifact": "tsx scripts/validate-v17-artifact.ts"
   },
