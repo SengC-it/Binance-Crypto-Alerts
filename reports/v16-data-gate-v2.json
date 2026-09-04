@@ -17,7 +17,7 @@
   },
   "parserReport": {
     "path": "data/raw/v16-aggtrade-absorption/parser-report.json",
-    "sha256": "6e61f77a75b6b708c544ca1dba6daec496855c76f88f200d61b33d8793baf907"
+    "sha256": "42364fffb5682944f733ccf7eee4407ef0d9427d30a60fd157774f5d2e5a3680"
   },
   "source": {
     "provider": "Binance Data Vision",

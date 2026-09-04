@@ -1,9 +1,7 @@
-import { createHash } from "node:crypto";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   loadCacheManifest,
-  sha256File,
   V16_PARSER_REPORT,
   type ParserReport,
 } from "../lib/v16/data-engine";
@@ -17,6 +15,7 @@ import {
   type V16CoverageInput,
   type V16Symbol,
 } from "../lib/v16/data-gate";
+import { canonicalTextSha256, canonicalizeText } from "../lib/v16/provenance";
 
 const REPORT_DIR = resolve("reports");
 const DATA_ROOT = resolve("data/raw/v16-aggtrade-absorption");
@@ -95,6 +94,16 @@ async function readJson(path: string): Promise<JsonRecord> {
   return JSON.parse(await readFile(path, "utf8")) as JsonRecord;
 }
 
+async function canonicalTextFileHash(path: string): Promise<string> {
+  return canonicalTextSha256(await readFile(path, "utf8"));
+}
+
+async function writeNormalizedSnapshot(sourcePath: string, destinationPath: string): Promise<string> {
+  const normalized = canonicalizeText(await readFile(sourcePath, "utf8"));
+  await writeFile(destinationPath, normalized, "utf8");
+  return canonicalTextSha256(normalized);
+}
+
 async function writeNoResultArtifacts(gate: JsonRecord, freeze: JsonRecord, inventoryHash: string, parserHash: string): Promise<void> {
   const reasons = asArray(gate.reasons).map(String);
   const reason = `DATA_GATE_FAIL: ${reasons.join(", ")}`;
@@ -106,7 +115,7 @@ async function writeNoResultArtifacts(gate: JsonRecord, freeze: JsonRecord, inve
     baseline: V16_BASELINE,
     branch: V16_BRANCH,
     freezeSha256: freeze.manifestSha256,
-    dataFreezeV2Sha256: await sha256File(DATA_FREEZE_PATH),
+    dataFreezeV2Sha256: await canonicalTextFileHash(DATA_FREEZE_PATH),
     dataInventorySha256: inventoryHash,
     parserReportSha256: parserHash,
     dataGate: gate.status,
@@ -136,9 +145,9 @@ async function writeNoResultArtifacts(gate: JsonRecord, freeze: JsonRecord, inve
   const artifactNames = ["v16-freeze-manifest.json", "v16-data-freeze-v2.json", "v16-data-inventory.json", "v16-official-inventory.json", "v16-cache-manifest.json", "v16-parser-report.json", "v16-data-gate.json", "v16-data-gate-v2.json", ...resultNames, "v16-validation-summary.json", "v16-promotion-decision.json", "v16-promotion-decision.md"];
   const artifacts: JsonRecord = {};
   for (const name of artifactNames) {
-    try { artifacts[name] = await sha256File(resolve(REPORT_DIR, name)); } catch { artifacts[name] = null; }
+    try { artifacts[name] = await canonicalTextFileHash(resolve(REPORT_DIR, name)); } catch { artifacts[name] = null; }
   }
-  await writeJson("v16-evidence-manifest.json", { schema: "v16-evidence-manifest-v2", baseline: V16_BASELINE, branch: V16_BRANCH, originalFreezeSha256: freeze.manifestSha256, dataFreezeV2Sha256: await sha256File(DATA_FREEZE_PATH), dataInventorySha256: inventoryHash, parserReportSha256: parserHash, dataGateSha256: await sha256File(resolve(REPORT_DIR, "v16-data-gate-v2.json")), resultCommit: null, historicalReturnsRead: false, artifacts });
+  await writeJson("v16-evidence-manifest.json", { schema: "v16-evidence-manifest-v2", baseline: V16_BASELINE, branch: V16_BRANCH, originalFreezeSha256: freeze.manifestSha256, dataFreezeV2Sha256: await canonicalTextFileHash(DATA_FREEZE_PATH), dataInventorySha256: inventoryHash, parserReportSha256: parserHash, dataGateSha256: await canonicalTextFileHash(resolve(REPORT_DIR, "v16-data-gate-v2.json")), resultCommit: null, historicalReturnsRead: false, artifacts });
 }
 
 async function main(): Promise<void> {
@@ -149,8 +158,8 @@ async function main(): Promise<void> {
   const inventory = await readJson(INVENTORY_PATH);
   const parser = await readJson(V16_PARSER_REPORT) as unknown as ParserReport;
   const cache = await loadCacheManifest();
-  const inventoryHash = await sha256File(INVENTORY_PATH);
-  const parserHash = await sha256File(V16_PARSER_REPORT);
+  const inventoryHash = await canonicalTextFileHash(INVENTORY_PATH);
+  const parserHash = await canonicalTextFileHash(V16_PARSER_REPORT);
   const availableRecords = asArray(inventory.records).map(asRecord).filter((record) => record.availability !== "OFFICIAL_UNAVAILABLE");
   const verifiedRecords = cache.records.filter((record) => record.status === "CHECKSUM_VERIFIED" && record.checksumVerified && record.actualSha256 === record.expectedSha256);
   const input: V16CoverageInput = {
@@ -179,7 +188,7 @@ async function main(): Promise<void> {
     baseline: V16_BASELINE,
     branch: V16_BRANCH,
     originalFreeze: { commit: "da77ba6c83e9066658d331972353d05b8341c152", manifestSha256: freeze.manifestSha256 },
-    dataFreezeV2: { path: "reports/v16-data-freeze-v2.json", sha256: await sha256File(DATA_FREEZE_PATH) },
+    dataFreezeV2: { path: "reports/v16-data-freeze-v2.json", sha256: await canonicalTextFileHash(DATA_FREEZE_PATH) },
     dataInventory: { path: "data/raw/v16-aggtrade-absorption/official-inventory.json", sha256: inventoryHash },
     parserReport: { path: "data/raw/v16-aggtrade-absorption/parser-report.json", sha256: parserHash },
     source: { provider: "Binance Data Vision", officialOnly: true, instruments: [...V16_SYMBOLS], start: V16_START, end: V16_END, noThirdPartyPriceData: true, noV15Substitute: true },
@@ -197,10 +206,10 @@ async function main(): Promise<void> {
   await writeJson("v16-data-inventory-v2.json", await readJson(resolve(REPORT_DIR, "v16-data-inventory.json")));
   await copyFile(INVENTORY_PATH, resolve(REPORT_DIR, "v16-official-inventory.json"));
   await copyFile(resolve(DATA_ROOT, "manifest.json"), resolve(REPORT_DIR, "v16-cache-manifest.json"));
-  await copyFile(V16_PARSER_REPORT, resolve(REPORT_DIR, "v16-parser-report.json"));
+  await writeNormalizedSnapshot(V16_PARSER_REPORT, resolve(REPORT_DIR, "v16-parser-report.json"));
   await writeJson("v16-data-gate.json", gate);
   await writeJson("v16-data-gate-v2.json", gate);
-  if (gateResult.status === "FAIL") await writeNoResultArtifacts(gate, freeze, await sha256File(resolve(REPORT_DIR, "v16-data-inventory.json")), parserHash);
+  if (gateResult.status === "FAIL") await writeNoResultArtifacts(gate, freeze, await canonicalTextFileHash(resolve(REPORT_DIR, "v16-data-inventory.json")), parserHash);
   console.info(JSON.stringify({ phase: "v16-data-gate-v2", status: gateResult.status, classification: gateResult.classification, reasons: gateResult.reasons, archive: gate.archiveInventory, coverage: input, historicalReturnsRead: false }));
 }
 

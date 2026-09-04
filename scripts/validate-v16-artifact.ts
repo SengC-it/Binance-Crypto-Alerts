@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { sha256File } from "../lib/v16/data-engine";
+import { canonicalTextSha256 } from "../lib/v16/provenance";
 
 const REPORT_DIR = resolve("reports");
 const DATA_ROOT = resolve("data/raw/v16-aggtrade-absorption");
@@ -31,6 +31,10 @@ async function readEvidenceJson(primaryPath: string, snapshotPath: string, label
       fail(`${label} is unavailable in the local cache and no tracked evidence snapshot exists`);
     }
   }
+}
+
+async function normalizedFileHash(path: string): Promise<string> {
+  return canonicalTextSha256(await readFile(path, "utf8"));
 }
 
 function fail(message: string): never {
@@ -65,7 +69,7 @@ async function main(): Promise<void> {
 
   const dataFreeze = await readJson(resolve(REPORT_DIR, "v16-data-freeze-v2.json"));
   const dataFreezeHash = dataFreeze.manifestSha256;
-  const dataFreezeFileHash = await sha256File(resolve(REPORT_DIR, "v16-data-freeze-v2.json"));
+  const dataFreezeFileHash = await normalizedFileHash(resolve(REPORT_DIR, "v16-data-freeze-v2.json"));
   const dataFreezeBody = { ...dataFreeze };
   delete dataFreezeBody.manifestSha256;
   expect(typeof dataFreezeHash === "string" && dataFreezeHash === hash(JSON.stringify(dataFreezeBody)), "data Freeze v2 SHA-256 mismatch");
@@ -77,7 +81,7 @@ async function main(): Promise<void> {
 
   const inventoryEvidence = await readEvidenceJson(resolve(DATA_ROOT, "official-inventory.json"), resolve(REPORT_DIR, "v16-official-inventory.json"), "official inventory");
   const inventory = inventoryEvidence.value;
-  const inventoryHash = await sha256File(inventoryEvidence.path);
+  const inventoryHash = await normalizedFileHash(inventoryEvidence.path);
   expect(inventory.schema === "v16-official-inventory-v1" && inventory.provider === "Binance Data Vision" && inventory.officialOnly === true, "official inventory identity drift");
   expect(inventory.expectedSlots === 670 && typeof inventory.enumerationSha256 === "string" && inventory.enumerationComplete === true, "official inventory completeness drift");
   const inventoryRecords = asArray(inventory.records, "official inventory records").map((value) => asRecord(value, "official inventory record"));
@@ -85,7 +89,7 @@ async function main(): Promise<void> {
 
   const cacheEvidence = await readEvidenceJson(resolve(DATA_ROOT, "manifest.json"), resolve(REPORT_DIR, "v16-cache-manifest.json"), "cache manifest");
   const cache = cacheEvidence.value;
-  const cacheHash = await sha256File(cacheEvidence.path);
+  const cacheHash = await normalizedFileHash(cacheEvidence.path);
   expect(cache.schema === "v16-cache-manifest-v2" && cache.enumerationSha256 === inventory.enumerationSha256 && cache.sealed === true, "cache manifest provenance drift");
   const cacheRecords = asArray(cache.records, "cache records").map((value) => asRecord(value, "cache record"));
   expect(cacheRecords.length === inventoryRecords.length, "cache record count drift");
@@ -96,7 +100,7 @@ async function main(): Promise<void> {
 
   const parserEvidence = await readEvidenceJson(resolve(DATA_ROOT, "parser-report.json"), resolve(REPORT_DIR, "v16-parser-report.json"), "parser report");
   const parser = parserEvidence.value;
-  const parserHash = await sha256File(parserEvidence.path);
+  const parserHash = await normalizedFileHash(parserEvidence.path);
   expect(parser.schema === "v16-parser-report-v1", "parser report schema drift");
   const parserSource = asRecord(parser.source, "parser source");
   expect(parserSource.noSyntheticData === true && parserSource.noV15Substitute === true, "parser source substitution/synthetic-data boundary drift");
@@ -139,7 +143,7 @@ async function main(): Promise<void> {
   const artifacts = asRecord(evidence.artifacts, "evidence artifacts");
   for (const [name, expected] of Object.entries(artifacts)) {
     if (typeof expected !== "string") continue;
-    expect(expected === await sha256File(resolve(REPORT_DIR, name)), `evidence artifact hash mismatch: ${name}`);
+    expect(expected === await normalizedFileHash(resolve(REPORT_DIR, name)), `evidence artifact hash mismatch: ${name}`);
   }
   console.info(JSON.stringify({ artifact: "v16", status: "PASS", dataGate: gate.status, classification: gate.classification, verifiedArchives: verifiedRecords.length, historicalReturnsRead: false }));
 }
