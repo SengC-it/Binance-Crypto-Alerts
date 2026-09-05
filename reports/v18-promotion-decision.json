@@ -1,0 +1,54 @@
+{
+  "schema": "v18-promotion-decision-v1",
+  "freezeCommit": "c8b8c1e728079ce947e4b2314442a44d04d8ed90",
+  "freezeManifestBodySha256": "8c7353680ff085625fbbaad932d7064afb431448e759008bb0a809b4fc6c16d8",
+  "historicalReturnsRead": true,
+  "parameterSearch": false,
+  "boundaries": {
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "generatedAt": "2026-09-05T03:39:27.696Z",
+  "gateDefinition": {
+    "deOverlappedEventsMinimum": 300,
+    "buyAbsorbedMinimum": 100,
+    "sellAbsorbedMinimum": 100,
+    "primaryNetPositive": true,
+    "primaryPfAtLeast": 1.2,
+    "bootstrap95PercentLcbPositive": true,
+    "holdoutNetPositive": true,
+    "btcNetPositive": true,
+    "ethNetPositive": true,
+    "plus10BpsNetPositive": true,
+    "anyFailure": "V18_TAKER_FLOW_ABSORPTION_REJECTED"
+  },
+  "decision": {
+    "gates": {
+      "dataGatePass": true,
+      "deOverlappedEventsAtLeast300": true,
+      "buyAbsorbedAtLeast100": true,
+      "sellAbsorbedAtLeast100": true,
+      "primaryNetPositive": false,
+      "primaryProfitFactorAtLeast1_20": false,
+      "bootstrap95PercentLcbPositive": false,
+      "holdoutANetPositive": false,
+      "holdoutBNetPositive": false,
+      "btcNetPositive": false,
+      "ethNetPositive": false,
+      "plus10BpsNetPositive": false
+    },
+    "classification": "V18_TAKER_FLOW_ABSORPTION_REJECTED",
+    "promotion": false,
+    "researchStop": true
+  },
+  "controlMetricsAreExplanatoryOnly": true
+}

@@ -1,0 +1,107 @@
+{
+  "schema": "v18-controls-result-v1",
+  "freezeCommit": "c8b8c1e728079ce947e4b2314442a44d04d8ed90",
+  "freezeManifestBodySha256": "8c7353680ff085625fbbaad932d7064afb431448e759008bb0a809b4fc6c16d8",
+  "historicalReturnsRead": true,
+  "parameterSearch": false,
+  "boundaries": {
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "generatedAt": "2026-09-05T03:39:27.696Z",
+  "outcomeDefinition": {
+    "signal": "frozen closed 5m candle",
+    "entry": "next full 5m candle OPEN",
+    "exit": "close of the 5m candle ending exactly 60 minutes after entry",
+    "directionMapping": {
+      "BUY_FLOW_ABSORBED": "SHORT",
+      "SELL_FLOW_ABSORBED": "LONG"
+    },
+    "noIntrabarOptimization": true,
+    "unavailableOutcome": "NO_60M_EXIT",
+    "eventCountRead": 301
+  },
+  "controls": {
+    "EXTREME_FLOW_ONLY": {
+      "frozen": true,
+      "identityDigestSha256": "043390e80b1aa2d5f6a8740927160da5691e505e2d203a09a649a29a7dee3bde",
+      "allEventCount": 10679,
+      "primary": {
+        "eventCount": 6442,
+        "outcomeCount": 6442,
+        "metrics": {
+          "trades": 6442,
+          "wins": 2715,
+          "losses": 3727,
+          "winRate": 0.42145296491772744,
+          "grossReturn": -0.028947039513207724,
+          "fees": 5.1536,
+          "slippage": 2.5768,
+          "netReturn": -7.759347039513214,
+          "averageNetReturnPerTrade": -0.0012044934864193129,
+          "profitFactor": 0.564268541307733,
+          "maxDrawdown": 7.769770643367764,
+          "cvar95": -0.01953949505386268
+        }
+      },
+      "selectionPurpose": "frozen explanatory control; not a promotion candidate"
+    },
+    "FLOW_CONTINUATION": {
+      "frozen": true,
+      "identityDigestSha256": "3bd98fc8f7e74536fa51ce6a65db301e95807093c2a3988e07f98c55e9c891e0",
+      "allEventCount": 10514,
+      "primary": {
+        "eventCount": 6384,
+        "outcomeCount": 6384,
+        "metrics": {
+          "trades": 6384,
+          "wins": 2130,
+          "losses": 4254,
+          "winRate": 0.33364661654135336,
+          "grossReturn": 0.0009041185419146664,
+          "fees": 5.107200000000001,
+          "slippage": 2.5536000000000003,
+          "netReturn": -7.659895881458086,
+          "averageNetReturnPerTrade": -0.0011998583774213794,
+          "profitFactor": 0.5836062670935219,
+          "maxDrawdown": 7.683860991702488,
+          "cvar95": -0.015056027038584913
+        }
+      },
+      "selectionPurpose": "frozen explanatory control; not a promotion candidate"
+    },
+    "TIME_MATCHED_RANDOM": {
+      "frozen": true,
+      "identityDigestSha256": "f40d9fd1d952d2ad225c8538b93e44043886c3284c8a04f6c27c67fe19b87eb3",
+      "allEventCount": 301,
+      "primary": {
+        "eventCount": 83,
+        "outcomeCount": 83,
+        "metrics": {
+          "trades": 83,
+          "wins": 21,
+          "losses": 62,
+          "winRate": 0.25301204819277107,
+          "grossReturn": -0.09154857726388103,
+          "fees": 0.0664,
+          "slippage": 0.0332,
+          "netReturn": -0.19114857726388101,
+          "averageNetReturnPerTrade": -0.0023029949067937473,
+          "profitFactor": 0.29091805250914154,
+          "maxDrawdown": 0.1939508694043462,
+          "cvar95": -0.01754659950648648
+        }
+      },
+      "selectionPurpose": "time-matched random side placebo"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "v18-parser-report-v1",
+  "source": {
+    "provider": "Binance Data Vision",
+    "officialOnly": true,
+    "dataset": "USD-M Futures monthly 5m klines",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "noSyntheticData": true,
+    "noForwardFill": true,
+    "noCurrentSurvivorUniverseExpansion": true
+  },
+  "bySymbol": {
+    "BTCUSDT": {
+      "expectedRows": 586944,
+      "validRows": 586944,
+      "coverage": 1,
+      "invalidRows": 0,
+      "duplicateOpenTimes": 0,
+      "nonMonotonicOpenTimes": 0,
+      "cadencePass": true,
+      "timestampRangePass": true,
+      "numericFieldPass": true,
+      "quoteVolumeNonPositiveRows": 66,
+      "takerBuyQuoteAboveQuoteRows": 0,
+      "takerBuyBaseAboveBaseRows": 0
+    },
+    "ETHUSDT": {
+      "expectedRows": 586944,
+      "validRows": 586944,
+      "coverage": 1,
+      "invalidRows": 0,
+      "duplicateOpenTimes": 0,
+      "nonMonotonicOpenTimes": 0,
+      "cadencePass": true,
+      "timestampRangePass": true,
+      "numericFieldPass": true,
+      "quoteVolumeNonPositiveRows": 47,
+      "takerBuyQuoteAboveQuoteRows": 0,
+      "takerBuyBaseAboveBaseRows": 0
+    }
+  },
+  "archiveSlots": {
+    "expected": 134,
+    "checksumVerified": 134,
+    "parsed": 134,
+    "parseComplete": true
+  },
+  "allChecksPassed": true,
+  "generatedAt": "2026-09-05T00:00:00.000Z"
+}

@@ -1,0 +1,193 @@
+{
+  "schema": "v18-primary-oos-result-v1",
+  "freezeCommit": "c8b8c1e728079ce947e4b2314442a44d04d8ed90",
+  "freezeManifestBodySha256": "8c7353680ff085625fbbaad932d7064afb431448e759008bb0a809b4fc6c16d8",
+  "historicalReturnsRead": true,
+  "parameterSearch": false,
+  "boundaries": {
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "generatedAt": "2026-09-05T03:39:27.696Z",
+  "window": {
+    "start": "2022-01-01T00:00:00.000Z",
+    "end": "2024-12-31T23:59:59.999Z"
+  },
+  "outcomeDefinition": {
+    "signal": "frozen closed 5m candle",
+    "entry": "next full 5m candle OPEN",
+    "exit": "close of the 5m candle ending exactly 60 minutes after entry",
+    "directionMapping": {
+      "BUY_FLOW_ABSORBED": "SHORT",
+      "SELL_FLOW_ABSORBED": "LONG"
+    },
+    "noIntrabarOptimization": true,
+    "unavailableOutcome": "NO_60M_EXIT",
+    "eventCountRead": 301
+  },
+  "primary": {
+    "eventCount": 83,
+    "outcomeCount": 83,
+    "unavailableCount": 0,
+    "unavailable": [],
+    "metrics": {
+      "trades": 83,
+      "wins": 23,
+      "losses": 60,
+      "winRate": 0.27710843373493976,
+      "grossReturn": -0.10463885590005856,
+      "fees": 0.0664,
+      "slippage": 0.0332,
+      "netReturn": -0.20423885590005855,
+      "averageNetReturnPerTrade": -0.002460709107229621,
+      "profitFactor": 0.2568972359542831,
+      "maxDrawdown": 0.21926894997158586,
+      "cvar95": -0.017686310564483387
+    }
+  },
+  "all": {
+    "eventCount": 301,
+    "outcomeCount": 301,
+    "unavailableCount": 0,
+    "unavailable": [],
+    "metrics": {
+      "trades": 301,
+      "wins": 104,
+      "losses": 197,
+      "winRate": 0.34551495016611294,
+      "grossReturn": -0.04868389595809888,
+      "fees": 0.24080000000000001,
+      "slippage": 0.12040000000000001,
+      "netReturn": -0.4098838959580988,
+      "averageNetReturnPerTrade": -0.0013617405181332186,
+      "profitFactor": 0.4893067566799041,
+      "maxDrawdown": 0.42893661779929837,
+      "cvar95": -0.01686532299969557
+    }
+  },
+  "nestedPurgedWalkForward": {
+    "method": "nested purged walk-forward reporting of the frozen rule; no parameters are learned or searched",
+    "primaryWindow": {
+      "start": "2022-01-01T00:00:00.000Z",
+      "end": "2024-12-31T23:59:59.999Z"
+    },
+    "purgeMinutes": 60,
+    "embargoMinutes": 60,
+    "innerValidation": "frozen-rule replay only; parameterSearch=false",
+    "folds": [
+      {
+        "name": "PRIMARY_2022",
+        "training": "2021 warmup only",
+        "test": "2022-01-01/2022-12-31",
+        "purgeMinutes": 60,
+        "embargoMinutes": 60,
+        "parameterSearch": false,
+        "metrics": {
+          "eventCount": 27,
+          "outcomeCount": 27,
+          "unavailableCount": 0,
+          "unavailable": [],
+          "metrics": {
+            "trades": 27,
+            "wins": 7,
+            "losses": 20,
+            "winRate": 0.25925925925925924,
+            "grossReturn": -0.007741403060405069,
+            "fees": 0.0216,
+            "slippage": 0.0108,
+            "netReturn": -0.04014140306040506,
+            "averageNetReturnPerTrade": -0.0014867186318668541,
+            "profitFactor": 0.3980100920139,
+            "maxDrawdown": 0.05236920499146719,
+            "cvar95": -0.009641535082133054
+          }
+        }
+      },
+      {
+        "name": "PRIMARY_2023",
+        "training": "prior years through 2022",
+        "test": "2023-01-01/2023-12-31",
+        "purgeMinutes": 60,
+        "embargoMinutes": 60,
+        "parameterSearch": false,
+        "metrics": {
+          "eventCount": 16,
+          "outcomeCount": 16,
+          "unavailableCount": 0,
+          "unavailable": [],
+          "metrics": {
+            "trades": 16,
+            "wins": 2,
+            "losses": 14,
+            "winRate": 0.125,
+            "grossReturn": -0.03785269216172261,
+            "fees": 0.0128,
+            "slippage": 0.0064,
+            "netReturn": -0.0570526921617226,
+            "averageNetReturnPerTrade": -0.0035657932601076627,
+            "profitFactor": 0.025658960481994158,
+            "maxDrawdown": 0.0570526921617226,
+            "cvar95": -0.011369115608538906
+          }
+        }
+      },
+      {
+        "name": "PRIMARY_2024",
+        "training": "prior years through 2023",
+        "test": "2024-01-01/2024-12-31",
+        "purgeMinutes": 60,
+        "embargoMinutes": 60,
+        "parameterSearch": false,
+        "metrics": {
+          "eventCount": 40,
+          "outcomeCount": 40,
+          "unavailableCount": 0,
+          "unavailable": [],
+          "metrics": {
+            "trades": 40,
+            "wins": 14,
+            "losses": 26,
+            "winRate": 0.35,
+            "grossReturn": -0.05904476067793091,
+            "fees": 0.032,
+            "slippage": 0.016,
+            "netReturn": -0.10704476067793088,
+            "averageNetReturnPerTrade": -0.002676119016948272,
+            "profitFactor": 0.28450654455280194,
+            "maxDrawdown": 0.11398380405735589,
+            "cvar95": -0.025893221289271167
+          }
+        }
+      }
+    ],
+    "aggregate": {
+      "eventCount": 83,
+      "outcomeCount": 83,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 83,
+        "wins": 23,
+        "losses": 60,
+        "winRate": 0.27710843373493976,
+        "grossReturn": -0.10463885590005856,
+        "fees": 0.0664,
+        "slippage": 0.0332,
+        "netReturn": -0.20423885590005855,
+        "averageNetReturnPerTrade": -0.002460709107229621,
+        "profitFactor": 0.2568972359542831,
+        "maxDrawdown": 0.21926894997158586,
+        "cvar95": -0.017686310564483387
+      }
+    }
+  }
+}

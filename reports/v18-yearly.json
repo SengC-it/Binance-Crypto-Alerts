@@ -1,0 +1,135 @@
+{
+  "schema": "v18-yearly-result-v1",
+  "freezeCommit": "c8b8c1e728079ce947e4b2314442a44d04d8ed90",
+  "freezeManifestBodySha256": "8c7353680ff085625fbbaad932d7064afb431448e759008bb0a809b4fc6c16d8",
+  "historicalReturnsRead": true,
+  "parameterSearch": false,
+  "boundaries": {
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "generatedAt": "2026-09-05T03:39:27.696Z",
+  "outcomeDefinition": {
+    "signal": "frozen closed 5m candle",
+    "entry": "next full 5m candle OPEN",
+    "exit": "close of the 5m candle ending exactly 60 minutes after entry",
+    "directionMapping": {
+      "BUY_FLOW_ABSORBED": "SHORT",
+      "SELL_FLOW_ABSORBED": "LONG"
+    },
+    "noIntrabarOptimization": true,
+    "unavailableOutcome": "NO_60M_EXIT",
+    "eventCountRead": 301
+  },
+  "years": {
+    "2022": {
+      "eventCount": 27,
+      "outcomeCount": 27,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 27,
+        "wins": 7,
+        "losses": 20,
+        "winRate": 0.25925925925925924,
+        "grossReturn": -0.007741403060405069,
+        "fees": 0.0216,
+        "slippage": 0.0108,
+        "netReturn": -0.04014140306040506,
+        "averageNetReturnPerTrade": -0.0014867186318668541,
+        "profitFactor": 0.3980100920139,
+        "maxDrawdown": 0.05236920499146719,
+        "cvar95": -0.009641535082133054
+      }
+    },
+    "2023": {
+      "eventCount": 16,
+      "outcomeCount": 16,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 16,
+        "wins": 2,
+        "losses": 14,
+        "winRate": 0.125,
+        "grossReturn": -0.03785269216172261,
+        "fees": 0.0128,
+        "slippage": 0.0064,
+        "netReturn": -0.0570526921617226,
+        "averageNetReturnPerTrade": -0.0035657932601076627,
+        "profitFactor": 0.025658960481994158,
+        "maxDrawdown": 0.0570526921617226,
+        "cvar95": -0.011369115608538906
+      }
+    },
+    "2024": {
+      "eventCount": 40,
+      "outcomeCount": 40,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 40,
+        "wins": 14,
+        "losses": 26,
+        "winRate": 0.35,
+        "grossReturn": -0.05904476067793091,
+        "fees": 0.032,
+        "slippage": 0.016,
+        "netReturn": -0.10704476067793088,
+        "averageNetReturnPerTrade": -0.002676119016948272,
+        "profitFactor": 0.28450654455280194,
+        "maxDrawdown": 0.11398380405735589,
+        "cvar95": -0.025893221289271167
+      }
+    },
+    "2025": {
+      "eventCount": 85,
+      "outcomeCount": 85,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 85,
+        "wins": 34,
+        "losses": 51,
+        "winRate": 0.4,
+        "grossReturn": 0.07934855533326761,
+        "fees": 0.068,
+        "slippage": 0.034,
+        "netReturn": -0.02265144466673237,
+        "averageNetReturnPerTrade": -0.00026648758431449846,
+        "profitFactor": 0.8608233543282477,
+        "maxDrawdown": 0.06114098759254252,
+        "cvar95": -0.008082994851120382
+      }
+    },
+    "2026": {
+      "eventCount": 133,
+      "outcomeCount": 133,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 133,
+        "wins": 47,
+        "losses": 86,
+        "winRate": 0.3533834586466165,
+        "grossReturn": -0.023393595391307934,
+        "fees": 0.10640000000000001,
+        "slippage": 0.053200000000000004,
+        "netReturn": -0.18299359539130788,
+        "averageNetReturnPerTrade": -0.0013758916946714878,
+        "profitFactor": 0.4986527497569499,
+        "maxDrawdown": 0.18981851530144525,
+        "cvar95": -0.02019747457339128
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "schema": "v18-pre-return-assessment-v1",
+  "source": {
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2026-07-31T23:59:59.999Z",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "fixedUniverse": true,
+    "noSyntheticData": true,
+    "noForwardFill": true
+  },
+  "pointInTimeRules": {
+    "signalBar": "closed_5m_candle",
+    "priorWindow": "[signal_open_time_minus_30d, signal_open_time)",
+    "priorWindowBars": 8640,
+    "currentBarThresholds": "prior_30d_quantiles_only",
+    "nextBarUsage": "open_time_and_open_price_only",
+    "prohibitedNextBarFields": [
+      "high",
+      "low",
+      "close",
+      "volume",
+      "quoteVolume",
+      "tradeCount",
+      "takerBuyBaseVolume",
+      "takerBuyQuoteVolume"
+    ],
+    "noExtraFilters": true
+  },
+  "execution": {
+    "entry": "next_full_5m_candle_open",
+    "horizonMinutes": 60,
+    "unavailableNextBar": "DATA_UNAVAILABLE_NO_EVENT",
+    "oneActivePositionPerSymbol": true,
+    "overlapDisposition": "OVERLAPPING_SIGNAL_EXCLUDED",
+    "feeBpsPerSide": 4,
+    "slippageBpsPerSide": 2,
+    "baselineRoundTripBps": 12,
+    "stressAdditionalRoundTripBps": [
+      5,
+      10,
+      20
+    ]
+  },
+  "bySymbol": {
+    "BTCUSDT": {
+      "bars": 586944,
+      "pitEvaluationBars": 481824,
+      "fullPriorWindowBars": 422193,
+      "quoteVolumeIneligible": 6,
+      "rangeIneligible": 0,
+      "extremeBuyFlow": 3499,
+      "extremeSellFlow": 3091,
+      "absorbedBuyFlow": 87,
+      "absorbedSellFlow": 67,
+      "rawTriggers": 154,
+      "executionReferenceUnavailable": 0,
+      "overlappingSignalsExcluded": 6,
+      "finalEligibleEvents": 148,
+      "finalEligibleBuyFlowAbsorbed": 86,
+      "finalEligibleSellFlowAbsorbed": 62
+    },
+    "ETHUSDT": {
+      "bars": 586944,
+      "pitEvaluationBars": 481824,
+      "fullPriorWindowBars": 430851,
+      "quoteVolumeIneligible": 5,
+      "rangeIneligible": 0,
+      "extremeBuyFlow": 3659,
+      "extremeSellFlow": 3213,
+      "absorbedBuyFlow": 78,
+      "absorbedSellFlow": 83,
+      "rawTriggers": 161,
+      "executionReferenceUnavailable": 0,
+      "overlappingSignalsExcluded": 8,
+      "finalEligibleEvents": 153,
+      "finalEligibleBuyFlowAbsorbed": 75,
+      "finalEligibleSellFlowAbsorbed": 78
+    }
+  },
+  "totals": {
+    "rawTriggers": 315,
+    "executionReferenceAvailable": 315,
+    "executionReferenceUnavailable": 0,
+    "overlappingSignalsExcluded": 14,
+    "finalEligibleEvents": 301,
+    "finalEligibleBuyFlowAbsorbed": 161,
+    "finalEligibleSellFlowAbsorbed": 140,
+    "eventDigestSha256": "ba61f9adbcbea26179c0c5476f7871c303b429765903a99e0b599c7a51ff1805"
+  },
+  "outcomeData": "NOT_READ",
+  "forwardReturnsRead": false,
+  "oosMetricsRead": false,
+  "holdoutRead": false,
+  "generatedAt": "2026-09-05T00:00:00.000Z"
+}

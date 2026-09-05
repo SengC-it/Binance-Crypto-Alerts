@@ -1,0 +1,120 @@
+{
+  "schema": "v18-stress-result-v1",
+  "freezeCommit": "c8b8c1e728079ce947e4b2314442a44d04d8ed90",
+  "freezeManifestBodySha256": "8c7353680ff085625fbbaad932d7064afb431448e759008bb0a809b4fc6c16d8",
+  "historicalReturnsRead": true,
+  "parameterSearch": false,
+  "boundaries": {
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "generatedAt": "2026-09-05T03:39:27.696Z",
+  "outcomeDefinition": {
+    "signal": "frozen closed 5m candle",
+    "entry": "next full 5m candle OPEN",
+    "exit": "close of the 5m candle ending exactly 60 minutes after entry",
+    "directionMapping": {
+      "BUY_FLOW_ABSORBED": "SHORT",
+      "SELL_FLOW_ABSORBED": "LONG"
+    },
+    "noIntrabarOptimization": true,
+    "unavailableOutcome": "NO_60M_EXIT",
+    "eventCountRead": 301
+  },
+  "additionalRoundTripBps": [
+    5,
+    10,
+    20
+  ],
+  "primary": {
+    "baseline": {
+      "eventCount": 83,
+      "outcomeCount": 83,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 83,
+        "wins": 23,
+        "losses": 60,
+        "winRate": 0.27710843373493976,
+        "grossReturn": -0.10463885590005856,
+        "fees": 0.0664,
+        "slippage": 0.0332,
+        "netReturn": -0.20423885590005855,
+        "averageNetReturnPerTrade": -0.002460709107229621,
+        "profitFactor": 0.2568972359542831,
+        "maxDrawdown": 0.21926894997158586,
+        "cvar95": -0.017686310564483387
+      }
+    },
+    "+5bps": {
+      "eventCount": 83,
+      "outcomeCount": 83,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 83,
+        "wins": 18,
+        "losses": 65,
+        "winRate": 0.21686746987951808,
+        "grossReturn": -0.10463885590005856,
+        "fees": 0.0664,
+        "slippage": 0.0332,
+        "netReturn": -0.24573885590005862,
+        "averageNetReturnPerTrade": -0.002960709107229622,
+        "profitFactor": 0.19759186753474095,
+        "maxDrawdown": 0.25926894997158595,
+        "cvar95": -0.018186310564483388
+      }
+    },
+    "+10bps": {
+      "eventCount": 83,
+      "outcomeCount": 83,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 83,
+        "wins": 16,
+        "losses": 67,
+        "winRate": 0.1927710843373494,
+        "grossReturn": -0.10463885590005856,
+        "fees": 0.0664,
+        "slippage": 0.0332,
+        "netReturn": -0.28723885590005865,
+        "averageNetReturnPerTrade": -0.0034607091072296225,
+        "profitFactor": 0.1536128061946323,
+        "maxDrawdown": 0.299268949971586,
+        "cvar95": -0.018686310564483388
+      }
+    },
+    "+20bps": {
+      "eventCount": 83,
+      "outcomeCount": 83,
+      "unavailableCount": 0,
+      "unavailable": [],
+      "metrics": {
+        "trades": 83,
+        "wins": 12,
+        "losses": 71,
+        "winRate": 0.14457831325301204,
+        "grossReturn": -0.10463885590005856,
+        "fees": 0.0664,
+        "slippage": 0.0332,
+        "netReturn": -0.37023885590005867,
+        "averageNetReturnPerTrade": -0.004460709107229623,
+        "profitFactor": 0.09448108725017718,
+        "maxDrawdown": 0.379268949971586,
+        "cvar95": -0.019686310564483386
+      }
+    }
+  }
+}
