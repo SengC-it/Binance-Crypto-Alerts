@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "v19-controls-v1",
+  "controlScope": "pre-registered explanatory controls evaluated only on the frozen primary BTC-shock cluster timestamps; never used for selection",
+  "controls": {
+    "BTC_SHOCK_ONLY_LOW_LIQ": {
+      "name": "BTC_SHOCK_ONLY_LOW_LIQ",
+      "identityCount": 8043,
+      "unavailable": 0,
+      "trade": {
+        "trades": 8043,
+        "distinctClusters": 2681,
+        "wins": 3073,
+        "losses": 4970,
+        "winRate": 0.38207136640557005,
+        "grossReturn": 0.9991394041870516,
+        "feeCost": 6.434399999999422,
+        "slippageCost": 4.825800000000221,
+        "netReturn": -10.26106059581284,
+        "averageNetReturn": -0.0012757752823340594,
+        "profitFactor": 0.6807056510653748,
+        "maxDrawdown": 10.287566330165262,
+        "cvar95": -0.024879508603837395
+      },
+      "cluster": {
+        "trades": 2681,
+        "distinctClusters": 2681,
+        "wins": 1017,
+        "losses": 1664,
+        "winRate": 0.3793360686311078,
+        "grossReturn": 0.33304646806235216,
+        "feeCost": 2.1447999999998943,
+        "slippageCost": 1.6085999999999643,
+        "netReturn": -3.4203535319376828,
+        "averageNetReturn": -0.0012757752823340854,
+        "profitFactor": 0.6662679897755168,
+        "maxDrawdown": 3.428834659195051,
+        "cvar95": -0.023542437488674007
+      }
+    },
+    "HIGH_LIQUIDITY_UNDERREACTION": {
+      "name": "HIGH_LIQUIDITY_UNDERREACTION",
+      "identityCount": 5365,
+      "unavailable": 0,
+      "trade": {
+        "trades": 5365,
+        "distinctClusters": 2453,
+        "wins": 1993,
+        "losses": 3372,
+        "winRate": 0.37148182665424045,
+        "grossReturn": -0.0964317878046479,
+        "feeCost": 4.291999999999658,
+        "slippageCost": 3.218999999999787,
+        "netReturn": -7.60743178780459,
+        "averageNetReturn": -0.0014179742381742013,
+        "profitFactor": 0.6439142911064394,
+        "maxDrawdown": 7.683624971838146,
+        "cvar95": -0.0262880037790363
+      },
+      "cluster": {
+        "trades": 2453,
+        "distinctClusters": 2453,
+        "wins": 909,
+        "losses": 1544,
+        "winRate": 0.37056665307786385,
+        "grossReturn": 0.2748386669155891,
+        "feeCost": 1.9623999999999144,
+        "slippageCost": 1.4717999999999793,
+        "netReturn": -3.159361333084421,
+        "averageNetReturn": -0.001287958146385822,
+        "profitFactor": 0.6692793253889271,
+        "maxDrawdown": 3.1804236219988122,
+        "cvar95": -0.02537172547779282
+      }
+    },
+    "TIME_MATCHED_RANDOM": {
+      "name": "TIME_MATCHED_RANDOM",
+      "identityCount": 5089,
+      "unavailable": 0,
+      "trade": {
+        "trades": 5089,
+        "distinctClusters": 2821,
+        "wins": 1918,
+        "losses": 3171,
+        "winRate": 0.3768913342503439,
+        "grossReturn": 1.1304129215599685,
+        "feeCost": 4.071199999999682,
+        "slippageCost": 3.0533999999998054,
+        "netReturn": -5.9941870784399605,
+        "averageNetReturn": -0.0011778713064334763,
+        "profitFactor": 0.7047259106974108,
+        "maxDrawdown": 5.994251396676943,
+        "cvar95": -0.02439070230832166
+      },
+      "cluster": {
+        "trades": 2821,
+        "distinctClusters": 2821,
+        "wins": 1065,
+        "losses": 1756,
+        "winRate": 0.3775257001063453,
+        "grossReturn": 0.400045920415517,
+        "feeCost": 2.256799999999882,
+        "slippageCost": 1.692599999999955,
+        "netReturn": -3.549354079584473,
+        "averageNetReturn": -0.0012581900317562825,
+        "profitFactor": 0.6912489616116546,
+        "maxDrawdown": 3.637885556194162,
+        "cvar95": -0.02600899862724067
+      }
+    }
+  },
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

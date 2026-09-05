@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "v19-data-gate-v1",
+  "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+  "status": "PASS",
+  "classification": "V19_DATA_GATE_PASS_PRE_RETURN_ONLY",
+  "source": "official Binance Data Vision monthly USD-M 5m kline archives only",
+  "period": {
+    "start": "2021-01-01T00:00:00.000Z",
+    "endInclusive": "2026-07-31T23:59:59.999Z"
+  },
+  "expectedArchiveSlots": 603,
+  "checksumVerifiedArchiveSlots": 603,
+  "leader": {
+    "symbol": "BTCUSDT",
+    "eligible": true,
+    "exclusionReason": null,
+    "verifiedArchiveSlots": 67,
+    "firstAvailableMonth": "2021-01",
+    "lastAvailableMonth": "2026-07",
+    "firstOpenTime": 1609459200000,
+    "lastOpenTime": 1785542100000,
+    "combinedRows": 586944,
+    "expectedObservedRows": 586944,
+    "coverage": 1,
+    "monotonicOpenTime": true,
+    "internalArchiveGaps": 0
+  },
+  "eligibleFollowers": [
+    "BNBUSDT",
+    "ADAUSDT",
+    "BCHUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "DOTUSDT"
+  ],
+  "excludedFollowers": [
+    {
+      "symbol": "XRPUSDT",
+      "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+    },
+    {
+      "symbol": "LTCUSDT",
+      "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+    }
+  ],
+  "minimumEligibleFollowers": 5,
+  "noSyntheticRows": true,
+  "noForwardFill": true,
+  "noCurrentApiBackfill": true,
+  "strategyReturnsRead": false,
+  "performanceEvaluation": "NOT_RUN_IN_FREEZE_STAGE"
+}

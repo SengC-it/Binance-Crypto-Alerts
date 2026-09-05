@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "v19-directions-v1",
+  "window": "PRIMARY_OOS",
+  "LONG": {
+    "trades": 2223,
+    "distinctClusters": 1045,
+    "wins": 891,
+    "losses": 1332,
+    "winRate": 0.4008097165991903,
+    "grossReturn": 0.7534397981990667,
+    "feeCost": 1.7783999999999347,
+    "slippageCost": 1.3337999999999945,
+    "netReturn": -2.3587602018009433,
+    "averageNetReturn": -0.0010610707160598036,
+    "profitFactor": 0.6726419788380823,
+    "maxDrawdown": 2.3663602261807855,
+    "cvar95": -0.019969318206518656
+  },
+  "SHORT": {
+    "trades": 1664,
+    "distinctClusters": 857,
+    "wins": 570,
+    "losses": 1094,
+    "winRate": 0.3425480769230769,
+    "grossReturn": -0.07923491716870679,
+    "feeCost": 1.331199999999984,
+    "slippageCost": 0.9984000000000313,
+    "netReturn": -2.4088349171687145,
+    "averageNetReturn": -0.0014476171377215833,
+    "profitFactor": 0.6888952579468827,
+    "maxDrawdown": 2.5744270794727036,
+    "cvar95": -0.024290836779960294
+  },
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

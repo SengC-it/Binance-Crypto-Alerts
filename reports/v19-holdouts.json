@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "v19-holdouts-v1",
+  "holdoutA": {
+    "window": {
+      "start": "2025-01-01T00:00:00.000Z",
+      "endInclusive": "2025-12-31T23:59:59.999Z"
+    },
+    "tradeLevel": {
+      "trades": 1315,
+      "distinctClusters": 638,
+      "wins": 512,
+      "losses": 803,
+      "winRate": 0.38935361216730036,
+      "grossReturn": 1.3789199657403266,
+      "feeCost": 1.0520000000000147,
+      "slippageCost": 0.7890000000000156,
+      "netReturn": -0.46208003425966265,
+      "averageNetReturn": -0.000351391661033964,
+      "profitFactor": 0.9159771872820319,
+      "maxDrawdown": 1.2507798091995677,
+      "cvar95": -0.031251606513988776
+    },
+    "clusterLevel": {
+      "trades": 638,
+      "distinctClusters": 638,
+      "wins": 255,
+      "losses": 383,
+      "winRate": 0.3996865203761755,
+      "grossReturn": 0.46673022037306927,
+      "feeCost": 0.5104000000000064,
+      "slippageCost": 0.382799999999996,
+      "netReturn": -0.4264697796269336,
+      "averageNetReturn": -0.0006684479304497392,
+      "profitFactor": 0.8480968320460308,
+      "maxDrawdown": 0.810082664356095,
+      "cvar95": -0.037690127310885446
+    },
+    "unavailableOutcomeCount": 0
+  },
+  "holdoutB": {
+    "window": {
+      "start": "2026-01-01T00:00:00.000Z",
+      "endInclusive": "2026-07-31T23:59:59.999Z"
+    },
+    "tradeLevel": {
+      "trades": 653,
+      "distinctClusters": 332,
+      "wins": 233,
+      "losses": 420,
+      "winRate": 0.3568147013782542,
+      "grossReturn": 0.31421520759439037,
+      "feeCost": 0.5224000000000067,
+      "slippageCost": 0.3917999999999958,
+      "netReturn": -0.5999847924056042,
+      "averageNetReturn": -0.0009188128520759636,
+      "profitFactor": 0.7522997503768049,
+      "maxDrawdown": 0.6512237237452299,
+      "cvar95": -0.017506913266521987
+    },
+    "clusterLevel": {
+      "trades": 332,
+      "distinctClusters": 332,
+      "wins": 119,
+      "losses": 213,
+      "winRate": 0.35843373493975905,
+      "grossReturn": 0.174040080979866,
+      "feeCost": 0.2655999999999994,
+      "slippageCost": 0.1991999999999992,
+      "netReturn": -0.29075991902013604,
+      "averageNetReturn": -0.0008757828886148675,
+      "profitFactor": 0.7513909655965295,
+      "maxDrawdown": 0.324559592606539,
+      "cvar95": -0.01688047555940317
+    },
+    "unavailableOutcomeCount": 0
+  },
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}
