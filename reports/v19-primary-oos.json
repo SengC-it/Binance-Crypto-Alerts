@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "v19-primary-oos-v1",
+  "window": {
+    "start": "2022-01-01T00:00:00.000Z",
+    "endInclusive": "2024-12-31T23:59:59.999Z"
+  },
+  "tradeLevel": {
+    "trades": 3887,
+    "distinctClusters": 1902,
+    "wins": 1461,
+    "losses": 2426,
+    "winRate": 0.3758682788783123,
+    "grossReturn": 0.674204881030359,
+    "feeCost": 3.109599999999788,
+    "slippageCost": 2.332199999999885,
+    "netReturn": -4.767595118969587,
+    "averageNetReturn": -0.0012265487828581393,
+    "profitFactor": 0.6810607745078957,
+    "maxDrawdown": 4.771612885193765,
+    "cvar95": -0.022133772886803696
+  },
+  "clusterLevel": {
+    "trades": 1902,
+    "distinctClusters": 1902,
+    "wins": 699,
+    "losses": 1203,
+    "winRate": 0.3675078864353312,
+    "grossReturn": 0.0031192363927011572,
+    "feeCost": 1.521599999999963,
+    "slippageCost": 1.1412000000000158,
+    "netReturn": -2.659680763607298,
+    "averageNetReturn": -0.0013983600229270758,
+    "profitFactor": 0.644019880398618,
+    "maxDrawdown": 2.672363485513232,
+    "cvar95": -0.022716270536295203
+  },
+  "unavailableOutcomeCount": 0,
+  "outcomeArtifact": "reports/v19-trade-outcomes.json",
+  "secondaryDiagnostics": [
+    {
+      "horizonMinutes": 30,
+      "classification": "SECONDARY_DIAGNOSTIC",
+      "promotionEligible": false,
+      "tradeLevel": {
+        "trades": 3887,
+        "distinctClusters": 1902,
+        "wins": 1573,
+        "losses": 2314,
+        "winRate": 0.40468227424749165,
+        "grossReturn": 2.422570298422149,
+        "feeCost": 3.109599999999788,
+        "slippageCost": 2.332199999999885,
+        "netReturn": -3.0192297015778444,
+        "averageNetReturn": -0.0007767506307120773,
+        "profitFactor": 0.826002930704075,
+        "maxDrawdown": 3.46732913934866,
+        "cvar95": -0.027450657679872648
+      },
+      "unavailableOutcomeCount": 0
+    },
+    {
+      "horizonMinutes": 60,
+      "classification": "SECONDARY_DIAGNOSTIC",
+      "promotionEligible": false,
+      "tradeLevel": {
+        "trades": 3887,
+        "distinctClusters": 1902,
+        "wins": 1629,
+        "losses": 2258,
+        "winRate": 0.4190892719320813,
+        "grossReturn": 4.7996087606642925,
+        "feeCost": 3.109599999999788,
+        "slippageCost": 2.332199999999885,
+        "netReturn": -0.6421912393356974,
+        "averageNetReturn": -0.00016521513746737778,
+        "profitFactor": 0.969688697629663,
+        "maxDrawdown": 1.9254428707009361,
+        "cvar95": -0.0371028952748917
+      },
+      "unavailableOutcomeCount": 0
+    }
+  ],
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

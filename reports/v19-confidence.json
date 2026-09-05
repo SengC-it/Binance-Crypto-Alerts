@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "v19-confidence-v1",
+  "primaryOosTradeLevel": {
+    "trades": 3887,
+    "distinctClusters": 1902,
+    "wins": 1461,
+    "losses": 2426,
+    "winRate": 0.3758682788783123,
+    "grossReturn": 0.674204881030359,
+    "feeCost": 3.109599999999788,
+    "slippageCost": 2.332199999999885,
+    "netReturn": -4.767595118969587,
+    "averageNetReturn": -0.0012265487828581393,
+    "profitFactor": 0.6810607745078957,
+    "maxDrawdown": 4.771612885193765,
+    "cvar95": -0.022133772886803696
+  },
+  "primaryOosClusterLevel": {
+    "trades": 1902,
+    "distinctClusters": 1902,
+    "wins": 699,
+    "losses": 1203,
+    "winRate": 0.3675078864353312,
+    "grossReturn": 0.0031192363927011572,
+    "feeCost": 1.521599999999963,
+    "slippageCost": 1.1412000000000158,
+    "netReturn": -2.659680763607298,
+    "averageNetReturn": -0.0013983600229270758,
+    "profitFactor": 0.644019880398618,
+    "maxDrawdown": 2.672363485513232,
+    "cvar95": -0.022716270536295203
+  },
+  "clusterBootstrap": {
+    "clusters": 1902,
+    "samples": 10000,
+    "seed": 19019,
+    "mean": -0.0013983600229270758,
+    "ci95": [
+      -0.0018652812224914238,
+      -0.0009159849189291064
+    ],
+    "lcb95": -0.0018652812224914238
+  },
+  "bootstrapUnit": "BTC shock cluster keyed by btcShockTimestamp; deterministic seed 19019",
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

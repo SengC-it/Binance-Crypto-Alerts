@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "v19-concentration-v1",
+  "primaryOos": {
+    "perFollower": {
+      "BNBUSDT": {
+        "trades": 184,
+        "tradeCountShare": 0.047337278106508875,
+        "positiveGrossContributionShare": 0.026359358769184143
+      },
+      "ADAUSDT": {
+        "trades": 652,
+        "tradeCountShare": 0.167738615899151,
+        "positiveGrossContributionShare": 0.1746413782293369
+      },
+      "BCHUSDT": {
+        "trades": 1016,
+        "tradeCountShare": 0.2613841008489838,
+        "positiveGrossContributionShare": 0.2534211672986143
+      },
+      "DOGEUSDT": {
+        "trades": 439,
+        "tradeCountShare": 0.11294057113455107,
+        "positiveGrossContributionShare": 0.11409566942564725
+      },
+      "LINKUSDT": {
+        "trades": 585,
+        "tradeCountShare": 0.1505016722408027,
+        "positiveGrossContributionShare": 0.17172119685192064
+      },
+      "DOTUSDT": {
+        "trades": 1011,
+        "tradeCountShare": 0.2600977617700026,
+        "positiveGrossContributionShare": 0.2597612294252966
+      }
+    },
+    "maxFollowerTradeCountShare": 0.2613841008489838,
+    "maxPositiveGrossContributionShare": 0.2597612294252966
+  },
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

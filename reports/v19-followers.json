@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "v19-followers-v1",
+  "window": "PRIMARY_OOS",
+  "followers": {
+    "BNBUSDT": {
+      "tradeLevel": {
+        "trades": 184,
+        "distinctClusters": 184,
+        "wins": 64,
+        "losses": 120,
+        "winRate": 0.34782608695652173,
+        "grossReturn": -0.14502050932806743,
+        "feeCost": 0.14719999999999955,
+        "slippageCost": 0.11040000000000043,
+        "netReturn": -0.4026205093280685,
+        "averageNetReturn": -0.002188154942000372,
+        "profitFactor": 0.3595953791549756,
+        "maxDrawdown": 0.4060047212497641,
+        "cvar95": -0.019165474009468157
+      },
+      "clusterLevel": {
+        "trades": 184,
+        "distinctClusters": 184,
+        "wins": 64,
+        "losses": 120,
+        "winRate": 0.34782608695652173,
+        "grossReturn": -0.14502050932806743,
+        "feeCost": 0.14719999999999955,
+        "slippageCost": 0.11040000000000043,
+        "netReturn": -0.4026205093280685,
+        "averageNetReturn": -0.002188154942000372,
+        "profitFactor": 0.3595953791549756,
+        "maxDrawdown": 0.4060047212497641,
+        "cvar95": -0.019165474009468157
+      },
+      "unavailableOutcomeCount": 0
+    },
+    "ADAUSDT": {
+      "tradeLevel": {
+        "trades": 652,
+        "distinctClusters": 652,
+        "wins": 249,
+        "losses": 403,
+        "winRate": 0.38190184049079756,
+        "grossReturn": 0.30430258238382557,
+        "feeCost": 0.5216000000000067,
+        "slippageCost": 0.39119999999999583,
+        "netReturn": -0.6084974176161679,
+        "averageNetReturn": -0.0009332782478775582,
+        "profitFactor": 0.7468015463234817,
+        "maxDrawdown": 0.6084974176161679,
+        "cvar95": -0.019247515335369034
+      },
+      "clusterLevel": {
+        "trades": 652,
+        "distinctClusters": 652,
+        "wins": 249,
+        "losses": 403,
+        "winRate": 0.38190184049079756,
+        "grossReturn": 0.30430258238382557,
+        "feeCost": 0.5216000000000067,
+        "slippageCost": 0.39119999999999583,
+        "netReturn": -0.6084974176161679,
+        "averageNetReturn": -0.0009332782478775582,
+        "profitFactor": 0.7468015463234817,
+        "maxDrawdown": 0.6084974176161679,
+        "cvar95": -0.019247515335369034
+      },
+      "unavailableOutcomeCount": 0
+    },
+    "BCHUSDT": {
+      "tradeLevel": {
+        "trades": 1016,
+        "distinctClusters": 1016,
+        "wins": 380,
+        "losses": 636,
+        "winRate": 0.37401574803149606,
+        "grossReturn": 0.06765267645720041,
+        "feeCost": 0.8128000000000151,
+        "slippageCost": 0.6096000000000021,
+        "netReturn": -1.3547473235428107,
+        "averageNetReturn": -0.0013334127200224516,
+        "profitFactor": 0.6542249001834731,
+        "maxDrawdown": 1.3635981125665635,
+        "cvar95": -0.022954846472198216
+      },
+      "clusterLevel": {
+        "trades": 1016,
+        "distinctClusters": 1016,
+        "wins": 380,
+        "losses": 636,
+        "winRate": 0.37401574803149606,
+        "grossReturn": 0.06765267645720041,
+        "feeCost": 0.8128000000000151,
+        "slippageCost": 0.6096000000000021,
+        "netReturn": -1.3547473235428107,
+        "averageNetReturn": -0.0013334127200224516,
+        "profitFactor": 0.6542249001834731,
+        "maxDrawdown": 1.3635981125665635,
+        "cvar95": -0.022954846472198216
+      },
+      "unavailableOutcomeCount": 0
+    },
+    "DOGEUSDT": {
+      "tradeLevel": {
+        "trades": 439,
+        "distinctClusters": 439,
+        "wins": 172,
+        "losses": 267,
+        "winRate": 0.3917995444191344,
+        "grossReturn": 0.1420271377466663,
+        "feeCost": 0.35120000000000184,
+        "slippageCost": 0.2633999999999981,
+        "netReturn": -0.47257286225333245,
+        "averageNetReturn": -0.0010764757682308257,
+        "profitFactor": 0.7083787876110051,
+        "maxDrawdown": 0.6371466367786328,
+        "cvar95": -0.02250140489678706
+      },
+      "clusterLevel": {
+        "trades": 439,
+        "distinctClusters": 439,
+        "wins": 172,
+        "losses": 267,
+        "winRate": 0.3917995444191344,
+        "grossReturn": 0.1420271377466663,
+        "feeCost": 0.35120000000000184,
+        "slippageCost": 0.2633999999999981,
+        "netReturn": -0.47257286225333245,
+        "averageNetReturn": -0.0010764757682308257,
+        "profitFactor": 0.7083787876110051,
+        "maxDrawdown": 0.6371466367786328,
+        "cvar95": -0.02250140489678706
+      },
+      "unavailableOutcomeCount": 0
+    },
+    "LINKUSDT": {
+      "tradeLevel": {
+        "trades": 585,
+        "distinctClusters": 585,
+        "wins": 210,
+        "losses": 375,
+        "winRate": 0.358974358974359,
+        "grossReturn": -0.08300610118778817,
+        "feeCost": 0.4680000000000052,
+        "slippageCost": 0.35099999999999654,
+        "netReturn": -0.9020061011877744,
+        "averageNetReturn": -0.0015418907712611528,
+        "profitFactor": 0.6681095766160349,
+        "maxDrawdown": 1.0653015285438026,
+        "cvar95": -0.026809368785829055
+      },
+      "clusterLevel": {
+        "trades": 585,
+        "distinctClusters": 585,
+        "wins": 210,
+        "losses": 375,
+        "winRate": 0.358974358974359,
+        "grossReturn": -0.08300610118778817,
+        "feeCost": 0.4680000000000052,
+        "slippageCost": 0.35099999999999654,
+        "netReturn": -0.9020061011877744,
+        "averageNetReturn": -0.0015418907712611528,
+        "profitFactor": 0.6681095766160349,
+        "maxDrawdown": 1.0653015285438026,
+        "cvar95": -0.026809368785829055
+      },
+      "unavailableOutcomeCount": 0
+    },
+    "DOTUSDT": {
+      "tradeLevel": {
+        "trades": 1011,
+        "distinctClusters": 1011,
+        "wins": 386,
+        "losses": 625,
+        "winRate": 0.3818001978239367,
+        "grossReturn": 0.3882490949585232,
+        "feeCost": 0.808800000000015,
+        "slippageCost": 0.6066000000000019,
+        "netReturn": -1.0271509050414527,
+        "averageNetReturn": -0.0010159751780825447,
+        "profitFactor": 0.7193623096507483,
+        "maxDrawdown": 1.0477570750228098,
+        "cvar95": -0.020005297379258886
+      },
+      "clusterLevel": {
+        "trades": 1011,
+        "distinctClusters": 1011,
+        "wins": 386,
+        "losses": 625,
+        "winRate": 0.3818001978239367,
+        "grossReturn": 0.3882490949585232,
+        "feeCost": 0.808800000000015,
+        "slippageCost": 0.6066000000000019,
+        "netReturn": -1.0271509050414527,
+        "averageNetReturn": -0.0010159751780825447,
+        "profitFactor": 0.7193623096507483,
+        "maxDrawdown": 1.0477570750228098,
+        "cvar95": -0.020005297379258886
+      },
+      "unavailableOutcomeCount": 0
+    }
+  },
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

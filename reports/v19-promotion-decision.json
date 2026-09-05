@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "v19-promotion-decision-v1",
+  "gates": {
+    "eligibleFollowers": true,
+    "primaryTrades": true,
+    "shockClusters": true,
+    "followersWithAtLeast50Trades": true,
+    "primaryNetPositive": false,
+    "primaryPf": false,
+    "primaryAvgNetPositive": false,
+    "clusterBootstrapLcb95Positive": false,
+    "holdoutANetPositive": false,
+    "holdoutBNetPositive": false,
+    "stress10NetPositive": false,
+    "profitableFollowers": false,
+    "profitableYears": false,
+    "maxFollowerTradeShare": true,
+    "maxPositiveGrossContribution": true,
+    "informationGain": true
+  },
+  "classification": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP_REJECTED",
+  "promotion": "FAIL",
+  "researchStop": "YES",
+  "informationGain": {
+    "controlA": -0.0012757752823340594,
+    "controlB": -0.0014179742381742013,
+    "primary": -0.0012265487828581393,
+    "pass": true
+  },
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

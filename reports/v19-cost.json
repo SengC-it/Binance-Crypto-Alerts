@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "v19-cost-v1",
+  "assumptions": {
+    "takerFeeBpsPerSide": 4,
+    "slippageBpsPerSide": 3,
+    "baselineRoundTripBps": 14,
+    "additionalStressBps": [
+      5,
+      10,
+      20
+    ],
+    "funding": "not part of frozen V19 cost model"
+  },
+  "primaryOos": {
+    "grossReturn": 0.674204881030359,
+    "feeCost": 3.109599999999788,
+    "slippageCost": 2.332199999999885,
+    "netReturn": -4.767595118969587
+  },
+  "provenance": {
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "repository": "SengC-it/Binance-Crypto-Alerts",
+    "branch": "feat/v19-btc-shock-alt-catchup",
+    "freezeCommit": "f10df65620a630add002d0aaf3c0dff4d8f23c83",
+    "freezeManifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94",
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  }
+}

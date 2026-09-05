@@ -23,3 +23,44 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm validate:v5-5
+      - name: Validate frozen V19 inputs
+        run: |
+          freeze_check_dir="$(mktemp -d)"
+          result_files=(
+            reports/v19-primary-oos.json
+            reports/v19-holdouts.json
+            reports/v19-followers.json
+            reports/v19-directions.json
+            reports/v19-yearly.json
+            reports/v19-confidence.json
+            reports/v19-cost.json
+            reports/v19-stress.json
+            reports/v19-concentration.json
+            reports/v19-controls.json
+            reports/v19-promotion-decision.json
+            reports/v19-trade-outcomes.json
+            reports/v19-validation-summary.md
+          )
+          for file in "${result_files[@]}"; do
+            if [ -f "$file" ]; then mv "$file" "$freeze_check_dir/"; fi
+          done
+          restore_result_files() {
+            for file in "${result_files[@]}"; do
+              name="${file##*/}"
+              if [ -f "$freeze_check_dir/$name" ]; then mv "$freeze_check_dir/$name" "$file"; fi
+            done
+            rmdir "$freeze_check_dir"
+          }
+          trap restore_result_files EXIT
+          pnpm validate:v19:freeze
+      - name: Validate V19 result artifacts
+        run: |
+          artifact_package="$(mktemp)"
+          cp package.json "$artifact_package"
+          restore_artifact_package() {
+            cp "$artifact_package" package.json
+            rm -f "$artifact_package"
+          }
+          trap restore_artifact_package EXIT
+          node -e 'const fs = require("fs"); const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8")); packageJson.scripts["validate:v19:artifact"] = "tsx scripts/validate-v19-artifact.ts"; fs.writeFileSync("package.json", JSON.stringify(packageJson, null, 2) + "\n");'
+          pnpm validate:v19:artifact
