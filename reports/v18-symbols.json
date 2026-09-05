@@ -1,0 +1,73 @@
+{
+  "schema": "v18-symbols-result-v1",
+  "freezeCommit": "c8b8c1e728079ce947e4b2314442a44d04d8ed90",
+  "freezeManifestBodySha256": "8c7353680ff085625fbbaad932d7064afb431448e759008bb0a809b4fc6c16d8",
+  "historicalReturnsRead": true,
+  "parameterSearch": false,
+  "boundaries": {
+    "historicalReturnsRead": true,
+    "parameterSearch": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "generatedAt": "2026-09-05T03:39:27.696Z",
+  "outcomeDefinition": {
+    "signal": "frozen closed 5m candle",
+    "entry": "next full 5m candle OPEN",
+    "exit": "close of the 5m candle ending exactly 60 minutes after entry",
+    "directionMapping": {
+      "BUY_FLOW_ABSORBED": "SHORT",
+      "SELL_FLOW_ABSORBED": "LONG"
+    },
+    "noIntrabarOptimization": true,
+    "unavailableOutcome": "NO_60M_EXIT",
+    "eventCountRead": 301
+  },
+  "BTCUSDT": {
+    "eventCount": 28,
+    "outcomeCount": 28,
+    "unavailableCount": 0,
+    "unavailable": [],
+    "metrics": {
+      "trades": 28,
+      "wins": 9,
+      "losses": 19,
+      "winRate": 0.32142857142857145,
+      "grossReturn": -0.02385507842974655,
+      "fees": 0.0224,
+      "slippage": 0.0112,
+      "netReturn": -0.05745507842974655,
+      "averageNetReturnPerTrade": -0.0020519670867766627,
+      "profitFactor": 0.24096061769139876,
+      "maxDrawdown": 0.06448237925787462,
+      "cvar95": -0.011804570480675083
+    }
+  },
+  "ETHUSDT": {
+    "eventCount": 55,
+    "outcomeCount": 55,
+    "unavailableCount": 0,
+    "unavailable": [],
+    "metrics": {
+      "trades": 55,
+      "wins": 14,
+      "losses": 41,
+      "winRate": 0.2545454545454545,
+      "grossReturn": -0.08078377747031203,
+      "fees": 0.044000000000000004,
+      "slippage": 0.022000000000000002,
+      "netReturn": -0.14678377747031204,
+      "averageNetReturnPerTrade": -0.0026687959540056734,
+      "profitFactor": 0.26295450021313344,
+      "maxDrawdown": 0.16574300932689506,
+      "cvar95": -0.021068487206672853
+    }
+  }
+}

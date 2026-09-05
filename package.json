@@ -17,7 +17,9 @@
     "backtest": "tsx scripts/run-backtest.ts",
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
     "v18:freeze": "tsx scripts/run-v18-freeze.ts",
-    "validate:v18:freeze": "tsx scripts/validate-v18-freeze.ts"
+    "validate:v18:freeze": "tsx scripts/validate-v18-freeze.ts",
+    "v18:result": "tsx scripts/run-v18-result.ts",
+    "validate:v18:artifact": "tsx scripts/validate-v18-artifact.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
