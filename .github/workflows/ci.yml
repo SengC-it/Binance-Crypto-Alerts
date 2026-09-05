@@ -23,3 +23,5 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm validate:v5-5
+      - run: pnpm validate:v18:freeze
+      - run: pnpm validate:v18:artifact
