@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "v19-universe-feasibility-v1",
+  "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+  "leader": "BTCUSDT",
+  "fixedFollowerCandidates": [
+    "BNBUSDT",
+    "ADAUSDT",
+    "XRPUSDT",
+    "LTCUSDT",
+    "BCHUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "DOTUSDT"
+  ],
+  "period": {
+    "start": "2021-01-01T00:00:00.000Z",
+    "endInclusive": "2026-07-31T23:59:59.999Z",
+    "months": 67
+  },
+  "expectedArchiveSlots": 603,
+  "checksumVerifiedArchiveSlots": 603,
+  "symbols": [
+    {
+      "symbol": "BTCUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "BNBUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "XRPUSDT",
+      "eligible": false,
+      "exclusionReason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW",
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 585504,
+      "expectedObservedRows": 586944,
+      "coverage": 0.9975466143277724,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "LTCUSDT",
+      "eligible": false,
+      "exclusionReason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW",
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 585504,
+      "expectedObservedRows": 586944,
+      "coverage": 0.9975466143277724,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "BCHUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "LINKUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    {
+      "symbol": "DOTUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    }
+  ],
+  "eligibleFollowers": [
+    "BNBUSDT",
+    "ADAUSDT",
+    "BCHUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "DOTUSDT"
+  ],
+  "excludedFollowers": [
+    {
+      "symbol": "XRPUSDT",
+      "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+    },
+    {
+      "symbol": "LTCUSDT",
+      "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+    }
+  ],
+  "dataGate": "PASS",
+  "eligibilityRule": "official archive enumeration through each symbol's observed availability, checksum verified, valid OHLC/tradeCount, monotonic 5m timestamps, no internal gaps, observed coverage >= 0.999"
+}

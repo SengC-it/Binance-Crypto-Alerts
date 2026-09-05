@@ -1,0 +1,267 @@
+{
+  "schemaVersion": "v19-freeze-manifest-v1",
+  "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v19-btc-shock-alt-catchup",
+  "stage": "FREEZE_BEFORE_STRATEGY_RETURNS",
+  "fixedCandidateFollowers": [
+    "BNBUSDT",
+    "ADAUSDT",
+    "XRPUSDT",
+    "LTCUSDT",
+    "BCHUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "DOTUSDT"
+  ],
+  "eligibleFollowers": [
+    "BNBUSDT",
+    "ADAUSDT",
+    "BCHUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "DOTUSDT"
+  ],
+  "excludedFollowers": [
+    {
+      "symbol": "XRPUSDT",
+      "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+    },
+    {
+      "symbol": "LTCUSDT",
+      "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+    }
+  ],
+  "archive": {
+    "exchange": "BINANCE_DATA_VISION",
+    "root": "data/raw/v19/archives",
+    "expectedSlots": 603,
+    "checksumVerifiedSlots": 603,
+    "period": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "endExclusive": "2026-08-01T00:00:00.000Z"
+    },
+    "rawZipSha256": true,
+    "officialChecksumRequired": true,
+    "archiveManifestSha256": "2f415e89300f35b8f58ce1ce7abaacad28064550bd85712a8b3c099880c2d84a"
+  },
+  "parser": {
+    "parserReportSha256": "036b0beb105517185a8a7d4d86f5f1ea9d7305c2e65811f962ce2224ceae0d30",
+    "alphaFields": [
+      "openTime",
+      "close",
+      "tradeCount"
+    ],
+    "noMissingRowFill": true,
+    "noSyntheticData": true
+  },
+  "signalEngine": {
+    "sourceHashes": {
+      "lib/v19/constants.ts": "a45abfc57bfbb2a44733542a8ff16e72439fd2c9da5d77879ba3e1bab57e15b4",
+      "lib/v19/canonical.ts": "b65ec09e7cfb131b929fe900ccb203228074ae8f5881c904097cf609ad7c123e",
+      "lib/v19/features.ts": "e2489cedbdc4dda8d6d578caee3f3a2378a54db3cb98194016888cdd1af2564c",
+      "lib/v19/archive.ts": "b69a6d5f6b7de088c6822cd59f622b3412c4747af565dd54ebb307bea12e689d",
+      "scripts/run-v19-freeze.ts": "1bcdad20e2feddaa92830a2030191cfff8edbb08fea98a0de0a7e4865536ab12",
+      "scripts/validate-v19-freeze.ts": "23c13c7ed3cd0ebbcb95460bbc2cc2748740b846df15886ce40e39d6f846deea",
+      "tests/v19-freeze.test.ts": "add3b7bb5052f870fd9d527212267c12b03ef1f8226540a872d4e1a85ca7446c",
+      "package.json": "1941c2f97c447d65cf3dbfdce99f3fb476589e86eaa40d7af050e1f1a247c88b"
+    },
+    "eventEnumerationSha256": "d520982006b15298a730072357dc4b7f5ebbc5410004da8982a663583bf09546",
+    "eventEnumeration": {
+      "btcShockCount": 5387,
+      "rawTriggers": 6813,
+      "overlapExcluded": 958,
+      "finalEligibleEvents": 5855,
+      "distinctShockClusters": 2872,
+      "eventDigest": "d520982006b15298a730072357dc4b7f5ebbc5410004da8982a663583bf09546"
+    }
+  },
+  "parameters": {
+    "signalTimeframe": "5m",
+    "pitHistory": "[t-30d,t)",
+    "btcShockDefinition": "abs(log(BTC_close_t / BTC_close_t-1)) >= nearest-rank Q99(abs(prior synchronized BTC log returns))",
+    "betaModel": "OLS follower_log_return = alpha + beta * BTC_log_return using prior synchronized 5m rows only",
+    "underreactionDefinition": "-sign(BTC_log_return_t) * (follower_log_return_t - (alpha + beta * BTC_log_return_t))",
+    "underreactionThreshold": "nearest-rank Q90 of prior PIT directional underreaction values",
+    "liquidityMeasure": "median prior-30d tradeCount",
+    "liquidityClassification": "ascending prior median tradeCount; bottom ceil(n/2); alphabetical symbol tie-break",
+    "primaryExecution": "next complete 5m candle OPEN",
+    "primaryExit": "close of the candle ending exactly 15 minutes after entry",
+    "overlapRule": "same follower signal timestamps less than 15 minutes apart are excluded",
+    "clusterId": "btcShockTimestamp",
+    "dataFieldsUsedForAlpha": [
+      "openTime",
+      "close",
+      "tradeCount"
+    ],
+    "retainedButNotUsedForAlpha": [
+      "high",
+      "low",
+      "volume",
+      "quoteVolume",
+      "takerBuyBaseVolume",
+      "takerBuyQuoteVolume"
+    ],
+    "costModel": {
+      "takerFeeBpsPerSide": 4,
+      "slippageBpsPerSide": 3,
+      "baselineRoundTripBps": 14,
+      "additionalRoundTripStressBps": [
+        5,
+        10,
+        20
+      ]
+    },
+    "secondaryDiagnostics": [
+      30,
+      60
+    ]
+  },
+  "execution": {
+    "signalCandle": "closed 5m candle only",
+    "nextEntry": "next complete 5m candle OPEN",
+    "primaryExit": "exact close timestamp 15 minutes after entry; missing reference excludes event",
+    "secondaryDiagnostics": [
+      30,
+      60
+    ],
+    "nextBarFieldsUsed": [
+      "openTime",
+      "open"
+    ],
+    "nextBarFieldsNotUsedForSignal": [
+      "high",
+      "low",
+      "close",
+      "volume",
+      "quoteVolume",
+      "tradeCount",
+      "takerBuyBaseVolume",
+      "takerBuyQuoteVolume"
+    ]
+  },
+  "controls": {
+    "controlA": "BTC_SHOCK_ONLY_LOW_LIQ: same shock and low-liquidity followers without underreaction Q90",
+    "controlB": "HIGH_LIQUIDITY_UNDERREACTION: same shock, beta, and underreaction using top-half liquidity followers",
+    "controlC": "TIME_MATCHED_RANDOM: follower/month/UTC hour/direction-frequency matched random events",
+    "controlUse": "explanatory only; never used for parameter selection"
+  },
+  "promotionGates": {
+    "data": {
+      "eligibleFollowersMinimum": 5,
+      "primaryDeoverlappedTradesMinimum": 500,
+      "distinctShockClustersMinimum": 200,
+      "followerSymbolsMinimum": 4,
+      "perFollowerPrimaryTradesMinimum": 50
+    },
+    "performance": {
+      "primaryNetPositive": true,
+      "primaryProfitFactorMinimum": 1.25,
+      "primaryAverageNetReturnPositive": true,
+      "clusterBootstrapLCB95Positive": true,
+      "holdoutANetPositive": true,
+      "holdoutBNetPositive": true,
+      "stress10bpsNetPositive": true
+    },
+    "breadth": {
+      "profitableFollowerSymbolsMinimum": 4,
+      "profitableYearsMinimum": 2,
+      "years": [
+        2022,
+        2023,
+        2024
+      ]
+    },
+    "concentration": {
+      "maxFollowerTradeCountShare": 0.35,
+      "maxFollowerPositiveGrossContribution": 0.4
+    },
+    "informationGain": "primary average net return must exceed both explanatory controls"
+  },
+  "requiredArtifactHashes": {
+    "reports/v19-universe-feasibility.json": "ed60f3d430d6702443f0e354135926a885a594b38d25e3e90e90cc8b044f9293",
+    "reports/v19-archive-manifest.json": "2f415e89300f35b8f58ce1ce7abaacad28064550bd85712a8b3c099880c2d84a",
+    "reports/v19-parser-report.json": "036b0beb105517185a8a7d4d86f5f1ea9d7305c2e65811f962ce2224ceae0d30",
+    "reports/v19-data-gate.json": "66f0a9a25925eed1c9dfe76f7949df597b8d4bb4eff9e4966c4acacf5c65448a",
+    "reports/v19-pre-return-assessment.json": "603515be98729e008f56fa2e495557aeeb56d3c6e5f8200c6cc7a11985fce3eb"
+  },
+  "dataGate": {
+    "schemaVersion": "v19-data-gate-v1",
+    "experimentId": "V19_BTC_SHOCK_LOW_LIQUIDITY_ALT_CATCHUP",
+    "status": "PASS",
+    "classification": "V19_DATA_GATE_PASS_PRE_RETURN_ONLY",
+    "source": "official Binance Data Vision monthly USD-M 5m kline archives only",
+    "period": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "endInclusive": "2026-07-31T23:59:59.999Z"
+    },
+    "expectedArchiveSlots": 603,
+    "checksumVerifiedArchiveSlots": 603,
+    "leader": {
+      "symbol": "BTCUSDT",
+      "eligible": true,
+      "exclusionReason": null,
+      "verifiedArchiveSlots": 67,
+      "firstAvailableMonth": "2021-01",
+      "lastAvailableMonth": "2026-07",
+      "firstOpenTime": 1609459200000,
+      "lastOpenTime": 1785542100000,
+      "combinedRows": 586944,
+      "expectedObservedRows": 586944,
+      "coverage": 1,
+      "monotonicOpenTime": true,
+      "internalArchiveGaps": 0
+    },
+    "eligibleFollowers": [
+      "BNBUSDT",
+      "ADAUSDT",
+      "BCHUSDT",
+      "DOGEUSDT",
+      "LINKUSDT",
+      "DOTUSDT"
+    ],
+    "excludedFollowers": [
+      {
+        "symbol": "XRPUSDT",
+        "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+      },
+      {
+        "symbol": "LTCUSDT",
+        "reason": "PIT_COVERAGE_BELOW_0.999_OR_MISSING_ROW"
+      }
+    ],
+    "minimumEligibleFollowers": 5,
+    "noSyntheticRows": true,
+    "noForwardFill": true,
+    "noCurrentApiBackfill": true,
+    "strategyReturnsRead": false,
+    "performanceEvaluation": "NOT_RUN_IN_FREEZE_STAGE"
+  },
+  "flags": {
+    "historicalReturnsRead": false,
+    "forwardReturnsRead": false,
+    "oosMetricsRead": false,
+    "holdoutRead": false,
+    "parameterSearch": false,
+    "resultCommitCreated": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "prohibitedBeforeHumanAcceptance": [
+    "strategy returns",
+    "OOS metrics",
+    "holdout performance",
+    "bootstrap return confidence intervals",
+    "result commit",
+    "Production wiring"
+  ],
+  "manifestBodySha256": "cf84b3e141b8709cf5dbe254a0767edc110cb48741b5c777d574b60506337e94"
+}
