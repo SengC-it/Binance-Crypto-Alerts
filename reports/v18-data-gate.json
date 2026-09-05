@@ -1,0 +1,135 @@
+{
+  "schema": "v18-data-gate-v1",
+  "status": "PASS",
+  "source": {
+    "provider": "Binance Data Vision",
+    "dataset": "USD-M Futures monthly 5m klines",
+    "officialOnly": true,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2026-07-31T23:59:59.999Z",
+    "months": 67,
+    "expectedArchiveSlots": 134,
+    "fixedUniverse": true,
+    "noCurrentSurvivorUniverseExpansion": true,
+    "noSyntheticData": true,
+    "noForwardFill": true
+  },
+  "archive": {
+    "enumeratedSlots": 134,
+    "checksumVerifiedSlots": 134,
+    "parsedSlots": 134,
+    "enumerationComplete": true,
+    "cacheSealed": true,
+    "archiveManifestSha256": "93775e69e67fb9ce08ecb58bb4af427480a3e7a87ea73f2a3c5445f51f299c6d"
+  },
+  "parser": {
+    "reportSha256": "b47402c3c273bd06c2ae93e7e1b45fecac6e97a6b73c753da0cb71dc2008190e",
+    "schema": "v18-parser-report-v1",
+    "source": {
+      "provider": "Binance Data Vision",
+      "officialOnly": true,
+      "dataset": "USD-M Futures monthly 5m klines",
+      "symbols": [
+        "BTCUSDT",
+        "ETHUSDT"
+      ],
+      "noSyntheticData": true,
+      "noForwardFill": true,
+      "noCurrentSurvivorUniverseExpansion": true
+    },
+    "bySymbol": {
+      "BTCUSDT": {
+        "expectedRows": 586944,
+        "validRows": 586944,
+        "coverage": 1,
+        "invalidRows": 0,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true,
+        "timestampRangePass": true,
+        "numericFieldPass": true,
+        "quoteVolumeNonPositiveRows": 66,
+        "takerBuyQuoteAboveQuoteRows": 0,
+        "takerBuyBaseAboveBaseRows": 0
+      },
+      "ETHUSDT": {
+        "expectedRows": 586944,
+        "validRows": 586944,
+        "coverage": 1,
+        "invalidRows": 0,
+        "duplicateOpenTimes": 0,
+        "nonMonotonicOpenTimes": 0,
+        "cadencePass": true,
+        "timestampRangePass": true,
+        "numericFieldPass": true,
+        "quoteVolumeNonPositiveRows": 47,
+        "takerBuyQuoteAboveQuoteRows": 0,
+        "takerBuyBaseAboveBaseRows": 0
+      }
+    },
+    "archiveSlots": {
+      "expected": 134,
+      "checksumVerified": 134,
+      "parsed": 134,
+      "parseComplete": true
+    },
+    "allChecksPassed": true,
+    "generatedAt": "2026-09-05T00:00:00.000Z"
+  },
+  "coverageRequirement": {
+    "minimumPerSymbol": 0.999,
+    "rationale": "complete official monthly 5m archive coverage; no synthetic fill"
+  },
+  "bySymbol": {
+    "BTCUSDT": {
+      "expectedRows": 586944,
+      "validRows": 586944,
+      "coverage": 1,
+      "invalidRows": 0,
+      "duplicateOpenTimes": 0,
+      "nonMonotonicOpenTimes": 0,
+      "cadencePass": true,
+      "timestampRangePass": true,
+      "numericFieldPass": true,
+      "quoteVolumeNonPositiveRows": 66,
+      "takerBuyQuoteAboveQuoteRows": 0,
+      "takerBuyBaseAboveBaseRows": 0
+    },
+    "ETHUSDT": {
+      "expectedRows": 586944,
+      "validRows": 586944,
+      "coverage": 1,
+      "invalidRows": 0,
+      "duplicateOpenTimes": 0,
+      "nonMonotonicOpenTimes": 0,
+      "cadencePass": true,
+      "timestampRangePass": true,
+      "numericFieldPass": true,
+      "quoteVolumeNonPositiveRows": 47,
+      "takerBuyQuoteAboveQuoteRows": 0,
+      "takerBuyBaseAboveBaseRows": 0
+    }
+  },
+  "integrity": {
+    "checksum": "PASS",
+    "numericFields": "PASS",
+    "ohlc": "PASS",
+    "timestamps": "PASS",
+    "monotonic": "PASS",
+    "duplicates": "PASS",
+    "cadence": "PASS",
+    "takerVolumeConstraints": "PASS",
+    "futureData": "PASS"
+  },
+  "returns": {
+    "forwardReturnsRead": false,
+    "strategyReturnsRead": false,
+    "oosMetricsRead": false,
+    "holdoutRead": false
+  },
+  "generatedAt": "2026-09-05T00:00:00.000Z"
+}
