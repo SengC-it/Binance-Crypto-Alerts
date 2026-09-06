@@ -18,7 +18,8 @@
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
     "v21:data": "tsx scripts/run-v21-data-stage.ts",
     "validate:v21:data": "tsx scripts/validate-v21-data.ts",
-    "validate:v21:features": "tsx scripts/validate-v21-features.ts"
+    "validate:v21:features": "tsx scripts/validate-v21-features.ts",
+    "validate:v21:feature-scan": "tsx scripts/validate-v21-feature-scan.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

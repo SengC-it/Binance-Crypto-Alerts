@@ -25,3 +25,4 @@ jobs:
       - run: pnpm validate:v5-5
       - run: pnpm validate:v21:data
       - run: pnpm validate:v21:features
+      - run: pnpm validate:v21:feature-scan
