@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "v20-sync-report-v1",
+  "experimentId": "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+  "join": "exact inner join on openTime",
+  "nearestTimeJoin": false,
+  "timestampTolerance": 0,
+  "forwardFill": false,
+  "bySymbol": [
+    {
+      "symbol": "BTCUSDT",
+      "expectedRows": 586944,
+      "regularRows": 586944,
+      "markRows": 584347,
+      "indexRows": 583484,
+      "synchronizedRows": 582043,
+      "synchronizedCoverage": 0.9916499700141751,
+      "missingSynchronizedRows": 4901,
+      "duplicateOpenTimes": 0,
+      "cadenceErrors": 11,
+      "exactInnerJoin": true,
+      "joinKey": "openTime",
+      "nearestTimeJoin": false,
+      "forwardFill": false
+    },
+    {
+      "symbol": "ETHUSDT",
+      "expectedRows": 586944,
+      "regularRows": 586944,
+      "markRows": 586074,
+      "indexRows": 585788,
+      "synchronizedRows": 585786,
+      "synchronizedCoverage": 0.998027069021917,
+      "missingSynchronizedRows": 1158,
+      "duplicateOpenTimes": 0,
+      "cadenceErrors": 6,
+      "exactInnerJoin": true,
+      "joinKey": "openTime",
+      "nearestTimeJoin": false,
+      "forwardFill": false
+    },
+    {
+      "symbol": "BNBUSDT",
+      "expectedRows": 586944,
+      "regularRows": 586944,
+      "markRows": 584347,
+      "indexRows": 583196,
+      "synchronizedRows": 581755,
+      "synchronizedCoverage": 0.9911592928797296,
+      "missingSynchronizedRows": 5189,
+      "duplicateOpenTimes": 0,
+      "cadenceErrors": 12,
+      "exactInnerJoin": true,
+      "joinKey": "openTime",
+      "nearestTimeJoin": false,
+      "forwardFill": false
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "expectedRows": 586944,
+      "regularRows": 586944,
+      "markRows": 586075,
+      "indexRows": 585788,
+      "synchronizedRows": 585787,
+      "synchronizedCoverage": 0.9980287727619671,
+      "missingSynchronizedRows": 1157,
+      "duplicateOpenTimes": 0,
+      "cadenceErrors": 5,
+      "exactInnerJoin": true,
+      "joinKey": "openTime",
+      "nearestTimeJoin": false,
+      "forwardFill": false
+    }
+  ],
+  "totals": {
+    "expectedRows": 2347776,
+    "synchronizedRows": 2335371,
+    "synchronizedCoverage": 0.9947162761694471
+  }
+}

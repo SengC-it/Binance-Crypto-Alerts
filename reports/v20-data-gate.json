@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "v20-data-gate-v1",
+  "experimentId": "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+  "source": "official Binance Data Vision only",
+  "expectedArchiveSlots": 804,
+  "archiveSlots": 804,
+  "checksumVerifiedArchiveSlots": 804,
+  "coverageRequirement": 0.999,
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "DOGEUSDT"
+  ],
+  "datasets": {
+    "BTCUSDT/regular": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 1,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 0,
+      "pass": true
+    },
+    "BTCUSDT/mark": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.9955753870897394,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 7,
+      "pass": false
+    },
+    "BTCUSDT/index": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.994105059426453,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 9,
+      "pass": false
+    },
+    "ETHUSDT/regular": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 1,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 0,
+      "pass": true
+    },
+    "ETHUSDT/mark": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.9985177461563625,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 5,
+      "pass": false
+    },
+    "ETHUSDT/index": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.9980304765020173,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 5,
+      "pass": false
+    },
+    "BNBUSDT/regular": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 1,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 0,
+      "pass": true
+    },
+    "BNBUSDT/mark": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.9955753870897394,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 7,
+      "pass": false
+    },
+    "BNBUSDT/index": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.9936143822920074,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 10,
+      "pass": false
+    },
+    "DOGEUSDT/regular": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 1,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 0,
+      "pass": true
+    },
+    "DOGEUSDT/mark": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.9985194498964126,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 4,
+      "pass": false
+    },
+    "DOGEUSDT/index": {
+      "archiveSlots": 67,
+      "verifiedArchiveSlots": 67,
+      "coverage": 0.9980304765020173,
+      "checksumVerified": true,
+      "parserErrors": [],
+      "duplicateOpenTimes": 0,
+      "monotonicOpenTime": true,
+      "cadenceErrors": 5,
+      "pass": false
+    }
+  },
+  "status": "FAIL",
+  "classification": "V20_FAIR_VALUE_DATA_INSUFFICIENT",
+  "strategyReturnsRead": false,
+  "historicalReturnsRead": false,
+  "forwardReturnsRead": false,
+  "oosMetricsRead": false,
+  "holdoutRead": false,
+  "parameterSearch": false
+}

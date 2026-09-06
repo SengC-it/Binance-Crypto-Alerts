@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "v20-pre-return-assessment-v1",
+  "experimentId": "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+  "status": "NOT_RUN_DATA_GATE_FAIL",
+  "classification": "V20_FAIR_VALUE_DATA_INSUFFICIENT",
+  "rawExtremeEvents": 0,
+  "firstCrossEvents": 0,
+  "overlapExcluded": 0,
+  "finalEligibleEvents": 0,
+  "primaryOosEligibleEvents": 0,
+  "primaryOosDistinctSignalClusters": 0,
+  "eventsBySymbol": {
+    "BTCUSDT": 0,
+    "ETHUSDT": 0,
+    "BNBUSDT": 0,
+    "DOGEUSDT": 0
+  },
+  "eventsBySide": {
+    "LONG": 0,
+    "SHORT": 0
+  },
+  "controls": {
+    "eventCounts": {
+      "LAST_INDEX_DISLOCATION": 0,
+      "EXTREME_LAST_RETURN_REVERSAL": 0,
+      "TIME_MATCHED_RANDOM": 0
+    },
+    "identityDigests": {
+      "LAST_INDEX_DISLOCATION": null,
+      "EXTREME_LAST_RETURN_REVERSAL": null,
+      "TIME_MATCHED_RANDOM": null
+    }
+  },
+  "outcomeAccess": {
+    "historicalReturnsRead": false,
+    "forwardReturnsRead": false,
+    "oosMetricsRead": false,
+    "holdoutRead": false,
+    "outcomesNotCalculated": true
+  }
+}

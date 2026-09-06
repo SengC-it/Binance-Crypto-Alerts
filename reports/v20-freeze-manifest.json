@@ -1,0 +1,254 @@
+{
+  "schemaVersion": "v20-freeze-manifest-v1",
+  "experimentId": "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v20-last-mark-dislocation-convergence",
+  "stage": "FREEZE_BEFORE_STRATEGY_RETURNS",
+  "classification": "V20_FAIR_VALUE_DATA_INSUFFICIENT",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "DOGEUSDT"
+  ],
+  "dataSources": {
+    "exchange": "BINANCE_DATA_VISION",
+    "source": "official Binance Data Vision",
+    "dataTypes": [
+      "regular",
+      "mark",
+      "index"
+    ],
+    "expectedArchiveSlots": 804,
+    "checksumVerifiedArchiveSlots": 804,
+    "archiveManifestSha256": "f2e99398abc396abd1432859c6da874a55d23ad144934a928f71ef70ec7a16bb"
+  },
+  "parser": {
+    "parserSha256": "00cacda5d4b6d257c4564f4c385bf7a29da3f7e417a2814186a09bd1ca769bd5",
+    "sourceHash": "1ca62d04a4dc99ff1a67998ddef8d318a09664527104514eec985f0ba798a204",
+    "noSyntheticRows": true,
+    "noForwardFill": true
+  },
+  "synchronization": {
+    "syncReportSha256": "7020140cf8a813648a695708186b431843edca5bdc9fa28c6bb5cfb07ed2ed54",
+    "syncEngineSha256": "91765cebef98bcd39c4b50761be39a0f75408f9ab194a05543cec3f108c5277a",
+    "exactInnerJoinOn": "openTime",
+    "nearestTimeJoin": false,
+    "timestampTolerance": 0,
+    "forwardFill": false
+  },
+  "signalEngine": {
+    "signalEngineSha256": "d8004a456c198d805e98ede20a030f2b2ae926d178b081b880c7e617bbbf8e43",
+    "eventEnumerationSha256": null,
+    "controlIdentityDigest": null,
+    "preReturnAssessmentSha256": "9273e80bfd766a6bbc0f045279ebc46b178439a72bbf4e242ec51b4610ee4526"
+  },
+  "parameters": {
+    "dataSource": "official Binance Data Vision monthly USD-M futures archives",
+    "signalTimeframe": "5m",
+    "synchronizedJoin": "exact inner join on openTime across regular, markPrice, and indexPrice klines",
+    "primaryAlphaFields": [
+      "lastClose",
+      "markClose",
+      "openTime"
+    ],
+    "controlFields": {
+      "lastIndex": [
+        "lastClose",
+        "indexClose",
+        "openTime"
+      ],
+      "lastReturn": [
+        "lastClose",
+        "openTime"
+      ]
+    },
+    "pitHistory": "[t-30d,t)",
+    "pitWindowBars": 8640,
+    "center": "arithmetic median of the prior 30 calendar days of synchronized 5m gaps; even window averages the two middle observations",
+    "quantile": "nearest-rank Q99 of prior absolute deviations from the PIT median",
+    "firstCross": "abs(prevDev) < threshold_t AND abs(dev_t) >= threshold_t",
+    "positiveDeviationDirection": "SHORT",
+    "negativeDeviationDirection": "LONG",
+    "primaryExecution": "next complete regular USD-M futures 5m candle OPEN",
+    "primaryExit": "next entry candle CLOSE; one complete 5m candle",
+    "overlapRule": "same-symbol primary events with a signal openTime less than 5m after the last accepted event are excluded",
+    "clusterId": "signalTimestamp",
+    "costModel": {
+      "takerFeeBpsPerSide": 4,
+      "slippageBpsPerSide": 2,
+      "baselineRoundTripBps": 12,
+      "additionalRoundTripStressBps": [
+        5,
+        10,
+        20
+      ]
+    },
+    "secondaryDiagnostics": [
+      15,
+      30
+    ]
+  },
+  "controls": {
+    "controlA": "LAST_INDEX_DISLOCATION: same PIT median/Q99/first-cross rule with lastClose/indexClose gap",
+    "controlB": "EXTREME_LAST_RETURN_REVERSAL: prior PIT nearest-rank Q99 of abs(log last-close return), first-cross rule",
+    "controlC": "TIME_MATCHED_RANDOM: deterministic real-bar identities matched by symbol/month/UTC hour/direction frequency",
+    "controlUse": "explanatory only; never used for parameter selection"
+  },
+  "promotionGates": {
+    "data": {
+      "archiveSlots": 804,
+      "datasetCoverageMinimum": 0.999,
+      "symbols": 4
+    },
+    "preReturn": {
+      "primaryOosEligibleEventsMinimum": 500,
+      "primaryOosSignalClustersMinimum": 250,
+      "perSymbolPrimaryOosEventsMinimum": 75
+    },
+    "performance": {
+      "primaryNetPositive": true,
+      "primaryProfitFactorMinimum": 1.2,
+      "primaryAverageNetReturnPositive": true,
+      "clusterBootstrapLCB95Positive": true,
+      "holdoutANetPositive": true,
+      "holdoutBNetPositive": true,
+      "stress10bpsNetPositive": true
+    },
+    "breadth": {
+      "profitableSymbolsMinimum": 3,
+      "profitableYearsMinimum": 2,
+      "years": [
+        2022,
+        2023,
+        2024
+      ]
+    },
+    "concentration": {
+      "maxSymbolTradeShare": 0.4,
+      "maxSymbolPositiveGrossContribution": 0.45
+    },
+    "informationGain": "primary AvgNet must exceed LAST_INDEX_DISLOCATION and EXTREME_LAST_RETURN_REVERSAL"
+  },
+  "reportHashes": {
+    "reports/v20-archive-manifest.json": "f2e99398abc396abd1432859c6da874a55d23ad144934a928f71ef70ec7a16bb",
+    "reports/v20-parser-report.json": "00cacda5d4b6d257c4564f4c385bf7a29da3f7e417a2814186a09bd1ca769bd5",
+    "reports/v20-sync-report.json": "7020140cf8a813648a695708186b431843edca5bdc9fa28c6bb5cfb07ed2ed54",
+    "reports/v20-data-gate.json": "e3d49d8a8f4abe8cd9b6a091a3b5cf1f0f34833e16f7d9006e650c9b0d4a276b",
+    "reports/v20-pre-return-assessment.json": "9273e80bfd766a6bbc0f045279ebc46b178439a72bbf4e242ec51b4610ee4526"
+  },
+  "sourceHashes": {
+    "lib/v20/constants.ts": "0efe9413497c3be0764daef09d46b62fca1c441837339e9e419c736c368901e2",
+    "lib/v20/canonical.ts": "fb9e522f671fddd5cd8737bbaa9c59eaafba6dadc41f4136cfdb095f49fbee31",
+    "lib/v20/archive.ts": "1ca62d04a4dc99ff1a67998ddef8d318a09664527104514eec985f0ba798a204",
+    "lib/v20/sync.ts": "91765cebef98bcd39c4b50761be39a0f75408f9ab194a05543cec3f108c5277a",
+    "lib/v20/signals.ts": "d8004a456c198d805e98ede20a030f2b2ae926d178b081b880c7e617bbbf8e43",
+    "scripts/run-v20-freeze.ts": "1d036719519467a755b982e8a12c5ad3ece8d0103527b56afd506b4d06848524",
+    "scripts/validate-v20-freeze.ts": "46b7f74230dfd0ecec90d12483a9aece99d1e5fc0c6dfab0352d29314e23eb03",
+    "tests/v20-freeze.test.ts": "7130c33b7189794abf7e171099bdd10de367696c2388ae08b19bb596efa6656d",
+    "package.json": "4a4be03661383c4566c99121703a8b6efdd3da77c4a7549c99bf8cb12dd1cf0d"
+  },
+  "dataGate": {
+    "status": "FAIL",
+    "dataGateSha256": "e3d49d8a8f4abe8cd9b6a091a3b5cf1f0f34833e16f7d9006e650c9b0d4a276b",
+    "synchronizedCoverage": 0.9947162761694471
+  },
+  "enumeration": {
+    "status": "NOT_RUN_DATA_GATE_FAIL",
+    "rawExtremeEvents": 0,
+    "firstCrossEvents": 0,
+    "overlapExcluded": 0,
+    "finalEligibleEvents": 0,
+    "primaryOosEligibleEvents": 0,
+    "primaryOosDistinctSignalClusters": 0,
+    "eventsBySymbol": {
+      "BTCUSDT": 0,
+      "ETHUSDT": 0,
+      "BNBUSDT": 0,
+      "DOGEUSDT": 0
+    },
+    "eventsBySide": {
+      "LONG": 0,
+      "SHORT": 0
+    },
+    "eventDigest": null,
+    "controlIdentityDigest": null
+  },
+  "execution": {
+    "signalBar": "closed 5m synchronized bar",
+    "nextEntry": "next complete regular futures 5m candle OPEN",
+    "primaryExit": "next entry candle CLOSE; outcome calculation prohibited in Freeze",
+    "secondaryDiagnostics": [
+      15,
+      30
+    ]
+  },
+  "costModel": {
+    "takerFeeBpsPerSide": 4,
+    "slippageBpsPerSide": 2,
+    "baselineRoundTripBps": 12,
+    "additionalRoundTripStressBps": [
+      5,
+      10,
+      20
+    ]
+  },
+  "windows": {
+    "warmup": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "endExclusive": "2022-01-01T00:00:00.000Z"
+    },
+    "primaryOos": {
+      "start": "2022-01-01T00:00:00.000Z",
+      "endInclusive": "2024-12-31T23:59:59.999Z"
+    },
+    "holdoutA": {
+      "start": "2025-01-01T00:00:00.000Z",
+      "endInclusive": "2025-12-31T23:59:59.999Z"
+    },
+    "holdoutB": {
+      "start": "2026-01-01T00:00:00.000Z",
+      "endInclusive": "2026-07-31T23:59:59.999Z"
+    }
+  },
+  "flags": {
+    "historicalReturnsRead": false,
+    "forwardReturnsRead": false,
+    "oosMetricsRead": false,
+    "holdoutRead": false,
+    "parameterSearch": false,
+    "resultCommitCreated": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "sourceFiles": [
+    "lib/v20/constants.ts",
+    "lib/v20/canonical.ts",
+    "lib/v20/archive.ts",
+    "lib/v20/sync.ts",
+    "lib/v20/signals.ts",
+    "scripts/run-v20-freeze.ts",
+    "scripts/validate-v20-freeze.ts",
+    "tests/v20-freeze.test.ts",
+    "package.json"
+  ],
+  "prohibitedBeforeHumanAcceptance": [
+    "strategy returns",
+    "OOS metrics",
+    "holdout performance",
+    "PF",
+    "PnL",
+    "bootstrap return confidence intervals",
+    "promotion decision",
+    "Result commit"
+  ],
+  "manifestBodySha256": "5c5c4bb725ee589c31ea90aee2e71dc56a8faed90819aac3a46c39bb5e06bfe5"
+}
