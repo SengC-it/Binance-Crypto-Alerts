@@ -125,7 +125,9 @@ async function main(): Promise<void> {
 
   for (const forbidden of V21_FORBIDDEN_PATHS) assert(!existsSync(resolve(forbidden)), `forbidden V21 artifact exists: ${forbidden}`);
   const reportNames = await readdir(REPORT_DIR);
-  const unexpectedV21Reports = reportNames.filter((name) => name.startsWith("v21-") && !V21_REPORT_FILES.some((file) => file === `reports/${name}`));
+  const unexpectedV21Reports = reportNames.filter((name) => name.startsWith("v21-")
+    && name !== "v21-feature-stage-manifest.json"
+    && !V21_REPORT_FILES.some((file) => file === `reports/${name}`));
   assertEqual(unexpectedV21Reports.length, 0, "unexpected V21 report artifacts");
 
   console.info(`V21 data validation PASS (${dataGate.status})`);
