@@ -29,6 +29,9 @@
   "observationCount": 8640,
   "q99Rank": 8554,
   "tailCount": 86,
+  "benchmarkVersion": "INDEPENDENT_ROLLING_V2",
+  "benchmarkSeed": 566296558,
+  "predicateSourceSha256": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
   "exactSemanticsRequired": true,
   "approximationUsed": false,
   "syntheticFeatureCases": 10000,
@@ -57,8 +60,8 @@
   "automaticPromotion": false,
   "eventPredicateEngineSha256": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
   "eventPredicateTestsSha256": "0c3332459d208133be8e4662a9efc07e4872f0290ddaeb0f74b981e639719986",
-  "eventPredicateValidatorSha256": "eaead4255af467c42217198f0ebcc461d5c08283d7b5f3da60588183921b9322",
-  "feasibilityReportSha256": "ace4d4447b3898ac8bd602a7802a7a38e98e8e69612501d3b858e49d73744e3c",
+  "eventPredicateValidatorSha256": "45f57c47c2c0add225ee09bb49e4326c58cb326f01600249d2a4a1b7a6aea7bc",
+  "feasibilityReportSha256": "d3ad4848d89992c165f6b8fd0668eaeb6e84be248fa4669e0279b21b0fc3411e",
   "flags": {
     "realHistoricalDataScanned": false,
     "historicalEventScanRun": false,
@@ -83,5 +86,5 @@
     "autoTrading": false,
     "automaticPromotion": false
   },
-  "manifestBodySha256": "8bb642eafd6833f54f0e93378752ad2286411ad46ec3b974276fe8172d390282"
+  "manifestBodySha256": "20ed42b285d4c4f8884003f2cf464e2dabb3c281b495c515f1b16c6c354683ed"
 }

@@ -29,6 +29,17 @@ const WP25_COMMIT = "3eceefd0808ac54d5da8e28edf78ef837bc9cacf";
 const APPROVED_FEATURE_MANIFEST_SHA = "22b0c2145a8582a9b44c3ba835c2183c9feb51babc4db683c0e559bc40b8431a";
 const APPROVED_SCAN_MANIFEST_BODY_SHA = "124672692191f3173a7c9a2bbf0938ab88ce0b318691793772690df00bf3e51b";
 const APPROVED_SCAN_REPORT_SHA = "ad0e964d68f36c379b1072d9b25972c15b56d3b0f498b2976d71877a36a8acf4";
+const PREDICATE_SOURCE_SHA = "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179";
+const BENCHMARK_VERSION = "INDEPENDENT_ROLLING_V2" as const;
+const BENCHMARK_SEED = 0x21c0ffee;
+const BENCHMARK_ROWS = 20000;
+const BENCHMARK_FAMILIES = [
+  "STATIONARY",
+  "HETEROSKEDASTIC",
+  "HEAVY_TAIL",
+  "AUTOCORRELATED",
+] as const;
+type BenchmarkFamily = (typeof BENCHMARK_FAMILIES)[number];
 const WP1_HASHES: Record<string, string> = {
   "reports/v21-archive-manifest.json": "5ac81354e12033017f68b08e05a0d1da0c11eb3fc0088af80418232387dcd452",
   "reports/v21-parser-report.json": "ecdf62a144a317658ac04dc9c5d6e1944190ed4158e4bfa01fd37c0464ed307e",
@@ -44,22 +55,41 @@ const FORBIDDEN_EVENT_ARTIFACTS = [
   "reports/v21-freeze-manifest.json",
 ] as const;
 
-interface BenchmarkMetrics {
+interface BenchmarkFamilyMetrics {
+  family: BenchmarkFamily;
+  seed: number;
   benchmarkRows: number;
   benchmarkSymbols: number;
   evaluatedPredicates: number;
   totalResidualComparisons: number;
-  averageResidualComparisonsPerPredicate: number;
+  averageResidualComparisons: number;
   medianResidualComparisons: number;
   p95ResidualComparisons: number;
+  p99ResidualComparisons: number;
   fullWindowScans: number;
   earlyExitCount: number;
   earlyExitRate: number;
   exactThresholdComputations: number;
   exactThresholdRate: number;
+  observedExtremeCount: number;
   elapsedMs: number;
   predicatesPerSecond: number;
-  peakMemoryMB: number;
+  observedExtremeRate: number;
+  rollingWindowAdvanced: boolean;
+  rollingWindowShifts: number;
+  currentAndPriorSameProcess: boolean;
+  performancePass: boolean;
+}
+
+interface BenchmarkSuite {
+  benchmarkVersion: typeof BENCHMARK_VERSION;
+  benchmarkSeed: number;
+  families: BenchmarkFamilyMetrics[];
+  stationaryGate: "PASS" | "FAIL";
+  robustnessFamiliesPassed: number;
+  worstFamilyAverageComparisons: number;
+  worstFamilyExactThresholdRate: number;
+  worstFamilyThroughput: number;
 }
 
 async function main(): Promise<void> {
@@ -67,7 +97,7 @@ async function main(): Promise<void> {
   runDependencyValidator("validate:v21:features");
   runDependencyValidator("validate:v21:feature-scan");
 
-  const measuredBenchmark = runBenchmark();
+  const measuredBenchmark = runBenchmarkSuite();
   if (process.argv.includes("--print-benchmark")) {
     console.info(JSON.stringify(measuredBenchmark, null, 2));
     return;
@@ -93,6 +123,8 @@ async function main(): Promise<void> {
   assertEqual(report.observationCount, V21_PIT_OBSERVATION_COUNT, "observation count");
   assertEqual(report.q99Rank, V21_Q99_RANK, "Q99 rank");
   assertEqual(report.tailCount, V21_Q99_TAIL_COUNT, "Q99 tail count");
+  assertEqual(report.benchmarkVersion, BENCHMARK_VERSION, "benchmark version");
+  assertEqual(report.benchmarkSeed, BENCHMARK_SEED, "benchmark seed");
   assertEqual(report.syntheticComparisonCases, 10000, "synthetic comparison cases");
   assertEqual(report.semanticMismatchCount, 0, "semantic mismatches");
   assertEqual(report.currentExtremeMismatchCount, 0, "current extreme mismatches");
@@ -106,36 +138,92 @@ async function main(): Promise<void> {
   assertEqual(report.tieSemantics.allEqual, true, "all-equal coverage");
   assertEqual(report.deterministic, true, "determinism");
 
-  const benchmark = measuredBenchmark;
-  assertEqual(benchmark.benchmarkRows, 20000, "benchmark rows");
-  assertEqual(benchmark.benchmarkSymbols, V21_SYMBOLS.length, "benchmark symbols");
-  assertEqual(benchmark.evaluatedPredicates, (20000 - V21_PIT_OBSERVATION_COUNT) * V21_SYMBOLS.length, "benchmark predicates");
-  assertEqual(report.benchmarkRows, benchmark.benchmarkRows, "reported benchmark rows");
-  assertEqual(report.benchmarkSymbols, benchmark.benchmarkSymbols, "reported benchmark symbols");
-  for (const key of [
-    "evaluatedPredicates",
-    "totalResidualComparisons",
-    "medianResidualComparisons",
-    "p95ResidualComparisons",
-    "fullWindowScans",
-    "earlyExitCount",
-    "exactThresholdComputations",
-  ] as const) {
-    assertEqual(report[key], benchmark[key], "reported benchmark " + key);
-  }
-  assertClose(report.averageResidualComparisonsPerPredicate, benchmark.averageResidualComparisonsPerPredicate, 1e-9, "reported average comparisons");
-  assertClose(report.earlyExitRate, benchmark.earlyExitRate, 1e-12, "reported early exit rate");
-  assertClose(report.exactThresholdRate, benchmark.exactThresholdRate, 1e-12, "reported exact threshold rate");
-  assert(benchmark.averageResidualComparisonsPerPredicate <= 2000, "average comparison performance gate");
-  assert(benchmark.earlyExitRate >= 0.95, "early exit performance gate");
-  assert(benchmark.exactThresholdRate <= 0.05, "exact threshold performance gate");
-  assertEqual(report.performanceGate, "PASS", "reported performance gate");
-  assertEqual(report.fullHistoryEventEnumerationFeasibility, "PASS", "event enumeration feasibility");
-  assertEqual(report.classification, "V21_EXACT_EVENT_PREDICATE_PASS", "predicate classification");
-
-  runTieChecks();
   const predicateSource = await readFile(resolve("lib/v21/event-predicate.ts"), "utf8");
+  assertEqual(canonicalTextSha256(predicateSource), PREDICATE_SOURCE_SHA, "WP2.6 predicate source unchanged");
   assert(!predicateSource.includes("buildPitFeature"), "predicate must not call reference implementation");
+  runTieChecks();
+
+  const benchmarkSource = [
+    runBenchmarkSuite.toString(),
+    runFamilyBenchmark.toString(),
+    buildFamilySeries.toString(),
+    nextUniform.toString(),
+    nextNormal.toString(),
+  ].join("\n");
+  for (const forbidden of [
+    "explicitExtremeFrequency",
+    "forcedExtremeEveryN",
+    "exactThresholdTargetRate",
+    "earlyExitTargetRate",
+  ]) assert(!benchmarkSource.includes(forbidden), "biased benchmark token: " + forbidden);
+  assert(!/rowIndex\s*%/.test(benchmarkSource), "timestamp-modulus benchmark construction");
+  assert(!/(timestamp|timeIndex)\s*%/.test(benchmarkSource), "time modulus benchmark construction");
+  const validatorSource = await readFile(resolve("scripts/validate-v21-event-predicate.ts"), "utf8");
+  assert(validatorSource.includes("residualSeries[symbolIndex].subarray(rowIndex - V21_PIT_OBSERVATION_COUNT, rowIndex)"), "rolling PIT window is not advanced");
+  assert(validatorSource.includes("residualSeries[symbolIndex][rowIndex - 1]"), "previous residual is not from generated series");
+  assert(validatorSource.includes("residualSeries[symbolIndex][rowIndex]"), "current residual is not from generated series");
+
+  assertEqual(report.benchmarkRows, BENCHMARK_ROWS, "reported benchmark rows");
+  assertEqual(report.benchmarkSymbols, V21_SYMBOLS.length, "reported benchmark symbols");
+  assertEqual(report.totalEvaluatedPredicates, measuredBenchmark.families[0].evaluatedPredicates * BENCHMARK_FAMILIES.length, "reported total predicates");
+  assertEqual(report.families.length, BENCHMARK_FAMILIES.length, "benchmark family count");
+  const reportFamilies = BENCHMARK_FAMILIES.map((familyName) => {
+    const family = report.families.find((candidate: any) => candidate.family === familyName);
+    assert(!!family, "missing benchmark family: " + familyName);
+    return family;
+  });
+  for (const [index, measuredFamily] of measuredBenchmark.families.entries()) {
+    const family = reportFamilies[index];
+    assertEqual(family.seed, measuredFamily.seed, measuredFamily.family + " seed");
+    for (const key of [
+      "benchmarkRows",
+      "benchmarkSymbols",
+      "evaluatedPredicates",
+      "totalResidualComparisons",
+      "medianResidualComparisons",
+      "p95ResidualComparisons",
+      "p99ResidualComparisons",
+      "fullWindowScans",
+      "earlyExitCount",
+      "exactThresholdComputations",
+      "observedExtremeCount",
+      "rollingWindowShifts",
+    ] as const) {
+      assertEqual(family[key], measuredFamily[key], measuredFamily.family + " " + key);
+    }
+    for (const key of [
+      "averageResidualComparisons",
+      "earlyExitRate",
+      "exactThresholdRate",
+      "observedExtremeRate",
+    ] as const) {
+      assertClose(family[key], measuredFamily[key], 1e-12, measuredFamily.family + " " + key);
+    }
+    assert(typeof family.elapsedMs === "number" && family.elapsedMs > 0, measuredFamily.family + " elapsed");
+    assert(typeof family.predicatesPerSecond === "number" && family.predicatesPerSecond > 0, measuredFamily.family + " throughput");
+    assertEqual(family.rollingWindowAdvanced, true, measuredFamily.family + " rolling window");
+    assertEqual(family.currentAndPriorSameProcess, true, measuredFamily.family + " same process");
+    assertEqual(family.performancePass, measuredFamily.performancePass, measuredFamily.family + " performance gate");
+  }
+  assertEqual(report.stationaryDistributionSanity, "PASS", "stationary distribution sanity");
+  assert(measuredBenchmark.families[0].observedExtremeRate > 0 && measuredBenchmark.families[0].observedExtremeRate <= 0.1, "stationary observed extreme rate sanity");
+  const stationaryPass = measuredBenchmark.families[0].performancePass;
+  const robustnessFamiliesPassed = measuredBenchmark.families.slice(1).filter((family) => family.performancePass).length;
+  assertEqual(report.stationaryGate, stationaryPass ? "PASS" : "FAIL", "stationary performance gate");
+  assertEqual(report.robustnessFamiliesPassed, robustnessFamiliesPassed, "robustness pass count");
+  assert(robustnessFamiliesPassed >= 2, "robustness performance gate");
+  assertClose(report.worstFamilyAverageComparisons, Math.max(...measuredBenchmark.families.map((family) => family.averageResidualComparisons)), 1e-12, "worst family average comparisons");
+  assertClose(report.worstFamilyExactThresholdRate, Math.max(...measuredBenchmark.families.map((family) => family.exactThresholdRate)), 1e-12, "worst family exact threshold rate");
+  assertClose(report.worstFamilyThroughput, Math.min(...reportFamilies.map((family: any) => family.predicatesPerSecond)), 1e-9, "worst family throughput");
+  const performancePass = stationaryPass && robustnessFamiliesPassed >= 2;
+  assertEqual(report.performanceGate, performancePass ? "PASS" : "FAIL", "reported performance gate");
+  assertEqual(report.supersededBenchmark.superseded, true, "superseded benchmark marker");
+  assertEqual(report.supersededBenchmark.supersededReason, "FIXED_EXTREME_FREQUENCY_BIASED_PERFORMANCE_GATE", "superseded benchmark reason");
+  const expectedClassification = performancePass
+    ? "V21_EXACT_EVENT_PREDICATE_PASS"
+    : "V21_EXACT_EVENT_PREDICATE_NOT_FEASIBLE";
+  assertEqual(report.classification, expectedClassification, "predicate classification");
+  assertEqual(report.fullHistoryEventEnumerationFeasibility, performancePass ? "PASS" : "FAIL", "event enumeration feasibility");
 
   assertEqual(manifest.schemaVersion, "v21-event-predicate-stage-manifest-v1", "stage schema");
   assertEqual(manifest.experimentId, V21_EXPERIMENT_ID, "stage experiment");
@@ -153,6 +241,9 @@ async function main(): Promise<void> {
   assertEqual(manifest.observationCount, V21_PIT_OBSERVATION_COUNT, "stage observation count");
   assertEqual(manifest.q99Rank, V21_Q99_RANK, "stage Q99 rank");
   assertEqual(manifest.tailCount, V21_Q99_TAIL_COUNT, "stage tail count");
+  assertEqual(manifest.benchmarkVersion, BENCHMARK_VERSION, "stage benchmark version");
+  assertEqual(manifest.benchmarkSeed, BENCHMARK_SEED, "stage benchmark seed");
+  assertEqual(manifest.predicateSourceSha256, PREDICATE_SOURCE_SHA, "stage predicate source");
   assertEqual(manifest.exactSemanticsRequired, true, "stage exact semantics");
   assertEqual(manifest.approximationUsed, false, "stage approximation");
   assertEqual(manifest.feasibilityReportSha256, canonicalTextSha256(await readFile(resolve("reports/v21-event-predicate-feasibility.json"), "utf8")), "feasibility report hash");
@@ -205,27 +296,51 @@ async function main(): Promise<void> {
   console.info("V21 exact event predicate validation PASS");
 }
 
-function runBenchmark(): BenchmarkMetrics {
-  const benchmarkRows = 20000;
+function runBenchmarkSuite(): BenchmarkSuite {
+  const families = BENCHMARK_FAMILIES.map((family, familyIndex) => runFamilyBenchmark(family, familyIndex));
+  const stationaryGate = families[0].performancePass ? "PASS" : "FAIL";
+  const robustnessFamiliesPassed = families.slice(1).filter((family) => family.performancePass).length;
+  return {
+    benchmarkVersion: BENCHMARK_VERSION,
+    benchmarkSeed: BENCHMARK_SEED,
+    families,
+    stationaryGate,
+    robustnessFamiliesPassed,
+    worstFamilyAverageComparisons: Math.max(...families.map((family) => family.averageResidualComparisons)),
+    worstFamilyExactThresholdRate: Math.max(...families.map((family) => family.exactThresholdRate)),
+    worstFamilyThroughput: Math.min(...families.map((family) => family.predicatesPerSecond)),
+  };
+}
+
+function runFamilyBenchmark(family: BenchmarkFamily, familyIndex: number): BenchmarkFamilyMetrics {
+  const startedAt = performance.now();
   const benchmarkSymbols = V21_SYMBOLS.length;
-  const priorResiduals = V21_SYMBOLS.map((_, symbolIndex) => buildNonDegeneratePrior(symbolIndex));
+  const residualSeries = V21_SYMBOLS.map((_, symbolIndex) => buildFamilySeries(family, familyIndex, symbolIndex));
   const comparisonCounts: number[] = [];
   let fullWindowScans = 0;
   let earlyExitCount = 0;
   let exactThresholdComputations = 0;
-  const startedAt = performance.now();
+  let observedExtremeCount = 0;
+  let rollingWindowShifts = 0;
+  const previousWindowStarts: Array<number | null> = Array.from({ length: benchmarkSymbols }, () => null);
 
-  for (let rowIndex = V21_PIT_OBSERVATION_COUNT; rowIndex < benchmarkRows; rowIndex += 1) {
+  for (let rowIndex = V21_PIT_OBSERVATION_COUNT; rowIndex < BENCHMARK_ROWS; rowIndex += 1) {
+    const windowStart = rowIndex - V21_PIT_OBSERVATION_COUNT;
     for (let symbolIndex = 0; symbolIndex < benchmarkSymbols; symbolIndex += 1) {
+      const priorResiduals = residualSeries[symbolIndex].subarray(rowIndex - V21_PIT_OBSERVATION_COUNT, rowIndex);
       const result = evaluateExactExtremePredicate({
-        priorResiduals: priorResiduals[symbolIndex],
-        previousResidual: benchmarkResidual(symbolIndex, rowIndex - 1),
-        currentResidual: benchmarkResidual(symbolIndex, rowIndex),
+        priorResiduals,
+        previousResidual: residualSeries[symbolIndex][rowIndex - 1],
+        currentResidual: residualSeries[symbolIndex][rowIndex],
       });
       comparisonCounts.push(result.residualComparisons);
       if (result.earlyExit) earlyExitCount += 1;
       else fullWindowScans += 1;
       if (result.exactThresholdComputed) exactThresholdComputations += 1;
+      if (result.currentExtreme) observedExtremeCount += 1;
+      const previousWindowStart = previousWindowStarts[symbolIndex];
+      if (previousWindowStart !== null && windowStart === previousWindowStart + 1) rollingWindowShifts += 1;
+      previousWindowStarts[symbolIndex] = windowStart;
     }
   }
 
@@ -235,48 +350,88 @@ function runBenchmark(): BenchmarkMetrics {
   const totalResidualComparisons = comparisonCounts.reduce((sum, value) => sum + value, 0);
   const earlyExitRate = earlyExitCount / evaluatedPredicates;
   const exactThresholdRate = exactThresholdComputations / evaluatedPredicates;
+  const averageResidualComparisons = totalResidualComparisons / evaluatedPredicates;
   return {
-    benchmarkRows,
+    family,
+    seed: deriveFamilySeed(familyIndex),
+    benchmarkRows: BENCHMARK_ROWS,
     benchmarkSymbols,
     evaluatedPredicates,
     totalResidualComparisons,
-    averageResidualComparisonsPerPredicate: totalResidualComparisons / evaluatedPredicates,
+    averageResidualComparisons,
     medianResidualComparisons: sorted[Math.ceil(sorted.length * 0.5) - 1],
     p95ResidualComparisons: sorted[Math.ceil(sorted.length * 0.95) - 1],
+    p99ResidualComparisons: sorted[Math.ceil(sorted.length * 0.99) - 1],
     fullWindowScans,
     earlyExitCount,
     earlyExitRate,
     exactThresholdComputations,
     exactThresholdRate,
+    observedExtremeCount,
+    observedExtremeRate: observedExtremeCount / evaluatedPredicates,
     elapsedMs,
     predicatesPerSecond: evaluatedPredicates / (elapsedMs / 1000),
-    peakMemoryMB: process.resourceUsage().maxRSS / 1024,
+    rollingWindowAdvanced: rollingWindowShifts === (BENCHMARK_ROWS - V21_PIT_OBSERVATION_COUNT - 1) * benchmarkSymbols,
+    rollingWindowShifts,
+    currentAndPriorSameProcess: true,
+    performancePass: averageResidualComparisons <= 2000 && earlyExitRate >= 0.95 && exactThresholdRate <= 0.05,
   };
 }
 
-function buildNonDegeneratePrior(symbolIndex: number): Float64Array {
-  const prior = new Float64Array(V21_PIT_OBSERVATION_COUNT);
-  for (let index = 0; index < prior.length; index += 1) {
-    if (index < 100) {
-      prior[index] = (symbolIndex % 2 === 0 ? 1 : -1) * (0.1 + index * 0.0001 + symbolIndex * 0.00001);
-    } else {
-      prior[index] = 0.0001
-        + 0.00004 * Math.sin(index / (9 + symbolIndex))
-        + 0.00003 * Math.cos(index / (17 + symbolIndex))
-        + symbolIndex * 0.000001;
+function buildFamilySeries(family: BenchmarkFamily, familyIndex: number, symbolIndex: number): Float64Array {
+  const random = { state: deriveSymbolSeed(familyIndex, symbolIndex) };
+  const series = new Float64Array(BENCHMARK_ROWS);
+  let previous = 0;
+  for (let timeIndex = 0; timeIndex < BENCHMARK_ROWS; timeIndex += 1) {
+    if (family === "STATIONARY") {
+      series[timeIndex] = 0.008 * nextNormal(random);
+      continue;
     }
+    if (family === "HETEROSKEDASTIC") {
+      const phase = (timeIndex + (symbolIndex + 1) * 211) / 3000;
+      const sigma = 0.006 * (1 + 0.55 * (0.5 + 0.5 * Math.sin(phase)));
+      series[timeIndex] = sigma * nextNormal(random);
+      continue;
+    }
+    if (family === "HEAVY_TAIL") {
+      const sigma = nextUniform(random) < 0.96 ? 0.007 : 0.04;
+      series[timeIndex] = sigma * nextNormal(random);
+      continue;
+    }
+    const innovation = 0.006 * nextNormal(random);
+    previous = 0.65 * previous + innovation;
+    series[timeIndex] = previous;
   }
-  return prior;
+  return series;
 }
 
-function benchmarkResidual(symbolIndex: number, rowIndex: number): number {
-  if (rowIndex % 25 === 0) {
-    return (symbolIndex % 2 === 0 ? 1 : -1) * (0.2 + symbolIndex * 0.001);
-  }
-  return 0.0005
-    + symbolIndex * 0.00001
-    + 0.0001 * Math.sin(rowIndex / (13 + symbolIndex))
-    + 0.00007 * Math.cos(rowIndex / (23 + symbolIndex));
+function deriveFamilySeed(familyIndex: number): number {
+  return deriveSeed(familyIndex + 1, 0);
+}
+
+function deriveSymbolSeed(familyIndex: number, symbolIndex: number): number {
+  return deriveSeed(familyIndex + 1, symbolIndex + 1);
+}
+
+function deriveSeed(left: number, right: number): number {
+  let seed = Math.imul(BENCHMARK_SEED ^ Math.imul(left, 0x9e3779b1), right + 0x85ebca6b);
+  seed = (seed ^ (seed >>> 16)) >>> 0;
+  return seed === 0 ? 0x6d2b79f5 : seed;
+}
+
+function nextUniform(random: { state: number }): number {
+  let value = random.state >>> 0;
+  value ^= value << 13;
+  value ^= value >>> 17;
+  value ^= value << 5;
+  random.state = value >>> 0;
+  return random.state / 4294967296;
+}
+
+function nextNormal(random: { state: number }): number {
+  const first = Math.max(nextUniform(random), Number.MIN_VALUE);
+  const second = nextUniform(random);
+  return Math.sqrt(-2 * Math.log(first)) * Math.cos(2 * Math.PI * second);
 }
 
 function runTieChecks(): void {
