@@ -15,7 +15,9 @@
     "optimizer": "tsx scripts/run-optimizer.ts",
     "validate": "tsx scripts/run-validation.ts",
     "backtest": "tsx scripts/run-backtest.ts",
-    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts"
+    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
+    "v21:data": "tsx scripts/run-v21-data-stage.ts",
+    "validate:v21:data": "tsx scripts/validate-v21-data.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
