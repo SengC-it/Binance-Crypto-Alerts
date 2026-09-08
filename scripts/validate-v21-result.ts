@@ -3,7 +3,11 @@ import { resolve } from "node:path";
 import {
   V21_BASE_SHA,
   V21_BRANCH,
+  V21_END_EXCLUSIVE_TIMESTAMP,
   V21_EXPERIMENT_ID,
+  V21_EXPECTED_ROWS_PER_SYMBOL,
+  V21_INTERVAL_MS,
+  V21_START_TIMESTAMP,
   V21_SYMBOLS,
   type V21Symbol,
 } from "../lib/v21/constants";
@@ -19,6 +23,7 @@ import {
   deriveV21Year,
   evaluateV21PriceOutcome,
   evaluateV21Promotion,
+  mapV21ExecutionIndices,
   summarizeV21Concentration,
   summarizeV21Outcomes,
   summarizeV21Returns,
@@ -36,6 +41,7 @@ import {
   assert,
   assertV21FrozenInputs,
   gitBlobHash,
+  isV21ArchiveCacheMaterialized,
   loadVerifiedV21PriceSeries,
   periodForV21Signal,
   resolveV21Execution,
@@ -117,7 +123,7 @@ async function main(): Promise<void> {
     assert(expected.canonicalTextSha256 === canonicalTextSha256(text), `artifact canonical hash ${path}`);
   }
 
-  const prices = await loadVerifiedV21PriceSeries();
+  const prices = await loadResultValidationPrices();
   const reconstructed = verifyAuditRows(frozen, audit, prices);
   const integrity = buildDataIntegrity(reconstructed.stats);
   assert(sha256(audit.dataIntegrity) === sha256(integrity), "audit data integrity");
@@ -158,10 +164,19 @@ async function main(): Promise<void> {
   console.info(`V21 classification: ${result.classification}`);
 }
 
+async function loadResultValidationPrices(): Promise<Awaited<ReturnType<typeof loadVerifiedV21PriceSeries>> | null> {
+  if (await isV21ArchiveCacheMaterialized()) return loadVerifiedV21PriceSeries();
+  if (process.env.CI === "true") {
+    console.warn("V21 result validation: no local archive cache in CI; using committed-artifact execution witness");
+    return null;
+  }
+  return loadVerifiedV21PriceSeries();
+}
+
 function verifyAuditRows(
   frozen: Awaited<ReturnType<typeof assertV21FrozenInputs>>,
   audit: any,
-  prices: Awaited<ReturnType<typeof loadVerifiedV21PriceSeries>>,
+  prices: Awaited<ReturnType<typeof loadVerifiedV21PriceSeries>> | null,
 ): { stats: Map<string, SliceStats>; outcomes: Map<string, V21EvaluatedOutcome[]>; rowsSeen: number; availableCount: number; unavailableCount: number } {
   const eventsByStrategy: Record<V21ResultStrategy, V21EventIdentity[]> = {
     [V21_PRIMARY_STRATEGY]: frozen.primaryIdentities.allEvents,
@@ -200,8 +215,9 @@ function verifyAuditRows(
     assert(row.clusterId === row.signalOpenTime, `audit cluster identity ${eventKey}`);
     assert(row.entryPriceField === "open" && row.exitPriceField === "close", `audit price fields ${eventKey}`);
     assert(row.outcomeStatus === "AVAILABLE" || row.outcomeStatus === "OUTCOME_UNAVAILABLE", `audit outcome status ${eventKey}`);
-    const series = prices.bySymbol[row.symbol];
-    const resolution = resolveV21Execution(series, event, row.horizon);
+    const resolution = prices
+      ? resolveV21Execution(prices.bySymbol[row.symbol], event, row.horizon)
+      : resolveCommittedAuditExecution(row, event, row.horizon);
     assert(row.entryBarOpenTime === resolution.entryBarOpenTime, `audit entry time ${eventKey}`);
     assert(row.exitBarOpenTime === resolution.exitBarOpenTime, `audit exit time ${eventKey}`);
     assert(row.exitCloseBoundaryTime === resolution.exitCloseBoundaryTime, `audit close boundary ${eventKey}`);
@@ -314,6 +330,42 @@ function decodeAuditRows(audit: any): AuditRow[] {
       stress20NetReturn: nullableNumber(23),
     };
   });
+}
+
+function resolveCommittedAuditExecution(
+  row: AuditRow,
+  event: V21EventIdentity,
+  horizon: V21ExecutionHorizon,
+): Awaited<ReturnType<typeof resolveV21Execution>> {
+  const start = Date.parse(V21_START_TIMESTAMP);
+  const signalIndex = (event.signalOpenTime - start) / V21_INTERVAL_MS;
+  assert(Number.isSafeInteger(signalIndex), `audit signal is not on the frozen 5m grid ${event.signalOpenTime}`);
+  assert(signalIndex >= 0 && signalIndex < V21_EXPECTED_ROWS_PER_SYMBOL, `audit signal is outside the frozen dataset ${event.signalOpenTime}`);
+  const definition = V21_EXECUTION_CONTRACT.horizons[horizon];
+  const endExclusive = Date.parse(V21_END_EXCLUSIVE_TIMESTAMP);
+  const entryBarOpenTime = event.signalOpenTime + definition.entryOffsetBars * V21_INTERVAL_MS;
+  const exitBarOpenTime = event.signalOpenTime + definition.exitOffsetBars * V21_INTERVAL_MS;
+  const exitCloseBoundaryTime = event.signalOpenTime + definition.exitCloseBoundaryOffsetBars * V21_INTERVAL_MS;
+  const expectedUnavailableReason = exitCloseBoundaryTime > endExclusive ? "DATASET_END_BOUNDARY" : null;
+  const actualUnavailableReason = row.outcomeStatus === "AVAILABLE" ? null : row.unavailableReason;
+  assert(actualUnavailableReason === expectedUnavailableReason, `audit availability witness ${event.signalOpenTime}/${horizon}`);
+  assert(row.outcomeStatus === (expectedUnavailableReason === null ? "AVAILABLE" : "OUTCOME_UNAVAILABLE"), `audit status witness ${event.signalOpenTime}/${horizon}`);
+  if (expectedUnavailableReason === null) {
+    assert(row.entryPrice !== null && row.exitPrice !== null, `audit available prices ${event.signalOpenTime}/${horizon}`);
+  } else {
+    assert(row.entryPrice === null && row.exitPrice === null, `audit unavailable prices ${event.signalOpenTime}/${horizon}`);
+  }
+  const mapping = mapV21ExecutionIndices(signalIndex, V21_EXPECTED_ROWS_PER_SYMBOL, horizon);
+  assert(mapping.outcomeAvailable === (expectedUnavailableReason === null), `audit mapping witness ${event.signalOpenTime}/${horizon}`);
+  return {
+    mapping: { ...mapping, outcomeAvailable: expectedUnavailableReason === null, outcomeStatus: row.outcomeStatus },
+    entryBarOpenTime,
+    entryPrice: row.entryPrice,
+    exitBarOpenTime,
+    exitPrice: row.exitPrice,
+    exitCloseBoundaryTime,
+    unavailableReason: expectedUnavailableReason,
+  };
 }
 
 function verifyPerformance(performance: any, stats: ReadonlyMap<string, SliceStats>, outcomes: ReadonlyMap<string, V21EvaluatedOutcome[]>): void {

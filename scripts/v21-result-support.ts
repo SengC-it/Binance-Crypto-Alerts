@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   V21_ARCHIVE_ROOT,
@@ -154,6 +154,16 @@ export function exactIndex(series: V21PriceSeries, openTime: number): number {
   const offset = (openTime - series.start) / series.interval;
   if (!Number.isSafeInteger(offset)) throw new Error(`V21 timestamp is not aligned to the verified 5m grid: ${openTime}`);
   return offset;
+}
+
+export async function isV21ArchiveCacheMaterialized(): Promise<boolean> {
+  try {
+    const entries = await readdir(V21_ARCHIVE_ROOT);
+    return entries.some((entry) => entry.endsWith(".zip"));
+  } catch (error) {
+    if (error instanceof Error && "code" in error && (error as { code?: string }).code === "ENOENT") return false;
+    throw error;
+  }
 }
 
 export async function loadVerifiedV21PriceSeries(): Promise<V21ArchiveSeriesLoad> {
