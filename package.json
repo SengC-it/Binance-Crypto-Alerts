@@ -15,7 +15,17 @@
     "optimizer": "tsx scripts/run-optimizer.ts",
     "validate": "tsx scripts/run-validation.ts",
     "backtest": "tsx scripts/run-backtest.ts",
-    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts"
+    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
+    "v21:data": "tsx scripts/run-v21-data-stage.ts",
+    "validate:v21:data": "tsx scripts/validate-v21-data.ts",
+    "validate:v21:features": "tsx scripts/validate-v21-features.ts",
+    "validate:v21:feature-scan": "tsx scripts/validate-v21-feature-scan.ts",
+    "validate:v21:event-predicate": "tsx scripts/validate-v21-event-predicate.ts",
+    "v21:events": "tsx scripts/run-v21-event-stage.ts",
+    "validate:v21:events": "tsx scripts/validate-v21-events.ts",
+    "v21:freeze": "tsx scripts/run-v21-freeze.ts",
+    "validate:v21:freeze": "tsx scripts/validate-v21-freeze.ts",
+    "validate:v21:result": "tsx scripts/validate-v21-result.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

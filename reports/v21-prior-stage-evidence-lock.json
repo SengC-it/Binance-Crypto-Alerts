@@ -1,0 +1,266 @@
+{
+  "schemaVersion": "v21-prior-stage-evidence-lock-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "source": "git cat-file blob of approved commit:path; no working-tree evidence substitution",
+  "stages": [
+    {
+      "stage": "WP1",
+      "commit": "6c17bc2545aff218d4d673f07ccee3a5bf8eb54b",
+      "files": [
+        {
+          "path": "reports/v21-archive-manifest.json",
+          "gitBlobSha": "98508f019be9e0ad3d92d7fc436dbe527e801ea4",
+          "rawSha256": "5ac81354e12033017f68b08e05a0d1da0c11eb3fc0088af80418232387dcd452",
+          "canonicalTextSha256": "5ac81354e12033017f68b08e05a0d1da0c11eb3fc0088af80418232387dcd452"
+        },
+        {
+          "path": "reports/v21-parser-report.json",
+          "gitBlobSha": "e8e562eeee7852c078b6ef6e364d41389723226c",
+          "rawSha256": "ecdf62a144a317658ac04dc9c5d6e1944190ed4158e4bfa01fd37c0464ed307e",
+          "canonicalTextSha256": "ecdf62a144a317658ac04dc9c5d6e1944190ed4158e4bfa01fd37c0464ed307e"
+        },
+        {
+          "path": "reports/v21-data-gate.json",
+          "gitBlobSha": "3caf6897ac94529818207f8942a2401f886b327d",
+          "rawSha256": "878f6a3969b9da34d9958e97518686c533740936ece0708941f08b1e2d1b4d6e",
+          "canonicalTextSha256": "878f6a3969b9da34d9958e97518686c533740936ece0708941f08b1e2d1b4d6e"
+        },
+        {
+          "path": "reports/v21-data-stage-manifest.json",
+          "gitBlobSha": "a771dd3a4aa692654f8132c0721023ede3d7041c",
+          "rawSha256": "eef1e214ef3481b4a6a10427b6c1c481be47ce1d0c5d6dc94526809d753a9928",
+          "canonicalTextSha256": "eef1e214ef3481b4a6a10427b6c1c481be47ce1d0c5d6dc94526809d753a9928"
+        },
+        {
+          "path": "lib/v21/archive.ts",
+          "gitBlobSha": "0d45ea2fbb28dd6e8456082b5c9542765ea1cdd3",
+          "rawSha256": "da6663ebb19f83e437f7b2c6f9690f00202fa3365b606e6f9328f97c03856484",
+          "canonicalTextSha256": "da6663ebb19f83e437f7b2c6f9690f00202fa3365b606e6f9328f97c03856484"
+        },
+        {
+          "path": "lib/v21/canonical.ts",
+          "gitBlobSha": "abc0f4176009dbf18dcb71ed8851b014aaf937e6",
+          "rawSha256": "3853858ef3adf3f08b739e8ce46e71ac88c66dc588e3f51e06f12a1fd196ba39",
+          "canonicalTextSha256": "3853858ef3adf3f08b739e8ce46e71ac88c66dc588e3f51e06f12a1fd196ba39"
+        },
+        {
+          "path": "lib/v21/constants.ts",
+          "gitBlobSha": "3e310b43eae6e782867fdbcd69d32fce0e9554b2",
+          "rawSha256": "7c42cf7131c2d37e7b2b608dc543142d2b9c5c3bae40ffb838c650a3d54201de",
+          "canonicalTextSha256": "7c42cf7131c2d37e7b2b608dc543142d2b9c5c3bae40ffb838c650a3d54201de"
+        },
+        {
+          "path": "scripts/run-v21-data-stage.ts",
+          "gitBlobSha": "a9c006077c3ae37cfbce64c09b1b4cc59bd0e343",
+          "rawSha256": "9aaf2799a947835b732b6c9a2717fb6b6151b66f80a31feba7ed276d33034464",
+          "canonicalTextSha256": "9aaf2799a947835b732b6c9a2717fb6b6151b66f80a31feba7ed276d33034464"
+        },
+        {
+          "path": "scripts/validate-v21-data.ts",
+          "gitBlobSha": "0b534260a88feea40ee90a2f415de9adc9448502",
+          "rawSha256": "531ec593aa97db310d7b921c048d38f0facc45f86321ce9fb4913d296d4cbdbb",
+          "canonicalTextSha256": "531ec593aa97db310d7b921c048d38f0facc45f86321ce9fb4913d296d4cbdbb"
+        },
+        {
+          "path": "tests/v21-data.test.ts",
+          "gitBlobSha": "579989f5190c64a7e3153b6583afc65b6dcbe8d3",
+          "rawSha256": "d44f551cab533452417a349243ef4aaadc75f600dc5f29e5bab934dc8f1b0236",
+          "canonicalTextSha256": "d44f551cab533452417a349243ef4aaadc75f600dc5f29e5bab934dc8f1b0236"
+        }
+      ]
+    },
+    {
+      "stage": "WP2",
+      "commit": "83fa78849890ac0a59b408b4e0d13f007755977f",
+      "files": [
+        {
+          "path": "reports/v21-feature-stage-manifest.json",
+          "gitBlobSha": "27592a1a52cb781a5c4aad8c9366e2c673174596",
+          "rawSha256": "358e13b0f7821f5ef105e534ef121927de5e8fe48c3695ee5d544d9c13c234bd",
+          "canonicalTextSha256": "358e13b0f7821f5ef105e534ef121927de5e8fe48c3695ee5d544d9c13c234bd"
+        },
+        {
+          "path": "lib/v21/features.ts",
+          "gitBlobSha": "d969e61775664c046a0a83ae72e7cd7f6a1c2251",
+          "rawSha256": "0331bab1ace6772eef3e01360de69126872fb9394e9960b633ca3e459435b620",
+          "canonicalTextSha256": "0331bab1ace6772eef3e01360de69126872fb9394e9960b633ca3e459435b620"
+        },
+        {
+          "path": "tests/v21-features.test.ts",
+          "gitBlobSha": "cc245ef1f798d4d3283f180e9f3462b752f34ab0",
+          "rawSha256": "6a94e29219cf895701bc22351e22ab32804c31936e2d2634090407c1f40472c4",
+          "canonicalTextSha256": "6a94e29219cf895701bc22351e22ab32804c31936e2d2634090407c1f40472c4"
+        },
+        {
+          "path": "scripts/validate-v21-features.ts",
+          "gitBlobSha": "dc705abec6f40afa0ffd1bbac0c6889502eca320",
+          "rawSha256": "5c6c7b25c50bc481b1fe57c202c2884f780c96fcebb27698c7e9bdb3ca7d9d3e",
+          "canonicalTextSha256": "5c6c7b25c50bc481b1fe57c202c2884f780c96fcebb27698c7e9bdb3ca7d9d3e"
+        }
+      ]
+    },
+    {
+      "stage": "WP2.5",
+      "commit": "3eceefd0808ac54d5da8e28edf78ef837bc9cacf",
+      "files": [
+        {
+          "path": "reports/v21-scan-feasibility.json",
+          "gitBlobSha": "b7974a0e1bf162bc0748d2375412ab8388468a46",
+          "rawSha256": "ad0e964d68f36c379b1072d9b25972c15b56d3b0f498b2976d71877a36a8acf4",
+          "canonicalTextSha256": "ad0e964d68f36c379b1072d9b25972c15b56d3b0f498b2976d71877a36a8acf4"
+        },
+        {
+          "path": "reports/v21-scan-stage-manifest.json",
+          "gitBlobSha": "36916079735da55dc0ac2e905d1efa77bfe23a4b",
+          "rawSha256": "8174d2079157a836e1ecad414e65a94e9f77ff9e12afc39d13826feea035ba76",
+          "canonicalTextSha256": "8174d2079157a836e1ecad414e65a94e9f77ff9e12afc39d13826feea035ba76"
+        },
+        {
+          "path": "lib/v21/feature-scan.ts",
+          "gitBlobSha": "96e29c4f32fdf2535d10a452df264ab415d874ce",
+          "rawSha256": "682c38a05cc4d49fd5202b60e6b0dce95be51f5cffe56ff80ad8a7bdb38f0792",
+          "canonicalTextSha256": "682c38a05cc4d49fd5202b60e6b0dce95be51f5cffe56ff80ad8a7bdb38f0792"
+        },
+        {
+          "path": "tests/v21-feature-scan.test.ts",
+          "gitBlobSha": "32a2a5ef2882d1b7ffa5a3da55fc31f515a640ef",
+          "rawSha256": "426293092a4acc4b196211394c48f8f3226b9c1be3bfef7409ca5ad073188bc8",
+          "canonicalTextSha256": "426293092a4acc4b196211394c48f8f3226b9c1be3bfef7409ca5ad073188bc8"
+        },
+        {
+          "path": "scripts/validate-v21-feature-scan.ts",
+          "gitBlobSha": "c4825eeeb2acf11c2cf9bbcbdd778b6a34065c62",
+          "rawSha256": "37982135ae602ddf36d780e39e9611f0a285e0393f42a5b53bdb76bd2eaf8521",
+          "canonicalTextSha256": "37982135ae602ddf36d780e39e9611f0a285e0393f42a5b53bdb76bd2eaf8521"
+        }
+      ]
+    },
+    {
+      "stage": "WP2.6",
+      "commit": "56326f0998b76cd78d088d73cb971c5c58ab4739",
+      "files": [
+        {
+          "path": "reports/v21-event-predicate-feasibility.json",
+          "gitBlobSha": "a4cd552571f8244e0a4ea21f4c34e4104cfa74ce",
+          "rawSha256": "ace4d4447b3898ac8bd602a7802a7a38e98e8e69612501d3b858e49d73744e3c",
+          "canonicalTextSha256": "ace4d4447b3898ac8bd602a7802a7a38e98e8e69612501d3b858e49d73744e3c"
+        },
+        {
+          "path": "reports/v21-event-predicate-stage-manifest.json",
+          "gitBlobSha": "3ae019fc60762a54be5fe738543962c809551bbd",
+          "rawSha256": "cbb917436170209fed0e021478eb9d70b9bf8d1e1172e627736c0837e04c3324",
+          "canonicalTextSha256": "cbb917436170209fed0e021478eb9d70b9bf8d1e1172e627736c0837e04c3324"
+        },
+        {
+          "path": "lib/v21/event-predicate.ts",
+          "gitBlobSha": "1e0219d964cf441d74fff2d7fdbe4b56042b5d3d",
+          "rawSha256": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
+          "canonicalTextSha256": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179"
+        },
+        {
+          "path": "tests/v21-event-predicate.test.ts",
+          "gitBlobSha": "8ef4efdddcf1cc1604b219d65d6daa4c4f9b9eb9",
+          "rawSha256": "0c3332459d208133be8e4662a9efc07e4872f0290ddaeb0f74b981e639719986",
+          "canonicalTextSha256": "0c3332459d208133be8e4662a9efc07e4872f0290ddaeb0f74b981e639719986"
+        },
+        {
+          "path": "scripts/validate-v21-event-predicate.ts",
+          "gitBlobSha": "af9d8ade093bd71246772e893e191370d2283bca",
+          "rawSha256": "eaead4255af467c42217198f0ebcc461d5c08283d7b5f3da60588183921b9322",
+          "canonicalTextSha256": "eaead4255af467c42217198f0ebcc461d5c08283d7b5f3da60588183921b9322"
+        }
+      ]
+    },
+    {
+      "stage": "WP2.6b",
+      "commit": "e8721d509d574cc2697e3fff75ba7f5f4b86d99a",
+      "files": [
+        {
+          "path": "reports/v21-event-predicate-feasibility.json",
+          "gitBlobSha": "babe104a6f48a0232e72b5af0c5467d4f996e1b5",
+          "rawSha256": "d3ad4848d89992c165f6b8fd0668eaeb6e84be248fa4669e0279b21b0fc3411e",
+          "canonicalTextSha256": "d3ad4848d89992c165f6b8fd0668eaeb6e84be248fa4669e0279b21b0fc3411e"
+        },
+        {
+          "path": "reports/v21-event-predicate-stage-manifest.json",
+          "gitBlobSha": "317fbbc937c91d2a3f80fdb7ac2cc22dabf84158",
+          "rawSha256": "3eacfd9fb60e116e11b07b61c4e7e6b0ba7fad5d622bf52b52165365832e32e5",
+          "canonicalTextSha256": "3eacfd9fb60e116e11b07b61c4e7e6b0ba7fad5d622bf52b52165365832e32e5"
+        },
+        {
+          "path": "lib/v21/event-predicate.ts",
+          "gitBlobSha": "1e0219d964cf441d74fff2d7fdbe4b56042b5d3d",
+          "rawSha256": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
+          "canonicalTextSha256": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179"
+        },
+        {
+          "path": "tests/v21-event-predicate.test.ts",
+          "gitBlobSha": "8ef4efdddcf1cc1604b219d65d6daa4c4f9b9eb9",
+          "rawSha256": "0c3332459d208133be8e4662a9efc07e4872f0290ddaeb0f74b981e639719986",
+          "canonicalTextSha256": "0c3332459d208133be8e4662a9efc07e4872f0290ddaeb0f74b981e639719986"
+        },
+        {
+          "path": "scripts/validate-v21-event-predicate.ts",
+          "gitBlobSha": "de655840feda4d43bfcebcb29cc9a7a974db6591",
+          "rawSha256": "45f57c47c2c0add225ee09bb49e4326c58cb326f01600249d2a4a1b7a6aea7bc",
+          "canonicalTextSha256": "45f57c47c2c0add225ee09bb49e4326c58cb326f01600249d2a4a1b7a6aea7bc"
+        }
+      ]
+    },
+    {
+      "stage": "WP3A",
+      "commit": "d36e6fc606e47ab4cb56d4b8ce4adb26abbccbcc",
+      "files": [
+        {
+          "path": "reports/v21-event-enumeration.json",
+          "gitBlobSha": "7d598a5b5b0a234f5115613c9c57b1066965de8d",
+          "rawSha256": "b60b85c3fc60faf6ce16948c682a02877a7f771f55b76f09044b6e839f6225f4",
+          "canonicalTextSha256": "b60b85c3fc60faf6ce16948c682a02877a7f771f55b76f09044b6e839f6225f4"
+        },
+        {
+          "path": "reports/v21-event-identities.json",
+          "gitBlobSha": "2a6e39a4decd99a7b671773a19650df10d2e0990",
+          "rawSha256": "505e5481a66711d974b83b3252429181c4c3b2efcdb73a785edf61fe00c636b8",
+          "canonicalTextSha256": "505e5481a66711d974b83b3252429181c4c3b2efcdb73a785edf61fe00c636b8"
+        },
+        {
+          "path": "reports/v21-event-stage-manifest.json",
+          "gitBlobSha": "b090ea5c50badc0f67dea01d4489249e9fa6cf34",
+          "rawSha256": "d0ab958bb13598aa7a7a152954dedf37c12b90fb460388f5d793b71d338e37b3",
+          "canonicalTextSha256": "d0ab958bb13598aa7a7a152954dedf37c12b90fb460388f5d793b71d338e37b3"
+        },
+        {
+          "path": "lib/v21/events.ts",
+          "gitBlobSha": "feebdda629b9fc672f3834b10265f8cac2ca50e7",
+          "rawSha256": "629df44dd600ddfa5d3711a3f1c9fc2e9bb8c64814c1a464a70f860a9453d803",
+          "canonicalTextSha256": "629df44dd600ddfa5d3711a3f1c9fc2e9bb8c64814c1a464a70f860a9453d803"
+        },
+        {
+          "path": "scripts/run-v21-event-stage.ts",
+          "gitBlobSha": "ad43c742fcbf571df2b0dfc5ffbf965a7cc1afce",
+          "rawSha256": "20246abd6ac27b4491b48d97425a3f3756dc8ff2a843db8f95355dbd55a27b7b",
+          "canonicalTextSha256": "20246abd6ac27b4491b48d97425a3f3756dc8ff2a843db8f95355dbd55a27b7b"
+        },
+        {
+          "path": "scripts/validate-v21-events.ts",
+          "gitBlobSha": "bace27ae9ae494e19844c6865dd800602804fff5",
+          "rawSha256": "13b9ab93b97525e422f4bdc8f6e3cdfebc28e104de1159a6cf4ccd5914553050",
+          "canonicalTextSha256": "13b9ab93b97525e422f4bdc8f6e3cdfebc28e104de1159a6cf4ccd5914553050"
+        },
+        {
+          "path": "tests/v21-events.test.ts",
+          "gitBlobSha": "2a702741e74406738d20797f9dd6714cebe6111f",
+          "rawSha256": "051c6eb2a40214767ba3df9318cf8a1496fb430a9b293cfb7f4d93314a7e1bff",
+          "canonicalTextSha256": "051c6eb2a40214767ba3df9318cf8a1496fb430a9b293cfb7f4d93314a7e1bff"
+        },
+        {
+          "path": "package.json",
+          "gitBlobSha": "6e24e97bf622cec8487ba71e22a2d59692c60900",
+          "rawSha256": "a09e800627a7aafe43276748bb8f398dbb580c875b9498b1362f0fb0af632d83",
+          "canonicalTextSha256": "a09e800627a7aafe43276748bb8f398dbb580c875b9498b1362f0fb0af632d83"
+        }
+      ]
+    }
+  ]
+}

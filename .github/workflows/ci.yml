@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/v21-idiosyncratic-jump-reversal]
   pull_request:
 
 jobs:
@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: pnpm/action-setup@v4
         with:
           version: 11.16.0
@@ -23,3 +26,4 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm validate:v5-5
+      - run: pnpm validate:v21:result

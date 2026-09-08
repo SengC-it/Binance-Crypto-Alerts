@@ -1,0 +1,456 @@
+{
+  "schemaVersion": "v21-primary-oos-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "resultRunId": "f4dade28e0a66f24d62f4d43dbd9e8daf22691411709b86b4ded7d483a34d73b",
+  "strategy": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "period": "PRIMARY_OOS",
+  "horizon": "PRIMARY_30M",
+  "identityCount": 19160,
+  "availableCount": 19160,
+  "unavailableCount": 0,
+  "unavailableReasons": {},
+  "metrics": {
+    "baseline": {
+      "sampleSize": 19160,
+      "net": -20.376278044204167,
+      "averageNet": -0.0010634800649375869,
+      "profitFactor": 0.756366561873236,
+      "winRate": 0.4708768267223382
+    },
+    "stress5": {
+      "sampleSize": 19160,
+      "net": -29.956278044203085,
+      "averageNet": -0.0015634800649375305,
+      "profitFactor": 0.6628739860787687,
+      "winRate": 0.4389874739039666
+    },
+    "stress10": {
+      "sampleSize": 19160,
+      "net": -39.53627804420477,
+      "averageNet": -0.0020634800649376186,
+      "profitFactor": 0.5810478992176934,
+      "winRate": 0.4087160751565762
+    },
+    "stress20": {
+      "sampleSize": 19160,
+      "net": -58.69627804420416,
+      "averageNet": -0.003063480064937587,
+      "profitFactor": 0.4475202920229386,
+      "winRate": 0.35161795407098123
+    }
+  },
+  "bySymbol": {
+    "BTCUSDT": {
+      "identityCount": 2400,
+      "availableCount": 2400,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2400,
+          "net": -3.256698367489324,
+          "averageNet": -0.0013569576531205516,
+          "profitFactor": 0.6160426468443823,
+          "winRate": 0.43125
+        },
+        "stress5": {
+          "sampleSize": 2400,
+          "net": -4.456698367489214,
+          "averageNet": -0.001856957653120506,
+          "profitFactor": 0.5151233605347212,
+          "winRate": 0.38958333333333334
+        },
+        "stress10": {
+          "sampleSize": 2400,
+          "net": -5.656698367489385,
+          "averageNet": -0.002356957653120577,
+          "profitFactor": 0.4312180754727157,
+          "winRate": 0.3545833333333333
+        },
+        "stress20": {
+          "sampleSize": 2400,
+          "net": -8.056698367489298,
+          "averageNet": -0.003356957653120541,
+          "profitFactor": 0.30372684006263273,
+          "winRate": 0.29
+        }
+      }
+    },
+    "ETHUSDT": {
+      "identityCount": 2410,
+      "availableCount": 2410,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2410,
+          "net": -1.9372505857055249,
+          "averageNet": -0.0008038384173051971,
+          "profitFactor": 0.7811099567782294,
+          "winRate": 0.48049792531120333
+        },
+        "stress5": {
+          "sampleSize": 2410,
+          "net": -3.142250585705492,
+          "averageNet": -0.0013038384173051833,
+          "profitFactor": 0.6691158142754536,
+          "winRate": 0.445643153526971
+        },
+        "stress10": {
+          "sampleSize": 2410,
+          "net": -4.347250585705573,
+          "averageNet": -0.001803838417305217,
+          "profitFactor": 0.5731459394270014,
+          "winRate": 0.41203319502074687
+        },
+        "stress20": {
+          "sampleSize": 2410,
+          "net": -6.757250585705539,
+          "averageNet": -0.002803838417305203,
+          "profitFactor": 0.4218622183717391,
+          "winRate": 0.34190871369294606
+        }
+      }
+    },
+    "BNBUSDT": {
+      "identityCount": 2399,
+      "availableCount": 2399,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2399,
+          "net": -3.543537536935263,
+          "averageNet": -0.0014770894276512144,
+          "profitFactor": 0.6098290980684614,
+          "winRate": 0.44310129220508543
+        },
+        "stress5": {
+          "sampleSize": 2399,
+          "net": -4.743037536935176,
+          "averageNet": -0.001977089427651178,
+          "profitFactor": 0.5147606796104911,
+          "winRate": 0.40683618174239267
+        },
+        "stress10": {
+          "sampleSize": 2399,
+          "net": -5.9425375369353235,
+          "averageNet": -0.0024770894276512395,
+          "profitFactor": 0.43452090603274895,
+          "winRate": 0.3676531888286786
+        },
+        "stress20": {
+          "sampleSize": 2399,
+          "net": -8.341537536935288,
+          "averageNet": -0.003477089427651225,
+          "profitFactor": 0.31111899084450306,
+          "winRate": 0.29387244685285535
+        }
+      }
+    },
+    "ADAUSDT": {
+      "identityCount": 2436,
+      "availableCount": 2436,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2436,
+          "net": -3.1210946260726615,
+          "averageNet": -0.0012812375312285145,
+          "profitFactor": 0.7202910845012171,
+          "winRate": 0.4708538587848933
+        },
+        "stress5": {
+          "sampleSize": 2436,
+          "net": -4.339094626072568,
+          "averageNet": -0.0017812375312284763,
+          "profitFactor": 0.6329002445235988,
+          "winRate": 0.44047619047619047
+        },
+        "stress10": {
+          "sampleSize": 2436,
+          "net": -5.557094626072729,
+          "averageNet": -0.0022812375312285423,
+          "profitFactor": 0.5561972992208719,
+          "winRate": 0.4039408866995074
+        },
+        "stress20": {
+          "sampleSize": 2436,
+          "net": -7.993094626072648,
+          "averageNet": -0.003281237531228509,
+          "profitFactor": 0.42997703512745744,
+          "winRate": 0.36247947454844004
+        }
+      }
+    },
+    "BCHUSDT": {
+      "identityCount": 2278,
+      "availableCount": 2278,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2278,
+          "net": -1.8699867858321457,
+          "averageNet": -0.0008208897216120043,
+          "profitFactor": 0.832800003049047,
+          "winRate": 0.4991220368744513
+        },
+        "stress5": {
+          "sampleSize": 2278,
+          "net": -3.008986785832072,
+          "averageNet": -0.001320889721611972,
+          "profitFactor": 0.7443486267701176,
+          "winRate": 0.47278314310798947
+        },
+        "stress10": {
+          "sampleSize": 2278,
+          "net": -4.147986785832174,
+          "averageNet": -0.0018208897216120167,
+          "profitFactor": 0.6650864813484277,
+          "winRate": 0.44688323090430204
+        },
+        "stress20": {
+          "sampleSize": 2278,
+          "net": -6.425986785832118,
+          "averageNet": -0.002820889721611992,
+          "profitFactor": 0.531217544529063,
+          "winRate": 0.39596136962247586
+        }
+      }
+    },
+    "DOGEUSDT": {
+      "identityCount": 2246,
+      "availableCount": 2246,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2246,
+          "net": -2.3400584698907734,
+          "averageNet": -0.0010418782145551083,
+          "profitFactor": 0.8209813193024832,
+          "winRate": 0.4959928762243989
+        },
+        "stress5": {
+          "sampleSize": 2246,
+          "net": -3.463058469890686,
+          "averageNet": -0.0015418782145550695,
+          "profitFactor": 0.7462928212102095,
+          "winRate": 0.4764024933214604
+        },
+        "stress10": {
+          "sampleSize": 2246,
+          "net": -4.586058469890799,
+          "averageNet": -0.0020418782145551198,
+          "profitFactor": 0.6781580435315526,
+          "winRate": 0.4541406945681211
+        },
+        "stress20": {
+          "sampleSize": 2246,
+          "net": -6.8320584698907485,
+          "averageNet": -0.0030418782145550972,
+          "profitFactor": 0.5603027881178357,
+          "winRate": 0.40115761353517365
+        }
+      }
+    },
+    "LINKUSDT": {
+      "identityCount": 2523,
+      "availableCount": 2523,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2523,
+          "net": -2.408900282685638,
+          "averageNet": -0.0009547761722891946,
+          "profitFactor": 0.791934327579839,
+          "winRate": 0.46809353943717796
+        },
+        "stress5": {
+          "sampleSize": 2523,
+          "net": -3.670400282685533,
+          "averageNet": -0.001454776172289153,
+          "profitFactor": 0.7007383060488706,
+          "winRate": 0.43955608402695207
+        },
+        "stress10": {
+          "sampleSize": 2523,
+          "net": -4.93190028268567,
+          "averageNet": -0.0019547761722892073,
+          "profitFactor": 0.6201285586251155,
+          "winRate": 0.41934205311137535
+        },
+        "stress20": {
+          "sampleSize": 2523,
+          "net": -7.454900282685627,
+          "averageNet": -0.0029547761722891904,
+          "profitFactor": 0.48618443298563224,
+          "winRate": 0.3701942132382085
+        }
+      }
+    },
+    "DOTUSDT": {
+      "identityCount": 2468,
+      "availableCount": 2468,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 2468,
+          "net": -1.8987513895928902,
+          "averageNet": -0.0007693482129630836,
+          "profitFactor": 0.8143760392708563,
+          "winRate": 0.48095623987034036
+        },
+        "stress5": {
+          "sampleSize": 2468,
+          "net": -3.1327513895928476,
+          "averageNet": -0.0012693482129630662,
+          "profitFactor": 0.71234736133644,
+          "winRate": 0.4444894651539708
+        },
+        "stress10": {
+          "sampleSize": 2468,
+          "net": -4.366751389592921,
+          "averageNet": -0.0017693482129630962,
+          "profitFactor": 0.6232841795988163,
+          "winRate": 0.4153160453808752
+        },
+        "stress20": {
+          "sampleSize": 2468,
+          "net": -6.83475138959289,
+          "averageNet": -0.0027693482129630834,
+          "profitFactor": 0.4781167130708334,
+          "winRate": 0.36142625607779577
+        }
+      }
+    }
+  },
+  "byYear": {
+    "2022": {
+      "identityCount": 6381,
+      "availableCount": 6381,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 6381,
+          "net": -6.255441195727439,
+          "averageNet": -0.0009803230208004137,
+          "profitFactor": 0.8003930347858077,
+          "winRate": 0.48315311079768064
+        },
+        "stress5": {
+          "sampleSize": 6381,
+          "net": -9.445941195727134,
+          "averageNet": -0.0014803230208003657,
+          "profitFactor": 0.7140476506156941,
+          "winRate": 0.4552577965836076
+        },
+        "stress10": {
+          "sampleSize": 6381,
+          "net": -12.636441195727656,
+          "averageNet": -0.0019803230208004477,
+          "profitFactor": 0.6370036079009095,
+          "winRate": 0.4276759128663219
+        },
+        "stress20": {
+          "sampleSize": 6381,
+          "net": -19.01744119572743,
+          "averageNet": -0.002980323020800412,
+          "profitFactor": 0.5075505594498987,
+          "winRate": 0.38050462309982763
+        }
+      }
+    },
+    "2023": {
+      "identityCount": 6297,
+      "availableCount": 6297,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 6297,
+          "net": -6.886873942817447,
+          "averageNet": -0.0010936753919036759,
+          "profitFactor": 0.7082823608806629,
+          "winRate": 0.4686358583452438
+        },
+        "stress5": {
+          "sampleSize": 6297,
+          "net": -10.035373942817197,
+          "averageNet": -0.0015936753919036362,
+          "profitFactor": 0.6039318184506877,
+          "winRate": 0.4329045577259012
+        },
+        "stress10": {
+          "sampleSize": 6297,
+          "net": -13.183873942817746,
+          "averageNet": -0.002093675391903723,
+          "profitFactor": 0.5148300578260474,
+          "winRate": 0.3989201206923932
+        },
+        "stress20": {
+          "sampleSize": 6297,
+          "net": -19.480873942817503,
+          "averageNet": -0.0030936753919036846,
+          "profitFactor": 0.37505926057684796,
+          "winRate": 0.3299984119421947
+        }
+      }
+    },
+    "2024": {
+      "identityCount": 6482,
+      "availableCount": 6482,
+      "unavailableCount": 0,
+      "metrics": {
+        "baseline": {
+          "sampleSize": 6482,
+          "net": -7.233962905659238,
+          "averageNet": -0.0011160078533877257,
+          "profitFactor": 0.7478416551862918,
+          "winRate": 0.460968836778772
+        },
+        "stress5": {
+          "sampleSize": 6482,
+          "net": -10.4749629056589,
+          "averageNet": -0.0016160078533876737,
+          "profitFactor": 0.6564126564956961,
+          "winRate": 0.42887997531626043
+        },
+        "stress10": {
+          "sampleSize": 6482,
+          "net": -13.715962905659445,
+          "averageNet": -0.0021160078533877576,
+          "profitFactor": 0.576461853046132,
+          "winRate": 0.39956803455723544
+        },
+        "stress20": {
+          "sampleSize": 6482,
+          "net": -20.19796290565921,
+          "averageNet": -0.0031160078533877212,
+          "profitFactor": 0.4458887514307938,
+          "winRate": 0.34418389385991977
+        }
+      }
+    }
+  },
+  "concentration": {
+    "maxSingleSymbolTradeShare": 0.13168058455114823,
+    "maxSingleSymbolPositiveGrossContribution": 0.16181991927082012,
+    "totalPositiveGrossContribution": 74.91895176256804,
+    "positiveGrossBySymbol": {
+      "BTCUSDT": 6.5861731434654835,
+      "BCHUSDT": 10.776323551923078,
+      "BNBUSDT": 6.953920966751145,
+      "LINKUSDT": 10.68950265535637,
+      "DOTUSDT": 9.860985176780364,
+      "ETHUSDT": 8.42153386223317,
+      "ADAUSDT": 9.507133679985206,
+      "DOGEUSDT": 12.123378726073227
+    }
+  },
+  "bootstrap": {
+    "evaluated": true,
+    "seed": 565183866,
+    "replications": 10000,
+    "lcb95": -0.0012419430067544788,
+    "lcbRank": 250,
+    "lcbArrayIndex": 249,
+    "clusterCount": 16532,
+    "valuesSha256": "dc7b88e5f07d5469595dde974aebddb2d9ce297675c1fe05a324717fc0e92ead"
+  }
+}

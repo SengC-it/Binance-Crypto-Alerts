@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "v21-result-contract-v2",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "branch": "feat/v21-idiosyncratic-jump-reversal",
+  "approvedWp3bCommit": "1b9bebed1071e00bbd44269d38577205cc6f84ed",
+  "contractOnly": true,
+  "realOutcomeEvaluationPerformed": false,
+  "entryPriceField": "open",
+  "exitPriceField": "close",
+  "execution": {
+    "signalIdentity": "signalOpenTime is the open timestamp of a fully closed 5m signal candle",
+    "entryOpenTime": "signalOpenTime + 5m",
+    "entryReference": "next 5m candle OPEN",
+    "entryPriceField": "open",
+    "exitPriceField": "close",
+    "entryUsesSignalClose": false,
+    "entryUsesNextClose": false,
+    "entryUsesExitOpen": false,
+    "entryUsesHighLow": false,
+    "horizons": {
+      "PRIMARY_30M": {
+        "entryOffsetBars": 1,
+        "exitOffsetBars": 6,
+        "fullBarsHeld": 6,
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 30m",
+        "exitCloseBoundaryOffsetBars": 7,
+        "role": "promotion horizon"
+      },
+      "DIAGNOSTIC_15M": {
+        "entryOffsetBars": 1,
+        "exitOffsetBars": 3,
+        "fullBarsHeld": 3,
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 15m",
+        "exitCloseBoundaryOffsetBars": 4,
+        "role": "diagnostic only"
+      },
+      "DIAGNOSTIC_60M": {
+        "entryOffsetBars": 1,
+        "exitOffsetBars": 12,
+        "fullBarsHeld": 12,
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 60m",
+        "exitCloseBoundaryOffsetBars": 13,
+        "role": "diagnostic only"
+      }
+    },
+    "unavailableOutcome": "OUTCOME_UNAVAILABLE; no fill, nearest-bar repair, or shortened horizon"
+  },
+  "outcomeAvailabilityContract": {
+    "status": "OUTCOME_UNAVAILABLE",
+    "horizons": {
+      "PRIMARY_30M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      },
+      "DIAGNOSTIC_15M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      },
+      "DIAGNOSTIC_60M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      }
+    },
+    "forbiddenRecovery": [
+      "INTERNAL_GAP",
+      "MISSING_BAR",
+      "NEAREST_BAR_REPAIR",
+      "FORWARD_FILL",
+      "SHORTENED_HORIZON"
+    ],
+    "invalidDataClassification": "V21_RESULT_DATA_INTEGRITY_FAIL",
+    "identityPolicy": "retain unavailable frozen identities; exclude only from metric denominator with count and reason reported separately"
+  },
+  "costs": {
+    "feeBpsPerSide": 4,
+    "slippageBpsPerSide": 2,
+    "baselineRoundTripBps": 12,
+    "stressAdditiveRoundTripBps": {
+      "STRESS_5_BPS": 5,
+      "STRESS_10_BPS": 10,
+      "STRESS_20_BPS": 20
+    },
+    "totalRoundTripBps": {
+      "BASELINE": 12,
+      "STRESS_5_BPS": 17,
+      "STRESS_10_BPS": 22,
+      "STRESS_20_BPS": 32
+    },
+    "application": "fixed additive return deduction; never mutate OHLC prices"
+  },
+  "metrics": {
+    "net": "sum(netReturn)",
+    "averageNet": "mean(netReturn)",
+    "profitFactor": "sum(netReturn > 0) / abs(sum(netReturn < 0)); Infinity if no losers; 0 if no winners",
+    "winRate": "count(netReturn > 0) / N; diagnostic only",
+    "weighting": "equal notional per event; no compounding or simultaneous-trade portfolio weighting"
+  },
+  "bootstrap": {
+    "scope": "Primary V21 only",
+    "clusterKey": "signalOpenTime",
+    "seed": 565183866,
+    "replications": 10000,
+    "resampling": "sample distinct clusters with replacement; include every trade in each sampled cluster",
+    "statistic": "pooled mean baseline net return across sampled trades",
+    "confidence": "nearest-rank 2.5%",
+    "lcbRank": 250,
+    "lcbArrayIndex": 249
+  },
+  "bootstrapSeedCallerOverrideAllowed": false,
+  "clusterIdentityMutable": false,
+  "yearDerivedFromSignalTimestamp": true,
+  "promotionGates": {
+    "sample": [
+      "primary final events >= 1000",
+      "primary distinct clusters >= 500",
+      "each fixed symbol primary events >= 75"
+    ],
+    "performance": [
+      "primary Net > 0",
+      "primary PF >= 1.20",
+      "primary AvgNet > 0",
+      "primary cluster-bootstrap LCB95 > 0",
+      "holdout A Net > 0",
+      "holdout B Net > 0",
+      "primary +10bps Net > 0"
+    ],
+    "breadth": [
+      "primary baseline Net > 0 symbols >= 5/8",
+      "primary baseline Net > 0 years >= 2/3 among 2022, 2023, 2024"
+    ],
+    "concentration": [
+      "max single-symbol primary trade share <= 25%",
+      "max single-symbol positive gross contribution <= 35%",
+      "total positive gross contribution > 0"
+    ],
+    "informationGain": [
+      "V21 primary AvgNet > RAW_RETURN_REVERSAL primary AvgNet",
+      "V21 primary AvgNet > SIMPLE_MEDIAN_GAP_REVERSAL primary AvgNet"
+    ],
+    "placebo": "TIME_MATCHED_RANDOM is diagnostic only and is not a promotion gate"
+  },
+  "classification": {
+    "rejected": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL_REJECTED",
+    "promotionCandidate": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL_PROMOTION_CANDIDATE",
+    "productionEmail": "OFF",
+    "automaticPromotion": false
+  },
+  "evaluator": {
+    "source": "lib/v21/result-evaluator.ts",
+    "pureDeterministic": true,
+    "network": false,
+    "productionDependencies": false,
+    "realV21PricesCalledInWp3B": false
+  }
+}
