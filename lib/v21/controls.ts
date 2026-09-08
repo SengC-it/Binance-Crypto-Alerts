@@ -381,7 +381,13 @@ function assertSynchronizedMatrix(input: V21SynchronizedReturnMatrix): void {
   }
 }
 
-class SlidingNearestRank {
+/**
+ * Sliding nearest-rank tracker used by the frozen control implementation.
+ * The public surface is intentionally limited to the fixed V21 PIT window and
+ * Q99 rank so synthetic oracle tests can compare the optimized path without
+ * enumerating the frozen real controls again.
+ */
+export class SlidingNearestRank {
   private readonly lower = new BinaryHeap(compareDescending);
   private readonly upper = new BinaryHeap(compareAscending);
   private readonly side: Uint8Array;

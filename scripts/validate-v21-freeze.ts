@@ -25,14 +25,16 @@ import {
   V21_COST_CONTRACT,
   V21_EXECUTION_CONTRACT,
   V21_METRIC_CONTRACT,
+  V21_OUTCOME_AVAILABILITY_CONTRACT,
   V21_PROMOTION_GATE_DEFINITIONS,
 } from "../lib/v21/result-evaluator";
-import { canonicalTextSha256, sha256 } from "../lib/v21/canonical";
+import { canonicalTextSha256, sha256, sha256Bytes } from "../lib/v21/canonical";
 import type { V21EventIdentity } from "../lib/v21/events";
 
 const REPORT_DIR = resolve("reports");
 const APPROVED_WP3A1_COMMIT = "39a670aa5a777876ba8cccfc5e8eaed14f061194";
-const APPROVED_WP3A1_PARENT = "d36e6fc606e47ab4cb56d4b8ce4adb26abbccbcc";
+const APPROVED_WP3B_COMMIT = "1b9bebed1071e00bbd44269d38577205cc6f84ed";
+const APPROVED_WP3B_DIRECT_PARENT = "39a670aa5a777876ba8cccfc5e8eaed14f061194";
 const EXPECTED_PRIMARY_EVENT_DIGESTS = {
   allEvents: "a8435418f6007dd6a25a20d1a292fabd5cdfaa84f7cc7d713a617ed375ebec4b",
   primaryOosEvents: "621607df1f34fbb378ec938a5808ca27de17918dda498433da396e73e02d840c",
@@ -49,6 +51,20 @@ const EXPECTED_PRIMARY_COUNTS = {
 const EXPECTED_EVENT_AUDIT_SHA = "305b0d897e86031e742e9f6c3bddadc363806f35ee4a6cb956698d38cfcfe785";
 const EXPECTED_PRIMARY_IDENTITY_ARTIFACT_SHA = "505e5481a66711d974b83b3252429181c4c3b2efcdb73a785edf61fe00c636b8";
 const EXPECTED_PRIOR_EVIDENCE_LOCK_SHA = "021aa5bf9a34df978784ef0473272b39a53c9da128a95ff685a3150f41a74872";
+const EXPECTED_CONTROL_ARTIFACT_HASHES = {
+  "v21-control-identities.json": {
+    raw: "478ad14f6cda2efebe9e9ffbed46c31381d6e6c12f5511e7cb027ca2e9e83ce6",
+    canonical: "478ad14f6cda2efebe9e9ffbed46c31381d6e6c12f5511e7cb027ca2e9e83ce6",
+  },
+  "v21-control-audit.json": {
+    raw: "38e7a446ac3676c235eb51d468e3d123ce0f3db95f4560402784a955ff8e607a",
+    canonical: "38e7a446ac3676c235eb51d468e3d123ce0f3db95f4560402784a955ff8e607a",
+  },
+  "v21-control-enumeration.json": {
+    raw: "44bb19d6ffe6e82445abf8bcc594e433e7a928f9b77f2b3d6d4aee85537f1ee1",
+    canonical: "44bb19d6ffe6e82445abf8bcc594e433e7a928f9b77f2b3d6d4aee85537f1ee1",
+  },
+} as const;
 const FORBIDDEN_RESULT_ARTIFACTS = [
   "reports/v21-primary-oos.json",
   "reports/v21-holdout-results.json",
@@ -62,6 +78,7 @@ const SOURCE_FILES = [
   "lib/v21/result-evaluator.ts",
   "scripts/run-v21-freeze.ts",
   "scripts/validate-v21-freeze.ts",
+  "scripts/close-v21-freeze-contract.ts",
   "tests/v21-controls.test.ts",
   "tests/v21-result-evaluator.test.ts",
 ] as const;
@@ -86,6 +103,7 @@ async function main(): Promise<void> {
   assertControlIdentities(controlIdentities);
   assertControlAudits(controlAudit, controlIdentities, eventIdentities);
   await assertControlEnumeration(controlEnumeration, controlIdentities, controlAudit);
+  await assertControlArtifactsUnchanged();
   assertResultContract(resultContract);
   await assertFreezeManifest(manifest, controlIdentities, controlAudit, controlEnumeration, resultContract);
 
@@ -98,13 +116,11 @@ async function main(): Promise<void> {
 
 function assertGitDependency(): void {
   const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { encoding: "utf8" }).trim();
-  const head = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   const parent = execFileSync("git", ["rev-parse", "HEAD^"], { encoding: "utf8" }).trim();
   const workflowBranch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
   if (branch === "HEAD" && workflowBranch) assertEqual(workflowBranch, V21_BRANCH, "workflow branch");
   else assertEqual(branch, V21_BRANCH, "branch");
-  assertEqual(parent, APPROVED_WP3A1_COMMIT, "WP3B direct parent");
-  assert(head !== APPROVED_WP3A1_COMMIT, "WP3B commit was not created");
+  assertEqual(parent, APPROVED_WP3B_COMMIT, "WP3B.1 direct parent");
 }
 
 async function assertPrimaryLock(eventReport: any, identities: any, audit: any, priorLock: any): Promise<void> {
@@ -272,15 +288,29 @@ async function assertControlEnumeration(report: any, identities: any, audit: any
   void audit;
 }
 
+async function assertControlArtifactsUnchanged(): Promise<void> {
+  for (const [name, expected] of Object.entries(EXPECTED_CONTROL_ARTIFACT_HASHES)) {
+    const bytes = await readFile(resolve(REPORT_DIR, name));
+    assertEqual(sha256Bytes(bytes), expected.raw, `${name} byte hash`);
+    assertEqual(canonicalTextSha256(bytes.toString("utf8")), expected.canonical, `${name} canonical hash`);
+  }
+}
+
 function assertResultContract(report: any): void {
-  assertEqual(report.schemaVersion, "v21-result-contract-v1", "result contract schema");
+  assertEqual(report.schemaVersion, "v21-result-contract-v2", "result contract schema");
   assertEqual(report.experimentId, V21_EXPERIMENT_ID, "result contract experiment");
   assertEqual(report.contractOnly, true, "result contract only");
   assertEqual(report.realOutcomeEvaluationPerformed, false, "result contract outcome boundary");
+  assertEqual(report.entryPriceField, "open", "result contract entry price field");
+  assertEqual(report.exitPriceField, "close", "result contract exit price field");
   assertEqual(report.execution, V21_EXECUTION_CONTRACT, "execution contract");
+  assertEqual(report.outcomeAvailabilityContract, V21_OUTCOME_AVAILABILITY_CONTRACT, "outcome availability contract");
   assertEqual(report.costs, V21_COST_CONTRACT, "cost contract");
   assertEqual(report.metrics, V21_METRIC_CONTRACT, "metric contract");
   assertEqual(report.bootstrap, V21_BOOTSTRAP_CONTRACT, "bootstrap contract");
+  assertEqual(report.bootstrapSeedCallerOverrideAllowed, false, "bootstrap seed override boundary");
+  assertEqual(report.clusterIdentityMutable, false, "cluster identity boundary");
+  assertEqual(report.yearDerivedFromSignalTimestamp, true, "UTC year derivation boundary");
   assertEqual(report.promotionGates, V21_PROMOTION_GATE_DEFINITIONS, "promotion contract");
   assertEqual(report.classification, V21_CLASSIFICATION_CONTRACT, "classification contract");
   assertEqual(report.evaluator, {
@@ -299,13 +329,13 @@ async function assertFreezeManifest(
   enumeration: any,
   resultContract: any,
 ): Promise<void> {
-  assertEqual(manifest.schemaVersion, "v21-freeze-manifest-v1", "freeze schema");
+  assertEqual(manifest.schemaVersion, "v21-freeze-manifest-v2", "freeze schema");
   assertEqual(manifest.experimentId, V21_EXPERIMENT_ID, "freeze experiment");
   assertEqual(manifest.repository, "SengC-it/Binance-Crypto-Alerts", "freeze repository");
   assertEqual(manifest.branch, V21_BRANCH, "freeze branch");
   assertEqual(manifest.baseResearchSha, V21_BASE_SHA, "freeze base");
-  assertEqual(manifest.approvedWp3a1Commit, APPROVED_WP3A1_COMMIT, "freeze WP3A.1 commit");
-  assertEqual(manifest.approvedWp3a1DirectParent, APPROVED_WP3A1_PARENT, "freeze WP3A.1 parent");
+  assertEqual(manifest.approvedWp3bCommit, APPROVED_WP3B_COMMIT, "freeze WP3B commit");
+  assertEqual(manifest.approvedWp3bDirectParent, APPROVED_WP3B_DIRECT_PARENT, "freeze WP3B direct parent");
   assertEqual(manifest.fixedSymbols, V21_SYMBOLS, "freeze symbols");
   assertEqual(manifest.primaryEventDigests, EXPECTED_PRIMARY_EVENT_DIGESTS, "freeze primary digests");
   assertEqual(manifest.primaryCounts, EXPECTED_PRIMARY_COUNTS, "freeze primary counts");
@@ -316,7 +346,11 @@ async function assertFreezeManifest(
   assertEqual(manifest.controls.auditSha256, await reportHash("v21-control-audit.json"), "freeze control audit hash");
   assertEqual(manifest.controls.enumerationArtifactSha256, await reportHash("v21-control-enumeration.json"), "freeze control enumeration hash");
   assertEqual(manifest.resultContractSha256, await reportHash("v21-result-contract.json"), "freeze result contract hash");
+  assertEqual(manifest.entryPriceField, "open", "freeze entry price field");
+  assertEqual(manifest.exitPriceField, "close", "freeze exit price field");
   assertEqual(manifest.execution, V21_EXECUTION_CONTRACT, "freeze execution");
+  assertEqual(manifest.horizons, V21_EXECUTION_CONTRACT.horizons, "freeze horizons");
+  assertEqual(manifest.outcomeAvailabilityContract, V21_OUTCOME_AVAILABILITY_CONTRACT, "freeze outcome availability contract");
   assertEqual(manifest.costs, V21_COST_CONTRACT, "freeze costs");
   assertEqual(manifest.metrics, V21_METRIC_CONTRACT, "freeze metrics");
   assertEqual(manifest.bootstrap, V21_BOOTSTRAP_CONTRACT, "freeze bootstrap");
@@ -325,6 +359,10 @@ async function assertFreezeManifest(
   assertEqual(manifest.resultEvaluatorSourceSha256, await fileHash("lib/v21/result-evaluator.ts"), "evaluator source hash");
   assertEqual(manifest.resultEvaluatorTestsSha256, await fileHash("tests/v21-result-evaluator.test.ts"), "evaluator test hash");
   assertEqual(manifest.freezeValidatorSha256, await fileHash("scripts/validate-v21-freeze.ts"), "freeze validator hash");
+  assertEqual(manifest.contractClosureSourceSha256, await fileHash("scripts/close-v21-freeze-contract.ts"), "contract closure source hash");
+  assertEqual(manifest.bootstrapSeedCallerOverrideAllowed, false, "freeze bootstrap seed override boundary");
+  assertEqual(manifest.clusterIdentityMutable, false, "freeze cluster identity boundary");
+  assertEqual(manifest.yearDerivedFromSignalTimestamp, true, "freeze UTC year derivation boundary");
   assertEqual(manifest.sourceHashes, await sourceHashes(), "freeze source hashes");
   assertFlags(manifest.flags);
   for (const [key, value] of Object.entries(manifest.flags)) assertEqual(manifest[key], value, `top-level flag ${key}`);
@@ -334,13 +372,23 @@ async function assertFreezeManifest(
     priorEvidenceLockSha256: EXPECTED_PRIOR_EVIDENCE_LOCK_SHA,
     controlIdentityDigests: manifest.controls.identityDigests,
     controlAuditSha256: manifest.controls.auditSha256,
+    resultContractSha256: manifest.resultContractSha256,
+    entryPriceField: manifest.entryPriceField,
+    exitPriceField: manifest.exitPriceField,
     execution: V21_EXECUTION_CONTRACT,
+    outcomeAvailabilityContract: V21_OUTCOME_AVAILABILITY_CONTRACT,
     costs: V21_COST_CONTRACT,
     metrics: V21_METRIC_CONTRACT,
     bootstrap: V21_BOOTSTRAP_CONTRACT,
     promotionGates: V21_PROMOTION_GATE_DEFINITIONS,
     classification: V21_CLASSIFICATION_CONTRACT,
     resultEvaluatorSourceSha256: manifest.resultEvaluatorSourceSha256,
+    resultEvaluatorTestsSha256: manifest.resultEvaluatorTestsSha256,
+    freezeValidatorSha256: manifest.freezeValidatorSha256,
+    contractClosureSourceSha256: manifest.contractClosureSourceSha256,
+    bootstrapSeedCallerOverrideAllowed: manifest.bootstrapSeedCallerOverrideAllowed,
+    clusterIdentityMutable: manifest.clusterIdentityMutable,
+    yearDerivedFromSignalTimestamp: manifest.yearDerivedFromSignalTimestamp,
   };
   assertEqual(manifest.freezeBundle, expectedBundle, "freeze bundle contents");
   assertEqual(manifest.freezeBundleSha256, sha256(expectedBundle), "freeze bundle hash");

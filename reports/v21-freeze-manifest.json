@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "v21-freeze-manifest-v1",
+  "schemaVersion": "v21-freeze-manifest-v2",
   "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
   "repository": "SengC-it/Binance-Crypto-Alerts",
   "branch": "feat/v21-idiosyncratic-jump-reversal",
   "baseResearchSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
-  "approvedWp3a1Commit": "39a670aa5a777876ba8cccfc5e8eaed14f061194",
-  "approvedWp3a1DirectParent": "d36e6fc606e47ab4cb56d4b8ce4adb26abbccbcc",
+  "approvedWp3bCommit": "1b9bebed1071e00bbd44269d38577205cc6f84ed",
+  "approvedWp3bDirectParent": "39a670aa5a777876ba8cccfc5e8eaed14f061194",
   "fixedSymbols": [
     "BTCUSDT",
     "ETHUSDT",
@@ -95,19 +95,25 @@
     "auditSha256": "38e7a446ac3676c235eb51d468e3d123ce0f3db95f4560402784a955ff8e607a",
     "enumerationArtifactSha256": "44bb19d6ffe6e82445abf8bcc594e433e7a928f9b77f2b3d6d4aee85537f1ee1"
   },
-  "resultContractSha256": "28d677b1e89fb25004ecdf5463edcac3de3b8c44139338fedc23c8523c08a50f",
+  "resultContractSha256": "7075809c01b5e26a5fba5da1ad6f31934558048337caa86447a3e0b726f97345",
+  "entryPriceField": "open",
+  "exitPriceField": "close",
   "execution": {
     "signalIdentity": "signalOpenTime is the open timestamp of a fully closed 5m signal candle",
     "entryOpenTime": "signalOpenTime + 5m",
     "entryReference": "next 5m candle OPEN",
+    "entryPriceField": "open",
+    "exitPriceField": "close",
     "entryUsesSignalClose": false,
     "entryUsesNextClose": false,
+    "entryUsesExitOpen": false,
+    "entryUsesHighLow": false,
     "horizons": {
       "PRIMARY_30M": {
         "entryOffsetBars": 1,
         "exitOffsetBars": 6,
         "fullBarsHeld": 6,
-        "exitReference": "exit bar OPEN + CLOSE price",
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 30m",
         "exitCloseBoundaryOffsetBars": 7,
         "role": "promotion horizon"
       },
@@ -115,7 +121,7 @@
         "entryOffsetBars": 1,
         "exitOffsetBars": 3,
         "fullBarsHeld": 3,
-        "exitReference": "exit bar OPEN + CLOSE price",
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 15m",
         "exitCloseBoundaryOffsetBars": 4,
         "role": "diagnostic only"
       },
@@ -123,7 +129,7 @@
         "entryOffsetBars": 1,
         "exitOffsetBars": 12,
         "fullBarsHeld": 12,
-        "exitReference": "exit bar OPEN + CLOSE price",
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 60m",
         "exitCloseBoundaryOffsetBars": 13,
         "role": "diagnostic only"
       }
@@ -135,7 +141,7 @@
       "entryOffsetBars": 1,
       "exitOffsetBars": 6,
       "fullBarsHeld": 6,
-      "exitReference": "exit bar OPEN + CLOSE price",
+      "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 30m",
       "exitCloseBoundaryOffsetBars": 7,
       "role": "promotion horizon"
     },
@@ -143,7 +149,7 @@
       "entryOffsetBars": 1,
       "exitOffsetBars": 3,
       "fullBarsHeld": 3,
-      "exitReference": "exit bar OPEN + CLOSE price",
+      "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 15m",
       "exitCloseBoundaryOffsetBars": 4,
       "role": "diagnostic only"
     },
@@ -151,10 +157,69 @@
       "entryOffsetBars": 1,
       "exitOffsetBars": 12,
       "fullBarsHeld": 12,
-      "exitReference": "exit bar OPEN + CLOSE price",
+      "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 60m",
       "exitCloseBoundaryOffsetBars": 13,
       "role": "diagnostic only"
     }
+  },
+  "outcomeAvailabilityContract": {
+    "status": "OUTCOME_UNAVAILABLE",
+    "horizons": {
+      "PRIMARY_30M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      },
+      "DIAGNOSTIC_15M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      },
+      "DIAGNOSTIC_60M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      }
+    },
+    "forbiddenRecovery": [
+      "INTERNAL_GAP",
+      "MISSING_BAR",
+      "NEAREST_BAR_REPAIR",
+      "FORWARD_FILL",
+      "SHORTENED_HORIZON"
+    ],
+    "invalidDataClassification": "V21_RESULT_DATA_INTEGRITY_FAIL",
+    "identityPolicy": "retain unavailable frozen identities; exclude only from metric denominator with count and reason reported separately"
   },
   "costs": {
     "feeBpsPerSide": 4,
@@ -227,16 +292,21 @@
     "productionEmail": "OFF",
     "automaticPromotion": false
   },
-  "resultEvaluatorSourceSha256": "31f090896e8659c6efe3de14d26a8468fc1f390684087ea00d1529bab6ddc398",
-  "resultEvaluatorTestsSha256": "8d2f0aef23ad9b357a64f659911692fe89ed45f40f310f5cece20784c63e2d00",
-  "freezeValidatorSha256": "88ceff1cac2735b002170bca2554c57e5840bfa9ce0f0dff309114d7983817b7",
+  "resultEvaluatorSourceSha256": "17f0c3505b3a4721341280a343f80b9aafee6f8d8971218dab6b160e4d61648b",
+  "resultEvaluatorTestsSha256": "504a68683adca891859ed3d05cecd2996d3de30943e4c65bbc2159fa6ffccf8f",
+  "freezeValidatorSha256": "0eea14cea43a4bb1e69e6382f651ced1fa8306b9f21f8b286d70d4b683fb2ca9",
+  "contractClosureSourceSha256": "ae347836ffc9ca1a753c89a8ac5d52d39f13ee9c66c20c93c98bacb6e0a3c7e0",
+  "bootstrapSeedCallerOverrideAllowed": false,
+  "clusterIdentityMutable": false,
+  "yearDerivedFromSignalTimestamp": true,
   "sourceHashes": {
-    "lib/v21/controls.ts": "868dc1371f1cfccf5da82125777e6d59cb18d72b8960bcb84f919ad5c9025cef",
-    "lib/v21/result-evaluator.ts": "31f090896e8659c6efe3de14d26a8468fc1f390684087ea00d1529bab6ddc398",
+    "lib/v21/controls.ts": "a2d6f97e76c203d62ad9663f4a9383adc86f9582b0fca0f9d2c62ecdebec31f7",
+    "lib/v21/result-evaluator.ts": "17f0c3505b3a4721341280a343f80b9aafee6f8d8971218dab6b160e4d61648b",
     "scripts/run-v21-freeze.ts": "dc51afe071c446072bc59a2eacb2b0ddcd7dc2f2c034728c373ff9694f39e139",
-    "scripts/validate-v21-freeze.ts": "88ceff1cac2735b002170bca2554c57e5840bfa9ce0f0dff309114d7983817b7",
-    "tests/v21-controls.test.ts": "4adce3936541a4c49f3f12814f249e03bc0ca231b47f84ad842fc2f5be00c76a",
-    "tests/v21-result-evaluator.test.ts": "8d2f0aef23ad9b357a64f659911692fe89ed45f40f310f5cece20784c63e2d00"
+    "scripts/validate-v21-freeze.ts": "0eea14cea43a4bb1e69e6382f651ced1fa8306b9f21f8b286d70d4b683fb2ca9",
+    "scripts/close-v21-freeze-contract.ts": "ae347836ffc9ca1a753c89a8ac5d52d39f13ee9c66c20c93c98bacb6e0a3c7e0",
+    "tests/v21-controls.test.ts": "0e94344200df286a997ca1fa9f36225751a07e2a0ab291c17eca793f820c839b",
+    "tests/v21-result-evaluator.test.ts": "504a68683adca891859ed3d05cecd2996d3de30943e4c65bbc2159fa6ffccf8f"
   },
   "flags": {
     "historicalSignalFeatureReturnsRead": true,
@@ -320,18 +390,25 @@
       }
     },
     "controlAuditSha256": "38e7a446ac3676c235eb51d468e3d123ce0f3db95f4560402784a955ff8e607a",
+    "resultContractSha256": "7075809c01b5e26a5fba5da1ad6f31934558048337caa86447a3e0b726f97345",
+    "entryPriceField": "open",
+    "exitPriceField": "close",
     "execution": {
       "signalIdentity": "signalOpenTime is the open timestamp of a fully closed 5m signal candle",
       "entryOpenTime": "signalOpenTime + 5m",
       "entryReference": "next 5m candle OPEN",
+      "entryPriceField": "open",
+      "exitPriceField": "close",
       "entryUsesSignalClose": false,
       "entryUsesNextClose": false,
+      "entryUsesExitOpen": false,
+      "entryUsesHighLow": false,
       "horizons": {
         "PRIMARY_30M": {
           "entryOffsetBars": 1,
           "exitOffsetBars": 6,
           "fullBarsHeld": 6,
-          "exitReference": "exit bar OPEN + CLOSE price",
+          "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 30m",
           "exitCloseBoundaryOffsetBars": 7,
           "role": "promotion horizon"
         },
@@ -339,7 +416,7 @@
           "entryOffsetBars": 1,
           "exitOffsetBars": 3,
           "fullBarsHeld": 3,
-          "exitReference": "exit bar OPEN + CLOSE price",
+          "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 15m",
           "exitCloseBoundaryOffsetBars": 4,
           "role": "diagnostic only"
         },
@@ -347,12 +424,71 @@
           "entryOffsetBars": 1,
           "exitOffsetBars": 12,
           "fullBarsHeld": 12,
-          "exitReference": "exit bar OPEN + CLOSE price",
+          "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 60m",
           "exitCloseBoundaryOffsetBars": 13,
           "role": "diagnostic only"
         }
       },
       "unavailableOutcome": "OUTCOME_UNAVAILABLE; no fill, nearest-bar repair, or shortened horizon"
+    },
+    "outcomeAvailabilityContract": {
+      "status": "OUTCOME_UNAVAILABLE",
+      "horizons": {
+        "PRIMARY_30M": {
+          "primaryOos2022To2024": {
+            "unavailableCountMustEqual": 0,
+            "allowedUnavailableReasons": []
+          },
+          "holdoutA2025": {
+            "unavailableCountMustEqual": 0,
+            "allowedUnavailableReasons": []
+          },
+          "holdoutB2026JanToJul": {
+            "allowedUnavailableReasons": [
+              "DATASET_END_BOUNDARY"
+            ]
+          }
+        },
+        "DIAGNOSTIC_15M": {
+          "primaryOos2022To2024": {
+            "unavailableCountMustEqual": 0,
+            "allowedUnavailableReasons": []
+          },
+          "holdoutA2025": {
+            "unavailableCountMustEqual": 0,
+            "allowedUnavailableReasons": []
+          },
+          "holdoutB2026JanToJul": {
+            "allowedUnavailableReasons": [
+              "DATASET_END_BOUNDARY"
+            ]
+          }
+        },
+        "DIAGNOSTIC_60M": {
+          "primaryOos2022To2024": {
+            "unavailableCountMustEqual": 0,
+            "allowedUnavailableReasons": []
+          },
+          "holdoutA2025": {
+            "unavailableCountMustEqual": 0,
+            "allowedUnavailableReasons": []
+          },
+          "holdoutB2026JanToJul": {
+            "allowedUnavailableReasons": [
+              "DATASET_END_BOUNDARY"
+            ]
+          }
+        }
+      },
+      "forbiddenRecovery": [
+        "INTERNAL_GAP",
+        "MISSING_BAR",
+        "NEAREST_BAR_REPAIR",
+        "FORWARD_FILL",
+        "SHORTENED_HORIZON"
+      ],
+      "invalidDataClassification": "V21_RESULT_DATA_INTEGRITY_FAIL",
+      "identityPolicy": "retain unavailable frozen identities; exclude only from metric denominator with count and reason reported separately"
     },
     "costs": {
       "feeBpsPerSide": 4,
@@ -425,8 +561,14 @@
       "productionEmail": "OFF",
       "automaticPromotion": false
     },
-    "resultEvaluatorSourceSha256": "31f090896e8659c6efe3de14d26a8468fc1f390684087ea00d1529bab6ddc398"
+    "resultEvaluatorSourceSha256": "17f0c3505b3a4721341280a343f80b9aafee6f8d8971218dab6b160e4d61648b",
+    "resultEvaluatorTestsSha256": "504a68683adca891859ed3d05cecd2996d3de30943e4c65bbc2159fa6ffccf8f",
+    "freezeValidatorSha256": "0eea14cea43a4bb1e69e6382f651ced1fa8306b9f21f8b286d70d4b683fb2ca9",
+    "contractClosureSourceSha256": "ae347836ffc9ca1a753c89a8ac5d52d39f13ee9c66c20c93c98bacb6e0a3c7e0",
+    "bootstrapSeedCallerOverrideAllowed": false,
+    "clusterIdentityMutable": false,
+    "yearDerivedFromSignalTimestamp": true
   },
-  "freezeBundleSha256": "b52b0bef7bdf84a4876d76a492a37843b459de7ad2a01963e1c293b64bf3cf68",
-  "manifestBodySha256": "c249e7f1ceb38e29fc9b8c0c968443b328be496087875dd44a7fad88b31d21f0"
+  "freezeBundleSha256": "f9709020978b32f8b436ebe6d3888207dd20388f84ebdea62ccaca64d797c11b",
+  "manifestBodySha256": "cf40bffcd0f6a889d769eaedef5aaefd41e4471706c4f4418ca79604955ab22d"
 }

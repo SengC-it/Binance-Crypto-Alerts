@@ -11,14 +11,18 @@ export const V21_EXECUTION_CONTRACT = {
   signalIdentity: "signalOpenTime is the open timestamp of a fully closed 5m signal candle",
   entryOpenTime: "signalOpenTime + 5m",
   entryReference: "next 5m candle OPEN",
+  entryPriceField: "open",
+  exitPriceField: "close",
   entryUsesSignalClose: false,
   entryUsesNextClose: false,
+  entryUsesExitOpen: false,
+  entryUsesHighLow: false,
   horizons: {
     PRIMARY_30M: {
       entryOffsetBars: 1,
       exitOffsetBars: 6,
       fullBarsHeld: 6,
-      exitReference: "exit bar OPEN + CLOSE price",
+      exitReference: "CLOSE price of the bar whose open timestamp is signalOpenTime + 30m",
       exitCloseBoundaryOffsetBars: 7,
       role: "promotion horizon",
     },
@@ -26,7 +30,7 @@ export const V21_EXECUTION_CONTRACT = {
       entryOffsetBars: 1,
       exitOffsetBars: 3,
       fullBarsHeld: 3,
-      exitReference: "exit bar OPEN + CLOSE price",
+      exitReference: "CLOSE price of the bar whose open timestamp is signalOpenTime + 15m",
       exitCloseBoundaryOffsetBars: 4,
       role: "diagnostic only",
     },
@@ -34,12 +38,66 @@ export const V21_EXECUTION_CONTRACT = {
       entryOffsetBars: 1,
       exitOffsetBars: 12,
       fullBarsHeld: 12,
-      exitReference: "exit bar OPEN + CLOSE price",
+      exitReference: "CLOSE price of the bar whose open timestamp is signalOpenTime + 60m",
       exitCloseBoundaryOffsetBars: 13,
       role: "diagnostic only",
     },
   },
   unavailableOutcome: "OUTCOME_UNAVAILABLE; no fill, nearest-bar repair, or shortened horizon",
+} as const;
+
+export const V21_OUTCOME_AVAILABILITY_CONTRACT = {
+  status: "OUTCOME_UNAVAILABLE",
+  horizons: {
+    PRIMARY_30M: {
+      primaryOos2022To2024: {
+        unavailableCountMustEqual: 0,
+        allowedUnavailableReasons: [],
+      },
+      holdoutA2025: {
+        unavailableCountMustEqual: 0,
+        allowedUnavailableReasons: [],
+      },
+      holdoutB2026JanToJul: {
+        allowedUnavailableReasons: ["DATASET_END_BOUNDARY"],
+      },
+    },
+    DIAGNOSTIC_15M: {
+      primaryOos2022To2024: {
+        unavailableCountMustEqual: 0,
+        allowedUnavailableReasons: [],
+      },
+      holdoutA2025: {
+        unavailableCountMustEqual: 0,
+        allowedUnavailableReasons: [],
+      },
+      holdoutB2026JanToJul: {
+        allowedUnavailableReasons: ["DATASET_END_BOUNDARY"],
+      },
+    },
+    DIAGNOSTIC_60M: {
+      primaryOos2022To2024: {
+        unavailableCountMustEqual: 0,
+        allowedUnavailableReasons: [],
+      },
+      holdoutA2025: {
+        unavailableCountMustEqual: 0,
+        allowedUnavailableReasons: [],
+      },
+      holdoutB2026JanToJul: {
+        allowedUnavailableReasons: ["DATASET_END_BOUNDARY"],
+      },
+    },
+  },
+  forbiddenRecovery: [
+    "INTERNAL_GAP",
+    "MISSING_BAR",
+    "NEAREST_BAR_REPAIR",
+    "FORWARD_FILL",
+    "SHORTENED_HORIZON",
+  ],
+  invalidDataClassification: "V21_RESULT_DATA_INTEGRITY_FAIL",
+  identityPolicy: "retain unavailable frozen identities; exclude only from metric denominator with count and reason reported separately",
 } as const;
 
 export const V21_COST_CONTRACT = {
@@ -136,7 +194,6 @@ export interface V21PriceOutcomeInput {
   signalOpenTime: number;
   direction: "LONG" | "SHORT";
   clusterId: number;
-  year: string;
   entryPrice: number;
   exitPrice: number;
   mapping: V21ExecutionMapping;
@@ -244,6 +301,8 @@ export function applyV21Cost(grossReturn: number, scenario: V21CostScenario = "B
 }
 
 export function evaluateV21PriceOutcome(input: V21PriceOutcomeInput): V21EvaluatedOutcome | null {
+  assertSignalOpenTime(input.signalOpenTime);
+  assertClusterIdentity(input.clusterId, input.signalOpenTime);
   if (!input.mapping.outcomeAvailable) return null;
   const grossReturn = calculateV21GrossReturn(input.direction, input.entryPrice, input.exitPrice);
   return {
@@ -251,7 +310,7 @@ export function evaluateV21PriceOutcome(input: V21PriceOutcomeInput): V21Evaluat
     signalOpenTime: input.signalOpenTime,
     direction: input.direction,
     clusterId: input.clusterId,
-    year: input.year,
+    year: deriveV21Year(input.signalOpenTime),
     grossReturn,
     baselineNetReturn: applyV21Cost(grossReturn, "BASELINE"),
     stress5NetReturn: applyV21Cost(grossReturn, "STRESS_5_BPS"),
@@ -277,7 +336,10 @@ export function sliceV21OutcomesByYear(
   outcomes: readonly V21EvaluatedOutcome[],
   year: string,
 ): V21EvaluatedOutcome[] {
-  return outcomes.filter((outcome) => outcome.year === year);
+  return outcomes.filter((outcome) => {
+    assertOutcomeIdentity(outcome);
+    return deriveV21Year(outcome.signalOpenTime) === year;
+  });
 }
 
 export function sliceV21OutcomesBySymbol(
@@ -319,6 +381,7 @@ export function groupV21OutcomesByCluster(
 ): Map<number, V21EvaluatedOutcome[]> {
   const groups = new Map<number, V21EvaluatedOutcome[]>();
   for (const outcome of outcomes) {
+    assertOutcomeIdentity(outcome);
     const group = groups.get(outcome.clusterId) ?? [];
     group.push(outcome);
     groups.set(outcome.clusterId, group);
@@ -336,10 +399,11 @@ export interface V21BootstrapResult {
 
 export function bootstrapV21PrimaryAvgNet(
   outcomes: readonly V21EvaluatedOutcome[],
-  seed = V21_BOOTSTRAP_CONTRACT.seed,
-  replications = V21_BOOTSTRAP_CONTRACT.replications,
+  seed: number = V21_BOOTSTRAP_CONTRACT.seed,
+  replications: number = V21_BOOTSTRAP_CONTRACT.replications,
 ): V21BootstrapResult {
   if (outcomes.length === 0) throw new Error("Cluster bootstrap requires outcomes");
+  if (seed !== V21_BOOTSTRAP_CONTRACT.seed) throw new Error("V21 bootstrap seed is frozen and cannot be overridden");
   if (replications !== V21_BOOTSTRAP_CONTRACT.replications) throw new Error("V21 bootstrap replication count is frozen at 10000");
   const clusters = [...groupV21OutcomesByCluster(outcomes).values()];
   if (clusters.length === 0) throw new Error("Cluster bootstrap requires clusters");
@@ -426,4 +490,27 @@ function xorshift32(state: number): number {
   value ^= value >>> 17;
   value ^= value << 5;
   return value >>> 0;
+}
+
+export function deriveV21Year(signalOpenTime: number): string {
+  assertSignalOpenTime(signalOpenTime);
+  return String(new Date(signalOpenTime).getUTCFullYear());
+}
+
+function assertSignalOpenTime(signalOpenTime: number): void {
+  if (!Number.isSafeInteger(signalOpenTime) || Number.isNaN(new Date(signalOpenTime).getTime())) {
+    throw new Error("V21 signalOpenTime must be a valid safe-integer timestamp");
+  }
+}
+
+function assertClusterIdentity(clusterId: number, signalOpenTime: number): void {
+  if (clusterId !== signalOpenTime) throw new Error("V21 cluster identity is immutable: clusterId must equal signalOpenTime");
+}
+
+function assertOutcomeIdentity(outcome: V21EvaluatedOutcome): void {
+  assertSignalOpenTime(outcome.signalOpenTime);
+  assertClusterIdentity(outcome.clusterId, outcome.signalOpenTime);
+  if (outcome.year !== deriveV21Year(outcome.signalOpenTime)) {
+    throw new Error("V21 outcome year must be derived from signalOpenTime UTC year");
+  }
 }

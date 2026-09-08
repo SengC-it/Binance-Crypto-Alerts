@@ -1,23 +1,29 @@
 {
-  "schemaVersion": "v21-result-contract-v1",
+  "schemaVersion": "v21-result-contract-v2",
   "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
   "repository": "SengC-it/Binance-Crypto-Alerts",
   "branch": "feat/v21-idiosyncratic-jump-reversal",
-  "approvedWp3a1Commit": "39a670aa5a777876ba8cccfc5e8eaed14f061194",
+  "approvedWp3bCommit": "1b9bebed1071e00bbd44269d38577205cc6f84ed",
   "contractOnly": true,
   "realOutcomeEvaluationPerformed": false,
+  "entryPriceField": "open",
+  "exitPriceField": "close",
   "execution": {
     "signalIdentity": "signalOpenTime is the open timestamp of a fully closed 5m signal candle",
     "entryOpenTime": "signalOpenTime + 5m",
     "entryReference": "next 5m candle OPEN",
+    "entryPriceField": "open",
+    "exitPriceField": "close",
     "entryUsesSignalClose": false,
     "entryUsesNextClose": false,
+    "entryUsesExitOpen": false,
+    "entryUsesHighLow": false,
     "horizons": {
       "PRIMARY_30M": {
         "entryOffsetBars": 1,
         "exitOffsetBars": 6,
         "fullBarsHeld": 6,
-        "exitReference": "exit bar OPEN + CLOSE price",
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 30m",
         "exitCloseBoundaryOffsetBars": 7,
         "role": "promotion horizon"
       },
@@ -25,7 +31,7 @@
         "entryOffsetBars": 1,
         "exitOffsetBars": 3,
         "fullBarsHeld": 3,
-        "exitReference": "exit bar OPEN + CLOSE price",
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 15m",
         "exitCloseBoundaryOffsetBars": 4,
         "role": "diagnostic only"
       },
@@ -33,12 +39,71 @@
         "entryOffsetBars": 1,
         "exitOffsetBars": 12,
         "fullBarsHeld": 12,
-        "exitReference": "exit bar OPEN + CLOSE price",
+        "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 60m",
         "exitCloseBoundaryOffsetBars": 13,
         "role": "diagnostic only"
       }
     },
     "unavailableOutcome": "OUTCOME_UNAVAILABLE; no fill, nearest-bar repair, or shortened horizon"
+  },
+  "outcomeAvailabilityContract": {
+    "status": "OUTCOME_UNAVAILABLE",
+    "horizons": {
+      "PRIMARY_30M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      },
+      "DIAGNOSTIC_15M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      },
+      "DIAGNOSTIC_60M": {
+        "primaryOos2022To2024": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutA2025": {
+          "unavailableCountMustEqual": 0,
+          "allowedUnavailableReasons": []
+        },
+        "holdoutB2026JanToJul": {
+          "allowedUnavailableReasons": [
+            "DATASET_END_BOUNDARY"
+          ]
+        }
+      }
+    },
+    "forbiddenRecovery": [
+      "INTERNAL_GAP",
+      "MISSING_BAR",
+      "NEAREST_BAR_REPAIR",
+      "FORWARD_FILL",
+      "SHORTENED_HORIZON"
+    ],
+    "invalidDataClassification": "V21_RESULT_DATA_INTEGRITY_FAIL",
+    "identityPolicy": "retain unavailable frozen identities; exclude only from metric denominator with count and reason reported separately"
   },
   "costs": {
     "feeBpsPerSide": 4,
@@ -75,6 +140,9 @@
     "lcbRank": 250,
     "lcbArrayIndex": 249
   },
+  "bootstrapSeedCallerOverrideAllowed": false,
+  "clusterIdentityMutable": false,
+  "yearDerivedFromSignalTimestamp": true,
   "promotionGates": {
     "sample": [
       "primary final events >= 1000",
