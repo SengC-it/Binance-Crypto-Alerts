@@ -153,7 +153,7 @@ describe("V21 PIT feature engine", () => {
     expect("direction" in first).toBe(false);
     expect("event" in first).toBe(false);
     expect(existsSync("lib/v21/signals.ts")).toBe(false);
-    expect(existsSync("reports/v21-result.json")).toBe(false);
+    expect(existsSync("reports/v21-result.json")).toBe(true);
     expect(existsSync("reports/v21-holdout.json")).toBe(false);
   });
 

@@ -26,9 +26,4 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm validate:v5-5
-      - run: pnpm validate:v21:data
-      - run: pnpm validate:v21:features
-      - run: pnpm validate:v21:feature-scan
-      - run: pnpm validate:v21:event-predicate
-      - run: pnpm validate:v21:events
-      - run: pnpm validate:v21:freeze
+      - run: pnpm validate:v21:result

@@ -1,0 +1,442 @@
+{
+  "schemaVersion": "v21-promotion-decision-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "resultRunId": "f4dade28e0a66f24d62f4d43dbd9e8daf22691411709b86b4ded7d483a34d73b",
+  "promotionEvaluated": true,
+  "promotion": {
+    "gates": {
+      "primaryEventsMinimum": true,
+      "primaryClustersMinimum": true,
+      "eachFixedSymbolMinimum": true,
+      "primaryNetPositive": false,
+      "primaryProfitFactorMinimum": false,
+      "primaryAverageNetPositive": false,
+      "primaryClusterBootstrapLcbPositive": false,
+      "holdoutANetPositive": false,
+      "holdoutBNetPositive": false,
+      "primaryStress10NetPositive": false,
+      "primaryPositiveSymbolsMinimum": false,
+      "primaryPositiveYearsMinimum": false,
+      "maxSingleSymbolTradeShare": true,
+      "maxSingleSymbolPositiveGrossContribution": true,
+      "totalPositiveGrossContribution": true,
+      "informationGainVsRawReturn": false,
+      "informationGainVsMedianGap": false
+    },
+    "passed": false,
+    "classification": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL_REJECTED",
+    "researchStop": true,
+    "productionEmail": "OFF",
+    "automaticPromotion": false
+  },
+  "classification": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL_REJECTED",
+  "researchStop": true,
+  "dataIntegrity": {
+    "status": "PASS",
+    "pass": true,
+    "failureReasons": [],
+    "slices": {
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|PRIMARY_30M|PRIMARY_OOS": {
+        "identityCount": 19160,
+        "availableCount": 19160,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|DIAGNOSTIC_15M|PRIMARY_OOS": {
+        "identityCount": 19160,
+        "availableCount": 19160,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|DIAGNOSTIC_60M|PRIMARY_OOS": {
+        "identityCount": 19160,
+        "availableCount": 19160,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|PRIMARY_30M|HOLDOUT_A": {
+        "identityCount": 6212,
+        "availableCount": 6212,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|DIAGNOSTIC_15M|HOLDOUT_A": {
+        "identityCount": 6212,
+        "availableCount": 6212,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|DIAGNOSTIC_60M|HOLDOUT_A": {
+        "identityCount": 6212,
+        "availableCount": 6212,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|PRIMARY_30M|HOLDOUT_B": {
+        "identityCount": 3718,
+        "availableCount": 3718,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|DIAGNOSTIC_15M|HOLDOUT_B": {
+        "identityCount": 3718,
+        "availableCount": 3718,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL|DIAGNOSTIC_60M|HOLDOUT_B": {
+        "identityCount": 3718,
+        "availableCount": 3718,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|PRIMARY_30M|PRIMARY_OOS": {
+        "identityCount": 19153,
+        "availableCount": 19153,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|DIAGNOSTIC_15M|PRIMARY_OOS": {
+        "identityCount": 19153,
+        "availableCount": 19153,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|DIAGNOSTIC_60M|PRIMARY_OOS": {
+        "identityCount": 19153,
+        "availableCount": 19153,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|PRIMARY_30M|HOLDOUT_A": {
+        "identityCount": 5826,
+        "availableCount": 5826,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|DIAGNOSTIC_15M|HOLDOUT_A": {
+        "identityCount": 5826,
+        "availableCount": 5826,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|DIAGNOSTIC_60M|HOLDOUT_A": {
+        "identityCount": 5826,
+        "availableCount": 5826,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|PRIMARY_30M|HOLDOUT_B": {
+        "identityCount": 3662,
+        "availableCount": 3662,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|DIAGNOSTIC_15M|HOLDOUT_B": {
+        "identityCount": 3662,
+        "availableCount": 3662,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "RAW_RETURN_REVERSAL|DIAGNOSTIC_60M|HOLDOUT_B": {
+        "identityCount": 3662,
+        "availableCount": 3662,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|PRIMARY_30M|PRIMARY_OOS": {
+        "identityCount": 19230,
+        "availableCount": 19230,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|DIAGNOSTIC_15M|PRIMARY_OOS": {
+        "identityCount": 19230,
+        "availableCount": 19230,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|DIAGNOSTIC_60M|PRIMARY_OOS": {
+        "identityCount": 19230,
+        "availableCount": 19230,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|PRIMARY_30M|HOLDOUT_A": {
+        "identityCount": 5842,
+        "availableCount": 5842,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|DIAGNOSTIC_15M|HOLDOUT_A": {
+        "identityCount": 5842,
+        "availableCount": 5842,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|DIAGNOSTIC_60M|HOLDOUT_A": {
+        "identityCount": 5842,
+        "availableCount": 5842,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|PRIMARY_30M|HOLDOUT_B": {
+        "identityCount": 3610,
+        "availableCount": 3610,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|DIAGNOSTIC_15M|HOLDOUT_B": {
+        "identityCount": 3610,
+        "availableCount": 3610,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL|DIAGNOSTIC_60M|HOLDOUT_B": {
+        "identityCount": 3610,
+        "availableCount": 3610,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|PRIMARY_30M|PRIMARY_OOS": {
+        "identityCount": 19160,
+        "availableCount": 19160,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|DIAGNOSTIC_15M|PRIMARY_OOS": {
+        "identityCount": 19160,
+        "availableCount": 19160,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|DIAGNOSTIC_60M|PRIMARY_OOS": {
+        "identityCount": 19160,
+        "availableCount": 19160,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|PRIMARY_30M|HOLDOUT_A": {
+        "identityCount": 6212,
+        "availableCount": 6212,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|DIAGNOSTIC_15M|HOLDOUT_A": {
+        "identityCount": 6212,
+        "availableCount": 6212,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|DIAGNOSTIC_60M|HOLDOUT_A": {
+        "identityCount": 6212,
+        "availableCount": 6212,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|PRIMARY_30M|HOLDOUT_B": {
+        "identityCount": 3718,
+        "availableCount": 3718,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|DIAGNOSTIC_15M|HOLDOUT_B": {
+        "identityCount": 3718,
+        "availableCount": 3718,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      },
+      "TIME_MATCHED_RANDOM|DIAGNOSTIC_60M|HOLDOUT_B": {
+        "identityCount": 3718,
+        "availableCount": 3718,
+        "unavailableCount": 0,
+        "unavailableReasons": {},
+        "allowedUnavailableReasons": [
+          "DATASET_END_BOUNDARY"
+        ],
+        "pass": true
+      }
+    },
+    "forbiddenRecovery": [
+      "INTERNAL_GAP",
+      "MISSING_BAR",
+      "NEAREST_BAR_REPAIR",
+      "FORWARD_FILL",
+      "SHORTENED_HORIZON"
+    ],
+    "identityPolicy": "retain unavailable frozen identities; exclude only from metric denominator with count and reason reported separately"
+  },
+  "promotionInput": {
+    "primary": {
+      "sampleSize": 19160,
+      "net": -20.376278044204167,
+      "averageNet": -0.0010634800649375869,
+      "profitFactor": 0.756366561873236,
+      "winRate": 0.4708768267223382
+    },
+    "primaryStress10": {
+      "sampleSize": 19160,
+      "net": -39.53627804420477,
+      "averageNet": -0.0020634800649376186,
+      "profitFactor": 0.5810478992176934,
+      "winRate": 0.4087160751565762
+    },
+    "holdoutA": {
+      "sampleSize": 6212,
+      "net": -4.580977848509724,
+      "averageNet": -0.0007374400915179852,
+      "profitFactor": 0.831169035772644,
+      "winRate": 0.43721828718609146
+    },
+    "holdoutB": {
+      "sampleSize": 3718,
+      "net": -3.7622856373074014,
+      "averageNet": -0.0010119111450530933,
+      "profitFactor": 0.6963160338900495,
+      "winRate": 0.43114577729962344
+    },
+    "primaryClusterCount": 16532,
+    "primaryEventsBySymbol": {
+      "BTCUSDT": 2400,
+      "ETHUSDT": 2410,
+      "BNBUSDT": 2399,
+      "ADAUSDT": 2436,
+      "BCHUSDT": 2278,
+      "DOGEUSDT": 2246,
+      "LINKUSDT": 2523,
+      "DOTUSDT": 2468
+    },
+    "primaryNetBySymbol": {
+      "BTCUSDT": -3.256698367489324,
+      "ETHUSDT": -1.9372505857055249,
+      "BNBUSDT": -3.543537536935263,
+      "ADAUSDT": -3.1210946260726615,
+      "BCHUSDT": -1.8699867858321457,
+      "DOGEUSDT": -2.3400584698907734,
+      "LINKUSDT": -2.408900282685638,
+      "DOTUSDT": -1.8987513895928902
+    },
+    "primaryNetByYear": {
+      "2022": -6.255441195727439,
+      "2023": -6.886873942817447,
+      "2024": -7.233962905659238
+    },
+    "concentration": {
+      "maxSingleSymbolTradeShare": 0.13168058455114823,
+      "maxSingleSymbolPositiveGrossContribution": 0.16181991927082012,
+      "totalPositiveGrossContribution": 74.91895176256804,
+      "positiveGrossBySymbol": {
+        "BTCUSDT": 6.5861731434654835,
+        "BCHUSDT": 10.776323551923078,
+        "BNBUSDT": 6.953920966751145,
+        "LINKUSDT": 10.68950265535637,
+        "DOTUSDT": 9.860985176780364,
+        "ETHUSDT": 8.42153386223317,
+        "ADAUSDT": 9.507133679985206,
+        "DOGEUSDT": 12.123378726073227
+      }
+    },
+    "bootstrapLcb95": -0.0012419430067544788,
+    "rawReturnReversalPrimaryAvgNet": -0.001025981760187075,
+    "simpleMedianGapReversalPrimaryAvgNet": -0.0009156466342327502
+  },
+  "placebo": {
+    "strategy": "TIME_MATCHED_RANDOM",
+    "role": "diagnostic only; excluded from evaluateV21Promotion",
+    "includedInPromotionInput": false
+  },
+  "productionEmail": "OFF",
+  "automaticPromotion": false
+}

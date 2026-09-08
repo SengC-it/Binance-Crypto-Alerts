@@ -104,7 +104,7 @@ describe("V21 data foundation only", () => {
     expect(sha256("parser-report\n")).not.toBe(sha256("parser-report changed\n"));
   });
 
-  it("locks the requested boundary and forbids V21 result artifacts", () => {
+  it("keeps the pre-result boundary that remains forbidden after result generation", () => {
     expect(V21_BASE_SHA).toBe("7b9e5d82f471ee3c9fec07e00101263c8d84e953");
     expect(V21_BRANCH).toBe("feat/v21-idiosyncratic-jump-reversal");
     expect(V21_BOUNDARIES.historicalReturnsRead).toBe(false);
@@ -115,7 +115,11 @@ describe("V21 data foundation only", () => {
     expect(V21_BOUNDARIES.holdoutRead).toBe(false);
     expect(V21_BOUNDARIES.parameterSearch).toBe(false);
     expect(V21_BOUNDARIES.productionEmail).toBe("OFF");
-    for (const forbidden of V21_FORBIDDEN_PATHS) expect(existsSync(forbidden)).toBe(false);
+    for (const forbidden of V21_FORBIDDEN_PATHS.filter((path) => (
+      path === "lib/v21/signals.ts"
+      || path === "reports/v21-holdout.json"
+      || path === "reports/v21-promotion-decision.md"
+    ))) expect(existsSync(forbidden)).toBe(false);
   });
 });
 

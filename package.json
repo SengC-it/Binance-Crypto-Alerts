@@ -24,7 +24,8 @@
     "v21:events": "tsx scripts/run-v21-event-stage.ts",
     "validate:v21:events": "tsx scripts/validate-v21-events.ts",
     "v21:freeze": "tsx scripts/run-v21-freeze.ts",
-    "validate:v21:freeze": "tsx scripts/validate-v21-freeze.ts"
+    "validate:v21:freeze": "tsx scripts/validate-v21-freeze.ts",
+    "validate:v21:result": "tsx scripts/validate-v21-result.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

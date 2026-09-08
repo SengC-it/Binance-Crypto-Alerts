@@ -1,0 +1,223 @@
+{
+  "schemaVersion": "v21-result-stage-manifest-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "branch": "feat/v21-idiosyncratic-jump-reversal",
+  "freezeCommit": "22f4229302d62104d3285e4b6b1b943bf9affbf2",
+  "directParent": "22f4229302d62104d3285e4b6b1b943bf9affbf2",
+  "freezeBundleSha256": "f9709020978b32f8b436ebe6d3888207dd20388f84ebdea62ccaca64d797c11b",
+  "resultRunId": "f4dade28e0a66f24d62f4d43dbd9e8daf22691411709b86b4ded7d483a34d73b",
+  "resultGenerationInvocationCount": 1,
+  "resultRunPayload": {
+    "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "freezeCommit": "22f4229302d62104d3285e4b6b1b943bf9affbf2",
+    "freezeBundleSha256": "f9709020978b32f8b436ebe6d3888207dd20388f84ebdea62ccaca64d797c11b",
+    "resultEvaluatorSourceSha256": "17f0c3505b3a4721341280a343f80b9aafee6f8d8971218dab6b160e4d61648b",
+    "primaryEventDigests": {
+      "allEvents": "a8435418f6007dd6a25a20d1a292fabd5cdfaa84f7cc7d713a617ed375ebec4b",
+      "primaryOosEvents": "621607df1f34fbb378ec938a5808ca27de17918dda498433da396e73e02d840c",
+      "holdoutAEvents": "fda762168a03429660b9805d616cbc88b54ce02f556abaa2bc7148b1e401ec6d",
+      "holdoutBEvents": "cf46b0ccad40b4ba84300e70c78438d943a96d8d1bc6adcc15bfdf8d85dd7433"
+    },
+    "controlIdentityDigests": {
+      "RAW_RETURN_REVERSAL": {
+        "allEvents": "8fdbb76ecffdc222b8b9a8d1113d86c43b4d9fb28f156cb6639d47f7ef31cea2",
+        "primaryOosEvents": "cfa12d4f5cd74477db46c44da34782ec2986570d7fc48f456936a0125c96538b",
+        "holdoutAEvents": "36e2b6463d5c611f8f66c5021b6e231dbb08a2395cd1ca8f06ad92566488b251",
+        "holdoutBEvents": "16366d21900f73e660069f0f435ee938571b23484c1dea93ee0a37ab45b7c9c0"
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL": {
+        "allEvents": "0d642c02ca9c756fbc743f718d2cc06481c7aa5a744b6f7f97b3d2f864a95ea3",
+        "primaryOosEvents": "64c741684049d932023f96325abaf09073f93c1067f84792a2765628d1ab9523",
+        "holdoutAEvents": "212ddaba02788e0298240444e62c24bc44bc8d91c3867b7444a83765cb2d7f79",
+        "holdoutBEvents": "ab5a64783a95aa2105e0bcc1bc8a00ea961c39ce2971173a36551dbf45dacb72"
+      },
+      "TIME_MATCHED_RANDOM": {
+        "allEvents": "a9932543446aed5399bc5ed722b70140c1a058bac43614c73f70cd6f11bc4de3",
+        "primaryOosEvents": "f97d001c83b7c65a927bd10b718ed0f0c64228f225cad0c3bc4d821a65e57561",
+        "holdoutAEvents": "0b9fee0a0476ad4dbb5fb1a747cc331dd146c48f920d1317de20605a2051004a",
+        "holdoutBEvents": "42bfab687927c3fcdce8040452c49d18d326f672dfe7bd08f7b4dfd864c4da82"
+      }
+    },
+    "executionContractHash": "e1cd94b26a61f1da2ab74e698e39fcc46b553a10357589b2b21093a4dcc4d338",
+    "executionContract": {
+      "signalIdentity": "signalOpenTime is the open timestamp of a fully closed 5m signal candle",
+      "entryOpenTime": "signalOpenTime + 5m",
+      "entryReference": "next 5m candle OPEN",
+      "entryPriceField": "open",
+      "exitPriceField": "close",
+      "entryUsesSignalClose": false,
+      "entryUsesNextClose": false,
+      "entryUsesExitOpen": false,
+      "entryUsesHighLow": false,
+      "horizons": {
+        "PRIMARY_30M": {
+          "entryOffsetBars": 1,
+          "exitOffsetBars": 6,
+          "fullBarsHeld": 6,
+          "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 30m",
+          "exitCloseBoundaryOffsetBars": 7,
+          "role": "promotion horizon"
+        },
+        "DIAGNOSTIC_15M": {
+          "entryOffsetBars": 1,
+          "exitOffsetBars": 3,
+          "fullBarsHeld": 3,
+          "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 15m",
+          "exitCloseBoundaryOffsetBars": 4,
+          "role": "diagnostic only"
+        },
+        "DIAGNOSTIC_60M": {
+          "entryOffsetBars": 1,
+          "exitOffsetBars": 12,
+          "fullBarsHeld": 12,
+          "exitReference": "CLOSE price of the bar whose open timestamp is signalOpenTime + 60m",
+          "exitCloseBoundaryOffsetBars": 13,
+          "role": "diagnostic only"
+        }
+      },
+      "unavailableOutcome": "OUTCOME_UNAVAILABLE; no fill, nearest-bar repair, or shortened horizon"
+    },
+    "costContractHash": "8451854690afae805565d7dd68050fc2fc77cbea93e1726d71c8d606ed5a3b75",
+    "costContract": {
+      "feeBpsPerSide": 4,
+      "slippageBpsPerSide": 2,
+      "baselineRoundTripBps": 12,
+      "stressAdditiveRoundTripBps": {
+        "STRESS_5_BPS": 5,
+        "STRESS_10_BPS": 10,
+        "STRESS_20_BPS": 20
+      },
+      "totalRoundTripBps": {
+        "BASELINE": 12,
+        "STRESS_5_BPS": 17,
+        "STRESS_10_BPS": 22,
+        "STRESS_20_BPS": 32
+      },
+      "application": "fixed additive return deduction; never mutate OHLC prices"
+    },
+    "bootstrap": {
+      "seed": 565183866,
+      "replications": 10000,
+      "lcbRank": 250
+    }
+  },
+  "artifactHashes": {
+    "reports/v21-outcome-audit.json": {
+      "bytes": 86981359,
+      "rawSha256": "4fd4329dcb9e4f3e194e5255c5ec7cdbc64209133050c01ebe29542dc811a98a",
+      "canonicalTextSha256": "4fd4329dcb9e4f3e194e5255c5ec7cdbc64209133050c01ebe29542dc811a98a"
+    },
+    "reports/v21-primary-oos.json": {
+      "bytes": 13924,
+      "rawSha256": "d5a235f02491dee0a0ad9497fba2ac84a91a56ef6029e16dfe5f3072f623d9ef",
+      "canonicalTextSha256": "d5a235f02491dee0a0ad9497fba2ac84a91a56ef6029e16dfe5f3072f623d9ef"
+    },
+    "reports/v21-holdout-results.json": {
+      "bytes": 30910,
+      "rawSha256": "c469cf7b266c9cddf8d12ee45c5429fd3c51d8cddaa2742458fd71fd825cca00",
+      "canonicalTextSha256": "c469cf7b266c9cddf8d12ee45c5429fd3c51d8cddaa2742458fd71fd825cca00"
+    },
+    "reports/v21-performance.json": {
+      "bytes": 46870,
+      "rawSha256": "61bda458a23837fa458d725023ebc18a6164f592c72841472c80c0c3d23108f3",
+      "canonicalTextSha256": "61bda458a23837fa458d725023ebc18a6164f592c72841472c80c0c3d23108f3"
+    },
+    "reports/v21-result.json": {
+      "bytes": 64890,
+      "rawSha256": "3c6c3681812c100465ae40b59e07440991cc1d60b7a192a6afaf8443fb2128f8",
+      "canonicalTextSha256": "3c6c3681812c100465ae40b59e07440991cc1d60b7a192a6afaf8443fb2128f8"
+    },
+    "reports/v21-promotion-decision.json": {
+      "bytes": 14259,
+      "rawSha256": "1f9e1f96ea05f580cec99f3e6a61f497112c7dd10457ec21acbe2e3f048db128",
+      "canonicalTextSha256": "1f9e1f96ea05f580cec99f3e6a61f497112c7dd10457ec21acbe2e3f048db128"
+    }
+  },
+  "archive": {
+    "exchange": "BINANCE_DATA_VISION",
+    "dataType": "regular",
+    "interval": "5m",
+    "start": "2021-01-01T00:00:00.000Z",
+    "endExclusive": "2026-08-01T00:00:00.000Z",
+    "archiveSlots": 536,
+    "checksumVerifiedArchiveSlots": 536,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "BNBUSDT",
+      "ADAUSDT",
+      "BCHUSDT",
+      "DOGEUSDT",
+      "LINKUSDT",
+      "DOTUSDT"
+    ],
+    "immutable": true
+  },
+  "frozenEvidence": {
+    "primaryEventDigests": {
+      "allEvents": "a8435418f6007dd6a25a20d1a292fabd5cdfaa84f7cc7d713a617ed375ebec4b",
+      "primaryOosEvents": "621607df1f34fbb378ec938a5808ca27de17918dda498433da396e73e02d840c",
+      "holdoutAEvents": "fda762168a03429660b9805d616cbc88b54ce02f556abaa2bc7148b1e401ec6d",
+      "holdoutBEvents": "cf46b0ccad40b4ba84300e70c78438d943a96d8d1bc6adcc15bfdf8d85dd7433"
+    },
+    "controlIdentityDigests": {
+      "RAW_RETURN_REVERSAL": {
+        "allEvents": "8fdbb76ecffdc222b8b9a8d1113d86c43b4d9fb28f156cb6639d47f7ef31cea2",
+        "primaryOosEvents": "cfa12d4f5cd74477db46c44da34782ec2986570d7fc48f456936a0125c96538b",
+        "holdoutAEvents": "36e2b6463d5c611f8f66c5021b6e231dbb08a2395cd1ca8f06ad92566488b251",
+        "holdoutBEvents": "16366d21900f73e660069f0f435ee938571b23484c1dea93ee0a37ab45b7c9c0"
+      },
+      "SIMPLE_MEDIAN_GAP_REVERSAL": {
+        "allEvents": "0d642c02ca9c756fbc743f718d2cc06481c7aa5a744b6f7f97b3d2f864a95ea3",
+        "primaryOosEvents": "64c741684049d932023f96325abaf09073f93c1067f84792a2765628d1ab9523",
+        "holdoutAEvents": "212ddaba02788e0298240444e62c24bc44bc8d91c3867b7444a83765cb2d7f79",
+        "holdoutBEvents": "ab5a64783a95aa2105e0bcc1bc8a00ea961c39ce2971173a36551dbf45dacb72"
+      },
+      "TIME_MATCHED_RANDOM": {
+        "allEvents": "a9932543446aed5399bc5ed722b70140c1a058bac43614c73f70cd6f11bc4de3",
+        "primaryOosEvents": "f97d001c83b7c65a927bd10b718ed0f0c64228f225cad0c3bc4d821a65e57561",
+        "holdoutAEvents": "0b9fee0a0476ad4dbb5fb1a747cc331dd146c48f920d1317de20605a2051004a",
+        "holdoutBEvents": "42bfab687927c3fcdce8040452c49d18d326f672dfe7bd08f7b4dfd864c4da82"
+      }
+    },
+    "evaluatorSourceSha256": "17f0c3505b3a4721341280a343f80b9aafee6f8d8971218dab6b160e4d61648b",
+    "resultContractSha256": "7075809c01b5e26a5fba5da1ad6f31934558048337caa86447a3e0b726f97345"
+  },
+  "flags": {
+    "historicalSignalFeatureReturnsRead": true,
+    "controlsEnumerated": true,
+    "historicalStrategyOutcomeReturnsRead": true,
+    "realOutcomePricesRead": true,
+    "nextBarOpenRead": true,
+    "futurePriceRead": true,
+    "forwardReturnsRead": true,
+    "executionEvaluated": true,
+    "oosMetricsRead": true,
+    "holdoutOutcomeRead": true,
+    "holdoutRead": true,
+    "promotionEvaluated": true,
+    "parameterSearch": false,
+    "freezeCreated": true,
+    "resultCommitCreated": true,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "sourceFiles": [
+    "scripts/run-v21-result.ts",
+    "scripts/v21-result-support.ts",
+    "scripts/validate-v21-result.ts",
+    "tests/v21-result.test.ts",
+    "package.json",
+    ".github/workflows/ci.yml"
+  ],
+  "noProductionChange": true,
+  "manifestBodySha256": "e673629e8dd09159bf9b2236fe17e459cf44590e6c8cca5382bdb47f7a054448"
+}

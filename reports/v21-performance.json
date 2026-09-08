@@ -1,0 +1,1364 @@
+{
+  "schemaVersion": "v21-performance-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "resultRunId": "f4dade28e0a66f24d62f4d43dbd9e8daf22691411709b86b4ded7d483a34d73b",
+  "promotionHorizon": "PRIMARY_30M",
+  "diagnosticHorizons": [
+    "DIAGNOSTIC_15M",
+    "DIAGNOSTIC_60M"
+  ],
+  "slices": {
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL": {
+      "PRIMARY_30M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19160,
+          "availableCount": 19160,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19160,
+              "net": -20.376278044204167,
+              "averageNet": -0.0010634800649375869,
+              "profitFactor": 0.756366561873236,
+              "winRate": 0.4708768267223382
+            },
+            "stress5": {
+              "sampleSize": 19160,
+              "net": -29.956278044203085,
+              "averageNet": -0.0015634800649375305,
+              "profitFactor": 0.6628739860787687,
+              "winRate": 0.4389874739039666
+            },
+            "stress10": {
+              "sampleSize": 19160,
+              "net": -39.53627804420477,
+              "averageNet": -0.0020634800649376186,
+              "profitFactor": 0.5810478992176934,
+              "winRate": 0.4087160751565762
+            },
+            "stress20": {
+              "sampleSize": 19160,
+              "net": -58.69627804420416,
+              "averageNet": -0.003063480064937587,
+              "profitFactor": 0.4475202920229386,
+              "winRate": 0.35161795407098123
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 6212,
+          "availableCount": 6212,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 6212,
+              "net": -4.580977848509724,
+              "averageNet": -0.0007374400915179852,
+              "profitFactor": 0.831169035772644,
+              "winRate": 0.43721828718609146
+            },
+            "stress5": {
+              "sampleSize": 6212,
+              "net": -7.686977848509415,
+              "averageNet": -0.0012374400915179354,
+              "profitFactor": 0.734265885992742,
+              "winRate": 0.4072762395363812
+            },
+            "stress10": {
+              "sampleSize": 6212,
+              "net": -10.792977848509997,
+              "averageNet": -0.001737440091518029,
+              "profitFactor": 0.6497967133637302,
+              "winRate": 0.37475853187379266
+            },
+            "stress20": {
+              "sampleSize": 6212,
+              "net": -17.004977848509675,
+              "averageNet": -0.0027374400915179775,
+              "profitFactor": 0.5123073059526501,
+              "winRate": 0.32179652285898264
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3718,
+          "availableCount": 3718,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3718,
+              "net": -3.7622856373074014,
+              "averageNet": -0.0010119111450530933,
+              "profitFactor": 0.6963160338900495,
+              "winRate": 0.43114577729962344
+            },
+            "stress5": {
+              "sampleSize": 3718,
+              "net": -5.621285637307214,
+              "averageNet": -0.001511911145053043,
+              "profitFactor": 0.5829702286502688,
+              "winRate": 0.3932221624529317
+            },
+            "stress10": {
+              "sampleSize": 3718,
+              "net": -7.480285637307505,
+              "averageNet": -0.0020119111450531213,
+              "profitFactor": 0.4889172149562398,
+              "winRate": 0.3630984400215169
+            },
+            "stress20": {
+              "sampleSize": 3718,
+              "net": -11.198285637307343,
+              "averageNet": -0.003011911145053078,
+              "profitFactor": 0.346054042159454,
+              "winRate": 0.3006993006993007
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_15M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19160,
+          "availableCount": 19160,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19160,
+              "net": -19.568737317586,
+              "averageNet": -0.0010213328453854906,
+              "profitFactor": 0.7054152607076198,
+              "winRate": 0.4460855949895616
+            },
+            "stress5": {
+              "sampleSize": 19160,
+              "net": -29.14873731758495,
+              "averageNet": -0.0015213328453854357,
+              "profitFactor": 0.5946622142235647,
+              "winRate": 0.408455114822547
+            },
+            "stress10": {
+              "sampleSize": 19160,
+              "net": -38.72873731758704,
+              "averageNet": -0.002021332845385545,
+              "profitFactor": 0.5019022221975739,
+              "winRate": 0.3729123173277662
+            },
+            "stress20": {
+              "sampleSize": 19160,
+              "net": -57.888737317585964,
+              "averageNet": -0.003021332845385489,
+              "profitFactor": 0.3599948514388354,
+              "winRate": 0.3045929018789144
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 6212,
+          "availableCount": 6212,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 6212,
+              "net": -6.348151361769101,
+              "averageNet": -0.0010219174761379752,
+              "profitFactor": 0.6987408829455823,
+              "winRate": 0.4175788795878944
+            },
+            "stress5": {
+              "sampleSize": 6212,
+              "net": -9.454151361768785,
+              "averageNet": -0.0015219174761379242,
+              "profitFactor": 0.588051848838224,
+              "winRate": 0.37765614938828074
+            },
+            "stress10": {
+              "sampleSize": 6212,
+              "net": -12.560151361769334,
+              "averageNet": -0.0020219174761380125,
+              "profitFactor": 0.4963752864875072,
+              "winRate": 0.342401802962009
+            },
+            "stress20": {
+              "sampleSize": 6212,
+              "net": -18.772151361769094,
+              "averageNet": -0.003021917476137974,
+              "profitFactor": 0.35784665102666113,
+              "winRate": 0.2780103026400515
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3718,
+          "availableCount": 3718,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3718,
+              "net": -3.9672712159087697,
+              "averageNet": -0.0010670444367694377,
+              "profitFactor": 0.6059779521853095,
+              "winRate": 0.4120494889725659
+            },
+            "stress5": {
+              "sampleSize": 3718,
+              "net": -5.826271215908569,
+              "averageNet": -0.0015670444367693838,
+              "profitFactor": 0.48018935261773477,
+              "winRate": 0.363905325443787
+            },
+            "stress10": {
+              "sampleSize": 3718,
+              "net": -7.685271215908891,
+              "averageNet": -0.0020670444367694705,
+              "profitFactor": 0.38159557125422155,
+              "winRate": 0.3235610543302851
+            },
+            "stress20": {
+              "sampleSize": 3718,
+              "net": -11.403271215908685,
+              "averageNet": -0.003067044436769415,
+              "profitFactor": 0.2453443441086555,
+              "winRate": 0.24018289402904788
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_60M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19160,
+          "availableCount": 19160,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19160,
+              "net": -21.623547977649512,
+              "averageNet": -0.001128577660628889,
+              "profitFactor": 0.7990035542186065,
+              "winRate": 0.477035490605428
+            },
+            "stress5": {
+              "sampleSize": 19160,
+              "net": -31.203547977648643,
+              "averageNet": -0.0016285776606288435,
+              "profitFactor": 0.7231299410992268,
+              "winRate": 0.4541753653444676
+            },
+            "stress10": {
+              "sampleSize": 19160,
+              "net": -40.7835479776504,
+              "averageNet": -0.0021285776606289352,
+              "profitFactor": 0.6544634267430531,
+              "winRate": 0.43194154488517744
+            },
+            "stress20": {
+              "sampleSize": 19160,
+              "net": -59.943547977649516,
+              "averageNet": -0.0031285776606288893,
+              "profitFactor": 0.5366566424017797,
+              "winRate": 0.38481210855949893
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 6212,
+          "availableCount": 6212,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 6212,
+              "net": -5.733593794247923,
+              "averageNet": -0.0009229867666207218,
+              "profitFactor": 0.8266799707390139,
+              "winRate": 0.4583065035415325
+            },
+            "stress5": {
+              "sampleSize": 6212,
+              "net": -8.839593794247596,
+              "averageNet": -0.001422986766620669,
+              "profitFactor": 0.7459772936721529,
+              "winRate": 0.4359304571796523
+            },
+            "stress10": {
+              "sampleSize": 6212,
+              "net": -11.945593794248213,
+              "averageNet": -0.0019229867666207684,
+              "profitFactor": 0.6734883989297916,
+              "winRate": 0.41291049581455247
+            },
+            "stress20": {
+              "sampleSize": 6212,
+              "net": -18.157593794247955,
+              "averageNet": -0.0029229867666207268,
+              "profitFactor": 0.5503294813963595,
+              "winRate": 0.3660656793303284
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3718,
+          "availableCount": 3718,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3718,
+              "net": -3.763648126099008,
+              "averageNet": -0.001012277602501078,
+              "profitFactor": 0.7627143084648386,
+              "winRate": 0.4542764927380312
+            },
+            "stress5": {
+              "sampleSize": 3718,
+              "net": -5.622648126098796,
+              "averageNet": -0.001512277602501021,
+              "profitFactor": 0.6673873051759652,
+              "winRate": 0.42442173211403983
+            },
+            "stress10": {
+              "sampleSize": 3718,
+              "net": -7.481648126099103,
+              "averageNet": -0.0020122776025011035,
+              "profitFactor": 0.5843615196611383,
+              "winRate": 0.39644970414201186
+            },
+            "stress20": {
+              "sampleSize": 3718,
+              "net": -11.199648126098976,
+              "averageNet": -0.0030122776025010697,
+              "profitFactor": 0.4493322465041744,
+              "winRate": 0.34857450242065624
+            }
+          }
+        }
+      }
+    },
+    "RAW_RETURN_REVERSAL": {
+      "PRIMARY_30M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19153,
+          "availableCount": 19153,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19153,
+              "net": -19.65062865286305,
+              "averageNet": -0.001025981760187075,
+              "profitFactor": 0.7864280683681331,
+              "winRate": 0.4966845924920378
+            },
+            "stress5": {
+              "sampleSize": 19153,
+              "net": -29.227128652861857,
+              "averageNet": -0.0015259817601870128,
+              "profitFactor": 0.6985647506754447,
+              "winRate": 0.4708922884143476
+            },
+            "stress10": {
+              "sampleSize": 19153,
+              "net": -38.80362865286384,
+              "averageNet": -0.0020259817601871164,
+              "profitFactor": 0.620138754791353,
+              "winRate": 0.44410797264136165
+            },
+            "stress20": {
+              "sampleSize": 19153,
+              "net": -57.95662865286302,
+              "averageNet": -0.0030259817601870735,
+              "profitFactor": 0.4885496343989682,
+              "winRate": 0.38996501853495535
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 5826,
+          "availableCount": 5826,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 5826,
+              "net": -9.166960590405571,
+              "averageNet": -0.001573457018607204,
+              "profitFactor": 0.6962030640197404,
+              "winRate": 0.4651561963611397
+            },
+            "stress5": {
+              "sampleSize": 5826,
+              "net": -12.07996059040527,
+              "averageNet": -0.002073457018607152,
+              "profitFactor": 0.6197190521030282,
+              "winRate": 0.4392378990731205
+            },
+            "stress10": {
+              "sampleSize": 5826,
+              "net": -14.9929605904058,
+              "averageNet": -0.0025734570186072437,
+              "profitFactor": 0.5516505717683576,
+              "winRate": 0.4131479574322005
+            },
+            "stress20": {
+              "sampleSize": 5826,
+              "net": -20.81896059040551,
+              "averageNet": -0.0035734570186071934,
+              "profitFactor": 0.4374189739844502,
+              "winRate": 0.3635427394438723
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3662,
+          "availableCount": 3662,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3662,
+              "net": -4.9185524828723315,
+              "averageNet": -0.0013431328462240118,
+              "profitFactor": 0.6575973226886785,
+              "winRate": 0.4522119060622611
+            },
+            "stress5": {
+              "sampleSize": 3662,
+              "net": -6.749552482872126,
+              "averageNet": -0.0018431328462239556,
+              "profitFactor": 0.5615964506523374,
+              "winRate": 0.4216275259421081
+            },
+            "stress10": {
+              "sampleSize": 3662,
+              "net": -8.580552482872447,
+              "averageNet": -0.0023431328462240435,
+              "profitFactor": 0.47940851243165233,
+              "winRate": 0.3910431458219552
+            },
+            "stress20": {
+              "sampleSize": 3662,
+              "net": -12.242552482872302,
+              "averageNet": -0.003343132846224004,
+              "profitFactor": 0.3494330763810652,
+              "winRate": 0.329601310759148
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_15M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19153,
+          "availableCount": 19153,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19153,
+              "net": -20.603066086584164,
+              "averageNet": -0.0010757096061496457,
+              "profitFactor": 0.7244332762320644,
+              "winRate": 0.477053203153553
+            },
+            "stress5": {
+              "sampleSize": 19153,
+              "net": -30.179566086583115,
+              "averageNet": -0.001575709606149591,
+              "profitFactor": 0.6224438539210534,
+              "winRate": 0.4429071163786352
+            },
+            "stress10": {
+              "sampleSize": 19153,
+              "net": -39.75606608658512,
+              "averageNet": -0.0020757096061496958,
+              "profitFactor": 0.5345965337876197,
+              "winRate": 0.41095389756173967
+            },
+            "stress20": {
+              "sampleSize": 19153,
+              "net": -58.909066086584225,
+              "averageNet": -0.003075709606149649,
+              "profitFactor": 0.39476669943009035,
+              "winRate": 0.34751736020466767
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 5826,
+          "availableCount": 5826,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 5826,
+              "net": -6.581714204539993,
+              "averageNet": -0.001129714075616202,
+              "profitFactor": 0.7002188714045667,
+              "winRate": 0.4605217988328184
+            },
+            "stress5": {
+              "sampleSize": 5826,
+              "net": -9.494714204539685,
+              "averageNet": -0.0016297140756161492,
+              "profitFactor": 0.5972710385800378,
+              "winRate": 0.4277377274287676
+            },
+            "stress10": {
+              "sampleSize": 5826,
+              "net": -12.407714204540287,
+              "averageNet": -0.0021297140756162524,
+              "profitFactor": 0.5094569309700718,
+              "winRate": 0.3942670786131136
+            },
+            "stress20": {
+              "sampleSize": 5826,
+              "net": -18.23371420453996,
+              "averageNet": -0.0031297140756161965,
+              "profitFactor": 0.37160544181553806,
+              "winRate": 0.329557157569516
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3662,
+          "availableCount": 3662,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3662,
+              "net": -4.884597053011443,
+              "averageNet": -0.0013338604732417922,
+              "profitFactor": 0.5922327118688419,
+              "winRate": 0.4418350628072092
+            },
+            "stress5": {
+              "sampleSize": 3662,
+              "net": -6.715597053011247,
+              "averageNet": -0.0018338604732417386,
+              "profitFactor": 0.4846810062686831,
+              "winRate": 0.4055161114145276
+            },
+            "stress10": {
+              "sampleSize": 3662,
+              "net": -8.54659705301159,
+              "averageNet": -0.0023338604732418325,
+              "profitFactor": 0.39607072284332984,
+              "winRate": 0.3694702348443474
+            },
+            "stress20": {
+              "sampleSize": 3662,
+              "net": -12.20859705301141,
+              "averageNet": -0.003333860473241783,
+              "profitFactor": 0.26454265796162346,
+              "winRate": 0.2957400327689787
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_60M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19153,
+          "availableCount": 19153,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19153,
+              "net": -21.369705603090964,
+              "averageNet": -0.0011157367306996796,
+              "profitFactor": 0.8187323948526201,
+              "winRate": 0.5048817417636924
+            },
+            "stress5": {
+              "sampleSize": 19153,
+              "net": -30.946205603090146,
+              "averageNet": -0.0016157367306996369,
+              "profitFactor": 0.7478623522362285,
+              "winRate": 0.48373622931133503
+            },
+            "stress10": {
+              "sampleSize": 19153,
+              "net": -40.52270560309217,
+              "averageNet": -0.0021157367306997425,
+              "profitFactor": 0.6828580568626627,
+              "winRate": 0.4628517725682661
+            },
+            "stress20": {
+              "sampleSize": 19153,
+              "net": -59.6757056030912,
+              "averageNet": -0.003115736730699692,
+              "profitFactor": 0.5690601749075603,
+              "winRate": 0.4194643136845403
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 5826,
+          "availableCount": 5826,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 5826,
+              "net": -5.8459120757781875,
+              "averageNet": -0.0010034177953618586,
+              "profitFactor": 0.8278853074908955,
+              "winRate": 0.4866117404737384
+            },
+            "stress5": {
+              "sampleSize": 5826,
+              "net": -8.75891207577792,
+              "averageNet": -0.0015034177953618124,
+              "profitFactor": 0.7531774750201444,
+              "winRate": 0.46755921730175076
+            },
+            "stress10": {
+              "sampleSize": 5826,
+              "net": -11.671912075778444,
+              "averageNet": -0.0020034177953619026,
+              "profitFactor": 0.6851160179473967,
+              "winRate": 0.4471335393065568
+            },
+            "stress20": {
+              "sampleSize": 5826,
+              "net": -17.49791207577814,
+              "averageNet": -0.00300341779536185,
+              "profitFactor": 0.5668858527951719,
+              "winRate": 0.40885684860968075
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3662,
+          "availableCount": 3662,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3662,
+              "net": -4.8043812410005,
+              "averageNet": -0.0013119555546151009,
+              "profitFactor": 0.7342283719543824,
+              "winRate": 0.4770617149098853
+            },
+            "stress5": {
+              "sampleSize": 3662,
+              "net": -6.635381241000272,
+              "averageNet": -0.0018119555546150389,
+              "profitFactor": 0.6517974752229587,
+              "winRate": 0.4527580557072638
+            },
+            "stress10": {
+              "sampleSize": 3662,
+              "net": -8.466381241000626,
+              "averageNet": -0.0023119555546151356,
+              "profitFactor": 0.5784497697785527,
+              "winRate": 0.4238121245221191
+            },
+            "stress20": {
+              "sampleSize": 3662,
+              "net": -12.12838124100045,
+              "averageNet": -0.0033119555546150875,
+              "profitFactor": 0.4557832042242586,
+              "winRate": 0.3735663571818678
+            }
+          }
+        }
+      }
+    },
+    "SIMPLE_MEDIAN_GAP_REVERSAL": {
+      "PRIMARY_30M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19230,
+          "availableCount": 19230,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19230,
+              "net": -17.607884776295787,
+              "averageNet": -0.0009156466342327502,
+              "profitFactor": 0.7853239701858649,
+              "winRate": 0.4632865314612585
+            },
+            "stress5": {
+              "sampleSize": 19230,
+              "net": -27.22288477629472,
+              "averageNet": -0.0014156466342326948,
+              "profitFactor": 0.6882561388595025,
+              "winRate": 0.43338533541341656
+            },
+            "stress10": {
+              "sampleSize": 19230,
+              "net": -36.83788477629639,
+              "averageNet": -0.0019156466342327818,
+              "profitFactor": 0.6035134460473026,
+              "winRate": 0.4035361414456578
+            },
+            "stress20": {
+              "sampleSize": 19230,
+              "net": -56.067884776295735,
+              "averageNet": -0.0029156466342327475,
+              "profitFactor": 0.4655863714566674,
+              "winRate": 0.34888195527821114
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 5842,
+          "availableCount": 5842,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 5842,
+              "net": -6.514126383960907,
+              "averageNet": -0.0011150507333038183,
+              "profitFactor": 0.7471794663900578,
+              "winRate": 0.4325573433755563
+            },
+            "stress5": {
+              "sampleSize": 5842,
+              "net": -9.4351263839606,
+              "averageNet": -0.0016150507333037658,
+              "profitFactor": 0.656551237441883,
+              "winRate": 0.4015748031496063
+            },
+            "stress10": {
+              "sampleSize": 5842,
+              "net": -12.356126383961156,
+              "averageNet": -0.002115050733303861,
+              "profitFactor": 0.5778201959575372,
+              "winRate": 0.3700787401574803
+            },
+            "stress20": {
+              "sampleSize": 5842,
+              "net": -18.19812638396089,
+              "averageNet": -0.0031150507333038155,
+              "profitFactor": 0.4501074302455982,
+              "winRate": 0.3233481684354673
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3610,
+          "availableCount": 3610,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3610,
+              "net": -3.415173544752284,
+              "averageNet": -0.0009460314528399678,
+              "profitFactor": 0.7118803297364699,
+              "winRate": 0.4246537396121884
+            },
+            "stress5": {
+              "sampleSize": 3610,
+              "net": -5.220173544752156,
+              "averageNet": -0.0014460314528399324,
+              "profitFactor": 0.596003536428505,
+              "winRate": 0.39002770083102495
+            },
+            "stress10": {
+              "sampleSize": 3610,
+              "net": -7.025173544752438,
+              "averageNet": -0.0019460314528400107,
+              "profitFactor": 0.5000974364759345,
+              "winRate": 0.35678670360110804
+            },
+            "stress20": {
+              "sampleSize": 3610,
+              "net": -10.63517354475228,
+              "averageNet": -0.002946031452839967,
+              "profitFactor": 0.3549456716276657,
+              "winRate": 0.29750692520775623
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_15M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19230,
+          "availableCount": 19230,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19230,
+              "net": -17.38888367437443,
+              "averageNet": -0.000904258121392326,
+              "profitFactor": 0.733248395270092,
+              "winRate": 0.43868954758190326
+            },
+            "stress5": {
+              "sampleSize": 19230,
+              "net": -27.00388367437328,
+              "averageNet": -0.0014042581213922663,
+              "profitFactor": 0.6183339131894747,
+              "winRate": 0.40275611024440977
+            },
+            "stress10": {
+              "sampleSize": 19230,
+              "net": -36.61888367437536,
+              "averageNet": -0.0019042581213923745,
+              "profitFactor": 0.5223019356988843,
+              "winRate": 0.36968278731149246
+            },
+            "stress20": {
+              "sampleSize": 19230,
+              "net": -55.84888367437429,
+              "averageNet": -0.0029042581213923188,
+              "profitFactor": 0.3756097066491748,
+              "winRate": 0.30364014560582425
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 5842,
+          "availableCount": 5842,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 5842,
+              "net": -6.572692620328914,
+              "averageNet": -0.0011250757652052233,
+              "profitFactor": 0.6711498979388555,
+              "winRate": 0.42091749400890105
+            },
+            "stress5": {
+              "sampleSize": 5842,
+              "net": -9.49369262032862,
+              "averageNet": -0.0016250757652051728,
+              "profitFactor": 0.5634008527581331,
+              "winRate": 0.3793221499486477
+            },
+            "stress10": {
+              "sampleSize": 5842,
+              "net": -12.414692620329134,
+              "averageNet": -0.002125075765205261,
+              "profitFactor": 0.47428489349377817,
+              "winRate": 0.3423485107839781
+            },
+            "stress20": {
+              "sampleSize": 5842,
+              "net": -18.25669262032887,
+              "averageNet": -0.0031250757652052158,
+              "profitFactor": 0.33965570475483803,
+              "winRate": 0.2795275590551181
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3610,
+          "availableCount": 3610,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3610,
+              "net": -4.106525655151913,
+              "averageNet": -0.0011375417327290616,
+              "profitFactor": 0.5843320638071849,
+              "winRate": 0.4002770083102493
+            },
+            "stress5": {
+              "sampleSize": 3610,
+              "net": -5.91152565515173,
+              "averageNet": -0.001637541732729011,
+              "profitFactor": 0.4626567390600026,
+              "winRate": 0.35817174515235456
+            },
+            "stress10": {
+              "sampleSize": 3610,
+              "net": -7.716525655152036,
+              "averageNet": -0.002137541732729096,
+              "profitFactor": 0.36734585973373046,
+              "winRate": 0.3188365650969529
+            },
+            "stress20": {
+              "sampleSize": 3610,
+              "net": -11.32652565515186,
+              "averageNet": -0.003137541732729047,
+              "profitFactor": 0.2351026876712113,
+              "winRate": 0.23905817174515234
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_60M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19230,
+          "availableCount": 19230,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19230,
+              "net": -19.258071159554735,
+              "averageNet": -0.0010014597586871937,
+              "profitFactor": 0.8178860874119703,
+              "winRate": 0.47077483099323975
+            },
+            "stress5": {
+              "sampleSize": 19230,
+              "net": -28.87307115955389,
+              "averageNet": -0.00150145975868715,
+              "profitFactor": 0.7397687603432722,
+              "winRate": 0.4463858554342174
+            },
+            "stress10": {
+              "sampleSize": 19230,
+              "net": -38.48807115955582,
+              "averageNet": -0.0020014597586872503,
+              "profitFactor": 0.6692729945881475,
+              "winRate": 0.4245969838793552
+            },
+            "stress20": {
+              "sampleSize": 19230,
+              "net": -57.71807115955473,
+              "averageNet": -0.0030014597586871935,
+              "profitFactor": 0.5486940564987155,
+              "winRate": 0.3786271450858034
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 5842,
+          "availableCount": 5842,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 5842,
+              "net": -7.511828627082483,
+              "averageNet": -0.0012858316718730714,
+              "profitFactor": 0.7642303199459359,
+              "winRate": 0.4566929133858268
+            },
+            "stress5": {
+              "sampleSize": 5842,
+              "net": -10.432828627082142,
+              "averageNet": -0.0017858316718730128,
+              "profitFactor": 0.6884157236402675,
+              "winRate": 0.43358438890790824
+            },
+            "stress10": {
+              "sampleSize": 5842,
+              "net": -13.353828627082672,
+              "averageNet": -0.002285831671873104,
+              "profitFactor": 0.6203445468949285,
+              "winRate": 0.40979116740842175
+            },
+            "stress20": {
+              "sampleSize": 5842,
+              "net": -19.19582862708238,
+              "averageNet": -0.003285831671873054,
+              "profitFactor": 0.5047173431237097,
+              "winRate": 0.36169120164327284
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3610,
+          "availableCount": 3610,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3610,
+              "net": -3.4246444875856232,
+              "averageNet": -0.000948654982710699,
+              "profitFactor": 0.7779660107752181,
+              "winRate": 0.4470914127423823
+            },
+            "stress5": {
+              "sampleSize": 3610,
+              "net": -5.229644487585443,
+              "averageNet": -0.001448654982710649,
+              "profitFactor": 0.6820328291330839,
+              "winRate": 0.4193905817174515
+            },
+            "stress10": {
+              "sampleSize": 3610,
+              "net": -7.034644487585723,
+              "averageNet": -0.0019486549827107266,
+              "profitFactor": 0.5984730592429591,
+              "winRate": 0.39168975069252077
+            },
+            "stress20": {
+              "sampleSize": 3610,
+              "net": -10.64464448758561,
+              "averageNet": -0.0029486549827106956,
+              "profitFactor": 0.46260822892455605,
+              "winRate": 0.34376731301939056
+            }
+          }
+        }
+      }
+    },
+    "TIME_MATCHED_RANDOM": {
+      "PRIMARY_30M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19160,
+          "availableCount": 19160,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19160,
+              "net": -24.8991253208497,
+              "averageNet": -0.001299536812152907,
+              "profitFactor": 0.5395286174962386,
+              "winRate": 0.362160751565762
+            },
+            "stress5": {
+              "sampleSize": 19160,
+              "net": -34.47912532084895,
+              "averageNet": -0.001799536812152868,
+              "profitFactor": 0.4293637306732253,
+              "winRate": 0.3140918580375783
+            },
+            "stress10": {
+              "sampleSize": 19160,
+              "net": -44.05912532085071,
+              "averageNet": -0.00229953681215296,
+              "profitFactor": 0.3442631995564209,
+              "winRate": 0.2733298538622129
+            },
+            "stress20": {
+              "sampleSize": 19160,
+              "net": -63.21912532084966,
+              "averageNet": -0.0032995368121529053,
+              "profitFactor": 0.22674532837268493,
+              "winRate": 0.20855949895615866
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 6212,
+          "availableCount": 6212,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 6212,
+              "net": -8.262021287557866,
+              "averageNet": -0.001330009865994505,
+              "profitFactor": 0.53840070020054,
+              "winRate": 0.35994848679974245
+            },
+            "stress5": {
+              "sampleSize": 6212,
+              "net": -11.368021287557527,
+              "averageNet": -0.0018300098659944505,
+              "profitFactor": 0.43039584467043984,
+              "winRate": 0.3148744365743722
+            },
+            "stress10": {
+              "sampleSize": 6212,
+              "net": -14.474021287558157,
+              "averageNet": -0.002330009865994552,
+              "profitFactor": 0.3464041025091674,
+              "winRate": 0.2778493238892466
+            },
+            "stress20": {
+              "sampleSize": 6212,
+              "net": -20.686021287557864,
+              "averageNet": -0.003330009865994505,
+              "profitFactor": 0.22854658499653643,
+              "winRate": 0.2187701223438506
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3718,
+          "availableCount": 3718,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3718,
+              "net": -4.817368036926235,
+              "averageNet": -0.0012956880142351358,
+              "profitFactor": 0.45786120888508486,
+              "winRate": 0.3410435718128026
+            },
+            "stress5": {
+              "sampleSize": 3718,
+              "net": -6.676368036926061,
+              "averageNet": -0.0017956880142350892,
+              "profitFactor": 0.34303022972522085,
+              "winRate": 0.28752017213555675
+            },
+            "stress10": {
+              "sampleSize": 3718,
+              "net": -8.535368036926375,
+              "averageNet": -0.0022956880142351735,
+              "profitFactor": 0.25966667714929875,
+              "winRate": 0.2450242065626681
+            },
+            "stress20": {
+              "sampleSize": 3718,
+              "net": -12.25336803692624,
+              "averageNet": -0.003295688014235137,
+              "profitFactor": 0.1543023902473995,
+              "winRate": 0.17213555675094136
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_15M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19160,
+          "availableCount": 19160,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19160,
+              "net": -23.885726517983926,
+              "averageNet": -0.0012466454341327727,
+              "profitFactor": 0.4380271252097194,
+              "winRate": 0.3187891440501044
+            },
+            "stress5": {
+              "sampleSize": 19160,
+              "net": -33.46572651798234,
+              "averageNet": -0.0017466454341326899,
+              "profitFactor": 0.3215300454638226,
+              "winRate": 0.260125260960334
+            },
+            "stress10": {
+              "sampleSize": 19160,
+              "net": -43.04572651798434,
+              "averageNet": -0.0022466454341327946,
+              "profitFactor": 0.2398525782156871,
+              "winRate": 0.21539665970772442
+            },
+            "stress20": {
+              "sampleSize": 19160,
+              "net": -62.205726517983756,
+              "averageNet": -0.003246645434132764,
+              "profitFactor": 0.14033438769628404,
+              "winRate": 0.14843423799582464
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 6212,
+          "availableCount": 6212,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 6212,
+              "net": -8.302601704087234,
+              "averageNet": -0.001336542450754545,
+              "profitFactor": 0.41234365608283086,
+              "winRate": 0.3264649066323245
+            },
+            "stress5": {
+              "sampleSize": 6212,
+              "net": -11.408601704086905,
+              "averageNet": -0.0018365424507544921,
+              "profitFactor": 0.3005030926837291,
+              "winRate": 0.26690276883451386
+            },
+            "stress10": {
+              "sampleSize": 6212,
+              "net": -14.514601704087433,
+              "averageNet": -0.002336542450754577,
+              "profitFactor": 0.22221082250196458,
+              "winRate": 0.22118480360592402
+            },
+            "stress20": {
+              "sampleSize": 6212,
+              "net": -20.726601704087148,
+              "averageNet": -0.0033365424507545314,
+              "profitFactor": 0.12714714204213165,
+              "winRate": 0.14745653573728268
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3718,
+          "availableCount": 3718,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3718,
+              "net": -4.7330484628529,
+              "averageNet": -0.001273009269191205,
+              "profitFactor": 0.35360336724970864,
+              "winRate": 0.28509951586874666
+            },
+            "stress5": {
+              "sampleSize": 3718,
+              "net": -6.592048462852729,
+              "averageNet": -0.0017730092691911588,
+              "profitFactor": 0.24298988466231508,
+              "winRate": 0.22485207100591717
+            },
+            "stress10": {
+              "sampleSize": 3718,
+              "net": -8.451048462853054,
+              "averageNet": -0.0022730092691912464,
+              "profitFactor": 0.170785070646443,
+              "winRate": 0.18154922001075846
+            },
+            "stress20": {
+              "sampleSize": 3718,
+              "net": -12.16904846285289,
+              "averageNet": -0.003273009269191202,
+              "profitFactor": 0.09080544777723876,
+              "winRate": 0.10866057019903173
+            }
+          }
+        }
+      },
+      "DIAGNOSTIC_60M": {
+        "PRIMARY_OOS": {
+          "identityCount": 19160,
+          "availableCount": 19160,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 19160,
+              "net": -25.344935493031873,
+              "averageNet": -0.0013228045664421646,
+              "profitFactor": 0.6378609470676898,
+              "winRate": 0.39650313152400835
+            },
+            "stress5": {
+              "sampleSize": 19160,
+              "net": -34.92493549303048,
+              "averageNet": -0.001822804566442092,
+              "profitFactor": 0.5402029750740619,
+              "winRate": 0.3579853862212944
+            },
+            "stress10": {
+              "sampleSize": 19160,
+              "net": -44.50493549303248,
+              "averageNet": -0.002322804566442196,
+              "profitFactor": 0.45908950532097687,
+              "winRate": 0.3225991649269311
+            },
+            "stress20": {
+              "sampleSize": 19160,
+              "net": -63.664935493031784,
+              "averageNet": -0.00332280456644216,
+              "profitFactor": 0.33582417075604576,
+              "winRate": 0.2625782881002088
+            }
+          }
+        },
+        "HOLDOUT_A": {
+          "identityCount": 6212,
+          "availableCount": 6212,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 6212,
+              "net": -7.515473082626029,
+              "averageNet": -0.0012098314685489422,
+              "profitFactor": 0.672349235897902,
+              "winRate": 0.40228589826142946
+            },
+            "stress5": {
+              "sampleSize": 6212,
+              "net": -10.621473082625629,
+              "averageNet": -0.0017098314685488778,
+              "profitFactor": 0.5726416562521082,
+              "winRate": 0.3665486155827431
+            },
+            "stress10": {
+              "sampleSize": 6212,
+              "net": -13.727473082626318,
+              "averageNet": -0.002209831468548989,
+              "profitFactor": 0.48925202249920824,
+              "winRate": 0.3309723116548616
+            },
+            "stress20": {
+              "sampleSize": 6212,
+              "net": -19.93947308262596,
+              "averageNet": -0.003209831468548931,
+              "profitFactor": 0.3613635335959379,
+              "winRate": 0.2725370251126851
+            }
+          }
+        },
+        "HOLDOUT_B": {
+          "identityCount": 3718,
+          "availableCount": 3718,
+          "unavailableCount": 0,
+          "unavailableReasons": {},
+          "metrics": {
+            "baseline": {
+              "sampleSize": 3718,
+              "net": -5.246629810625561,
+              "averageNet": -0.0014111430367470578,
+              "profitFactor": 0.5542047190714401,
+              "winRate": 0.3808499193114578
+            },
+            "stress5": {
+              "sampleSize": 3718,
+              "net": -7.105629810625385,
+              "averageNet": -0.0019111430367470105,
+              "profitFactor": 0.45166912085779287,
+              "winRate": 0.34023668639053256
+            },
+            "stress10": {
+              "sampleSize": 3718,
+              "net": -8.964629810625718,
+              "averageNet": -0.0024111430367471,
+              "profitFactor": 0.36937994530703977,
+              "winRate": 0.3055406132329209
+            },
+            "stress20": {
+              "sampleSize": 3718,
+              "net": -12.682629810625539,
+              "averageNet": -0.0034111430367470517,
+              "profitFactor": 0.2504146764657026,
+              "winRate": 0.24045185583647122
+            }
+          }
+        }
+      }
+    }
+  },
+  "metricsContract": {
+    "net": "sum(netReturn)",
+    "averageNet": "mean(netReturn)",
+    "profitFactor": "sum(netReturn > 0) / abs(sum(netReturn < 0)); Infinity if no losers; 0 if no winners",
+    "winRate": "count(netReturn > 0) / N; diagnostic only",
+    "weighting": "equal notional per event; no compounding or simultaneous-trade portfolio weighting"
+  },
+  "costs": {
+    "feeBpsPerSide": 4,
+    "slippageBpsPerSide": 2,
+    "baselineRoundTripBps": 12,
+    "stressAdditiveRoundTripBps": {
+      "STRESS_5_BPS": 5,
+      "STRESS_10_BPS": 10,
+      "STRESS_20_BPS": 20
+    },
+    "totalRoundTripBps": {
+      "BASELINE": 12,
+      "STRESS_5_BPS": 17,
+      "STRESS_10_BPS": 22,
+      "STRESS_20_BPS": 32
+    },
+    "application": "fixed additive return deduction; never mutate OHLC prices"
+  }
+}
