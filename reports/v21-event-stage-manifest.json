@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "v21-event-stage-manifest-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "branch": "feat/v21-idiosyncratic-jump-reversal",
+  "baseResearchSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "approvedParentCommit": "e8721d509d574cc2697e3fff75ba7f5f4b86d99a",
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "ADAUSDT",
+    "BCHUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "DOTUSDT"
+  ],
+  "sourceReports": {
+    "archiveManifestSha256": "5ac81354e12033017f68b08e05a0d1da0c11eb3fc0088af80418232387dcd452",
+    "parserReportSha256": "ecdf62a144a317658ac04dc9c5d6e1944190ed4158e4bfa01fd37c0464ed307e",
+    "dataGateSha256": "878f6a3969b9da34d9958e97518686c533740936ece0708941f08b1e2d1b4d6e",
+    "featureStageManifestSha256": "9c0f39e7398b457f4214379df6be1fe0ba44f70e640e56276f993ab669db771f",
+    "scanStageManifestSha256": "d8f8e1d342920f2bdae649207646862311ec66c06a150e06f1e4db69aea8c711",
+    "eventPredicateStageManifestSha256": "641aac0bfdb4886421b9aa60a3cc933641721696b9cbc9ed5219775b6703e284",
+    "eventEnumerationSha256": "b60b85c3fc60faf6ce16948c682a02877a7f771f55b76f09044b6e839f6225f4",
+    "eventIdentitiesSha256": "505e5481a66711d974b83b3252429181c4c3b2efcdb73a785edf61fe00c636b8"
+  },
+  "eventDigests": {
+    "allEvents": "a8435418f6007dd6a25a20d1a292fabd5cdfaa84f7cc7d713a617ed375ebec4b",
+    "primaryOosEvents": "621607df1f34fbb378ec938a5808ca27de17918dda498433da396e73e02d840c",
+    "holdoutAEvents": "fda762168a03429660b9805d616cbc88b54ce02f556abaa2bc7148b1e401ec6d",
+    "holdoutBEvents": "cf46b0ccad40b4ba84300e70c78438d943a96d8d1bc6adcc15bfdf8d85dd7433"
+  },
+  "diagnostics": {
+    "synchronizedReturnRows": 586943,
+    "featureEvaluations": 4626424,
+    "eligiblePitFeatures": 4626424,
+    "ineligiblePitFeatures": 0,
+    "ineligibleByReason": {},
+    "rawExtremeCandidates": 44574,
+    "firstCrossCandidates": 36566,
+    "zeroResidualFirstCrossCandidates": 0,
+    "overlapExcluded": 7476,
+    "finalEligibleEvents": 29090,
+    "residualComparisons": {
+      "total": 2704712009,
+      "average": 584.6225959834204,
+      "median": 165,
+      "p95": 2645,
+      "p99": 8640
+    },
+    "earlyExits": 4573748,
+    "fullWindowScans": 52676,
+    "exactThresholdComputations": 52676,
+    "eventsBySymbol": {
+      "BTCUSDT": 3675,
+      "ETHUSDT": 3647,
+      "BNBUSDT": 3676,
+      "ADAUSDT": 3680,
+      "BCHUSDT": 3535,
+      "DOGEUSDT": 3447,
+      "LINKUSDT": 3745,
+      "DOTUSDT": 3685
+    },
+    "eventsByDirection": {
+      "LONG": 12167,
+      "SHORT": 16923
+    },
+    "eventsByPeriod": {
+      "primaryOos": 19160,
+      "holdoutA": 6212,
+      "holdoutB": 3718
+    },
+    "yearlyIdentityCounts": {
+      "2022": 6381,
+      "2023": 6297,
+      "2024": 6482,
+      "2025": 6212,
+      "2026": 3718
+    },
+    "distinctPrimarySignalClusters": 16532
+  },
+  "primarySampleGate": {
+    "minimumPrimaryEvents": 1000,
+    "minimumPrimaryClusters": 500,
+    "minimumEventsPerFixedSymbol": 75,
+    "primaryEvents": 19160,
+    "primaryClusters": 16532,
+    "eventsBySymbol": {
+      "BTCUSDT": 2400,
+      "ETHUSDT": 2410,
+      "BNBUSDT": 2399,
+      "ADAUSDT": 2436,
+      "BCHUSDT": 2278,
+      "DOGEUSDT": 2246,
+      "LINKUSDT": 2523,
+      "DOTUSDT": 2468
+    }
+  },
+  "sourceHashes": {
+    "lib/v21/constants.ts": "de923b67583e7c2cbd86df979fa1df57b9fcf6a36c498de87e29b8af832ee565",
+    "lib/v21/canonical.ts": "3853858ef3adf3f08b739e8ce46e71ac88c66dc588e3f51e06f12a1fd196ba39",
+    "lib/v21/archive.ts": "da6663ebb19f83e437f7b2c6f9690f00202fa3365b606e6f9328f97c03856484",
+    "lib/v21/features.ts": "0331bab1ace6772eef3e01360de69126872fb9394e9960b633ca3e459435b620",
+    "lib/v21/feature-scan.ts": "682c38a05cc4d49fd5202b60e6b0dce95be51f5cffe56ff80ad8a7bdb38f0792",
+    "lib/v21/event-predicate.ts": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
+    "lib/v21/events.ts": "629df44dd600ddfa5d3711a3f1c9fc2e9bb8c64814c1a464a70f860a9453d803",
+    "scripts/run-v21-event-stage.ts": "20246abd6ac27b4491b48d97425a3f3756dc8ff2a843db8f95355dbd55a27b7b",
+    "scripts/validate-v21-events.ts": "13b9ab93b97525e422f4bdc8f6e3cdfebc28e104de1159a6cf4ccd5914553050",
+    "tests/v21-events.test.ts": "051c6eb2a40214767ba3df9318cf8a1496fb430a9b293cfb7f4d93314a7e1bff",
+    "package.json": "a09e800627a7aafe43276748bb8f398dbb580c875b9498b1362f0fb0af632d83"
+  },
+  "classification": "V21_PRE_RETURN_SAMPLE_GATE_PASS",
+  "researchStop": false,
+  "flags": {
+    "realHistoricalDataScanned": true,
+    "historicalFeatureScanRun": true,
+    "historicalEventScanRun": true,
+    "signalsEnumerated": true,
+    "firstCrossEnumerated": true,
+    "directionsAssigned": true,
+    "executionEvaluated": false,
+    "historicalStrategyOutcomeReturnsRead": false,
+    "historicalReturnsRead": false,
+    "forwardReturnsRead": false,
+    "oosMetricsRead": false,
+    "holdoutRead": false,
+    "parameterSearch": false,
+    "freezeCreated": false,
+    "resultCommitCreated": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false,
+    "autoTrading": false,
+    "automaticPromotion": false
+  },
+  "sourceFiles": [
+    "lib/v21/constants.ts",
+    "lib/v21/canonical.ts",
+    "lib/v21/archive.ts",
+    "lib/v21/features.ts",
+    "lib/v21/feature-scan.ts",
+    "lib/v21/event-predicate.ts",
+    "lib/v21/events.ts",
+    "scripts/run-v21-event-stage.ts",
+    "scripts/validate-v21-events.ts",
+    "tests/v21-events.test.ts",
+    "package.json"
+  ],
+  "forbiddenPaths": [
+    "lib/v21/signals.ts",
+    "scripts/run-v21-result.ts",
+    "reports/v21-primary-oos.json",
+    "reports/v21-holdout.json",
+    "reports/v21-performance.json",
+    "reports/v21-result.json",
+    "reports/v21-promotion-decision.json",
+    "reports/v21-promotion-decision.md"
+  ],
+  "manifestBodySha256": "1359f4f6ace6677227cc03488bcf23da8e04e1a3dd60e522c6816e710df816a8"
+}

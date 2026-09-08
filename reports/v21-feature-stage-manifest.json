@@ -42,7 +42,7 @@
   "previousResidualDefinition": "previousResidual_i,t = r_i,t-1 - (alpha_t + beta_t*m_i,t-1) using the current-t model; no first-cross decision.",
   "featureEngineSourceSha256": "0331bab1ace6772eef3e01360de69126872fb9394e9960b633ca3e459435b620",
   "featureTestSha256": "6a94e29219cf895701bc22351e22ab32804c31936e2d2634090407c1f40472c4",
-  "featureValidatorSha256": "5c6c7b25c50bc481b1fe57c202c2884f780c96fcebb27698c7e9bdb3ca7d9d3e",
+  "featureValidatorSha256": "d3d55c5d9fd41f0127e649f0f97da8b0fd00664c3827e60848493f90730451c0",
   "featureEngineImplemented": true,
   "historicalFeatureScanRun": false,
   "signalsEnumerated": false,
@@ -108,5 +108,5 @@
     "reports/v21-promotion-decision.md",
     "reports/v21-freeze-manifest.json"
   ],
-  "manifestBodySha256": "22b0c2145a8582a9b44c3ba835c2183c9feb51babc4db683c0e559bc40b8431a"
+  "manifestBodySha256": "3a247e5f3ee107c41932495953ab61a761bc73254ca295d98271b36ccd5e1674"
 }

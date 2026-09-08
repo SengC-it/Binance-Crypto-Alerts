@@ -28,9 +28,7 @@ const WP1_HASHES: Record<string, string> = {
 };
 const SCAN_FORBIDDEN_PATHS = [
   ...V21_FORBIDDEN_PATHS,
-  "lib/v21/events.ts",
   "scripts/run-v21-signal-stage.ts",
-  "reports/v21-event-enumeration.json",
   "reports/v21-signals.json",
   "reports/v21-freeze-manifest.json",
 ] as const;

@@ -56,6 +56,9 @@ export const V21_REPORT_FILES = [
   "reports/v21-scan-stage-manifest.json",
   "reports/v21-event-predicate-feasibility.json",
   "reports/v21-event-predicate-stage-manifest.json",
+  "reports/v21-event-enumeration.json",
+  "reports/v21-event-identities.json",
+  "reports/v21-event-stage-manifest.json",
 ] as const;
 
 export const V21_FORBIDDEN_PATHS = [

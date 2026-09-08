@@ -7,8 +7,8 @@
   "approvedWp1Commit": "6c17bc2545aff218d4d673f07ccee3a5bf8eb54b",
   "approvedWp2Commit": "83fa78849890ac0a59b408b4e0d13f007755977f",
   "approvedWp25Commit": "3eceefd0808ac54d5da8e28edf78ef837bc9cacf",
-  "approvedFeatureManifestSha256": "22b0c2145a8582a9b44c3ba835c2183c9feb51babc4db683c0e559bc40b8431a",
-  "approvedScanManifestBodySha256": "124672692191f3173a7c9a2bbf0938ab88ce0b318691793772690df00bf3e51b",
+  "approvedFeatureManifestSha256": "3a247e5f3ee107c41932495953ab61a761bc73254ca295d98271b36ccd5e1674",
+  "approvedScanManifestBodySha256": "cde99296b43c7d7cdd35ddeec85a0025bd41bff0950d15ff673f10ed77f366a5",
   "approvedScanReportSha256": "ad0e964d68f36c379b1072d9b25972c15b56d3b0f498b2976d71877a36a8acf4",
   "wp1ArtifactHashes": {
     "reports/v21-archive-manifest.json": "5ac81354e12033017f68b08e05a0d1da0c11eb3fc0088af80418232387dcd452",
@@ -60,7 +60,7 @@
   "automaticPromotion": false,
   "eventPredicateEngineSha256": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
   "eventPredicateTestsSha256": "0c3332459d208133be8e4662a9efc07e4872f0290ddaeb0f74b981e639719986",
-  "eventPredicateValidatorSha256": "45f57c47c2c0add225ee09bb49e4326c58cb326f01600249d2a4a1b7a6aea7bc",
+  "eventPredicateValidatorSha256": "959d96503411178469ff22f8612a4c7b45ee5b8aadb4687e7596dddd396cc617",
   "feasibilityReportSha256": "d3ad4848d89992c165f6b8fd0668eaeb6e84be248fa4669e0279b21b0fc3411e",
   "flags": {
     "realHistoricalDataScanned": false,
@@ -86,5 +86,5 @@
     "autoTrading": false,
     "automaticPromotion": false
   },
-  "manifestBodySha256": "20ed42b285d4c4f8884003f2cf464e2dabb3c281b495c515f1b16c6c354683ed"
+  "manifestBodySha256": "866b3fcc17d48524bcb7835817a0d40dce06921978eee944fe1732b75801ea88"
 }

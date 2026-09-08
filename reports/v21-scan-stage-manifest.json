@@ -16,7 +16,7 @@
   "featureEngineSha256": "0331bab1ace6772eef3e01360de69126872fb9394e9960b633ca3e459435b620",
   "scanEngineSha256": "682c38a05cc4d49fd5202b60e6b0dce95be51f5cffe56ff80ad8a7bdb38f0792",
   "scanTestsSha256": "426293092a4acc4b196211394c48f8f3226b9c1be3bfef7409ca5ad073188bc8",
-  "scanValidatorSha256": "37982135ae602ddf36d780e39e9611f0a285e0393f42a5b53bdb76bd2eaf8521",
+  "scanValidatorSha256": "a251eccb0ae45a3c6822f54a13b468ad0472d3acaad74ffdc2be487ef8928241",
   "feasibilityReportSha256": "ad0e964d68f36c379b1072d9b25972c15b56d3b0f498b2976d71877a36a8acf4",
   "fixedSymbols": [
     "BTCUSDT",
@@ -83,5 +83,5 @@
     "autoTrading": false,
     "automaticPromotion": false
   },
-  "manifestBodySha256": "124672692191f3173a7c9a2bbf0938ab88ce0b318691793772690df00bf3e51b"
+  "manifestBodySha256": "cde99296b43c7d7cdd35ddeec85a0025bd41bff0950d15ff673f10ed77f366a5"
 }

@@ -86,12 +86,11 @@ describe("V21 exact historical feature scan feasibility", () => {
     expect(result.features.every((feature) => feature.ineligibleReason === "PIT_WINDOW_NOT_EXACT")).toBe(true);
   });
 
-  it("keeps multiple symbols and V21 scope free of event and result artifacts", () => {
+  it("keeps multiple symbols and V21 scope free of result artifacts", () => {
     const rows = changingRows(V21_PIT_OBSERVATION_COUNT + 1);
     const result = scanV21Features(rows);
     expect(new Set(result.features.map((feature) => feature.symbol))).toEqual(new Set(V21_SYMBOLS));
     expect(existsSync("lib/v21/signals.ts")).toBe(false);
-    expect(existsSync("reports/v21-event-enumeration.json")).toBe(false);
     expect(existsSync("reports/v21-result.json")).toBe(false);
     expect(existsSync("reports/v21-freeze-manifest.json")).toBe(false);
   });

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "v21-event-enumeration-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "branch": "feat/v21-idiosyncratic-jump-reversal",
+  "baseResearchSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "approvedParentCommit": "e8721d509d574cc2697e3fff75ba7f5f4b86d99a",
+  "source": {
+    "exchange": "BINANCE_DATA_VISION",
+    "market": "USD-M Futures",
+    "dataType": "regular",
+    "interval": "5m",
+    "immutableArchiveCache": true,
+    "archiveManifestSha256": "5ac81354e12033017f68b08e05a0d1da0c11eb3fc0088af80418232387dcd452",
+    "parserReportSha256": "ecdf62a144a317658ac04dc9c5d6e1944190ed4158e4bfa01fd37c0464ed307e",
+    "dataGateSha256": "878f6a3969b9da34d9958e97518686c533740936ece0708941f08b1e2d1b4d6e"
+  },
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "ADAUSDT",
+    "BCHUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "DOTUSDT"
+  ],
+  "period": {
+    "start": "2021-01-01T00:00:00.000Z",
+    "endExclusive": "2026-08-01T00:00:00.000Z",
+    "warmup": "2021",
+    "primaryOos": "2022-01-01T00:00:00.000Z/2025-01-01T00:00:00.000Z",
+    "holdoutA": "2025-01-01T00:00:00.000Z/2026-01-01T00:00:00.000Z",
+    "holdoutB": "2026-01-01T00:00:00.000Z/2026-08-01T00:00:00.000Z"
+  },
+  "featureDefinition": {
+    "pitWindow": "[t - 30d, t)",
+    "pitObservationCount": 8640,
+    "market": "leave-one-out median of the other seven synchronized 5m log-return series",
+    "ols": "current-t intercept and beta fit over exactly the prior 8640 rows",
+    "residual": "prior and current residuals use the same current-t intercept and beta",
+    "threshold": "absolute prior residual nearest-rank Q99, rank=8554, no interpolation"
+  },
+  "eventDefinition": {
+    "extreme": "count abs(priorResidual) > abs(currentResidual), early exit at greaterCount=87; full scan computes exact Q99",
+    "firstCross": "abs(previousResidual) < threshold and abs(currentResidual) >= threshold",
+    "direction": "currentResidual > 0 => SHORT; currentResidual < 0 => LONG; zero is ineligible",
+    "primaryHorizon": "30m timestamp-only",
+    "overlap": "same symbol excludes later event while prior accepted event is active; different symbols may share a timestamp",
+    "clusterId": "signalOpenTime",
+    "identityPayload": [
+      "symbol",
+      "signalOpenTime",
+      "direction",
+      "clusterId"
+    ]
+  },
+  "diagnostics": {
+    "synchronizedReturnRows": 586943,
+    "featureEvaluations": 4626424,
+    "eligiblePitFeatures": 4626424,
+    "ineligiblePitFeatures": 0,
+    "ineligibleByReason": {},
+    "rawExtremeCandidates": 44574,
+    "firstCrossCandidates": 36566,
+    "zeroResidualFirstCrossCandidates": 0,
+    "overlapExcluded": 7476,
+    "finalEligibleEvents": 29090,
+    "residualComparisons": {
+      "total": 2704712009,
+      "average": 584.6225959834204,
+      "median": 165,
+      "p95": 2645,
+      "p99": 8640
+    },
+    "earlyExits": 4573748,
+    "fullWindowScans": 52676,
+    "exactThresholdComputations": 52676,
+    "eventsBySymbol": {
+      "BTCUSDT": 3675,
+      "ETHUSDT": 3647,
+      "BNBUSDT": 3676,
+      "ADAUSDT": 3680,
+      "BCHUSDT": 3535,
+      "DOGEUSDT": 3447,
+      "LINKUSDT": 3745,
+      "DOTUSDT": 3685
+    },
+    "eventsByDirection": {
+      "LONG": 12167,
+      "SHORT": 16923
+    },
+    "eventsByPeriod": {
+      "primaryOos": 19160,
+      "holdoutA": 6212,
+      "holdoutB": 3718
+    },
+    "yearlyIdentityCounts": {
+      "2022": 6381,
+      "2023": 6297,
+      "2024": 6482,
+      "2025": 6212,
+      "2026": 3718
+    },
+    "distinctPrimarySignalClusters": 16532
+  },
+  "eventDigests": {
+    "allEvents": "a8435418f6007dd6a25a20d1a292fabd5cdfaa84f7cc7d713a617ed375ebec4b",
+    "primaryOosEvents": "621607df1f34fbb378ec938a5808ca27de17918dda498433da396e73e02d840c",
+    "holdoutAEvents": "fda762168a03429660b9805d616cbc88b54ce02f556abaa2bc7148b1e401ec6d",
+    "holdoutBEvents": "cf46b0ccad40b4ba84300e70c78438d943a96d8d1bc6adcc15bfdf8d85dd7433"
+  },
+  "identityArtifactSha256": "505e5481a66711d974b83b3252429181c4c3b2efcdb73a785edf61fe00c636b8",
+  "primarySampleGate": {
+    "minimumPrimaryEvents": 1000,
+    "minimumPrimaryClusters": 500,
+    "minimumEventsPerFixedSymbol": 75,
+    "primaryEvents": 19160,
+    "primaryClusters": 16532,
+    "eventsBySymbol": {
+      "BTCUSDT": 2400,
+      "ETHUSDT": 2410,
+      "BNBUSDT": 2399,
+      "ADAUSDT": 2436,
+      "BCHUSDT": 2278,
+      "DOGEUSDT": 2246,
+      "LINKUSDT": 2523,
+      "DOTUSDT": 2468
+    }
+  },
+  "classification": "V21_PRE_RETURN_SAMPLE_GATE_PASS",
+  "researchStop": false,
+  "controlsEnumerated": false,
+  "historicalReturnsRead": false,
+  "historicalStrategyOutcomeReturnsRead": false,
+  "forwardReturnsRead": false,
+  "oosMetricsRead": false,
+  "holdoutRead": false,
+  "parameterSearch": false,
+  "executionEvaluated": false,
+  "productionChanged": false,
+  "productionEmail": "OFF",
+  "deploy": false,
+  "merge": false,
+  "migration": false,
+  "privateBinanceApi": false,
+  "orderPlacement": false,
+  "autoTrading": false,
+  "automaticPromotion": false,
+  "futureDataRead": false,
+  "noFutureBarsUsed": true
+}

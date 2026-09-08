@@ -34,9 +34,7 @@ const APPROVED_WP1_FILE_SHA256: Record<string, string> = {
 };
 const FEATURE_FORBIDDEN_PATHS = [
   ...V21_FORBIDDEN_PATHS,
-  "lib/v21/events.ts",
   "scripts/run-v21-signal-stage.ts",
-  "reports/v21-event-enumeration.json",
   "reports/v21-signals.json",
   "reports/v21-freeze-manifest.json",
 ] as const;

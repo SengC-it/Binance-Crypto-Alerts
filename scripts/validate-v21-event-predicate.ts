@@ -26,8 +26,8 @@ const REPORT_DIR = resolve("reports");
 const WP1_COMMIT = "6c17bc2545aff218d4d673f07ccee3a5bf8eb54b";
 const WP2_COMMIT = "83fa78849890ac0a59b408b4e0d13f007755977f";
 const WP25_COMMIT = "3eceefd0808ac54d5da8e28edf78ef837bc9cacf";
-const APPROVED_FEATURE_MANIFEST_SHA = "22b0c2145a8582a9b44c3ba835c2183c9feb51babc4db683c0e559bc40b8431a";
-const APPROVED_SCAN_MANIFEST_BODY_SHA = "124672692191f3173a7c9a2bbf0938ab88ce0b318691793772690df00bf3e51b";
+const APPROVED_FEATURE_MANIFEST_SHA = "3a247e5f3ee107c41932495953ab61a761bc73254ca295d98271b36ccd5e1674";
+const APPROVED_SCAN_MANIFEST_BODY_SHA = "cde99296b43c7d7cdd35ddeec85a0025bd41bff0950d15ff673f10ed77f366a5";
 const APPROVED_SCAN_REPORT_SHA = "ad0e964d68f36c379b1072d9b25972c15b56d3b0f498b2976d71877a36a8acf4";
 const PREDICATE_SOURCE_SHA = "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179";
 const BENCHMARK_VERSION = "INDEPENDENT_ROLLING_V2" as const;
@@ -48,11 +48,7 @@ const WP1_HASHES: Record<string, string> = {
 };
 const FORBIDDEN_EVENT_ARTIFACTS = [
   ...V21_FORBIDDEN_PATHS,
-  "lib/v21/events.ts",
   "scripts/run-v21-signal-stage.ts",
-  "reports/v21-event-enumeration.json",
-  "reports/v21-signals.json",
-  "reports/v21-freeze-manifest.json",
 ] as const;
 
 interface BenchmarkFamilyMetrics {
