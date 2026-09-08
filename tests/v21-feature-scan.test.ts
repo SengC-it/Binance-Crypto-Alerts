@@ -92,7 +92,6 @@ describe("V21 exact historical feature scan feasibility", () => {
     expect(new Set(result.features.map((feature) => feature.symbol))).toEqual(new Set(V21_SYMBOLS));
     expect(existsSync("lib/v21/signals.ts")).toBe(false);
     expect(existsSync("reports/v21-result.json")).toBe(false);
-    expect(existsSync("reports/v21-freeze-manifest.json")).toBe(false);
   });
 });
 

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "v21-control-enumeration-v1",
+  "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+  "repository": "SengC-it/Binance-Crypto-Alerts",
+  "branch": "feat/v21-idiosyncratic-jump-reversal",
+  "approvedWp3a1Commit": "39a670aa5a777876ba8cccfc5e8eaed14f061194",
+  "source": {
+    "exchange": "BINANCE_DATA_VISION",
+    "immutableArchiveCache": true,
+    "synchronizedReturnRows": 586943,
+    "featureInput": "r_i,t = ln(close_i,t / close_i,t-1); current and prior PIT feature values only"
+  },
+  "controlsEnumeratedAtWp3A": false,
+  "controlsEnumerated": true,
+  "definitions": {
+    "RAW_RETURN_REVERSAL": {
+      "feature": "x_i,t = r_i,t = ln(close_i,t / close_i,t-1)",
+      "pitWindow": "[t-30d,t)",
+      "pitObservations": 8640,
+      "threshold": "nearest-rank Q99 of abs(prior raw returns)",
+      "q99Rank": 8554,
+      "firstCross": "abs(previous) < current-t threshold AND abs(current) >= current-t threshold",
+      "direction": "positive SHORT; negative LONG; zero ineligible",
+      "overlap": "same-symbol timestamp-only 30m; different symbols may be simultaneous"
+    },
+    "SIMPLE_MEDIAN_GAP_REVERSAL": {
+      "feature": "g_i,t = r_i,t - median(other seven returns at t)",
+      "pitWindow": "[t-30d,t)",
+      "pitObservations": 8640,
+      "threshold": "nearest-rank Q99 of abs(prior median gaps)",
+      "q99Rank": 8554,
+      "firstCross": "abs(previous) < current-t threshold AND abs(current) >= current-t threshold",
+      "direction": "positive SHORT; negative LONG; zero ineligible",
+      "ols": false,
+      "overlap": "same-symbol timestamp-only 30m; different symbols may be simultaneous"
+    },
+    "TIME_MATCHED_RANDOM": {
+      "role": "placebo diagnostic only; not a promotion gate",
+      "seed": 566280414,
+      "matching": "one placebo per accepted V21 event by symbol, YYYY-MM, UTC hour, and direction",
+      "candidateTimeline": "synchronized historical 5m open timestamps from 2022-01-01 inclusive to 2026-08-01 exclusive",
+      "selection": "xorshift32 + Fisher-Yates over ascending synchronized 5m timestamps",
+      "exclusions": [
+        "same-symbol V21 accepted timestamp",
+        "duplicate symbol/timestamp",
+        "same-symbol 30m overlap"
+      ]
+    }
+  },
+  "timeMatchedRandom": {
+    "seed": 566280414,
+    "algorithm": "derive seed from seed + symbol|YYYY-MM|UTC-hour|direction; xorshift32 + Fisher-Yates over ascending synchronized 5m timestamps",
+    "oneToOneTargetMatching": true,
+    "matchFields": [
+      "symbol",
+      "calendar YYYY-MM",
+      "UTC hour",
+      "direction"
+    ],
+    "excludesV21SameSymbolTimestamp": true,
+    "duplicateFree": true,
+    "sameSymbol30mNonOverlap": true
+  },
+  "diagnostics": {
+    "RAW_RETURN_REVERSAL": {
+      "rawExtremeCandidates": 43437,
+      "firstCrossCandidates": 35807,
+      "zeroValueFirstCrossCandidates": 0,
+      "overlapExcluded": 7166
+    },
+    "SIMPLE_MEDIAN_GAP_REVERSAL": {
+      "rawExtremeCandidates": 43862,
+      "firstCrossCandidates": 35960,
+      "zeroValueFirstCrossCandidates": 0,
+      "overlapExcluded": 7278
+    },
+    "TIME_MATCHED_RANDOM": {
+      "rawExtremeCandidates": 0,
+      "firstCrossCandidates": 29090,
+      "zeroValueFirstCrossCandidates": 0,
+      "overlapExcluded": 0
+    }
+  },
+  "identityDigests": {
+    "RAW_RETURN_REVERSAL": {
+      "allEvents": "8fdbb76ecffdc222b8b9a8d1113d86c43b4d9fb28f156cb6639d47f7ef31cea2",
+      "primaryOosEvents": "cfa12d4f5cd74477db46c44da34782ec2986570d7fc48f456936a0125c96538b",
+      "holdoutAEvents": "36e2b6463d5c611f8f66c5021b6e231dbb08a2395cd1ca8f06ad92566488b251",
+      "holdoutBEvents": "16366d21900f73e660069f0f435ee938571b23484c1dea93ee0a37ab45b7c9c0"
+    },
+    "SIMPLE_MEDIAN_GAP_REVERSAL": {
+      "allEvents": "0d642c02ca9c756fbc743f718d2cc06481c7aa5a744b6f7f97b3d2f864a95ea3",
+      "primaryOosEvents": "64c741684049d932023f96325abaf09073f93c1067f84792a2765628d1ab9523",
+      "holdoutAEvents": "212ddaba02788e0298240444e62c24bc44bc8d91c3867b7444a83765cb2d7f79",
+      "holdoutBEvents": "ab5a64783a95aa2105e0bcc1bc8a00ea961c39ce2971173a36551dbf45dacb72"
+    },
+    "TIME_MATCHED_RANDOM": {
+      "allEvents": "a9932543446aed5399bc5ed722b70140c1a058bac43614c73f70cd6f11bc4de3",
+      "primaryOosEvents": "f97d001c83b7c65a927bd10b718ed0f0c64228f225cad0c3bc4d821a65e57561",
+      "holdoutAEvents": "0b9fee0a0476ad4dbb5fb1a747cc331dd146c48f920d1317de20605a2051004a",
+      "holdoutBEvents": "42bfab687927c3fcdce8040452c49d18d326f672dfe7bd08f7b4dfd864c4da82"
+    }
+  },
+  "controlIdentitiesSha256": "478ad14f6cda2efebe9e9ffbed46c31381d6e6c12f5511e7cb027ca2e9e83ce6",
+  "controlAuditSha256": "38e7a446ac3676c235eb51d468e3d123ce0f3db95f4560402784a955ff8e607a",
+  "historicalSignalFeatureReturnsRead": true,
+  "historicalStrategyOutcomeReturnsRead": false,
+  "realOutcomePricesRead": false,
+  "forwardReturnsRead": false,
+  "nextBarOpenRead": false,
+  "futurePriceRead": false,
+  "executionEvaluated": false,
+  "promotionEvaluated": false
+}

@@ -108,9 +108,9 @@
     "lib/v21/event-predicate.ts": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
     "lib/v21/events.ts": "d38b4e5dcbd413869ae0125f8f2c835c789c81c437290b5397504a2eab31ccc6",
     "scripts/run-v21-event-stage.ts": "e059ac0e84cb6fd31075d7b1acd62388e55b14bd710315f452dc85e02f96539e",
-    "scripts/validate-v21-events.ts": "5a79895610842ac99975e4a548dcdaecb27c43fd1fe8f9805b7b9e00fc841eca",
+    "scripts/validate-v21-events.ts": "34dc31d5277e1207591aa2cc02bc44a0fc823408e4d33a763e6dcb6b6cfe5f1a",
     "tests/v21-events.test.ts": "b2e7cf236ce05db6017452ceddee2ee0dd4710204930c0ca036fdb0e04a4f3a5",
-    "package.json": "a09e800627a7aafe43276748bb8f398dbb580c875b9498b1362f0fb0af632d83"
+    "package.json": "a7e098b1013602bbe29e4cbbc7acf1f6ecdaa812be0baff2fe909a91e61b0f5b"
   },
   "classification": "V21_PRE_RETURN_SAMPLE_GATE_PASS",
   "researchStop": false,
@@ -166,5 +166,5 @@
     "reports/v21-promotion-decision.json",
     "reports/v21-promotion-decision.md"
   ],
-  "manifestBodySha256": "048dbc178eb2a3802af9dec0b090fc772d41988fa12ef2f29c50f3a467f3ef98"
+  "manifestBodySha256": "370c73588476820a6504ef1274d26898552ef9d07b762d75a8c7040545ec1050"
 }

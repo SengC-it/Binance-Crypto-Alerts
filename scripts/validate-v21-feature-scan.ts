@@ -30,7 +30,6 @@ const SCAN_FORBIDDEN_PATHS = [
   ...V21_FORBIDDEN_PATHS,
   "scripts/run-v21-signal-stage.ts",
   "reports/v21-signals.json",
-  "reports/v21-freeze-manifest.json",
 ] as const;
 
 async function main(): Promise<void> {

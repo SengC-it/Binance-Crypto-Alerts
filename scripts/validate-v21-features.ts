@@ -36,7 +36,6 @@ const FEATURE_FORBIDDEN_PATHS = [
   ...V21_FORBIDDEN_PATHS,
   "scripts/run-v21-signal-stage.ts",
   "reports/v21-signals.json",
-  "reports/v21-freeze-manifest.json",
 ] as const;
 const ALLOWED_V21_REPORTS = new Set([
   ...V21_REPORT_FILES.map((path) => path.replace(/^reports\//, "")),

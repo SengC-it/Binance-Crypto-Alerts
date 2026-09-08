@@ -314,6 +314,11 @@ async function main(): Promise<void> {
     "v21-scan-stage-manifest.json",
     "v21-event-predicate-feasibility.json",
     "v21-event-predicate-stage-manifest.json",
+    "v21-control-identities.json",
+    "v21-control-audit.json",
+    "v21-control-enumeration.json",
+    "v21-result-contract.json",
+    "v21-freeze-manifest.json",
     ...REQUIRED_REPORTS,
   ]);
   const unexpected = reportNames.filter((name) => name.startsWith("v21-") && !allowedV21Reports.has(name));
