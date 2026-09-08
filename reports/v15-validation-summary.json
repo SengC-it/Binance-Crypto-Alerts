@@ -1,0 +1,46 @@
+{
+  "schema": "v15-validation-summary-v1",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "freezeCommit": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "freezeSha256": "809d9581beee7b3a222f5cfcee4fddf78278fc47deb5e5221f71ba2ce17e953c",
+  "dataFreezeV2Sha256": "88f0a2a09e2aa6131f5b21e27562622aa32be52f4d2df234e9cfb3d7b176d1b8",
+  "dataFreezeV3Sha256": "032dad0e26f6c094831016832e73abad34e6bb921f1edd7108d2be38f93f0f11",
+  "dataGate": "FAIL",
+  "dataGateV3": "FAIL",
+  "historicalReturnsRead": false,
+  "result": "V15_DATA_INSUFFICIENT_FINAL",
+  "emailPromotionCandidate": "FAIL",
+  "researchStop": "YES",
+  "reason": "DATA_GATE_V3_FAIL: FEATURE_WINDOW_COVERAGE_BELOW_98_PERCENT, TRAILING_30D_ADV_COVERAGE_BELOW_98_PERCENT, CANDIDATE_SETTLEMENT_INPUT_COVERAGE_BELOW_100_PERCENT",
+  "reasons": [
+    "FEATURE_WINDOW_COVERAGE_BELOW_98_PERCENT",
+    "TRAILING_30D_ADV_COVERAGE_BELOW_98_PERCENT",
+    "CANDIDATE_SETTLEMENT_INPUT_COVERAGE_BELOW_100_PERCENT"
+  ],
+  "primaryOos": null,
+  "years": {
+    "2022": null,
+    "2023": null,
+    "2024": null
+  },
+  "holdoutA": null,
+  "holdoutB": null,
+  "long": null,
+  "short": null,
+  "placebos": null,
+  "cost": null,
+  "manualDelay": null,
+  "confidence": null,
+  "emailUtility": null,
+  "boundaries": {
+    "productionEmail": "OFF",
+    "productionChanged": false,
+    "deploy": false,
+    "merge": false,
+    "autoTrading": false,
+    "migration": false,
+    "privateBinanceApi": false,
+    "orderPlacement": false
+  }
+}

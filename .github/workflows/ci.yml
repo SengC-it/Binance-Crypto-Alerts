@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/v15-spot-perp-lead-lag]
   pull_request:
 
 jobs:
@@ -23,3 +23,4 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm validate:v5-5
+      - run: pnpm validate:v15:artifact

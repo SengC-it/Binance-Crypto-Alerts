@@ -1,0 +1,18 @@
+{
+  "schema": "v15-cost-input-manifest-v1",
+  "funding": {
+    "sourceTemplate": "https://data.binance.vision/data/futures/um/monthly/fundingRate/{symbol}/{symbol}-fundingRate-{month}.zip",
+    "requiredSymbolMonths": 14821,
+    "materializedSymbolMonths": 0,
+    "coverage": 0,
+    "actualFiles": []
+  },
+  "markPrice": {
+    "sourceTemplate": "https://data.binance.vision/data/futures/um/monthly/markPriceKlines/{symbol}/5m/{symbol}-5m-{month}.zip",
+    "requiredArchiveSlots": 14821,
+    "materializedArchiveSlots": 0,
+    "coverage": 0,
+    "actualFiles": []
+  },
+  "noFallback": true
+}

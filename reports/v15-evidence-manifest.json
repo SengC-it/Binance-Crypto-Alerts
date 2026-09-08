@@ -1,0 +1,29 @@
+{
+  "schema": "v15-evidence-manifest-v3",
+  "baseline": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "branch": "feat/v15-spot-perp-lead-lag",
+  "freezeSha256": "809d9581beee7b3a222f5cfcee4fddf78278fc47deb5e5221f71ba2ce17e953c",
+  "dataFreezeV2Sha256": "88f0a2a09e2aa6131f5b21e27562622aa32be52f4d2df234e9cfb3d7b176d1b8",
+  "dataFreezeV3Sha256": "032dad0e26f6c094831016832e73abad34e6bb921f1edd7108d2be38f93f0f11",
+  "dataGateV3Sha256": "9ecee1346cd548a96307e528d2a73527abdad68c883799017887262e04a73c26",
+  "resultCommit": null,
+  "historicalReturnsRead": false,
+  "artifacts": {
+    "v15-data-gate.json": "9ecee1346cd548a96307e528d2a73527abdad68c883799017887262e04a73c26",
+    "v15-data-gate-v3.json": "9ecee1346cd548a96307e528d2a73527abdad68c883799017887262e04a73c26",
+    "v15-archive-registry.json": "ee6f46fb113da4e92e8752a8c98563ebb9ea59a0208fdbfac0a766f6b4b17202",
+    "v15-stage-b-archive-manifest.json": "3ea3c80a69fdd733522a89528118abc636a698c19ca3813aa50f2973e4a145b5",
+    "v15-cost-input-manifest.json": "8ba2ad8d156f5cd7b45afffc5b35c003556ff05eb3901e97d7a26602dd29acde",
+    "v15-freeze-manifest.json": "d4aa694002919992bab5aee9ca61957ad9de3124d5e788ccd85e7262005e9c50",
+    "v15-data-freeze-v2.json": "64efc8b36077ce40f4791bbed1cf70d5f7fa9677b0710e10d78c8a8acb0c416f",
+    "v15-data-freeze-v3.json": "c04486a7d15090fef2b08f2980bd23479b823a0f8a848f08f18e7078e9803494",
+    "v15-oos-results.json": "191b347e02ece01b3c9f5a7a5e4fafa400f1402a6512d129bb9aa4950f75e023",
+    "v15-holdouts.json": "191b347e02ece01b3c9f5a7a5e4fafa400f1402a6512d129bb9aa4950f75e023",
+    "v15-placebos.json": "191b347e02ece01b3c9f5a7a5e4fafa400f1402a6512d129bb9aa4950f75e023",
+    "v15-manual-delay.json": "191b347e02ece01b3c9f5a7a5e4fafa400f1402a6512d129bb9aa4950f75e023",
+    "v15-cost-attribution.json": "191b347e02ece01b3c9f5a7a5e4fafa400f1402a6512d129bb9aa4950f75e023",
+    "v15-validation-summary.json": "13d87cc9ff9ca53fade62dee020afe4d4c768e970cda70dd543a52cd5993a833",
+    "v15-promotion-decision.json": "dbeb14d17a6e268f7e20fa29194162dc69991265450a8cce1b2cadc08da671c0",
+    "v15-promotion-decision.md": "630c61655c3a1535b514c12679e51c0474c6f19053ad1b5e03c4f4867365690a"
+  }
+}
