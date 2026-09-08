@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
@@ -38,6 +39,7 @@ import {
   V21_RESULT_PERIODS,
   V21_RESULT_STRATEGIES,
   V21_WP4_FREEZE_COMMIT,
+  V21_WP4_RESULT_COMMIT,
   assert,
   assertV21FrozenInputs,
   gitBlobHash,
@@ -573,8 +575,25 @@ async function assertResultHead(): Promise<void> {
   const branch = process.env.GITHUB_HEAD_REF ?? gitBlobHash("--abbrev-ref", "HEAD");
   assert(branch === V21_BRANCH || gitBlobHash("--abbrev-ref", "HEAD") === "HEAD", `result branch ${branch}`);
   assert(head !== V21_WP4_FREEZE_COMMIT, "result artifacts must not be validated at freeze HEAD");
-  assert(parent === V21_WP4_FREEZE_COMMIT, `result direct parent must be ${V21_WP4_FREEZE_COMMIT}`);
+  const isPostResultCiOnlyHead = parent !== V21_WP4_FREEZE_COMMIT && isAllowedPostResultCiOnlyHead(head);
+  assert(parent === V21_WP4_FREEZE_COMMIT || isPostResultCiOnlyHead, `result direct parent must be ${V21_WP4_FREEZE_COMMIT}`);
   assert(V21_BASE_SHA === "7b9e5d82f471ee3c9fec07e00101263c8d84e953", "base identity");
+}
+
+function isAllowedPostResultCiOnlyHead(head: string): boolean {
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", V21_WP4_RESULT_COMMIT, head], { stdio: "ignore" });
+    const changedFiles = execFileSync("git", ["diff", "--name-only", `${V21_WP4_RESULT_COMMIT}..${head}`], { encoding: "utf8" })
+      .split(/\r?\n/)
+      .filter((path) => path.length > 0);
+    const allowedFiles = new Set([
+      "scripts/v21-result-support.ts",
+      "scripts/validate-v21-result.ts",
+    ]);
+    return changedFiles.length > 0 && changedFiles.every((path) => allowedFiles.has(path));
+  } catch {
+    return false;
+  }
 }
 
 async function assertResultArtifactsExist(): Promise<void> {

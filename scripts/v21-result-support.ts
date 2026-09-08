@@ -32,6 +32,7 @@ import {
 import type { V21EventIdentity } from "../lib/v21/events";
 
 export const V21_WP4_FREEZE_COMMIT = "22f4229302d62104d3285e4b6b1b943bf9affbf2" as const;
+export const V21_WP4_RESULT_COMMIT = "54698f7a139cec978243cab55eb4edbd7f7ca439" as const;
 export const V21_RESULT_ARTIFACTS = [
   "reports/v21-outcome-audit.json",
   "reports/v21-primary-oos.json",
