@@ -59,6 +59,8 @@ export const V21_REPORT_FILES = [
   "reports/v21-event-enumeration.json",
   "reports/v21-event-identities.json",
   "reports/v21-event-stage-manifest.json",
+  "reports/v21-event-audit.json",
+  "reports/v21-prior-stage-evidence-lock.json",
 ] as const;
 
 export const V21_FORBIDDEN_PATHS = [

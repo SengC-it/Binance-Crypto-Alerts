@@ -5,10 +5,13 @@ import {
   V21_PIT_OBSERVATION_COUNT,
 } from "../lib/v21/features";
 import {
+  applyV21AuditOverlap,
   applyV21TimestampOverlap,
   enumerateV21PreReturnEvents,
+  v21AuditIdentityPayload,
   v21EventIdentityPayload,
   type V21EventIdentity,
+  type V21PreReturnAudit,
   type V21SynchronizedReturnMatrix,
 } from "../lib/v21/events";
 
@@ -24,7 +27,32 @@ describe("V21 WP3A pre-return event identities", () => {
       expect(Object.keys(event)).toEqual(["symbol", "signalOpenTime", "direction", "clusterId"]);
       expect(event.clusterId).toBe(event.signalOpenTime);
     }
+    expect(v21AuditIdentityPayload(result.auditCandidates)).toEqual(result.allEvents);
+    expect(result.auditCandidates.every((row) => !("entryOpen" in row) && !("netReturn" in row))).toBe(true);
   }, 120000);
+
+  it("preserves an explicit zero-residual ineligible audit marker", () => {
+    const zero: V21PreReturnAudit = {
+      symbol: "BTCUSDT",
+      signalOpenTime: Date.parse("2022-01-01T00:00:00.000Z"),
+      signalCloseTime: Date.parse("2022-01-01T00:05:00.000Z"),
+      signalTimestamp: Date.parse("2022-01-01T00:05:00.000Z"),
+      direction: null,
+      assetReturn: 0,
+      marketReturn: 0,
+      alpha: 0,
+      beta: 1,
+      previousResidual: 0,
+      currentResidual: 0,
+      residualAbsQ99: 0,
+      clusterId: Date.parse("2022-01-01T00:00:00.000Z"),
+      eligibilityStatus: "ZERO_RESIDUAL_INELIGIBLE",
+      overlapStatus: "ACCEPTED",
+    };
+    const result = applyV21AuditOverlap([zero]);
+    expect(result.audits).toEqual([zero]);
+    expect(v21AuditIdentityPayload(result.audits)).toEqual([]);
+  });
 
   it("applies timestamp-only overlap per symbol while allowing same-time symbols", () => {
     const time = Date.parse("2022-01-01T00:00:00.000Z");
@@ -60,6 +88,17 @@ describe("V21 WP3A pre-return event identities", () => {
     expect(runner).toContain("noNetworkFetch");
     expect(runner).not.toMatch(/bar\.(high|low|volume|quoteVolume|tradeCount)/);
     expect(runner).not.toMatch(/\bt\s*\+\s*1\b|\bfuture\s+(?:price|bar|return)/i);
+  });
+
+  it("requires dependency validation and explicit boundary metadata", () => {
+    const validator = readFileSync("scripts/validate-v21-events.ts", "utf8");
+    expect(validator).toContain('"validate:v21:data"');
+    expect(validator).toContain('"validate:v21:features"');
+    expect(validator).toContain('"validate:v21:feature-scan"');
+    expect(validator).toContain('"validate:v21:event-predicate"');
+    expect(validator).toContain("nextBarOpenRead");
+    expect(validator).toContain("futurePriceRead");
+    expect(validator).toContain("holdoutOutcomeRead");
   });
 });
 

@@ -22,8 +22,10 @@
     "featureStageManifestSha256": "9c0f39e7398b457f4214379df6be1fe0ba44f70e640e56276f993ab669db771f",
     "scanStageManifestSha256": "d8f8e1d342920f2bdae649207646862311ec66c06a150e06f1e4db69aea8c711",
     "eventPredicateStageManifestSha256": "641aac0bfdb4886421b9aa60a3cc933641721696b9cbc9ed5219775b6703e284",
-    "eventEnumerationSha256": "b60b85c3fc60faf6ce16948c682a02877a7f771f55b76f09044b6e839f6225f4",
-    "eventIdentitiesSha256": "505e5481a66711d974b83b3252429181c4c3b2efcdb73a785edf61fe00c636b8"
+    "eventEnumerationSha256": "1ea70d86cb67934193483b6118d72673e554e0f21cc5ddd0318f47968fed62f0",
+    "eventIdentitiesSha256": "505e5481a66711d974b83b3252429181c4c3b2efcdb73a785edf61fe00c636b8",
+    "eventAuditSha256": "305b0d897e86031e742e9f6c3bddadc363806f35ee4a6cb956698d38cfcfe785",
+    "priorStageEvidenceLockSha256": "021aa5bf9a34df978784ef0473272b39a53c9da128a95ff685a3150f41a74872"
   },
   "eventDigests": {
     "allEvents": "a8435418f6007dd6a25a20d1a292fabd5cdfaa84f7cc7d713a617ed375ebec4b",
@@ -98,16 +100,16 @@
     }
   },
   "sourceHashes": {
-    "lib/v21/constants.ts": "de923b67583e7c2cbd86df979fa1df57b9fcf6a36c498de87e29b8af832ee565",
+    "lib/v21/constants.ts": "b54ffbcfb05631c8e2a1bff15fc5a5e0776170991786b53cc534c4b81a2e4c5a",
     "lib/v21/canonical.ts": "3853858ef3adf3f08b739e8ce46e71ac88c66dc588e3f51e06f12a1fd196ba39",
     "lib/v21/archive.ts": "da6663ebb19f83e437f7b2c6f9690f00202fa3365b606e6f9328f97c03856484",
     "lib/v21/features.ts": "0331bab1ace6772eef3e01360de69126872fb9394e9960b633ca3e459435b620",
     "lib/v21/feature-scan.ts": "682c38a05cc4d49fd5202b60e6b0dce95be51f5cffe56ff80ad8a7bdb38f0792",
     "lib/v21/event-predicate.ts": "577b53220ab5b1a9bac5a89c65539e81d3331fa07f568ee119c0adead3de0179",
-    "lib/v21/events.ts": "629df44dd600ddfa5d3711a3f1c9fc2e9bb8c64814c1a464a70f860a9453d803",
-    "scripts/run-v21-event-stage.ts": "20246abd6ac27b4491b48d97425a3f3756dc8ff2a843db8f95355dbd55a27b7b",
-    "scripts/validate-v21-events.ts": "13b9ab93b97525e422f4bdc8f6e3cdfebc28e104de1159a6cf4ccd5914553050",
-    "tests/v21-events.test.ts": "051c6eb2a40214767ba3df9318cf8a1496fb430a9b293cfb7f4d93314a7e1bff",
+    "lib/v21/events.ts": "d38b4e5dcbd413869ae0125f8f2c835c789c81c437290b5397504a2eab31ccc6",
+    "scripts/run-v21-event-stage.ts": "e059ac0e84cb6fd31075d7b1acd62388e55b14bd710315f452dc85e02f96539e",
+    "scripts/validate-v21-events.ts": "5a79895610842ac99975e4a548dcdaecb27c43fd1fe8f9805b7b9e00fc841eca",
+    "tests/v21-events.test.ts": "b2e7cf236ce05db6017452ceddee2ee0dd4710204930c0ca036fdb0e04a4f3a5",
     "package.json": "a09e800627a7aafe43276748bb8f398dbb580c875b9498b1362f0fb0af632d83"
   },
   "classification": "V21_PRE_RETURN_SAMPLE_GATE_PASS",
@@ -120,9 +122,12 @@
     "firstCrossEnumerated": true,
     "directionsAssigned": true,
     "executionEvaluated": false,
+    "historicalSignalFeatureReturnsRead": true,
     "historicalStrategyOutcomeReturnsRead": false,
-    "historicalReturnsRead": false,
     "forwardReturnsRead": false,
+    "nextBarOpenRead": false,
+    "futurePriceRead": false,
+    "holdoutOutcomeRead": false,
     "oosMetricsRead": false,
     "holdoutRead": false,
     "parameterSearch": false,
@@ -161,5 +166,5 @@
     "reports/v21-promotion-decision.json",
     "reports/v21-promotion-decision.md"
   ],
-  "manifestBodySha256": "1359f4f6ace6677227cc03488bcf23da8e04e1a3dd60e522c6816e710df816a8"
+  "manifestBodySha256": "048dbc178eb2a3802af9dec0b090fc772d41988fa12ef2f29c50f3a467f3ef98"
 }

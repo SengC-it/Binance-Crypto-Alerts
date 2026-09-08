@@ -30,6 +30,27 @@ export interface V21EventIdentity {
   clusterId: number;
 }
 
+export type V21AuditOverlapStatus = "ACCEPTED" | "OVERLAPPING_SIGNAL_EXCLUDED";
+export type V21AuditEligibilityStatus = "ELIGIBLE" | "ZERO_RESIDUAL_INELIGIBLE";
+
+export interface V21PreReturnAudit {
+  symbol: V21Symbol;
+  signalOpenTime: number;
+  signalCloseTime: number;
+  signalTimestamp: number;
+  direction: V21EventIdentity["direction"] | null;
+  assetReturn: number;
+  marketReturn: number;
+  alpha: number;
+  beta: number;
+  previousResidual: number;
+  currentResidual: number;
+  residualAbsQ99: number;
+  clusterId: number;
+  eligibilityStatus: V21AuditEligibilityStatus;
+  overlapStatus: V21AuditOverlapStatus;
+}
+
 export interface V21EventEnumerationDiagnostics {
   synchronizedReturnRows: number;
   featureEvaluations: number;
@@ -67,6 +88,7 @@ export interface V21EventEnumerationResult {
   primaryOosEvents: V21EventIdentity[];
   holdoutAEvents: V21EventIdentity[];
   holdoutBEvents: V21EventIdentity[];
+  auditCandidates: V21PreReturnAudit[];
   diagnostics: V21EventEnumerationDiagnostics;
 }
 
@@ -94,6 +116,7 @@ export function enumerateV21PreReturnEvents(
   const comparisonHistogram = new Uint32Array(V21_PIT_OBSERVATION_COUNT + 1);
   const ineligibleByReason: Record<string, number> = {};
   const candidates: CandidateEvent[] = [];
+  const auditCandidates: V21PreReturnAudit[] = [];
   let featureEvaluations = 0;
   let eligiblePitFeatures = 0;
   let ineligiblePitFeatures = 0;
@@ -176,13 +199,35 @@ export function enumerateV21PreReturnEvents(
           rawExtremeCandidates += 1;
           if (Math.abs(previousResidual) < threshold && currentAbs >= threshold) {
             firstCrossCandidates += 1;
-            if (currentResidualExact === 0) {
+            const direction = currentResidualExact > 0
+              ? "SHORT"
+              : currentResidualExact < 0
+                ? "LONG"
+                : null;
+            auditCandidates.push({
+              symbol,
+              signalOpenTime: currentOpenTime,
+              signalCloseTime: currentOpenTime + V21_INTERVAL_MS,
+              signalTimestamp: currentOpenTime + V21_INTERVAL_MS,
+              direction,
+              assetReturn: series[currentIndex],
+              marketReturn: marketSeries[currentIndex],
+              alpha,
+              beta,
+              previousResidual,
+              currentResidual: currentResidualExact,
+              residualAbsQ99: threshold,
+              clusterId: currentOpenTime,
+              eligibilityStatus: direction === null ? "ZERO_RESIDUAL_INELIGIBLE" : "ELIGIBLE",
+              overlapStatus: "ACCEPTED",
+            });
+            if (direction === null) {
               zeroResidualFirstCrossCandidates += 1;
             } else {
               candidates.push({
                 symbol,
                 signalOpenTime: currentOpenTime,
-                direction: currentResidualExact > 0 ? "SHORT" : "LONG",
+                direction,
               });
             }
           }
@@ -195,6 +240,10 @@ export function enumerateV21PreReturnEvents(
   }
 
   const overlapResult = applyV21TimestampOverlap(candidates);
+  const auditOverlapResult = applyV21AuditOverlap(auditCandidates);
+  if (auditOverlapResult.excluded !== overlapResult.excluded) {
+    throw new Error("V21 audit overlap projection diverged from event identity overlap");
+  }
   const allEvents = overlapResult.accepted;
   const primaryOosEvents = allEvents.filter((event) => event.signalOpenTime >= V21_PRIMARY_OOS_START && event.signalOpenTime < V21_HOLDOUT_A_START);
   const holdoutAEvents = allEvents.filter((event) => event.signalOpenTime >= V21_HOLDOUT_A_START && event.signalOpenTime < V21_HOLDOUT_B_START);
@@ -225,6 +274,7 @@ export function enumerateV21PreReturnEvents(
     primaryOosEvents,
     holdoutAEvents,
     holdoutBEvents,
+    auditCandidates: auditOverlapResult.audits,
     diagnostics: {
       synchronizedReturnRows: rowCount,
       featureEvaluations,
@@ -253,6 +303,46 @@ export function enumerateV21PreReturnEvents(
       distinctPrimarySignalClusters,
     },
   };
+}
+
+export function applyV21AuditOverlap(
+  candidates: readonly V21PreReturnAudit[],
+): { audits: V21PreReturnAudit[]; excluded: number } {
+  const sorted = [...candidates].sort((left, right) => (
+    left.signalOpenTime - right.signalOpenTime || left.symbol.localeCompare(right.symbol)
+  ));
+  const lastAcceptedBySymbol = new Map<V21Symbol, number>();
+  const audits: V21PreReturnAudit[] = [];
+  let excluded = 0;
+  for (const candidate of sorted) {
+    const eligible = candidate.eligibilityStatus === "ELIGIBLE" && candidate.direction !== null;
+    const lastAccepted = lastAcceptedBySymbol.get(candidate.symbol);
+    const overlapping = eligible
+      && lastAccepted !== undefined
+      && candidate.signalOpenTime < lastAccepted + V21_PRIMARY_HORIZON_MS;
+    if (overlapping) excluded += 1;
+    audits.push({
+      ...candidate,
+      overlapStatus: overlapping ? "OVERLAPPING_SIGNAL_EXCLUDED" : "ACCEPTED",
+    });
+    if (eligible && !overlapping) lastAcceptedBySymbol.set(candidate.symbol, candidate.signalOpenTime);
+  }
+  return { audits, excluded };
+}
+
+export function v21AuditIdentityPayload(
+  audits: readonly V21PreReturnAudit[],
+): V21EventIdentity[] {
+  return v21EventIdentityPayload(
+    audits
+      .filter((audit) => audit.overlapStatus === "ACCEPTED" && audit.eligibilityStatus === "ELIGIBLE")
+      .map((audit) => ({
+        symbol: audit.symbol,
+        signalOpenTime: audit.signalOpenTime,
+        direction: audit.direction as V21EventIdentity["direction"],
+        clusterId: audit.clusterId,
+      })),
+  );
 }
 
 export function applyV21TimestampOverlap(

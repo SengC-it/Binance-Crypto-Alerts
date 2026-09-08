@@ -18,15 +18,18 @@ import {
   V21_ARCHIVE_ROOT,
   downloadAndParseV21Archive,
 } from "../lib/v21/archive";
-import { canonicalTextSha256, sha256 } from "../lib/v21/canonical";
+import { canonicalTextSha256, sha256, sha256Bytes } from "../lib/v21/canonical";
 import {
   enumerateV21PreReturnEvents,
+  v21AuditIdentityPayload,
   v21EventIdentityPayload,
+  type V21PreReturnAudit,
   type V21SynchronizedReturnMatrix,
 } from "../lib/v21/events";
 
 const REPORT_DIR = resolve("reports");
 const PARENT_COMMIT = "e8721d509d574cc2697e3fff75ba7f5f4b86d99a";
+const APPROVED_WP3A_COMMIT = "d36e6fc606e47ab4cb56d4b8ce4adb26abbccbcc";
 const SOURCE_FILES = [
   "lib/v21/constants.ts",
   "lib/v21/canonical.ts",
@@ -40,13 +43,90 @@ const SOURCE_FILES = [
   "tests/v21-events.test.ts",
   "package.json",
 ] as const;
+const PRIOR_STAGE_EVIDENCE = [
+  {
+    stage: "WP1",
+    commit: "6c17bc2545aff218d4d673f07ccee3a5bf8eb54b",
+    paths: [
+      "reports/v21-archive-manifest.json",
+      "reports/v21-parser-report.json",
+      "reports/v21-data-gate.json",
+      "reports/v21-data-stage-manifest.json",
+      "lib/v21/archive.ts",
+      "lib/v21/canonical.ts",
+      "lib/v21/constants.ts",
+      "scripts/run-v21-data-stage.ts",
+      "scripts/validate-v21-data.ts",
+      "tests/v21-data.test.ts",
+    ],
+  },
+  {
+    stage: "WP2",
+    commit: "83fa78849890ac0a59b408b4e0d13f007755977f",
+    paths: [
+      "reports/v21-feature-stage-manifest.json",
+      "lib/v21/features.ts",
+      "tests/v21-features.test.ts",
+      "scripts/validate-v21-features.ts",
+    ],
+  },
+  {
+    stage: "WP2.5",
+    commit: "3eceefd0808ac54d5da8e28edf78ef837bc9cacf",
+    paths: [
+      "reports/v21-scan-feasibility.json",
+      "reports/v21-scan-stage-manifest.json",
+      "lib/v21/feature-scan.ts",
+      "tests/v21-feature-scan.test.ts",
+      "scripts/validate-v21-feature-scan.ts",
+    ],
+  },
+  {
+    stage: "WP2.6",
+    commit: "56326f0998b76cd78d088d73cb971c5c58ab4739",
+    paths: [
+      "reports/v21-event-predicate-feasibility.json",
+      "reports/v21-event-predicate-stage-manifest.json",
+      "lib/v21/event-predicate.ts",
+      "tests/v21-event-predicate.test.ts",
+      "scripts/validate-v21-event-predicate.ts",
+    ],
+  },
+  {
+    stage: "WP2.6b",
+    commit: "e8721d509d574cc2697e3fff75ba7f5f4b86d99a",
+    paths: [
+      "reports/v21-event-predicate-feasibility.json",
+      "reports/v21-event-predicate-stage-manifest.json",
+      "lib/v21/event-predicate.ts",
+      "tests/v21-event-predicate.test.ts",
+      "scripts/validate-v21-event-predicate.ts",
+    ],
+  },
+  {
+    stage: "WP3A",
+    commit: "d36e6fc606e47ab4cb56d4b8ce4adb26abbccbcc",
+    paths: [
+      "reports/v21-event-enumeration.json",
+      "reports/v21-event-identities.json",
+      "reports/v21-event-stage-manifest.json",
+      "lib/v21/events.ts",
+      "scripts/run-v21-event-stage.ts",
+      "scripts/validate-v21-events.ts",
+      "tests/v21-events.test.ts",
+      "package.json",
+    ],
+  },
+] as const;
 
 async function main(): Promise<void> {
   assertParentCommit();
   await mkdir(REPORT_DIR, { recursive: true });
+  const frozenIdentityText = await readFile(resolve(REPORT_DIR, "v21-event-identities.json"), "utf8");
+  const frozenIdentities = JSON.parse(frozenIdentityText) as Record<string, unknown>;
   const input = await loadCachedSynchronizedInput();
   const result = enumerateV21PreReturnEvents(input);
-  const identities = {
+  const generatedIdentities = {
     schemaVersion: "v21-event-identities-v1",
     experimentId: V21_EXPERIMENT_ID,
     repository: V21_REPOSITORY,
@@ -60,14 +140,81 @@ async function main(): Promise<void> {
     holdoutAEvents: v21EventIdentityPayload(result.holdoutAEvents),
     holdoutBEvents: v21EventIdentityPayload(result.holdoutBEvents),
   };
-  await writeJson("v21-event-identities.json", identities);
-  const identityHash = canonicalTextSha256(await readFile(resolve(REPORT_DIR, "v21-event-identities.json"), "utf8"));
+  assertJsonEqual(generatedIdentities, frozenIdentities, "WP3A event identities are frozen");
+  const identities = frozenIdentities as typeof generatedIdentities;
+  const identityHash = canonicalTextSha256(frozenIdentityText);
   const eventDigests = {
     allEvents: sha256(identities.allEvents),
     primaryOosEvents: sha256(identities.primaryOosEvents),
     holdoutAEvents: sha256(identities.holdoutAEvents),
     holdoutBEvents: sha256(identities.holdoutBEvents),
   };
+  assertJsonEqual(eventDigests, {
+    allEvents: "a8435418f6007dd6a25a20d1a292fabd5cdfaa84f7cc7d713a617ed375ebec4b",
+    primaryOosEvents: "621607df1f34fbb378ec938a5808ca27de17918dda498433da396e73e02d840c",
+    holdoutAEvents: "fda762168a03429660b9805d616cbc88b54ce02f556abaa2bc7148b1e401ec6d",
+    holdoutBEvents: "cf46b0ccad40b4ba84300e70c78438d943a96d8d1bc6adcc15bfdf8d85dd7433",
+  }, "WP3A event digests are frozen");
+  assertJsonEqual(result.diagnostics, {
+    synchronizedReturnRows: 586943,
+    featureEvaluations: 4626424,
+    eligiblePitFeatures: 4626424,
+    ineligiblePitFeatures: 0,
+    ineligibleByReason: {},
+    rawExtremeCandidates: 44574,
+    firstCrossCandidates: 36566,
+    zeroResidualFirstCrossCandidates: 0,
+    overlapExcluded: 7476,
+    finalEligibleEvents: 29090,
+    residualComparisons: {
+      total: 2704712009,
+      average: 584.6225959834204,
+      median: 165,
+      p95: 2645,
+      p99: 8640,
+    },
+    earlyExits: 4573748,
+    fullWindowScans: 52676,
+    exactThresholdComputations: 52676,
+    eventsBySymbol: {
+      BTCUSDT: 3675,
+      ETHUSDT: 3647,
+      BNBUSDT: 3676,
+      ADAUSDT: 3680,
+      BCHUSDT: 3535,
+      DOGEUSDT: 3447,
+      LINKUSDT: 3745,
+      DOTUSDT: 3685,
+    },
+    eventsByDirection: { LONG: 12167, SHORT: 16923 },
+    eventsByPeriod: { primaryOos: 19160, holdoutA: 6212, holdoutB: 3718 },
+    yearlyIdentityCounts: { "2022": 6381, "2023": 6297, "2024": 6482, "2025": 6212, "2026": 3718 },
+    distinctPrimarySignalClusters: 16532,
+  }, "WP3A diagnostics are frozen");
+  const auditRows = result.auditCandidates;
+  const auditIdentityProjection = v21AuditIdentityPayload(auditRows);
+  assertJsonEqual(auditIdentityProjection, identities.allEvents, "audit identity projection");
+  const priorStageEvidenceLock = await buildPriorStageEvidenceLock();
+  await writeJson("v21-prior-stage-evidence-lock.json", priorStageEvidenceLock);
+  await writeJson("v21-event-audit.json", {
+    schemaVersion: "v21-event-audit-v1",
+    experimentId: V21_EXPERIMENT_ID,
+    repository: V21_REPOSITORY,
+    branch: V21_BRANCH,
+    baseResearchSha: V21_BASE_SHA,
+    approvedParentCommit: PARENT_COMMIT,
+    source: "official Binance Data Vision regular 5m immutable archive cache; pre-return audit only",
+    identityFields: ["symbol", "signalOpenTime", "direction", "clusterId"],
+    noOutcomeFields: true,
+    auditRows,
+    counts: {
+      auditRows: auditRows.length,
+      accepted: auditRows.filter((row) => row.overlapStatus === "ACCEPTED" && row.eligibilityStatus === "ELIGIBLE").length,
+      overlapExcluded: auditRows.filter((row) => row.overlapStatus === "OVERLAPPING_SIGNAL_EXCLUDED").length,
+      zeroResidualIneligible: auditRows.filter((row) => row.eligibilityStatus === "ZERO_RESIDUAL_INELIGIBLE").length,
+    },
+    projectedIdentityDigests: eventDigests,
+  });
   const diagnostics = result.diagnostics;
   const primarySampleGate = {
     minimumPrimaryEvents: 1000,
@@ -133,13 +280,18 @@ async function main(): Promise<void> {
     classification: sampleGatePassed ? "V21_PRE_RETURN_SAMPLE_GATE_PASS" : "V21_PRE_RETURN_SAMPLE_INSUFFICIENT",
     researchStop: !sampleGatePassed,
     controlsEnumerated: false,
-    historicalReturnsRead: false,
+    historicalSignalFeatureReturnsRead: true,
     historicalStrategyOutcomeReturnsRead: false,
     forwardReturnsRead: false,
+    executionEvaluated: false,
+    nextBarOpenRead: false,
+    futurePriceRead: false,
+    holdoutOutcomeRead: false,
     oosMetricsRead: false,
     holdoutRead: false,
     parameterSearch: false,
-    executionEvaluated: false,
+    freezeCreated: false,
+    resultCommitCreated: false,
     productionChanged: false,
     productionEmail: "OFF",
     deploy: false,
@@ -171,6 +323,8 @@ async function main(): Promise<void> {
       eventPredicateStageManifestSha256: await reportHash("v21-event-predicate-stage-manifest.json"),
       eventEnumerationSha256: canonicalTextSha256(await readFile(resolve(REPORT_DIR, "v21-event-enumeration.json"), "utf8")),
       eventIdentitiesSha256: identityHash,
+      eventAuditSha256: canonicalTextSha256(await readFile(resolve(REPORT_DIR, "v21-event-audit.json"), "utf8")),
+      priorStageEvidenceLockSha256: canonicalTextSha256(await readFile(resolve(REPORT_DIR, "v21-prior-stage-evidence-lock.json"), "utf8")),
     },
     eventDigests,
     diagnostics,
@@ -186,9 +340,12 @@ async function main(): Promise<void> {
       firstCrossEnumerated: true,
       directionsAssigned: true,
       executionEvaluated: false,
+      historicalSignalFeatureReturnsRead: true,
       historicalStrategyOutcomeReturnsRead: false,
-      historicalReturnsRead: false,
       forwardReturnsRead: false,
+      nextBarOpenRead: false,
+      futurePriceRead: false,
+      holdoutOutcomeRead: false,
       oosMetricsRead: false,
       holdoutRead: false,
       parameterSearch: false,
@@ -264,8 +421,33 @@ const noNetworkFetch: typeof fetch = async () => {
 function assertParentCommit(): void {
   const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { encoding: "utf8" }).trim();
   const head = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-  if (branch !== V21_BRANCH) throw new Error(`V21 WP3A requires ${V21_BRANCH}, got ${branch}`);
-  if (head !== PARENT_COMMIT) throw new Error(`V21 WP3A must run from approved parent ${PARENT_COMMIT}, got ${head}`);
+  if (branch !== V21_BRANCH) throw new Error(`V21 WP3A.1 requires ${V21_BRANCH}, got ${branch}`);
+  if (head !== APPROVED_WP3A_COMMIT) throw new Error(`V21 WP3A.1 must run from approved WP3A commit ${APPROVED_WP3A_COMMIT}, got ${head}`);
+}
+
+async function buildPriorStageEvidenceLock(): Promise<Record<string, unknown>> {
+  const stages = PRIOR_STAGE_EVIDENCE.map(({ stage, commit, paths }) => ({
+    stage,
+    commit,
+    files: paths.map((path) => {
+      const revision = `${commit}:${path}`;
+      const gitBlobSha = execFileSync("git", ["rev-parse", revision], { encoding: "utf8" }).trim();
+      const bytes = execFileSync("git", ["cat-file", "blob", gitBlobSha], { maxBuffer: 64 * 1024 * 1024 });
+      return {
+        path,
+        gitBlobSha,
+        rawSha256: sha256Bytes(bytes),
+        canonicalTextSha256: canonicalTextSha256(new TextDecoder().decode(bytes)),
+      };
+    }),
+  }));
+  return {
+    schemaVersion: "v21-prior-stage-evidence-lock-v1",
+    experimentId: V21_EXPERIMENT_ID,
+    repository: V21_REPOSITORY,
+    source: "git cat-file blob of approved commit:path; no working-tree evidence substitution",
+    stages,
+  };
 }
 
 async function reportHash(name: string): Promise<string> {
@@ -280,6 +462,12 @@ async function hashSources(): Promise<Record<string, string>> {
 
 async function writeJson(name: string, value: unknown): Promise<void> {
   await writeFile(resolve(REPORT_DIR, name), `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+function assertJsonEqual(actual: unknown, expected: unknown, message: string): void {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    throw new Error(`V21 WP3A.1 audit assertion failed: ${message}`);
+  }
 }
 
 main().catch((error: unknown) => {
