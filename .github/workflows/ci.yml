@@ -12,10 +12,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: git fetch origin agent/shadow-entry-deployment --depth=1
+      - run: git fetch origin agent/shadow-entry-deployment --depth=20
       - run: git fetch origin research/r1-edge-attribution-audit --depth=1
       - if: ${{ github.head_ref != '' }}
-        run: git fetch origin "${{ github.head_ref }}" --depth=3
+        run: git fetch origin "${{ github.head_ref }}" --depth=20
       - uses: pnpm/action-setup@v4
         with:
           version: 11.16.0
@@ -30,3 +30,4 @@ jobs:
       - run: pnpm build
       - run: pnpm validate:v5-5
       - run: pnpm validate:v22:wp1
+      - run: pnpm validate:v22:wp2

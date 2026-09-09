@@ -9,6 +9,7 @@ import { R1_FINAL_GATE_COMMIT, V22_BASE_SHA, V22_BRANCH, V22_END_MS, V22_EXPERIM
 const execFileAsync = promisify(execFile);
 const REPORT_DIR = resolve("reports");
 const V22_WP1_SHA = "312f112734a39a024248ce5bbc9d861bf0be816e";
+const V22_WP1_1_SHA = "1a223849bd8790521c0c139552969b6bd2cc4b93";
 const ALLOWED_PATHS = new Set([
   ".github/workflows/ci.yml",
   "package.json",
@@ -16,18 +17,24 @@ const ALLOWED_PATHS = new Set([
   "lib/v22/data.ts",
   "lib/v22/provenance.ts",
   "lib/v22/types.ts",
+  "lib/v22/signal.ts",
   "scripts/build-v22-wp1.ts",
+  "scripts/build-v22-wp2.ts",
   "scripts/download-v22-cross-venue-data.ts",
   "scripts/run-v22-data-gate.ts",
   "scripts/run-v22-live-feed.ts",
   "scripts/validate-v22-wp1.ts",
+  "scripts/validate-v22-wp2.ts",
   "tests/v22-data.test.ts",
+  "tests/v22-signal.test.ts",
   "reports/v22-admission.json",
   "reports/v22-data-inventory.json",
   "reports/v22-data-gate.json",
   "reports/v22-live-feed-feasibility.json",
   "reports/v22-source-provenance.json",
   "reports/v22-wp1-manifest.json",
+  "reports/v22-signal-contract.json",
+  "reports/v22-wp2-freeze-manifest.json",
 ]);
 
 async function git(args: string[]): Promise<string> {
@@ -62,7 +69,8 @@ async function main(): Promise<void> {
   const targetHead = await git(["rev-parse", target]);
   requireThat((await git(["merge-base", targetHead, V22_BASE_SHA])) === V22_BASE_SHA, "base ancestry drifted");
   requireThat((await git(["merge-base", targetHead, V22_WP1_SHA])) === V22_WP1_SHA, "WP1.1 is not based on WP1");
-  requireThat((await git(["rev-parse", `${targetHead}^`])) === V22_WP1_SHA, "WP1.1 must be exactly one corrective commit after WP1");
+  requireThat((await git(["merge-base", targetHead, V22_WP1_1_SHA])) === V22_WP1_1_SHA, "WP1.1 accepted commit is not an ancestor");
+  requireThat((await git(["rev-parse", `${V22_WP1_1_SHA}^`])) === V22_WP1_SHA, "WP1.1 corrective commit lineage drifted");
 
   const r1Text = await gitText(R1_FINAL_GATE_COMMIT, "reports/r1-exhausted-alpha-families.json");
   const r1 = JSON.parse(r1Text) as { families?: Array<{ family?: string }>; registryCompleteness?: { exactSetEquality?: boolean }; retuningForbidden?: boolean };
