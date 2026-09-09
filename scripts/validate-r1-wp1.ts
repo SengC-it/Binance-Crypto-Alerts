@@ -40,6 +40,14 @@ const allowedChangedPaths = new Set<string>([
   "scripts/build-r1-evidence-inventory.ts",
   "scripts/validate-r1-wp1.ts",
   "tests/r1-wp1.test.ts",
+  "scripts/build-r1-edge-attribution.ts",
+  "scripts/validate-r1-wp2.ts",
+  "tests/r1-wp2.test.ts",
+  "reports/r1-metric-contracts.json",
+  "reports/r1-edge-attribution.json",
+  "reports/r1-failure-gate-matrix.json",
+  "reports/r1-wp2-summary.json",
+  "reports/r1-wp2-manifest.json",
   ...artifactPaths,
 ]);
 

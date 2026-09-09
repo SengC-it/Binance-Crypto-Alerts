@@ -1,0 +1,147 @@
+{
+  "schema": "r1-wp2-summary-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "wp1Commit": "3897dfaf3d368ba391684f12580ba3aa12a632d2",
+  "analyzedExperimentIds": [
+    "V17_CROWDING_FAILED_CONTINUATION",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+    "V19_BTC_SHOCK_ALT_CATCHUP",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "V7_DERIVATIVES_FLOW_ALPHA"
+  ],
+  "categoryCounts": {
+    "NO_PRE_FRICTION_EDGE": 1,
+    "EXECUTION_FRICTION_DOMINATED": 3,
+    "NET_EDGE_NOT_ROBUST": 1,
+    "ROBUST_NET_EDGE": 0,
+    "ATTRIBUTION_UNRESOLVED": 0
+  },
+  "byInformationSourceClass": {
+    "DERIVATIVES_STATE": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "FLOW_DERIVED": {
+      "NO_PRE_FRICTION_EDGE": 1,
+      "EXECUTION_FRICTION_DOMINATED": 0,
+      "NET_EDGE_NOT_ROBUST": 1,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "CROSS_MARKET": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "MULTI_ASSET_RELATIVE": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    }
+  },
+  "byAlphaFamily": {
+    "funding/crowding": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "taker-flow": {
+      "NO_PRE_FRICTION_EDGE": 1,
+      "EXECUTION_FRICTION_DOMINATED": 0,
+      "NET_EDGE_NOT_ROBUST": 1,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "leader-follower": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "cross-sectional": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    }
+  },
+  "robustnessLabelCounts": {
+    "NEGATIVE_PRIMARY": 4,
+    "LOW_PROFIT_FACTOR": 4,
+    "NEGATIVE_AVG_EXPECTANCY": 2,
+    "NEGATIVE_BOOTSTRAP_LCB": 5,
+    "NEGATIVE_HOLDOUT_A": 4,
+    "NEGATIVE_HOLDOUT_B": 4,
+    "COST_STRESS_FAIL": 5,
+    "SYMBOL_BREADTH_FAIL": 3,
+    "YEAR_BREADTH_FAIL": 2,
+    "CONTROL_INFORMATION_GAIN_FAIL": 1,
+    "CONCENTRATION_FAIL": 0,
+    "SAMPLE_FAIL": 1,
+    "OTHER_FROZEN_GATE_FAIL": 0
+  },
+  "resolvedExperimentCount": 5,
+  "dominantFailureMode": "EXECUTION_FRICTION_DOMINATED",
+  "researchImplication": "HIGHER_INFORMATION_DENSITY_REQUIRED",
+  "boundaries": {
+    "productType": "SIGNAL_ALERT_HUMAN_DECISION_SUPPORT",
+    "profitObjective": "IMPROVE_SIGNAL_INFORMATION_EDGE_FOR_HUMAN_TRADING_DECISIONS",
+    "automaticTrading": false,
+    "orderPlacement": false,
+    "automaticEntry": false,
+    "automaticPositionSizing": false,
+    "automaticLeverage": false,
+    "automaticExit": false,
+    "automaticStopLossTakeProfit": false,
+    "humanDecisionRequiredFor": [
+      "OPEN_POSITION",
+      "POSITION_SIZE",
+      "LEVERAGE",
+      "EXIT_POSITION",
+      "EXIT_TIME"
+    ],
+    "productionEmailDefault": "OFF",
+    "signalOutputsMayInclude": [
+      "DIRECTION",
+      "CONFIDENCE",
+      "REASONS",
+      "MARKET_CONTEXT",
+      "REFERENCE_PRICE",
+      "SIGNAL_VALIDITY"
+    ]
+  },
+  "flags": {
+    "newStrategyDesigned": false,
+    "newAlphaTested": false,
+    "historicalBacktestRerun": false,
+    "historicalResultRegenerated": false,
+    "historicalOutcomePricesNewlyRead": false,
+    "historicalCommittedResultsRead": true,
+    "parameterSearch": false,
+    "controlsRegenerated": false,
+    "signalsRegenerated": false,
+    "newForwardReturnsRead": false,
+    "promotionEvaluated": false,
+    "v22Designed": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "orderPlacement": false,
+    "autoTrading": false
+  },
+  "noReturnMagnitudeAggregation": true
+}

@@ -1,0 +1,79 @@
+{
+  "schema": "r1-wp2-manifest-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "directParent": "3897dfaf3d368ba391684f12580ba3aa12a632d2",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "analyzedExperimentIds": [
+    "V17_CROWDING_FAILED_CONTINUATION",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+    "V19_BTC_SHOCK_ALT_CATCHUP",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "V7_DERIVATIVES_FLOW_ALPHA"
+  ],
+  "canonicalResultCommits": {
+    "V7_DERIVATIVES_FLOW_ALPHA": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+    "V17_CROWDING_FAILED_CONTINUATION": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL": "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
+    "V19_BTC_SHOCK_ALT_CATCHUP": "1f06e6c327af42da741abe8e7f7e51ad26144325",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL": "54698f7a139cec978243cab55eb4edbd7f7ca439"
+  },
+  "sourcePolicy": {
+    "evidenceOnly": true,
+    "rawMarketDataRead": false,
+    "historicalRunnerInvoked": false,
+    "newReturnsGenerated": false,
+    "numericalRanking": false
+  },
+  "flags": {
+    "newStrategyDesigned": false,
+    "newAlphaTested": false,
+    "historicalBacktestRerun": false,
+    "historicalResultRegenerated": false,
+    "historicalOutcomePricesNewlyRead": false,
+    "historicalCommittedResultsRead": true,
+    "parameterSearch": false,
+    "controlsRegenerated": false,
+    "signalsRegenerated": false,
+    "newForwardReturnsRead": false,
+    "promotionEvaluated": false,
+    "v22Designed": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "orderPlacement": false,
+    "autoTrading": false
+  },
+  "counts": {
+    "analyzedExperimentCount": 5,
+    "resolvedExperimentCount": 5,
+    "unresolvedExperimentCount": 0
+  },
+  "artifacts": {
+    "reports/r1-metric-contracts.json": {
+      "rawSha256": "41ac032ebc6429136fb9269a09ca90dbaa8666fa7e9864d6cf8eefb14ad67b85",
+      "canonicalSha256": "3ee8f032cabb2421696f04dcdc4e7f965a6ac2b4acb75ff4dab6ec2bd64366c5"
+    },
+    "reports/r1-edge-attribution.json": {
+      "rawSha256": "149312750d878321583484087135179c74de95328053d6cb47c974f5e5f69a5a",
+      "canonicalSha256": "df1449a027101da745a3b0b780eef799d6c5dcfbdeea7ff3eb7098461065f9e2"
+    },
+    "reports/r1-failure-gate-matrix.json": {
+      "rawSha256": "388e3db5f9a2f16be62d444e075127416a016005bdd0be13ba327ed67f476c1f",
+      "canonicalSha256": "15337b33ad7b78920a1cb7d25b3b03ac0078cd6781d9307a01f277662b533273"
+    },
+    "reports/r1-wp2-summary.json": {
+      "rawSha256": "aeee848ffd641f88dc441f1169ad5006c1afff48684d20ec74d366fe9f23662e",
+      "canonicalSha256": "4afa49b7a8a2346abf4cf1c7b0dd0e80b45aa6f5a416185898e6c8e9f30d4be3"
+    }
+  },
+  "productionEmail": "OFF",
+  "productionChanged": false,
+  "deploy": false,
+  "merge": false,
+  "orderPlacement": false,
+  "autoTrading": false,
+  "manifestBodySha256": "510261c0f35808d0417e1f26d2fb80670e991984c6b60a27409ddb62aeee96ff",
+  "manifestSha256": "6b39166bf9e5c0be7c20f7062ba03a32401819715f26fb992ee0e46d4a28d25f"
+}

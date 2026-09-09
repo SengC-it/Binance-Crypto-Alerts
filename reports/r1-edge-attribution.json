@@ -1,0 +1,860 @@
+{
+  "schema": "r1-edge-attribution-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "wp1Commit": "3897dfaf3d368ba391684f12580ba3aa12a632d2",
+  "analyzedExperimentIds": [
+    "V17_CROWDING_FAILED_CONTINUATION",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+    "V19_BTC_SHOCK_ALT_CATCHUP",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "V7_DERIVATIVES_FLOW_ALPHA"
+  ],
+  "sourcePolicy": {
+    "evidenceOnly": true,
+    "sourceKind": "git-blob",
+    "rawMarketDataRead": false,
+    "historicalRunnerInvoked": false,
+    "newReturnsGenerated": false,
+    "crossExperimentNumericAggregation": false,
+    "numericalRanking": false
+  },
+  "experiments": [
+    {
+      "experimentId": "V17_CROWDING_FAILED_CONTINUATION",
+      "version": "V17.0",
+      "alphaFamily": "funding/crowding",
+      "informationSourceClass": "DERIVATIVES_STATE",
+      "canonicalResultCommit": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+      "returnUnit": "R_MULTIPLE",
+      "primarySample": 750,
+      "baselineNet": {
+        "value": -176.32617785765387,
+        "unit": "R_MULTIPLE",
+        "provenance": [
+          {
+            "experimentId": "V17_CROWDING_FAILED_CONTINUATION",
+            "commit": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+            "path": "reports/v17-validation-summary.json",
+            "gitBlobSha": "5ffbcc991152a0a53cda6dbbfeac49ced2d2e6a7",
+            "jsonPath": "primaryOos.netR",
+            "rawValue": -176.32617785765387,
+            "value": -176.32617785765387,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primaryOos.netR"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "R_MULTIPLE"
+          }
+        ]
+      },
+      "preExecutionFrictionEdge": {
+        "value": 12.948792816074432,
+        "unit": "R_MULTIPLE",
+        "provenance": [
+          {
+            "experimentId": "V17_CROWDING_FAILED_CONTINUATION",
+            "commit": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+            "path": "reports/v17-validation-summary.json",
+            "gitBlobSha": "5ffbcc991152a0a53cda6dbbfeac49ced2d2e6a7",
+            "jsonPath": "primaryOos.grossR",
+            "rawValue": 12.948792816074432,
+            "value": 12.948792816074432,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primaryOos.grossR"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "R_MULTIPLE"
+          }
+        ]
+      },
+      "fees": {
+        "value": 126.18331378248553,
+        "unit": "R_MULTIPLE",
+        "provenance": [
+          {
+            "experimentId": "V17_CROWDING_FAILED_CONTINUATION",
+            "commit": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+            "path": "reports/v17-validation-summary.json",
+            "gitBlobSha": "5ffbcc991152a0a53cda6dbbfeac49ced2d2e6a7",
+            "jsonPath": "primaryOos.feesR",
+            "rawValue": 126.18331378248553,
+            "value": 126.18331378248553,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primaryOos.feesR"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "R_MULTIPLE"
+          }
+        ]
+      },
+      "slippage": {
+        "value": 63.09165689124276,
+        "unit": "R_MULTIPLE",
+        "provenance": [
+          {
+            "experimentId": "V17_CROWDING_FAILED_CONTINUATION",
+            "commit": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+            "path": "reports/v17-validation-summary.json",
+            "gitBlobSha": "5ffbcc991152a0a53cda6dbbfeac49ced2d2e6a7",
+            "jsonPath": "primaryOos.slippageR",
+            "rawValue": 63.09165689124276,
+            "value": 63.09165689124276,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primaryOos.slippageR"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "R_MULTIPLE"
+          }
+        ]
+      },
+      "funding": {
+        "value": 0,
+        "unit": "R_MULTIPLE",
+        "provenance": [
+          {
+            "experimentId": "V17_CROWDING_FAILED_CONTINUATION",
+            "commit": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+            "path": "reports/v17-validation-summary.json",
+            "gitBlobSha": "5ffbcc991152a0a53cda6dbbfeac49ced2d2e6a7",
+            "jsonPath": "primaryOos.fundingR",
+            "rawValue": 0,
+            "value": 0,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primaryOos.fundingR"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "R_MULTIPLE"
+          }
+        ],
+        "reason": null
+      },
+      "grossAttributionSource": "primaryOos.grossR",
+      "attributionCategory": "EXECUTION_FRICTION_DOMINATED",
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL"
+      ],
+      "provenanceStatus": "PASS",
+      "promotionPass": false
+    },
+    {
+      "experimentId": "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+      "version": "V18.0",
+      "alphaFamily": "taker-flow",
+      "informationSourceClass": "FLOW_DERIVED",
+      "canonicalResultCommit": "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
+      "returnUnit": "DECIMAL_RETURN",
+      "primarySample": 83,
+      "baselineNet": {
+        "value": -0.20423885590005855,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+            "commit": "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
+            "path": "reports/v18-primary-oos.json",
+            "gitBlobSha": "a624e27a2849307ae09206a3655e979047137def",
+            "jsonPath": "primary.metrics.netReturn",
+            "rawValue": -0.20423885590005855,
+            "value": -0.20423885590005855,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primary.metrics.netReturn"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "preExecutionFrictionEdge": {
+        "value": -0.10463885590005856,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+            "commit": "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
+            "path": "reports/v18-primary-oos.json",
+            "gitBlobSha": "a624e27a2849307ae09206a3655e979047137def",
+            "jsonPath": "primary.metrics.grossReturn",
+            "rawValue": -0.10463885590005856,
+            "value": -0.10463885590005856,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primary.metrics.grossReturn"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "fees": {
+        "value": 0.0664,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+            "commit": "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
+            "path": "reports/v18-primary-oos.json",
+            "gitBlobSha": "a624e27a2849307ae09206a3655e979047137def",
+            "jsonPath": "primary.metrics.fees",
+            "rawValue": 0.0664,
+            "value": 0.0664,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primary.metrics.fees"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "slippage": {
+        "value": 0.0332,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+            "commit": "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
+            "path": "reports/v18-primary-oos.json",
+            "gitBlobSha": "a624e27a2849307ae09206a3655e979047137def",
+            "jsonPath": "primary.metrics.slippage",
+            "rawValue": 0.0332,
+            "value": 0.0332,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primary.metrics.slippage"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "funding": {
+        "value": null,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [],
+        "reason": "V18 canonical Result reports no funding field and the frozen strategy prohibits funding as a feature"
+      },
+      "grossAttributionSource": "primary.metrics.grossReturn",
+      "attributionCategory": "NO_PRE_FRICTION_EDGE",
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL",
+        "SYMBOL_BREADTH_FAIL"
+      ],
+      "provenanceStatus": "PASS",
+      "promotionPass": false
+    },
+    {
+      "experimentId": "V19_BTC_SHOCK_ALT_CATCHUP",
+      "version": "V19.0",
+      "alphaFamily": "leader-follower",
+      "informationSourceClass": "CROSS_MARKET",
+      "canonicalResultCommit": "1f06e6c327af42da741abe8e7f7e51ad26144325",
+      "returnUnit": "DECIMAL_RETURN",
+      "primarySample": 3887,
+      "baselineNet": {
+        "value": -4.767595118969587,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V19_BTC_SHOCK_ALT_CATCHUP",
+            "commit": "1f06e6c327af42da741abe8e7f7e51ad26144325",
+            "path": "reports/v19-trade-outcomes.json",
+            "gitBlobSha": "c94d81f280fee12dcf91bbd398bf838a16f013cc",
+            "jsonPath": "outcomes[*].baselineNetReturn where PRIMARY_OOS/SETTLED",
+            "rawValue": {
+              "sourceRowCount": 5855,
+              "selectedSettledPrimaryOosRows": 3887,
+              "selection": "status=SETTLED AND identity.evaluationWindow=PRIMARY_OOS",
+              "sumBaselineNetReturn": -4.767595118969587
+            },
+            "value": -4.767595118969587,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "sum(baselineNetReturn for selected rows)",
+            "inputFields": [
+              "outcomes[*].baselineNetReturn",
+              "outcomes[*].status",
+              "outcomes[*].identity.evaluationWindow"
+            ],
+            "inputValues": {
+              "sourceRowCount": 5855,
+              "selectedSettledPrimaryOosRows": 3887,
+              "selection": "status=SETTLED AND identity.evaluationWindow=PRIMARY_OOS",
+              "sumBaselineNetReturn": -4.767595118969587
+            },
+            "inputUnits": {
+              "baselineNetReturn": "DECIMAL_RETURN"
+            },
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "preExecutionFrictionEdge": {
+        "value": 0.6742048810300858,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V19_BTC_SHOCK_ALT_CATCHUP",
+            "commit": "1f06e6c327af42da741abe8e7f7e51ad26144325",
+            "path": "reports/v19-trade-outcomes.json",
+            "gitBlobSha": "c94d81f280fee12dcf91bbd398bf838a16f013cc",
+            "jsonPath": "derived baselineNetTotal + derived feeCost + derived slippageCost",
+            "rawValue": {
+              "net": -4.767595118969587,
+              "fees": 3.109599999999788,
+              "slippage": 2.332199999999885
+            },
+            "value": 0.6742048810300858,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "baselineNetTotal + feesTotal + slippageTotal; no funding field exists",
+            "inputFields": [
+              "derived.baselineNetTotal",
+              "outcomes[*].feeCost",
+              "outcomes[*].slippageCost"
+            ],
+            "inputValues": {
+              "net": -4.767595118969587,
+              "fees": 3.109599999999788,
+              "slippage": 2.332199999999885
+            },
+            "inputUnits": {
+              "net": "DECIMAL_RETURN",
+              "fees": "DECIMAL_RETURN",
+              "slippage": "DECIMAL_RETURN"
+            },
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "fees": {
+        "value": 3.109599999999788,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V19_BTC_SHOCK_ALT_CATCHUP",
+            "commit": "1f06e6c327af42da741abe8e7f7e51ad26144325",
+            "path": "reports/v19-trade-outcomes.json",
+            "gitBlobSha": "c94d81f280fee12dcf91bbd398bf838a16f013cc",
+            "jsonPath": "outcomes[*].feeCost where PRIMARY_OOS/SETTLED",
+            "rawValue": {
+              "sourceRowCount": 5855,
+              "selectedSettledPrimaryOosRows": 3887,
+              "selection": "status=SETTLED AND identity.evaluationWindow=PRIMARY_OOS",
+              "sumFeeCost": 3.109599999999788
+            },
+            "value": 3.109599999999788,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "sum(feeCost for selected rows)",
+            "inputFields": [
+              "outcomes[*].feeCost",
+              "outcomes[*].status",
+              "outcomes[*].identity.evaluationWindow"
+            ],
+            "inputValues": {
+              "sourceRowCount": 5855,
+              "selectedSettledPrimaryOosRows": 3887,
+              "selection": "status=SETTLED AND identity.evaluationWindow=PRIMARY_OOS",
+              "sumFeeCost": 3.109599999999788
+            },
+            "inputUnits": {
+              "feeCost": "DECIMAL_RETURN"
+            },
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "slippage": {
+        "value": 2.332199999999885,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V19_BTC_SHOCK_ALT_CATCHUP",
+            "commit": "1f06e6c327af42da741abe8e7f7e51ad26144325",
+            "path": "reports/v19-trade-outcomes.json",
+            "gitBlobSha": "c94d81f280fee12dcf91bbd398bf838a16f013cc",
+            "jsonPath": "outcomes[*].slippageCost where PRIMARY_OOS/SETTLED",
+            "rawValue": {
+              "sourceRowCount": 5855,
+              "selectedSettledPrimaryOosRows": 3887,
+              "selection": "status=SETTLED AND identity.evaluationWindow=PRIMARY_OOS",
+              "sumSlippageCost": 2.332199999999885
+            },
+            "value": 2.332199999999885,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "sum(slippageCost for selected rows)",
+            "inputFields": [
+              "outcomes[*].slippageCost",
+              "outcomes[*].status",
+              "outcomes[*].identity.evaluationWindow"
+            ],
+            "inputValues": {
+              "sourceRowCount": 5855,
+              "selectedSettledPrimaryOosRows": 3887,
+              "selection": "status=SETTLED AND identity.evaluationWindow=PRIMARY_OOS",
+              "sumSlippageCost": 2.332199999999885
+            },
+            "inputUnits": {
+              "slippageCost": "DECIMAL_RETURN"
+            },
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "funding": {
+        "value": null,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [],
+        "reason": "V19 canonical outcome rows have no funding field; frozen cost model contains only fee and slippage"
+      },
+      "grossAttributionSource": "outcomes[*].grossReturn (selected PRIMARY_OOS/SETTLED rows)",
+      "attributionCategory": "EXECUTION_FRICTION_DOMINATED",
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_AVG_EXPECTANCY",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL",
+        "SYMBOL_BREADTH_FAIL",
+        "YEAR_BREADTH_FAIL"
+      ],
+      "provenanceStatus": "PASS",
+      "promotionPass": false
+    },
+    {
+      "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+      "version": "V21.0",
+      "alphaFamily": "cross-sectional",
+      "informationSourceClass": "MULTI_ASSET_RELATIVE",
+      "canonicalResultCommit": "54698f7a139cec978243cab55eb4edbd7f7ca439",
+      "returnUnit": "DECIMAL_RETURN",
+      "primarySample": 19160,
+      "baselineNet": {
+        "value": -20.376278044204167,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+            "commit": "54698f7a139cec978243cab55eb4edbd7f7ca439",
+            "path": "reports/v21-result.json",
+            "gitBlobSha": "66d6b8749c8dd6e4f2f926a2900943e6786ca4ab",
+            "jsonPath": "primaryOos.metrics.baseline.net",
+            "rawValue": -20.376278044204167,
+            "value": -20.376278044204167,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "primaryOos.metrics.baseline.net"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "preExecutionFrictionEdge": {
+        "value": 2.615721955795835,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+            "commit": "54698f7a139cec978243cab55eb4edbd7f7ca439",
+            "path": "reports/v21-result.json",
+            "gitBlobSha": "66d6b8749c8dd6e4f2f926a2900943e6786ca4ab",
+            "jsonPath": "primaryOos.metrics.baseline.net + explicit fee/slippage friction",
+            "rawValue": {
+              "net": -20.376278044204167,
+              "feeBpsPerSide": 4,
+              "slippageBpsPerSide": 2,
+              "sample": 19160,
+              "fees": 15.328000000000001,
+              "slippage": 7.664000000000001
+            },
+            "value": 2.615721955795835,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "net + (sample * (2*feeBpsPerSide + 2*slippageBpsPerSide) / 10000)",
+            "inputFields": [
+              "primaryOos.metrics.baseline.net",
+              "costs.feeBpsPerSide",
+              "costs.slippageBpsPerSide",
+              "primaryOos.identityCount"
+            ],
+            "inputValues": {
+              "net": -20.376278044204167,
+              "feeBpsPerSide": 4,
+              "slippageBpsPerSide": 2,
+              "sample": 19160,
+              "fees": 15.328000000000001,
+              "slippage": 7.664000000000001
+            },
+            "inputUnits": {
+              "net": "DECIMAL_RETURN",
+              "feeBpsPerSide": "BPS",
+              "slippageBpsPerSide": "BPS",
+              "sample": "COUNT",
+              "fees": "DECIMAL_RETURN",
+              "slippage": "DECIMAL_RETURN"
+            },
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "fees": {
+        "value": 15.328000000000001,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+            "commit": "22f4229302d62104d3285e4b6b1b943bf9affbf2",
+            "path": "reports/v21-freeze-manifest.json",
+            "gitBlobSha": "f79da3ebbbaf6f836320ea6637206217fadbd60f",
+            "jsonPath": "costs.feeBpsPerSide * 2 * primaryOos.identityCount / 10000",
+            "rawValue": {
+              "feeBpsPerSide": 4,
+              "sample": 19160
+            },
+            "value": 15.328000000000001,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "feeBpsPerSide * 2 * primarySample / 10000",
+            "inputFields": [
+              "costs.feeBpsPerSide",
+              "primaryOos.identityCount"
+            ],
+            "inputValues": {
+              "feeBpsPerSide": 4,
+              "sample": 19160
+            },
+            "inputUnits": {
+              "feeBpsPerSide": "BPS",
+              "sample": "COUNT"
+            },
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "slippage": {
+        "value": 7.664000000000001,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [
+          {
+            "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+            "commit": "22f4229302d62104d3285e4b6b1b943bf9affbf2",
+            "path": "reports/v21-freeze-manifest.json",
+            "gitBlobSha": "f79da3ebbbaf6f836320ea6637206217fadbd60f",
+            "jsonPath": "costs.slippageBpsPerSide * 2 * primaryOos.identityCount / 10000",
+            "rawValue": {
+              "slippageBpsPerSide": 2,
+              "sample": 19160
+            },
+            "value": 7.664000000000001,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "slippageBpsPerSide * 2 * primarySample / 10000",
+            "inputFields": [
+              "costs.slippageBpsPerSide",
+              "primaryOos.identityCount"
+            ],
+            "inputValues": {
+              "slippageBpsPerSide": 2,
+              "sample": 19160
+            },
+            "inputUnits": {
+              "slippageBpsPerSide": "BPS",
+              "sample": "COUNT"
+            },
+            "unit": "DECIMAL_RETURN"
+          }
+        ]
+      },
+      "funding": {
+        "value": null,
+        "unit": "DECIMAL_RETURN",
+        "provenance": [],
+        "reason": "V21 frozen accounting contract contains fee and slippage only"
+      },
+      "grossAttributionSource": "exactly derived from native net/cost fields; no gross field was reported",
+      "attributionCategory": "EXECUTION_FRICTION_DOMINATED",
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_AVG_EXPECTANCY",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL",
+        "SYMBOL_BREADTH_FAIL",
+        "YEAR_BREADTH_FAIL",
+        "CONTROL_INFORMATION_GAIN_FAIL"
+      ],
+      "provenanceStatus": "PASS",
+      "promotionPass": false
+    },
+    {
+      "experimentId": "V7_DERIVATIVES_FLOW_ALPHA",
+      "version": "V7.0",
+      "alphaFamily": "taker-flow",
+      "informationSourceClass": "FLOW_DERIVED",
+      "canonicalResultCommit": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+      "returnUnit": "USDT",
+      "primarySample": 606,
+      "baselineNet": {
+        "value": 1939.9185,
+        "unit": "USDT",
+        "provenance": [
+          {
+            "experimentId": "V7_DERIVATIVES_FLOW_ALPHA",
+            "commit": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+            "path": "reports/v7-family-results.json",
+            "gitBlobSha": "6505a6fefcd98d2b710a330991739a61f38789a9",
+            "jsonPath": "[2].selectedRun.metrics.totalNetPnlUsdt",
+            "rawValue": 1939.9185,
+            "value": 1939.9185,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "[2].selectedRun.metrics.totalNetPnlUsdt"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "USDT"
+          }
+        ]
+      },
+      "preExecutionFrictionEdge": {
+        "value": 3565.5845999999997,
+        "unit": "USDT",
+        "provenance": [
+          {
+            "experimentId": "V7_DERIVATIVES_FLOW_ALPHA",
+            "commit": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+            "path": "reports/v7-family-results.json",
+            "gitBlobSha": "6505a6fefcd98d2b710a330991739a61f38789a9",
+            "jsonPath": "[2].selectedRun.metrics.totalNetPnlUsdt + totalFeesUsdt + totalSlippageUsdt",
+            "rawValue": {
+              "net": 1939.9185,
+              "fees": 1083.7774,
+              "slippage": 541.8887
+            },
+            "value": 3565.5845999999997,
+            "extraction": "EXACTLY_DERIVED",
+            "derivationFormula": "net + fees + slippage; funding remains separately reported",
+            "inputFields": [
+              "[2].selectedRun.metrics.totalNetPnlUsdt",
+              "[2].selectedRun.metrics.totalFeesUsdt",
+              "[2].selectedRun.metrics.totalSlippageUsdt"
+            ],
+            "inputValues": {
+              "net": 1939.9185,
+              "fees": 1083.7774,
+              "slippage": 541.8887
+            },
+            "inputUnits": {
+              "net": "USDT",
+              "fees": "USDT",
+              "slippage": "USDT"
+            },
+            "unit": "USDT"
+          }
+        ]
+      },
+      "fees": {
+        "value": 1083.7774,
+        "unit": "USDT",
+        "provenance": [
+          {
+            "experimentId": "V7_DERIVATIVES_FLOW_ALPHA",
+            "commit": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+            "path": "reports/v7-family-results.json",
+            "gitBlobSha": "6505a6fefcd98d2b710a330991739a61f38789a9",
+            "jsonPath": "[2].selectedRun.metrics.totalFeesUsdt",
+            "rawValue": 1083.7774,
+            "value": 1083.7774,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "[2].selectedRun.metrics.totalFeesUsdt"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "USDT"
+          }
+        ]
+      },
+      "slippage": {
+        "value": 541.8887,
+        "unit": "USDT",
+        "provenance": [
+          {
+            "experimentId": "V7_DERIVATIVES_FLOW_ALPHA",
+            "commit": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+            "path": "reports/v7-family-results.json",
+            "gitBlobSha": "6505a6fefcd98d2b710a330991739a61f38789a9",
+            "jsonPath": "[2].selectedRun.metrics.totalSlippageUsdt",
+            "rawValue": 541.8887,
+            "value": 541.8887,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "[2].selectedRun.metrics.totalSlippageUsdt"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "USDT"
+          }
+        ]
+      },
+      "funding": {
+        "value": 669.007,
+        "unit": "USDT",
+        "provenance": [
+          {
+            "experimentId": "V7_DERIVATIVES_FLOW_ALPHA",
+            "commit": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+            "path": "reports/v7-family-results.json",
+            "gitBlobSha": "6505a6fefcd98d2b710a330991739a61f38789a9",
+            "jsonPath": "[2].selectedRun.metrics.totalFundingUsdt",
+            "rawValue": 669.007,
+            "value": 669.007,
+            "extraction": "DIRECTLY_REPORTED",
+            "derivationFormula": null,
+            "inputFields": [
+              "[2].selectedRun.metrics.totalFundingUsdt"
+            ],
+            "inputValues": null,
+            "inputUnits": null,
+            "unit": "USDT"
+          }
+        ],
+        "reason": null
+      },
+      "grossAttributionSource": "exactly derived from native net/cost fields; no gross field was reported",
+      "attributionCategory": "NET_EDGE_NOT_ROBUST",
+      "failedRobustnessLabels": [
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "COST_STRESS_FAIL",
+        "SAMPLE_FAIL"
+      ],
+      "provenanceStatus": "PASS",
+      "promotionPass": false
+    }
+  ],
+  "categoryCounts": {
+    "NO_PRE_FRICTION_EDGE": 1,
+    "EXECUTION_FRICTION_DOMINATED": 3,
+    "NET_EDGE_NOT_ROBUST": 1,
+    "ROBUST_NET_EDGE": 0,
+    "ATTRIBUTION_UNRESOLVED": 0
+  },
+  "byInformationSourceClass": {
+    "DERIVATIVES_STATE": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "FLOW_DERIVED": {
+      "NO_PRE_FRICTION_EDGE": 1,
+      "EXECUTION_FRICTION_DOMINATED": 0,
+      "NET_EDGE_NOT_ROBUST": 1,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "CROSS_MARKET": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "MULTI_ASSET_RELATIVE": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    }
+  },
+  "byAlphaFamily": {
+    "funding/crowding": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "taker-flow": {
+      "NO_PRE_FRICTION_EDGE": 1,
+      "EXECUTION_FRICTION_DOMINATED": 0,
+      "NET_EDGE_NOT_ROBUST": 1,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "leader-follower": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    },
+    "cross-sectional": {
+      "NO_PRE_FRICTION_EDGE": 0,
+      "EXECUTION_FRICTION_DOMINATED": 1,
+      "NET_EDGE_NOT_ROBUST": 0,
+      "ROBUST_NET_EDGE": 0,
+      "ATTRIBUTION_UNRESOLVED": 0
+    }
+  },
+  "robustnessLabelCounts": {
+    "NEGATIVE_PRIMARY": 4,
+    "LOW_PROFIT_FACTOR": 4,
+    "NEGATIVE_AVG_EXPECTANCY": 2,
+    "NEGATIVE_BOOTSTRAP_LCB": 5,
+    "NEGATIVE_HOLDOUT_A": 4,
+    "NEGATIVE_HOLDOUT_B": 4,
+    "COST_STRESS_FAIL": 5,
+    "SYMBOL_BREADTH_FAIL": 3,
+    "YEAR_BREADTH_FAIL": 2,
+    "CONTROL_INFORMATION_GAIN_FAIL": 1,
+    "CONCENTRATION_FAIL": 0,
+    "SAMPLE_FAIL": 1,
+    "OTHER_FROZEN_GATE_FAIL": 0
+  },
+  "resolvedExperimentCount": 5,
+  "dominantFailureMode": "EXECUTION_FRICTION_DOMINATED",
+  "researchImplication": "HIGHER_INFORMATION_DENSITY_REQUIRED"
+}

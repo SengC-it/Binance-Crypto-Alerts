@@ -27,3 +27,6 @@ jobs:
       - run: pnpm build
       - run: pnpm validate:v5-5
       - run: pnpm validate:r1:wp1
+      - run: pnpm validate:r1:wp2
+        env:
+          R1_BRANCH_REF: ${{ github.head_ref || github.ref_name }}
