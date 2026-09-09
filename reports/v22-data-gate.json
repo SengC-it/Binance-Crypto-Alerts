@@ -1,0 +1,86 @@
+{
+  "schema": "v22-data-gate-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "policy": {
+    "requiredCoverage": 0.999,
+    "maxContiguousMissingMinutes": 15,
+    "fixedSymbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT",
+      "DOGEUSDT"
+    ],
+    "noSymbolReplacement": true,
+    "noGapRepair": true,
+    "synchronizedByExactTimestampIntersection": true
+  },
+  "symbols": {
+    "BTCUSDT": {
+      "binanceRows": 324576,
+      "binanceCoverage": 1,
+      "okxRows": 324576,
+      "okxCoverage": 1,
+      "synchronizedRows": 324576,
+      "synchronizedCoverage": 1,
+      "duplicates": 0,
+      "invalidRows": 0,
+      "maxContiguousMissingMinutes": 0,
+      "pass": true
+    },
+    "ETHUSDT": {
+      "binanceRows": 324576,
+      "binanceCoverage": 1,
+      "okxRows": 324576,
+      "okxCoverage": 1,
+      "synchronizedRows": 324576,
+      "synchronizedCoverage": 1,
+      "duplicates": 0,
+      "invalidRows": 0,
+      "maxContiguousMissingMinutes": 0,
+      "pass": true
+    },
+    "SOLUSDT": {
+      "binanceRows": 324576,
+      "binanceCoverage": 1,
+      "okxRows": 324576,
+      "okxCoverage": 1,
+      "synchronizedRows": 324576,
+      "synchronizedCoverage": 1,
+      "duplicates": 0,
+      "invalidRows": 0,
+      "maxContiguousMissingMinutes": 0,
+      "pass": true
+    },
+    "XRPUSDT": {
+      "binanceRows": 324576,
+      "binanceCoverage": 1,
+      "okxRows": 324576,
+      "okxCoverage": 1,
+      "synchronizedRows": 324576,
+      "synchronizedCoverage": 1,
+      "duplicates": 0,
+      "invalidRows": 0,
+      "maxContiguousMissingMinutes": 0,
+      "pass": true
+    },
+    "DOGEUSDT": {
+      "binanceRows": 324576,
+      "binanceCoverage": 1,
+      "okxRows": 324576,
+      "okxCoverage": 1,
+      "synchronizedRows": 324576,
+      "synchronizedCoverage": 1,
+      "duplicates": 0,
+      "invalidRows": 0,
+      "maxContiguousMissingMinutes": 0,
+      "pass": true
+    }
+  },
+  "allSymbolsPass": true,
+  "classification": "V22_CROSS_VENUE_DATA_GATE_PASS",
+  "researchStop": false,
+  "budgetConsumed": 1,
+  "remainingBudget": 2,
+  "noPerformanceAnalysis": true
+}

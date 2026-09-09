@@ -1,0 +1,30 @@
+{
+  "schema": "v22-admission-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "family": "cross-venue same-instrument price discovery",
+  "informationSourceClass": "CROSS_EXCHANGE_PRICE_DISCOVERY",
+  "targetVenue": "BINANCE_USDM_PERPETUAL",
+  "referenceVenue": "OKX_USDT_SWAP",
+  "structuralOrthogonality": "STRUCTURALLY_ORTHOGONAL",
+  "structuralDifferenceDimensions": [
+    "cross_venue_structure",
+    "information_source",
+    "causal_timing"
+  ],
+  "explanation": {
+    "differsFromV15": "V15 is same-venue spot-perp lead-lag; V22 uses the same instrument across independent exchanges.",
+    "differsFromV19": "V19 is BTC shock to alt follower; V22 is same asset to same asset cross-venue price discovery.",
+    "differsFromV7V17V18": "V7/V17/V18 use OI, funding, crowding, taker-flow or absorption; V22 uses external venue price as the primary information source."
+  },
+  "r1Admission": {
+    "verifiedFromCommit": "6c5c415023683b6d8905aae2444af28d1510d9b6",
+    "dominantHistoricalFailure": "EXECUTION_FRICTION_DOMINATED",
+    "requiredFutureDirection": "MAXIMIZE_INFORMATION_DENSITY_PER_ALERT",
+    "legacyFamilyRetuningAllowed": false,
+    "budgetBefore": 3,
+    "familyBudgetConsumed": true,
+    "remainingBudget": 2
+  },
+  "admission": "PASS",
+  "noSignalDesigned": true
+}
