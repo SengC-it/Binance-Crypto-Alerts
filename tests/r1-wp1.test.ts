@@ -2,8 +2,16 @@ import { describe, expect, it } from "vitest";
 import {
   R1_EXPERIMENTS,
   SYSTEM_BOUNDARY,
+  V18_BRANCH_HEAD_SHA,
+  V18_FREEZE_SHA,
+  V18_POST_RESULT_VALIDATOR_COMMITS,
+  V18_RESULT_SHA,
+  V21_FREEZE_SHA,
+  V21_RESULT_SHA,
   canonicalJson,
   computeReturnComparisonEligibility,
+  isV18CanonicalResult,
+  isV18PostResultValidatorCommit,
   isV21CanonicalResult,
   isV21PostResultValidatorCommit,
   selectCanonicalFreezeCandidate,
@@ -60,12 +68,37 @@ describe("R1-WP1 evidence contracts", () => {
   });
 
   it("recognizes the V21 canonical result exactly once and excludes post-result validator commits", () => {
-    const v21 = R1_EXPERIMENTS.filter((experiment) => experiment.resultCommit === "54698f7a139cec978243cab55eb4edbd7f7ca439");
+    const v21 = R1_EXPERIMENTS.filter((experiment) => experiment.resultCommit === V21_RESULT_SHA);
     expect(v21).toHaveLength(1);
-    expect(isV21CanonicalResult("54698f7a139cec978243cab55eb4edbd7f7ca439", v21[0].resultCommit!)).toBe(true);
+    expect(v21[0].approvedEvidenceCommit).toBe(V21_RESULT_SHA);
+    expect(v21[0].parentCommit).toBe(V21_FREEZE_SHA);
+    expect(isV21CanonicalResult(V21_RESULT_SHA, v21[0].resultCommit!)).toBe(true);
     expect(isV21PostResultValidatorCommit("180bfc2b42322eb6e42fb3a90cc2a998e1b2a2ba")).toBe(true);
     expect(isV21PostResultValidatorCommit("0822c099eeff4f36e8d8e4865a4ed1380ae94709")).toBe(true);
-    expect(isV21PostResultValidatorCommit("54698f7a139cec978243cab55eb4edbd7f7ca439")).toBe(false);
+    expect(isV21PostResultValidatorCommit(V21_RESULT_SHA)).toBe(false);
+  });
+
+  it("promotes fetchable V18 remote evidence to exact local Git-blob provenance", () => {
+    const v18 = R1_EXPERIMENTS.find((experiment) => experiment.experimentId === "V18_TAKER_FLOW_ABSORPTION_REVERSAL");
+    expect(v18).toBeDefined();
+    expect(v18).toMatchObject({
+      branchHead: V18_BRANCH_HEAD_SHA,
+      approvedEvidenceCommit: V18_RESULT_SHA,
+      parentCommit: V18_FREEZE_SHA,
+      dataGate: true,
+      historicalStrategyOutcomeReturnsRead: true,
+      classification: "V18_TAKER_FLOW_ABSORPTION_REJECTED",
+      taxonomy: "RESULT_REJECTED",
+      returnComparisonEligible: true,
+      returnComparisonExclusionReason: null,
+    });
+    expect(v18!.evidenceSources).toHaveLength(6);
+    expect(v18!.evidenceSources.every((source) => source.sourceKind === "git-blob" && !source.path.startsWith("COMMIT_METADATA:"))).toBe(true);
+    expect(v18!.evidenceSources.filter((source) => source.commit === V18_FREEZE_SHA)).toHaveLength(2);
+    expect(v18!.evidenceSources.filter((source) => source.commit === V18_RESULT_SHA)).toHaveLength(4);
+    expect(isV18CanonicalResult(V18_RESULT_SHA, v18!.resultCommit!)).toBe(true);
+    expect(V18_POST_RESULT_VALIDATOR_COMMITS.every(isV18PostResultValidatorCommit)).toBe(true);
+    expect(isV18PostResultValidatorCommit(V18_RESULT_SHA)).toBe(false);
   });
 
   it("rejects an automatic-trading boundary", () => {

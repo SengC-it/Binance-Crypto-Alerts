@@ -10,27 +10,27 @@
       "canonicalSha256": "61e4ade97de96102aab79fcf72f4acc34c5aeacdf7da130d05b9f73915a55048"
     },
     "reports/r1-experiment-inventory.json": {
-      "rawSha256": "de544119f77831f4b081eae61eed4bfcc648b2333dc59b8a5538c002bc99bbb4",
-      "canonicalSha256": "a85cb5a10ed14877d19fb497b5079f977e7378a97cd1800eab9c3b51b4202d54"
+      "rawSha256": "b4ae7f78ed08ba180646af98e81732d3ade1a1761516b0a63ce97e5a732dcd50",
+      "canonicalSha256": "aa9c005f52404092716bee2154315e30e8087abd7fff8f1331d1f0487668fbc5"
     },
     "reports/r1-evidence-provenance.json": {
-      "rawSha256": "ae153f3f8b25c683bbaf610e18d175395f0484737ba854ee4410349b88882bbc",
-      "canonicalSha256": "84d93b482773d78a2416bca107337f8c08422a5bd5671b7fd7785c166ceb5017"
+      "rawSha256": "a3bd9305550ad4a54108b365efcf862d6e8e8f03900a1f617122bca74f0c82dd",
+      "canonicalSha256": "471a1ab9e65d2b84699fcb2289938533194b4b7ffce17f4328f847c4373a3208"
     },
     "reports/r1-wp1-summary.json": {
-      "rawSha256": "4ed3332d191fd8bab9c1bfb6bed248a90544dd46ed8ebb8614a34bc6c9a828f6",
-      "canonicalSha256": "4ce1dd88893bb6b7ab64c665bee75a67814f64f91e4a461e7c7494d30dcffe41"
+      "rawSha256": "d1aae4fba2476686c6b9e6c1ff1170a1dd2f7751a41c1a2c72cbc0db4af9e84f",
+      "canonicalSha256": "e747a9b568bbc1873a47e49fa9126b80cde684aad1793e8de18b17d124518f04"
     }
   },
   "counts": {
     "formalExperimentCount": 24,
     "dataInsufficientCount": 11,
-    "resultRejectedCount": 6,
+    "resultRejectedCount": 7,
     "promotionCandidateCount": 0,
     "processIncompleteCount": 3,
-    "evidenceIncompleteCount": 1,
+    "evidenceIncompleteCount": 0,
     "noFormalResultCount": 3,
-    "returnComparisonEligibleCount": 4
+    "returnComparisonEligibleCount": 5
   },
   "flags": {
     "newStrategyDesigned": false,
@@ -51,6 +51,6 @@
     "autoTrading": false
   },
   "provenancePolicy": "Every local evidence hash is computed from the exact Git blob at its cited commit; remote-only metadata is never treated as a verified local blob.",
-  "manifestBodySha256": "e5003d637b7178ff7aae3677b28c5f486273df41ece82128e9fe99a2ede9684d",
-  "manifestSha256": "49c1bea4788d4c75b16acbd0d5ba63320f3983306f3c2ab2e49d1b800bac8529"
+  "manifestBodySha256": "76be7f44ead452c1471547a0e2b271ab5082e1120c7f5553f24ff17884c5b94d",
+  "manifestSha256": "34b413e55a9e3573f01b1ee1b225c92a8426f9b059cf6d7a9c4d26c7e245abf5"
 }

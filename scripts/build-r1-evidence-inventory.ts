@@ -16,6 +16,8 @@ import {
 } from "./r1-catalog";
 
 const root = process.cwd();
+const R1_WP1_COMMIT = "b70dfff146908594f039343d9e7636ba7baf650a";
+const correctionMode = process.env.R1_WP1_CORRECTION === "1";
 const requiredOutputs = [
   "reports/r1-system-boundary.json",
   "reports/r1-experiment-inventory.json",
@@ -53,6 +55,11 @@ function firstParent(commit: string): string | null {
   return gitText(["show", "-s", "--format=%P", commit]).split(/\s+/).filter(Boolean)[0] ?? null;
 }
 
+function canonicalParent(experiment: ExperimentDefinition): string | null {
+  if (experiment.parentCommit) return experiment.parentCommit;
+  return firstParent(experiment.resultCommit ?? experiment.approvedEvidenceCommit);
+}
+
 function readBlob(commit: string, path: string): { blobSha: string; bytes: Buffer } {
   const spec = `${commit}:${path}`;
   const blobSha = gitText(["rev-parse", spec]);
@@ -79,8 +86,16 @@ function discoverCandidateBranches(): {
     .filter((ref) => /^(feat|research|rollout|hotfix|chore)\//.test(ref));
   const branches = sortedUnique(refs);
   const reportsByBranch = branches.map((branch) => {
-    const head = gitText(["rev-parse", branch]);
-    const reportPaths = gitText(["ls-tree", "-r", "--name-only", branch])
+    const ref = (() => {
+      try {
+        gitText(["rev-parse", "--verify", "--quiet", branch]);
+        return branch;
+      } catch {
+        return `origin/${branch}`;
+      }
+    })();
+    const head = gitText(["rev-parse", ref]);
+    const reportPaths = gitText(["ls-tree", "-r", "--name-only", ref])
       .split(/\r?\n/)
       .filter((path) => path.startsWith("reports/"));
     return { branch, head, reportPaths };
@@ -145,14 +160,13 @@ function buildInventoryRecord(experiment: ExperimentDefinition): Record<string, 
   });
   requireCondition(eligibility.eligible === experiment.returnComparisonEligible, `${experiment.experimentId}: return eligibility definition drift`);
   requireCondition(eligibility.reason === experiment.returnComparisonExclusionReason, `${experiment.experimentId}: exclusion reason drift`);
-  const remoteOnly = experiment.evidenceSources.every(sourceIsRemote);
   return {
     experimentId: experiment.experimentId,
     version: experiment.version,
     branch: experiment.branch,
     branchHead: experiment.branchHead,
     approvedEvidenceCommit: experiment.approvedEvidenceCommit,
-    parentCommit: remoteOnly ? experiment.parentCommit : firstParent(experiment.branchHead),
+    parentCommit: canonicalParent(experiment),
     dataGate: experiment.dataGate,
     freeze: experiment.freeze,
     historicalStrategyOutcomeReturnsRead: experiment.historicalStrategyOutcomeReturnsRead,
@@ -174,7 +188,7 @@ function buildInventoryRecord(experiment: ExperimentDefinition): Record<string, 
     knownInvalid: experiment.knownInvalid ?? false,
     postResultValidatorCommits: experiment.postResultValidatorCommits ?? [],
     evidencePaths: experiment.evidenceSources.map((source) => source.path).sort(),
-    evidenceProvenanceStatus: remoteOnly ? "REMOTE_ONLY" : "LOCAL_GIT_BLOBS_VERIFIED",
+    evidenceProvenanceStatus: experiment.evidenceSources.every(sourceIsRemote) ? "REMOTE_ONLY" : "LOCAL_GIT_BLOBS_VERIFIED",
     ...(experiment.notes ? { notes: experiment.notes } : {}),
   };
 }
@@ -208,7 +222,10 @@ async function ensureOutputsDoNotExist(): Promise<void> {
 
 async function main(): Promise<void> {
   requireCondition(gitText(["branch", "--show-current"]) === R1_BRANCH, `R1 branch must be ${R1_BRANCH}`);
-  requireCondition(gitText(["rev-parse", "HEAD"]) === R1_BASE_SHA, `R1 builder must run at clean base ${R1_BASE_SHA}`);
+  requireCondition(
+    gitText(["rev-parse", "HEAD"]) === (correctionMode ? R1_WP1_COMMIT : R1_BASE_SHA),
+    correctionMode ? `R1 correction builder must run at WP1 commit ${R1_WP1_COMMIT}` : `R1 builder must run at clean base ${R1_BASE_SHA}`,
+  );
   requireCondition(gitText(["merge-base", "HEAD", R1_BASE_SHA]) === R1_BASE_SHA, "R1 base ancestry mismatch");
   const preGenerationPaths = new Set([
     ".github/workflows/ci.yml",
@@ -224,7 +241,7 @@ async function main(): Promise<void> {
     const path = normalizedStatus.startsWith("?? ") ? normalizedStatus.slice(3) : normalizedStatus.slice(2).trim();
     requireCondition(preGenerationPaths.has(path), `unexpected pre-generation worktree change: ${path}`);
   }
-  await ensureOutputsDoNotExist();
+  if (!correctionMode) await ensureOutputsDoNotExist();
 
   const discovery = discoverCandidateBranches();
   const provenanceEntries = R1_EXPERIMENTS.flatMap(buildProvenance).sort((left, right) => {

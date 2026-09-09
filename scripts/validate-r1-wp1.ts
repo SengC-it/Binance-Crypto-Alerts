@@ -6,8 +6,18 @@ import {
   R1_BRANCH,
   R1_EXPERIMENTS,
   SYSTEM_BOUNDARY,
+  V18_BRANCH_HEAD_SHA,
+  V18_FREEZE_MANIFEST_BODY_SHA,
+  V18_FREEZE_SHA,
+  V18_POST_RESULT_VALIDATOR_COMMITS,
+  V18_RESULT_PARENT_SHA,
+  V18_RESULT_SHA,
+  V21_FREEZE_SHA,
+  V21_RESULT_SHA,
   canonicalJson,
   computeReturnComparisonEligibility,
+  isV18CanonicalResult,
+  isV18PostResultValidatorCommit,
   isV21CanonicalResult,
   isV21PostResultValidatorCommit,
   sha256,
@@ -32,7 +42,6 @@ const allowedChangedPaths = new Set<string>([
   "tests/r1-wp1.test.ts",
   ...artifactPaths,
 ]);
-const V21_RESULT = "54698f7a139cec978243cab55eb4edbd7f7ca439";
 
 function gitBytes(args: readonly string[]): Buffer {
   return execFileSync("git", [...args], { cwd: root, maxBuffer: 64 * 1024 * 1024 });
@@ -40,6 +49,26 @@ function gitBytes(args: readonly string[]): Buffer {
 
 function gitText(args: readonly string[]): string {
   return gitBytes(args).toString("utf8").trim();
+}
+
+function firstParent(commit: string): string | null {
+  return gitText(["show", "-s", "--format=%P", commit]).split(/\s+/).filter(Boolean)[0] ?? null;
+}
+
+function assertCommitAvailable(commit: string, label: string): void {
+  try {
+    assertCondition(gitText(["cat-file", "-t", `${commit}^{commit}`]) === "commit", `${label}: commit object unavailable`);
+  } catch {
+    fail(`${label}: commit object unavailable`);
+  }
+}
+
+function resolveRef(ref: string, label: string): string {
+  try {
+    return gitText(["rev-parse", ref]);
+  } catch {
+    fail(`${label}: ref unavailable`);
+  }
 }
 
 function fail(message: string): never {
@@ -139,6 +168,16 @@ function assertExactFields(record: Record<string, unknown>, definition: Experime
   });
   assertCondition(record.returnComparisonEligible === expectedEligibility.eligible, `${definition.experimentId}: eligibility rule drift`);
   assertCondition(record.returnComparisonExclusionReason === expectedEligibility.reason, `${definition.experimentId}: exclusion reason drift`);
+  const canonicalParent = firstParent(definition.resultCommit ?? definition.approvedEvidenceCommit);
+  assertCondition(record.parentCommit === (definition.parentCommit ?? canonicalParent), `${definition.experimentId}: canonical parent drift`);
+  if (definition.taxonomy === "RESULT_REJECTED" || definition.taxonomy === "PROMOTION_CANDIDATE") {
+    assertCondition(definition.resultCommit !== null, `${definition.experimentId}: classified result requires a Result commit`);
+    assertCondition(record.approvedEvidenceCommit === record.resultCommit, `${definition.experimentId}: approved evidence is not the canonical Result`);
+    assertCondition(record.parentCommit === firstParent(String(record.resultCommit)), `${definition.experimentId}: Result parent is not canonical`);
+  }
+  if (definition.taxonomy === "DATA_INSUFFICIENT" && definition.resultCommit === null) {
+    assertCondition(record.approvedEvidenceCommit !== record.resultCommit, `${definition.experimentId}: data gate evidence must not be a Result`);
+  }
   assertCondition(canonicalJson(record.evidencePaths) === canonicalJson(definition.evidenceSources.map((source) => source.path).sort()), `${definition.experimentId}: evidence paths drift`);
   assertCondition(record.superseded === (definition.superseded ?? false), `${definition.experimentId}: superseded flag drift`);
   assertCondition(record.knownInvalid === (definition.knownInvalid ?? false), `${definition.experimentId}: knownInvalid flag drift`);
@@ -239,15 +278,39 @@ async function validateArtifacts(): Promise<void> {
   }
   assertCondition(entryKeys.size === expectedSources.length, "one or more evidence sources have no provenance");
 
+  const v18 = records.find((record) => record.experimentId === "V18_TAKER_FLOW_ABSORPTION_REVERSAL");
+  assertRecord(v18, "V18 record missing");
+  assertCondition(resolveRef("origin/feat/v18-taker-flow-absorption-reversal", "V18 remote branch") === V18_BRANCH_HEAD_SHA, "V18 branch HEAD drift");
+  for (const [label, commit] of [
+    ["V18 freeze", V18_FREEZE_SHA],
+    ["V18 result", V18_RESULT_SHA],
+    ["V18 branch HEAD", V18_BRANCH_HEAD_SHA],
+    ...V18_POST_RESULT_VALIDATOR_COMMITS.map((commit, index) => [`V18 post-result validator ${index + 1}`, commit] as const),
+  ] as const) assertCommitAvailable(commit, label);
+  assertCondition(firstParent(V18_RESULT_SHA) === V18_RESULT_PARENT_SHA, "V18 Result parent is not the Freeze commit");
+  assertCondition(firstParent(V18_POST_RESULT_VALIDATOR_COMMITS[0]) === V18_RESULT_SHA, "V18 first post-result validator parent drift");
+  assertCondition(firstParent(V18_POST_RESULT_VALIDATOR_COMMITS[1]) === V18_POST_RESULT_VALIDATOR_COMMITS[0], "V18 branch validator lineage drift");
+  assertCondition(canonicalJson(v18.postResultValidatorCommits) === canonicalJson([...V18_POST_RESULT_VALIDATOR_COMMITS]), "V18 post-result validator commits drift");
+  assertCondition(records.filter((record) => record.resultCommit === V18_RESULT_SHA).length === 1, "V18 canonical result recognized more than once");
+  assertCondition(!records.some((record) => record.resultCommit !== null && isV18PostResultValidatorCommit(String(record.resultCommit))), "V18 post-result validator counted as a Result");
+  assertCondition(isV18CanonicalResult(V18_RESULT_SHA, V18_RESULT_SHA), "V18 canonical result helper failed");
+  const v18Entries = entries.filter((entry) => entry.experimentId === v18.experimentId);
+  assertCondition(v18Entries.length === 6, "V18 exact evidence source count drift");
+  assertCondition(v18Entries.every((entry) => entry.sourceAvailable === true && entry.sourceKind === "git-blob" && !String(entry.path).startsWith("COMMIT_METADATA:")), "V18 evidence must be verified Git blobs, not metadata");
+  const v18FreezeManifest = JSON.parse(gitBytes(["cat-file", "blob", `${V18_FREEZE_SHA}:reports/v18-freeze-manifest.json`]).toString("utf8")) as Record<string, unknown>;
+  assertCondition(v18FreezeManifest.manifestBodySha256 === V18_FREEZE_MANIFEST_BODY_SHA, "V18 Freeze manifest body hash drift");
+
   const v21 = records.find((record) => record.experimentId === "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL");
   assertRecord(v21, "V21 record missing");
-  assertCondition(v21.approvedEvidenceCommit === "22f4229302d62104d3285e4b6b1b943bf9affbf2", "V21 freeze anchor drift");
-  assertCondition(v21.resultCommit === V21_RESULT, "V21 canonical result drift");
+  assertCondition(v21.approvedEvidenceCommit === V21_RESULT_SHA, "V21 approved evidence must be the canonical Result");
+  assertCondition(v21.parentCommit === V21_FREEZE_SHA, "V21 parent must be the Freeze commit");
+  assertCondition(v21.resultCommit === V21_RESULT_SHA, "V21 canonical result drift");
   assertCondition(v21.branchHead === "0822c099eeff4f36e8d8e4865a4ed1380ae94709", "V21 final branch head drift");
-  assertCondition(records.filter((record) => record.resultCommit === V21_RESULT).length === 1, "V21 canonical result recognized more than once");
+  assertCondition(firstParent(V21_RESULT_SHA) === V21_FREEZE_SHA, "V21 Result parent is not the Freeze commit");
+  assertCondition(records.filter((record) => record.resultCommit === V21_RESULT_SHA).length === 1, "V21 canonical result recognized more than once");
   assertCondition(canonicalJson(v21.postResultValidatorCommits) === canonicalJson(["180bfc2b42322eb6e42fb3a90cc2a998e1b2a2ba", "0822c099eeff4f36e8d8e4865a4ed1380ae94709"]), "V21 post-result validator commits drift");
   assertCondition(!records.some((record) => (record.resultCommit !== null && isV21PostResultValidatorCommit(String(record.resultCommit)))), "post-result validator commit counted as a Result");
-  assertCondition(isV21CanonicalResult(V21_RESULT, V21_RESULT), "V21 canonical result helper failed");
+  assertCondition(isV21CanonicalResult(V21_RESULT_SHA, V21_RESULT_SHA), "V21 canonical result helper failed");
 
   const expectedCounts = {
     formalExperimentCount: records.length,

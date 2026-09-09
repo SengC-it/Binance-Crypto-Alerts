@@ -3,6 +3,17 @@ import { createHash } from "node:crypto";
 export const R1_BASE_SHA = "7b9e5d82f471ee3c9fec07e00101263c8d84e953";
 export const R1_BRANCH = "research/r1-edge-attribution-audit";
 export const R1_PROGRAM = "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT";
+export const V18_FREEZE_SHA = "c8b8c1e728079ce947e4b2314442a44d04d8ed90";
+export const V18_RESULT_SHA = "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5";
+export const V18_RESULT_PARENT_SHA = V18_FREEZE_SHA;
+export const V18_BRANCH_HEAD_SHA = "c933fccdcf1e1ed007d36dd692e2524145df1296";
+export const V18_FREEZE_MANIFEST_BODY_SHA = "8c7353680ff085625fbbaad932d7064afb431448e759008bb0a809b4fc6c16d8";
+export const V18_POST_RESULT_VALIDATOR_COMMITS = [
+  "f90b4f8245fe3c3edbaa8748f763f9f3371469cd",
+  V18_BRANCH_HEAD_SHA,
+] as const;
+export const V21_FREEZE_SHA = "22f4229302d62104d3285e4b6b1b943bf9affbf2";
+export const V21_RESULT_SHA = "54698f7a139cec978243cab55eb4edbd7f7ca439";
 
 export type EvidenceTruth = boolean | "unknown";
 export type Taxonomy =
@@ -569,28 +580,33 @@ export const R1_EXPERIMENTS: readonly ExperimentDefinition[] = [
     experimentId: "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
     version: "V18.0",
     branch: "feat/v18-taker-flow-absorption-reversal",
-    branchHead: "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
-    approvedEvidenceCommit: "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
-    parentCommit: "c8b8c1e728079ce947e4b2314442a44d04d8ed90",
-    dataGate: "unknown",
-    freeze: "unknown",
-    historicalStrategyOutcomeReturnsRead: "unknown",
-    resultCommit: "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
-    promotionEvaluated: "unknown",
-    classification: "EVIDENCE_INCOMPLETE",
-    researchStop: "unknown",
-    taxonomy: "EVIDENCE_INCOMPLETE",
+    branchHead: V18_BRANCH_HEAD_SHA,
+    approvedEvidenceCommit: V18_RESULT_SHA,
+    parentCommit: V18_RESULT_PARENT_SHA,
+    dataGate: true,
+    freeze: true,
+    historicalStrategyOutcomeReturnsRead: true,
+    resultCommit: V18_RESULT_SHA,
+    promotionEvaluated: true,
+    classification: "V18_TAKER_FLOW_ABSORPTION_REJECTED",
+    researchStop: true,
+    taxonomy: "RESULT_REJECTED",
     alphaFamily: "taker-flow",
     primaryDataSource: "aggTrades/taker flow",
     informationSourceClass: "FLOW_DERIVED",
-    productionChanged: "unknown",
-    deploy: "unknown",
-    merge: "unknown",
-    autoTrading: "unknown",
-    returnComparisonEligible: false,
-    returnComparisonExclusionReason: "DATA_GATE_NOT_PROVEN_PASS",
-    notes: "GitHub commit metadata confirms the anchor exists; local repository lacks the object, so no classification is inferred.",
-    evidenceSources: [{ commit: "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5", path: "COMMIT_METADATA:b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5", evidenceRole: "CI_METADATA", sourceKind: "github-commit-metadata" }],
+    ...commonBoundaries,
+    returnComparisonEligible: true,
+    returnComparisonExclusionReason: null,
+    postResultValidatorCommits: [...V18_POST_RESULT_VALIDATOR_COMMITS],
+    notes: "V18 canonical result is the frozen result commit; later branch commits are audit/CI-only validators.",
+    evidenceSources: [
+      source(V18_FREEZE_SHA, "reports/v18-data-gate.json", "DATA_GATE"),
+      source(V18_FREEZE_SHA, "reports/v18-freeze-manifest.json", "FREEZE"),
+      source(V18_RESULT_SHA, "reports/v18-primary-oos.json", "RESULT"),
+      source(V18_RESULT_SHA, "reports/v18-holdouts.json", "RESULT"),
+      source(V18_RESULT_SHA, "reports/v18-confidence.json", "RESULT"),
+      source(V18_RESULT_SHA, "reports/v18-promotion-decision.json", "PROMOTION"),
+    ],
   },
   {
     experimentId: "V19_BTC_SHOCK_ALT_CATCHUP",
@@ -651,12 +667,12 @@ export const R1_EXPERIMENTS: readonly ExperimentDefinition[] = [
     version: "V21.0",
     branch: "feat/v21-idiosyncratic-jump-reversal",
     branchHead: "0822c099eeff4f36e8d8e4865a4ed1380ae94709",
-    approvedEvidenceCommit: "22f4229302d62104d3285e4b6b1b943bf9affbf2",
-    parentCommit: null,
+    approvedEvidenceCommit: V21_RESULT_SHA,
+    parentCommit: V21_FREEZE_SHA,
     dataGate: true,
     freeze: true,
     historicalStrategyOutcomeReturnsRead: true,
-    resultCommit: "54698f7a139cec978243cab55eb4edbd7f7ca439",
+    resultCommit: V21_RESULT_SHA,
     promotionEvaluated: true,
     classification: "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL_REJECTED",
     researchStop: true,
@@ -669,9 +685,9 @@ export const R1_EXPERIMENTS: readonly ExperimentDefinition[] = [
     returnComparisonExclusionReason: null,
     postResultValidatorCommits: ["180bfc2b42322eb6e42fb3a90cc2a998e1b2a2ba", "0822c099eeff4f36e8d8e4865a4ed1380ae94709"],
     evidenceSources: [
-      source("22f4229302d62104d3285e4b6b1b943bf9affbf2", "reports/v21-freeze-manifest.json", "FREEZE"),
-      source("54698f7a139cec978243cab55eb4edbd7f7ca439", "reports/v21-result.json", "RESULT"),
-      source("54698f7a139cec978243cab55eb4edbd7f7ca439", "reports/v21-promotion-decision.json", "PROMOTION"),
+      source(V21_FREEZE_SHA, "reports/v21-freeze-manifest.json", "FREEZE"),
+      source(V21_RESULT_SHA, "reports/v21-result.json", "RESULT"),
+      source(V21_RESULT_SHA, "reports/v21-promotion-decision.json", "PROMOTION"),
       source("0822c099eeff4f36e8d8e4865a4ed1380ae94709", "reports/v21-result-stage-manifest.json", "MANIFEST"),
     ],
   },
@@ -772,6 +788,14 @@ export function sortInventory(records: readonly ExperimentDefinition[]): Experim
 
 export function isV21CanonicalResult(commit: string, resultCommit: string): boolean {
   return commit === resultCommit;
+}
+
+export function isV18CanonicalResult(commit: string, resultCommit: string): boolean {
+  return commit === resultCommit;
+}
+
+export function isV18PostResultValidatorCommit(commit: string): boolean {
+  return V18_POST_RESULT_VALIDATOR_COMMITS.includes(commit as (typeof V18_POST_RESULT_VALIDATOR_COMMITS)[number]);
 }
 
 export function isV21PostResultValidatorCommit(commit: string): boolean {
