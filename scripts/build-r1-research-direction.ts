@@ -11,6 +11,7 @@ export const WP3_ARTIFACT_PATHS = [
 ] as const;
 export const WP3_SOURCE_ARTIFACT_PATHS = [
   "reports/r1-system-boundary.json",
+  "reports/r1-experiment-inventory.json",
   "reports/r1-wp2-summary.json",
   "reports/r1-edge-attribution.json",
   "reports/r1-failure-gate-matrix.json",
@@ -84,11 +85,11 @@ export const EXHAUSTED_ALPHA_FAMILIES: readonly ExhaustedAlphaFamily[] = [
   family("failed breakout", ["V5_5_FORWARD_SHADOW"], "MIXED", ["INCOMPLETE_FORWARD_EVIDENCE"], "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"),
   family("funding/crowding continuation/reversal", ["V7_DERIVATIVES_FLOW_ALPHA", "V17_CROWDING_FAILED_CONTINUATION"], "DERIVATIVES_STATE", ["RESULT_REJECTED"], "EXHAUSTED_DO_NOT_RETUNE"),
   family("independent long", ["V5_6_PROFITABLE_SIGNAL_YIELD"], "PRICE_DERIVED", ["DATA_INSUFFICIENT"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
+  family("LFV-001 loss-factor validation", ["LFV_001_PRODUCTION_LOSS_FACTOR_VALIDATION"], "MIXED", ["LFV_UNIVERSE_PARITY_FAIL"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
   family("Last Price / Mark Price dislocation convergence", ["V20_LAST_MARK_DISLOCATION_CONVERGENCE"], "FAIR_VALUE_REFERENCE", ["DATA_INSUFFICIENT"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
   family("market-neutral relative value", ["V12_MARKET_NEUTRAL_ALPHA", "V13_RELATIVE_VALUE_ALPHA"], "MULTI_ASSET_RELATIVE", ["NO_FORMAL_RESULT"], "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"),
-  family("on-chain regime", ["V10_ON_CHAIN_REGIME_ALPHA"], "EXTERNAL_ON_CHAIN", ["DATA_INSUFFICIENT"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
-  family("official exchange event", ["V11_OFFICIAL_EXCHANGE_EVENT_ALPHA"], "EXTERNAL_EVENT", ["DATA_INSUFFICIENT"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
-  family("options volatility/skew", ["V9_OPTIONS_VOLATILITY_SKEW_ALPHA"], "OPTIONS_STATE", ["DATA_INSUFFICIENT"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
+  family("regime reconstruction", ["V5_8_REGIME_RECONSTRUCTION"], "MIXED", ["INCONCLUSIVE"], "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"),
+  family("second edge data completion", ["V5_7_SECOND_EDGE_DATA_COMPLETION"], "PRICE_DERIVED", ["NO_VALID_SECOND_EDGE"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
   family("spot-perp lead-lag", ["V15_SPOT_PERP_LEAD_LAG"], "CROSS_MARKET", ["DATA_INSUFFICIENT"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
   family("taker-flow absorption/reversal", ["V18_TAKER_FLOW_ABSORPTION_REVERSAL"], "FLOW_DERIVED", ["RESULT_REJECTED"], "EXHAUSTED_DO_NOT_RETUNE"),
   family("trend pullback", ["V5_4_EVIDENCE_HARDENING"], "PRICE_DERIVED", ["DATA_INSUFFICIENT"], "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"),
@@ -105,9 +106,46 @@ export interface AdmissionCandidate {
   familyStatus?: LegacyFamilyStatus | "NEW";
 }
 
+export function normalizeFamilyName(name: string): string {
+  return name.trim().toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ");
+}
+
+export function findExhaustedAlphaFamily(name: string): ExhaustedAlphaFamily | undefined {
+  const normalized = normalizeFamilyName(name);
+  return EXHAUSTED_ALPHA_FAMILIES.find((entry) => normalizeFamilyName(entry.family) === normalized);
+}
+
+export interface LegacyRegistryCompleteness {
+  inventoryExperimentIds: string[];
+  registryExperimentIds: string[];
+  missingIds: string[];
+  unknownIds: string[];
+  passes: boolean;
+}
+
+export function validateLegacyRegistryCompleteness(
+  inventoryExperimentIds: readonly string[],
+  families: readonly Pick<ExhaustedAlphaFamily, "experimentIds">[] = EXHAUSTED_ALPHA_FAMILIES,
+): LegacyRegistryCompleteness {
+  const inventory = [...new Set(inventoryExperimentIds)].sort();
+  const registry = [...new Set(families.flatMap((entry) => entry.experimentIds))].sort();
+  const inventorySet = new Set(inventory);
+  const registrySet = new Set(registry);
+  const missingIds = inventory.filter((id) => !registrySet.has(id));
+  const unknownIds = registry.filter((id) => !inventorySet.has(id));
+  return { inventoryExperimentIds: inventory, registryExperimentIds: registry, missingIds, unknownIds, passes: missingIds.length === 0 && unknownIds.length === 0 };
+}
+
 export function assertStructurallyOrthogonal(candidate: AdmissionCandidate): void {
-  if (candidate.familyStatus && candidate.familyStatus !== "NEW") {
+  const canonicalFamily = findExhaustedAlphaFamily(candidate.family);
+  if (canonicalFamily) {
+    if (candidate.familyStatus !== undefined && candidate.familyStatus !== canonicalFamily.futureStatus) {
+      throw new Error("RESEARCH_ADMISSION_FAIL: legacy family status is canonical and cannot be overridden");
+    }
     throw new Error("RESEARCH_ADMISSION_FAIL: legacy family is not eligible for a variant");
+  }
+  if (candidate.familyStatus !== undefined && candidate.familyStatus !== "NEW") {
+    throw new Error("RESEARCH_ADMISSION_FAIL: unknown family status is not authoritative");
   }
   if (candidate.structuralOrthogonality !== "STRUCTURALLY_ORTHOGONAL") {
     throw new Error("RESEARCH_ADMISSION_FAIL: structural orthogonality required");
@@ -296,12 +334,27 @@ function fileHashes(paths: readonly string[]): Record<string, { rawSha256: strin
   }));
 }
 
+function readInventoryExperimentIds(): string[] {
+  const inventory = JSON.parse(readFileSync(resolve(process.cwd(), "reports/r1-experiment-inventory.json"), "utf8")) as { experiments?: Array<{ experimentId?: unknown }> };
+  if (!Array.isArray(inventory.experiments)) throw new Error("r1 experiment inventory is invalid");
+  return inventory.experiments.map((entry) => {
+    if (typeof entry.experimentId !== "string" || entry.experimentId.length === 0) throw new Error("r1 experiment inventory has an invalid experimentId");
+    return entry.experimentId;
+  });
+}
+
 export function buildWp3Artifacts(): void {
+  const inventoryExperimentIds = readInventoryExperimentIds();
+  const completeness = validateLegacyRegistryCompleteness(inventoryExperimentIds);
+  if (!completeness.passes) throw new Error(`legacy registry does not cover inventory: missing=${completeness.missingIds.join(",")} unknown=${completeness.unknownIds.join(",")}`);
   writeJson(WP3_ARTIFACT_PATHS[0], {
     schema: "r1-exhausted-alpha-families-v1",
     program: R1_PROGRAM,
     branch: R1_BRANCH,
     source: { wp1: "reports/r1-experiment-inventory.json", wp2: "reports/r1-wp2-summary.json", wp2Commit: WP2_COMMIT },
+    inventoryExperimentIds: completeness.inventoryExperimentIds,
+    registryExperimentIds: completeness.registryExperimentIds,
+    registryCompleteness: { missingIds: completeness.missingIds, unknownIds: completeness.unknownIds, exactSetEquality: completeness.passes },
     noNewHistoricalEvidence: true,
     families: EXHAUSTED_ALPHA_FAMILIES,
     retuningForbidden: true,

@@ -12,10 +12,12 @@ import {
   WP3_SOURCE_ARTIFACT_PATHS,
   assertPromotionIsNotProductionActivation,
   assertStructurallyOrthogonal,
+  validateLegacyRegistryCompleteness,
 } from "./build-r1-research-direction";
 import { R1_BASE_SHA, R1_BRANCH, R1_PROGRAM, SYSTEM_BOUNDARY, canonicalJson, sha256 } from "./r1-catalog";
 
 const root = process.cwd();
+const WP3_ORIGINAL_COMMIT = "7009c8894bcd126eaa8392e6545080c44ba80b29";
 const allowedChangedPaths = new Set<string>([
   ".github/workflows/ci.yml",
   "package.json",
@@ -25,6 +27,13 @@ const allowedChangedPaths = new Set<string>([
   "scripts/validate-r1-wp3.ts",
   "tests/r1-wp3.test.ts",
   ...WP3_ARTIFACT_PATHS,
+  "reports/r1-wp3-manifest.json",
+]);
+const wp3_1AllowedChangedPaths = new Set<string>([
+  "scripts/build-r1-research-direction.ts",
+  "scripts/validate-r1-wp3.ts",
+  "tests/r1-wp3.test.ts",
+  WP3_ARTIFACT_PATHS[0],
   "reports/r1-wp3-manifest.json",
 ]);
 const forbiddenArtifactKeys = new Set(["returns", "metrics", "PF", "pf", "NetR", "netPnl", "winRate", "bootstrap", "ranking", "bestCandidate", "leaderboard"]);
@@ -83,16 +92,23 @@ function validateLineage(): void {
   assertCondition(gitText(["merge-base", "HEAD", R1_BASE_SHA]) === R1_BASE_SHA, "WP3 is not based on exact R1 base");
   const branchHead = gitText(["rev-parse", `origin/${R1_BRANCH}`]);
   const head = gitText(["rev-parse", "HEAD"]);
+  const branchHeadParent = gitText(["rev-parse", `${branchHead}^`]);
+  const isOriginalWp3 = branchHead === WP3_ORIGINAL_COMMIT;
+  const isWp3_1 = branchHeadParent === WP3_ORIGINAL_COMMIT;
+  assertCondition(isOriginalWp3 || isWp3_1, "WP3.1 must be an exact one-commit descendant of original WP3");
+  const expectedParent = isOriginalWp3 ? WP2_COMMIT : WP3_ORIGINAL_COMMIT;
+  const expectedChangedPaths = isOriginalWp3 ? allowedChangedPaths : wp3_1AllowedChangedPaths;
+  const diffBase = isOriginalWp3 ? WP2_COMMIT : WP3_ORIGINAL_COMMIT;
   if (head === branchHead) {
-    assertCondition(gitText(["rev-parse", "HEAD^"]) === WP2_COMMIT, "WP3 direct parent is not exact WP2");
+    assertCondition(gitText(["rev-parse", "HEAD^"]) === expectedParent, "WP3 direct parent is not the approved lineage");
   } else {
     assertCondition(gitText(["rev-parse", "HEAD^2"]) === branchHead, "PR merge checkout does not contain exact WP3 branch HEAD");
-    assertCondition(gitText(["rev-parse", `${branchHead}^`]) === WP2_COMMIT, "remote WP3 direct parent is not exact WP2");
+    assertCondition(gitText(["rev-parse", `${branchHead}^`]) === expectedParent, "remote WP3 direct parent is not the approved lineage");
   }
   assertCondition(gitText(["status", "--porcelain"]) === "", "working tree is not clean");
-  const changed = gitText(["diff", "--name-only", `${WP2_COMMIT}..HEAD`]).split(/\r?\n/).filter(Boolean);
-  assertCondition(changed.length === allowedChangedPaths.size, "WP3 changed-file set is incomplete or has duplicate scope");
-  for (const path of changed) assertCondition(allowedChangedPaths.has(path), `out-of-scope changed path: ${path}`);
+  const changed = gitText(["diff", "--name-only", `${diffBase}..HEAD`]).split(/\r?\n/).filter(Boolean);
+  assertCondition(changed.length === expectedChangedPaths.size, "WP3 changed-file set is incomplete or has duplicate scope");
+  for (const path of changed) assertCondition(expectedChangedPaths.has(path), `out-of-scope changed path: ${path}`);
   for (const path of WP3_SOURCE_ARTIFACT_PATHS) assertUnchangedSinceWp2(path);
   assertCondition(gitText(["ls-files", "reports/v22*"]) === "", "V22 artifact exists");
   assertCondition(gitText(["ls-files", "lib/v22*"]) === "", "V22 implementation exists");
@@ -127,6 +143,7 @@ function validateArtifacts(): void {
   const budget = readJson(WP3_ARTIFACT_PATHS[2]) as Record<string, unknown>;
   const decision = readJson(WP3_ARTIFACT_PATHS[3]) as Record<string, unknown>;
   const manifest = readJson("reports/r1-wp3-manifest.json") as Record<string, unknown>;
+  const inventory = readJson("reports/r1-experiment-inventory.json") as { experiments?: Array<{ experimentId?: unknown }> };
 
   assertCondition(canonicalJson(boundary.boundary) === canonicalJson(SYSTEM_BOUNDARY), "system boundary changed");
   assertCondition(boundary.baseSha === R1_BASE_SHA && boundary.program === R1_PROGRAM, "system boundary identity drift");
@@ -138,6 +155,13 @@ function validateArtifacts(): void {
   assertCondition(exhausted.schema === "r1-exhausted-alpha-families-v1" && exhausted.branch === R1_BRANCH, "legacy family registry identity drift");
   assertCondition(canonicalJson(exhausted.families) === canonicalJson(EXHAUSTED_ALPHA_FAMILIES), "legacy family registry is incomplete or changed");
   assertCondition(exhausted.retuningForbidden === true, "legacy retuning is not forbidden");
+  assertCondition(Array.isArray(inventory.experiments), "experiment inventory is invalid");
+  const inventoryExperimentIds = inventory.experiments.map((entry) => String(entry.experimentId));
+  const completeness = validateLegacyRegistryCompleteness(inventoryExperimentIds, EXHAUSTED_ALPHA_FAMILIES);
+  assertCondition(completeness.passes, `legacy registry experiment coverage mismatch: missing=${completeness.missingIds.join(",")} unknown=${completeness.unknownIds.join(",")}`);
+  assertCondition(canonicalJson(exhausted.inventoryExperimentIds) === canonicalJson(completeness.inventoryExperimentIds), "legacy registry inventory source drift");
+  assertCondition(canonicalJson(exhausted.registryExperimentIds) === canonicalJson(completeness.registryExperimentIds), "legacy registry experiment union drift");
+  assertCondition(isRecord(exhausted.registryCompleteness) && exhausted.registryCompleteness.exactSetEquality === true, "legacy registry completeness marker missing");
   for (const entry of exhausted.families as unknown[]) {
     assertCondition(isRecord(entry) && (RETUNING_ONLY_DIMENSIONS.length > 0), "legacy family record invalid");
     assertCondition(["EXHAUSTED_DO_NOT_RETUNE", "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE", "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"].includes(String(entry.futureStatus)), "invalid legacy future status");

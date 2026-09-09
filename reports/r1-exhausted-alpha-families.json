@@ -7,6 +7,63 @@
     "wp2": "reports/r1-wp2-summary.json",
     "wp2Commit": "4e8652153855701a5ab07c7745e562fdb559f836"
   },
+  "inventoryExperimentIds": [
+    "LFV_001_PRODUCTION_LOSS_FACTOR_VALIDATION",
+    "V12_MARKET_NEUTRAL_ALPHA",
+    "V13_RELATIVE_VALUE_ALPHA",
+    "V14_CROSS_SECTIONAL_REVERSAL",
+    "V15_SPOT_PERP_LEAD_LAG",
+    "V16_AGGTRADE_ABSORPTION_REVERSAL",
+    "V17_CROWDING_FAILED_CONTINUATION",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+    "V19_BTC_SHOCK_ALT_CATCHUP",
+    "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "V5_1_SIGNAL_EDGE",
+    "V5_2_PROFITABILITY_VALIDATION",
+    "V5_3_STRUCTURAL_EDGE",
+    "V5_4_EVIDENCE_HARDENING",
+    "V5_5_FORWARD_SHADOW",
+    "V5_6_1_EVIDENCE_ENSEMBLE",
+    "V5_6_PROFITABLE_SIGNAL_YIELD",
+    "V5_7_SECOND_EDGE_DATA_COMPLETION",
+    "V5_8_REGIME_RECONSTRUCTION",
+    "V5_9_1_EXPECTANCY_CALIBRATION",
+    "V5_9_META_LABEL_VALIDATION",
+    "V6_STRATEGY_RESET",
+    "V7_DERIVATIVES_FLOW_ALPHA"
+  ],
+  "registryExperimentIds": [
+    "LFV_001_PRODUCTION_LOSS_FACTOR_VALIDATION",
+    "V12_MARKET_NEUTRAL_ALPHA",
+    "V13_RELATIVE_VALUE_ALPHA",
+    "V14_CROSS_SECTIONAL_REVERSAL",
+    "V15_SPOT_PERP_LEAD_LAG",
+    "V16_AGGTRADE_ABSORPTION_REVERSAL",
+    "V17_CROWDING_FAILED_CONTINUATION",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+    "V19_BTC_SHOCK_ALT_CATCHUP",
+    "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "V5_1_SIGNAL_EDGE",
+    "V5_2_PROFITABILITY_VALIDATION",
+    "V5_3_STRUCTURAL_EDGE",
+    "V5_4_EVIDENCE_HARDENING",
+    "V5_5_FORWARD_SHADOW",
+    "V5_6_1_EVIDENCE_ENSEMBLE",
+    "V5_6_PROFITABLE_SIGNAL_YIELD",
+    "V5_7_SECOND_EDGE_DATA_COMPLETION",
+    "V5_8_REGIME_RECONSTRUCTION",
+    "V5_9_1_EXPECTANCY_CALIBRATION",
+    "V5_9_META_LABEL_VALIDATION",
+    "V6_STRATEGY_RESET",
+    "V7_DERIVATIVES_FLOW_ALPHA"
+  ],
+  "registryCompleteness": {
+    "missingIds": [],
+    "unknownIds": [],
+    "exactSetEquality": true
+  },
   "noNewHistoricalEvidence": true,
   "families": [
     {
@@ -147,6 +204,17 @@
       "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
     },
     {
+      "family": "LFV-001 loss-factor validation",
+      "experimentIds": [
+        "LFV_001_PRODUCTION_LOSS_FACTOR_VALIDATION"
+      ],
+      "informationSourceClass": "MIXED",
+      "finalStatuses": [
+        "LFV_UNIVERSE_PARITY_FAIL"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
       "family": "Last Price / Mark Price dislocation convergence",
       "experimentIds": [
         "V20_LAST_MARK_DISLOCATION_CONVERGENCE"
@@ -170,35 +238,24 @@
       "futureStatus": "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"
     },
     {
-      "family": "on-chain regime",
+      "family": "regime reconstruction",
       "experimentIds": [
-        "V10_ON_CHAIN_REGIME_ALPHA"
+        "V5_8_REGIME_RECONSTRUCTION"
       ],
-      "informationSourceClass": "EXTERNAL_ON_CHAIN",
+      "informationSourceClass": "MIXED",
       "finalStatuses": [
-        "DATA_INSUFFICIENT"
+        "INCONCLUSIVE"
       ],
-      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+      "futureStatus": "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"
     },
     {
-      "family": "official exchange event",
+      "family": "second edge data completion",
       "experimentIds": [
-        "V11_OFFICIAL_EXCHANGE_EVENT_ALPHA"
+        "V5_7_SECOND_EDGE_DATA_COMPLETION"
       ],
-      "informationSourceClass": "EXTERNAL_EVENT",
+      "informationSourceClass": "PRICE_DERIVED",
       "finalStatuses": [
-        "DATA_INSUFFICIENT"
-      ],
-      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
-    },
-    {
-      "family": "options volatility/skew",
-      "experimentIds": [
-        "V9_OPTIONS_VOLATILITY_SKEW_ALPHA"
-      ],
-      "informationSourceClass": "OPTIONS_STATE",
-      "finalStatuses": [
-        "DATA_INSUFFICIENT"
+        "NO_VALID_SECOND_EDGE"
       ],
       "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
     },

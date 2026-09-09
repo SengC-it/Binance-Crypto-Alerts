@@ -10,6 +10,10 @@
       "rawSha256": "c816f148c4ba70df252bcdc8adae8d010256acfcae26586fa69a9a96562aa42c",
       "canonicalSha256": "61e4ade97de96102aab79fcf72f4acc34c5aeacdf7da130d05b9f73915a55048"
     },
+    "reports/r1-experiment-inventory.json": {
+      "rawSha256": "b4ae7f78ed08ba180646af98e81732d3ade1a1761516b0a63ce97e5a732dcd50",
+      "canonicalSha256": "aa9c005f52404092716bee2154315e30e8087abd7fff8f1331d1f0487668fbc5"
+    },
     "reports/r1-wp2-summary.json": {
       "rawSha256": "aeee848ffd641f88dc441f1169ad5006c1afff48684d20ec74d366fe9f23662e",
       "canonicalSha256": "4afa49b7a8a2346abf4cf1c7b0dd0e80b45aa6f5a416185898e6c8e9f30d4be3"
@@ -29,8 +33,8 @@
   },
   "artifacts": {
     "reports/r1-exhausted-alpha-families.json": {
-      "rawSha256": "cc03af206e1b57d4080751407067cd9fa87ccc8f63ab823ef57170f856218192",
-      "canonicalSha256": "ec2d4ac5aeaa15b9202fa659afdfe1df038acdb9016b855046adb20e03d9cf16"
+      "rawSha256": "a5cfac258336089d28acb7296052c77a672bf88bdd6b37b4da6e9090034a64cc",
+      "canonicalSha256": "86738dbf4dc3009595d9c7854fda6982ad8e489bad4f18dd5c456214ba7ea9d1"
     },
     "reports/r1-future-research-admission.json": {
       "rawSha256": "1835f0f2356ed535a99a4e812416a2cf0672ab35048934c89696ed3200eb0995",
@@ -80,6 +84,6 @@
     "orderPlacement": false,
     "autoTrading": false
   },
-  "manifestBodySha256": "406f17cc52100bd2373b30e9da3ccd078cdb05492a50410dd3a02603acf125fe",
-  "manifestSha256": "98fe33a6a34cbe7678e55f31e48087ab44984320801ce5da1dcd4b10f93b1b7c"
+  "manifestBodySha256": "ede2cdef22fa3ea96fb608d6b378de8193ac4eed4a4090ebd49e65cd77d4ef8b",
+  "manifestSha256": "8423176f47bd80d573256d49a72909eaf59ffc695683980b49c8ef0af1d73dbd"
 }
