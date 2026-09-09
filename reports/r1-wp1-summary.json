@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "r1-wp1-summary-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "formalExperimentCount": 24,
+  "dataInsufficientCount": 11,
+  "resultRejectedCount": 7,
+  "promotionCandidateCount": 0,
+  "processIncompleteCount": 3,
+  "evidenceIncompleteCount": 0,
+  "noFormalResultCount": 3,
+  "returnComparisonEligibleCount": 5,
+  "countsByAlphaFamily": {
+    "breakout": 2,
+    "cross-sectional": 2,
+    "ensemble": 3,
+    "fair-value dislocation": 1,
+    "funding/crowding": 1,
+    "leader-follower": 1,
+    "market-neutral": 1,
+    "other": 2,
+    "relative-value": 1,
+    "reversal": 4,
+    "spot-perp lead-lag": 1,
+    "taker-flow": 3,
+    "trend": 2
+  },
+  "countsByInformationSourceClass": {
+    "CROSS_MARKET": 2,
+    "DERIVATIVES_STATE": 1,
+    "FAIR_VALUE_REFERENCE": 1,
+    "FLOW_DERIVED": 3,
+    "MIXED": 5,
+    "MULTI_ASSET_RELATIVE": 3,
+    "PRICE_DERIVED": 9
+  }
+}

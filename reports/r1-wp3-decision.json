@@ -1,0 +1,26 @@
+{
+  "schema": "r1-wp3-decision-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "wp2Commit": "4e8652153855701a5ab07c7745e562fdb559f836",
+  "projectWorthContinuing": "YES",
+  "alphaResearchWorthContinuing": "YES_WITH_FIXED_BUDGET",
+  "dominantHistoricalFailure": "EXECUTION_FRICTION_DOMINATED",
+  "requiredFutureDirection": "MAXIMIZE_INFORMATION_DENSITY_PER_ALERT",
+  "remainingOrthogonalFamilyBudget": 3,
+  "legacyFamilyRetuningAllowed": false,
+  "v22Authorized": false,
+  "nextRequiredStage": "FUTURE_ALPHA_DIRECTION_SELECTION",
+  "programStopRule": {
+    "id": "ALPHA_RESEARCH_PROGRAM_STOP_RULE",
+    "condition": "If three structurally orthogonal families produce no Promotion Candidate, stop new alpha research.",
+    "alphaResearchProgramStatus": "STOP_NEW_ALPHA_RESEARCH",
+    "preservedCapabilities": [
+      "market monitoring",
+      "research archive",
+      "signal infrastructure",
+      "manual decision support"
+    ]
+  }
+}

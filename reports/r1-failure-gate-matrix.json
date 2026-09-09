@@ -1,0 +1,514 @@
+{
+  "schema": "r1-failure-gate-matrix-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "wp1Commit": "3897dfaf3d368ba391684f12580ba3aa12a632d2",
+  "experiments": [
+    {
+      "experimentId": "V17_CROWDING_FAILED_CONTINUATION",
+      "canonicalResultCommit": "0b1381a6bcbf4b60e746e09ec8d614d65b1aa754",
+      "gates": {
+        "dataGatePass": true,
+        "primaryNetPositive": "NOT_APPLICABLE",
+        "primaryPfPass": "NOT_APPLICABLE",
+        "primaryAvgNetPositive": "NOT_APPLICABLE",
+        "bootstrapPass": "NOT_APPLICABLE",
+        "holdoutAPass": "NOT_APPLICABLE",
+        "holdoutBPass": "NOT_APPLICABLE",
+        "stressPass": "NOT_APPLICABLE",
+        "symbolBreadthPass": "NOT_APPLICABLE",
+        "yearBreadthPass": "NOT_APPLICABLE",
+        "informationGainPass": "NOT_APPLICABLE",
+        "concentrationPass": "NOT_APPLICABLE"
+      },
+      "gateEvidence": {
+        "dataGatePass": {
+          "value": true,
+          "source": "reports/v17-validation-summary.json",
+          "jsonPath": "dataGate=PASS",
+          "reason": null
+        },
+        "primaryNetPositive": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 promotion JSON does not expose named gate booleans"
+        },
+        "primaryPfPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 promotion JSON does not expose named gate booleans"
+        },
+        "primaryAvgNetPositive": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 promotion JSON does not expose named gate booleans"
+        },
+        "bootstrapPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 promotion JSON does not expose named bootstrap gate"
+        },
+        "holdoutAPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 result exposes holdout metrics but no named gate boolean"
+        },
+        "holdoutBPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 result exposes holdout metrics but no named gate boolean"
+        },
+        "stressPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 result exposes stress metrics but no named gate boolean"
+        },
+        "symbolBreadthPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 result exposes instrument metrics but no named breadth gate"
+        },
+        "yearBreadthPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 result exposes yearly metrics but no named year gate"
+        },
+        "informationGainPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 result has no named information-gain gate"
+        },
+        "concentrationPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V17 result has no named concentration gate"
+        }
+      },
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL"
+      ]
+    },
+    {
+      "experimentId": "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+      "canonicalResultCommit": "b1f2341fc4aff2fc41aa679fb61f6f38d89b27e5",
+      "gates": {
+        "dataGatePass": true,
+        "primaryNetPositive": false,
+        "primaryPfPass": false,
+        "primaryAvgNetPositive": "NOT_APPLICABLE",
+        "bootstrapPass": false,
+        "holdoutAPass": false,
+        "holdoutBPass": false,
+        "stressPass": false,
+        "symbolBreadthPass": false,
+        "yearBreadthPass": "NOT_APPLICABLE",
+        "informationGainPass": "NOT_APPLICABLE",
+        "concentrationPass": "NOT_APPLICABLE"
+      },
+      "gateEvidence": {
+        "dataGatePass": {
+          "value": true,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.dataGatePass",
+          "reason": null
+        },
+        "primaryNetPositive": {
+          "value": false,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.primaryNetPositive",
+          "reason": null
+        },
+        "primaryPfPass": {
+          "value": false,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.primaryProfitFactorAtLeast1_20",
+          "reason": null
+        },
+        "primaryAvgNetPositive": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V18 future gate definition has no primary average-net gate"
+        },
+        "bootstrapPass": {
+          "value": false,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.bootstrap95PercentLcbPositive",
+          "reason": null
+        },
+        "holdoutAPass": {
+          "value": false,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.holdoutANetPositive",
+          "reason": null
+        },
+        "holdoutBPass": {
+          "value": false,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.holdoutBNetPositive",
+          "reason": null
+        },
+        "stressPass": {
+          "value": false,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.plus10BpsNetPositive",
+          "reason": null
+        },
+        "symbolBreadthPass": {
+          "value": false,
+          "source": "reports/v18-promotion-decision.json",
+          "jsonPath": "decision.gates.btcNetPositive && decision.gates.ethNetPositive",
+          "reason": "V18 names BTC and ETH gates; breadth is their conjunction"
+        },
+        "yearBreadthPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V18 has no year-breadth gate"
+        },
+        "informationGainPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V18 controls are explanatory only; no information-gain gate"
+        },
+        "concentrationPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V18 has no concentration gate"
+        }
+      },
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL",
+        "SYMBOL_BREADTH_FAIL"
+      ]
+    },
+    {
+      "experimentId": "V19_BTC_SHOCK_ALT_CATCHUP",
+      "canonicalResultCommit": "1f06e6c327af42da741abe8e7f7e51ad26144325",
+      "gates": {
+        "dataGatePass": true,
+        "primaryNetPositive": false,
+        "primaryPfPass": false,
+        "primaryAvgNetPositive": false,
+        "bootstrapPass": false,
+        "holdoutAPass": false,
+        "holdoutBPass": false,
+        "stressPass": false,
+        "symbolBreadthPass": false,
+        "yearBreadthPass": false,
+        "informationGainPass": true,
+        "concentrationPass": true
+      },
+      "gateEvidence": {
+        "dataGatePass": {
+          "value": true,
+          "source": "reports/v19-data-gate.json",
+          "jsonPath": "status=PASS",
+          "reason": null
+        },
+        "primaryNetPositive": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.primaryNetPositive",
+          "reason": null
+        },
+        "primaryPfPass": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.primaryPf",
+          "reason": null
+        },
+        "primaryAvgNetPositive": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.primaryAvgNetPositive",
+          "reason": null
+        },
+        "bootstrapPass": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.clusterBootstrapLcb95Positive",
+          "reason": null
+        },
+        "holdoutAPass": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.holdoutANetPositive",
+          "reason": null
+        },
+        "holdoutBPass": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.holdoutBNetPositive",
+          "reason": null
+        },
+        "stressPass": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.stress10NetPositive",
+          "reason": null
+        },
+        "symbolBreadthPass": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.profitableFollowers",
+          "reason": null
+        },
+        "yearBreadthPass": {
+          "value": false,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.profitableYears",
+          "reason": null
+        },
+        "informationGainPass": {
+          "value": true,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.informationGain",
+          "reason": null
+        },
+        "concentrationPass": {
+          "value": true,
+          "source": "reports/v19-promotion-decision.json",
+          "jsonPath": "gates.maxFollowerTradeShare && gates.maxPositiveGrossContribution",
+          "reason": "V19 concentration gate is the conjunction of both named caps"
+        }
+      },
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_AVG_EXPECTANCY",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL",
+        "SYMBOL_BREADTH_FAIL",
+        "YEAR_BREADTH_FAIL"
+      ]
+    },
+    {
+      "experimentId": "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+      "canonicalResultCommit": "54698f7a139cec978243cab55eb4edbd7f7ca439",
+      "gates": {
+        "dataGatePass": true,
+        "primaryNetPositive": false,
+        "primaryPfPass": false,
+        "primaryAvgNetPositive": false,
+        "bootstrapPass": false,
+        "holdoutAPass": false,
+        "holdoutBPass": false,
+        "stressPass": false,
+        "symbolBreadthPass": false,
+        "yearBreadthPass": false,
+        "informationGainPass": false,
+        "concentrationPass": true
+      },
+      "gateEvidence": {
+        "dataGatePass": {
+          "value": true,
+          "source": "reports/v21-result.json",
+          "jsonPath": "dataIntegrity.pass=true",
+          "reason": null
+        },
+        "primaryNetPositive": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.primaryNetPositive",
+          "reason": null
+        },
+        "primaryPfPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.primaryProfitFactorMinimum",
+          "reason": null
+        },
+        "primaryAvgNetPositive": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.primaryAverageNetPositive",
+          "reason": null
+        },
+        "bootstrapPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.primaryClusterBootstrapLcbPositive",
+          "reason": null
+        },
+        "holdoutAPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.holdoutANetPositive",
+          "reason": null
+        },
+        "holdoutBPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.holdoutBNetPositive",
+          "reason": null
+        },
+        "stressPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.primaryStress10NetPositive",
+          "reason": null
+        },
+        "symbolBreadthPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.primaryPositiveSymbolsMinimum",
+          "reason": null
+        },
+        "yearBreadthPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.primaryPositiveYearsMinimum",
+          "reason": null
+        },
+        "informationGainPass": {
+          "value": false,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.informationGainVsRawReturn && promotion.gates.informationGainVsMedianGap",
+          "reason": "V21 information gain requires both frozen control comparisons"
+        },
+        "concentrationPass": {
+          "value": true,
+          "source": "reports/v21-promotion-decision.json",
+          "jsonPath": "promotion.gates.maxSingleSymbolTradeShare && maxSingleSymbolPositiveGrossContribution && totalPositiveGrossContribution",
+          "reason": "V21 concentration is the conjunction of all named concentration gates"
+        }
+      },
+      "failedRobustnessLabels": [
+        "NEGATIVE_PRIMARY",
+        "LOW_PROFIT_FACTOR",
+        "NEGATIVE_AVG_EXPECTANCY",
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "NEGATIVE_HOLDOUT_A",
+        "NEGATIVE_HOLDOUT_B",
+        "COST_STRESS_FAIL",
+        "SYMBOL_BREADTH_FAIL",
+        "YEAR_BREADTH_FAIL",
+        "CONTROL_INFORMATION_GAIN_FAIL"
+      ]
+    },
+    {
+      "experimentId": "V7_DERIVATIVES_FLOW_ALPHA",
+      "canonicalResultCommit": "33be0cf4facf62952a196caa98a2102515bd4c2f",
+      "gates": {
+        "dataGatePass": true,
+        "primaryNetPositive": "NOT_APPLICABLE",
+        "primaryPfPass": "NOT_APPLICABLE",
+        "primaryAvgNetPositive": "NOT_APPLICABLE",
+        "bootstrapPass": "NOT_APPLICABLE",
+        "holdoutAPass": "NOT_APPLICABLE",
+        "holdoutBPass": "NOT_APPLICABLE",
+        "stressPass": false,
+        "symbolBreadthPass": "NOT_APPLICABLE",
+        "yearBreadthPass": "NOT_APPLICABLE",
+        "informationGainPass": "NOT_APPLICABLE",
+        "concentrationPass": "NOT_APPLICABLE"
+      },
+      "gateEvidence": {
+        "dataGatePass": {
+          "value": true,
+          "source": "reports/v7-data-feasibility.json",
+          "jsonPath": "status=PASS",
+          "reason": null
+        },
+        "primaryNetPositive": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no named primaryNetPositive promotion gate"
+        },
+        "primaryPfPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no named primary PF promotion gate"
+        },
+        "primaryAvgNetPositive": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no named primary average-net promotion gate"
+        },
+        "bootstrapPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no named bootstrap gate"
+        },
+        "holdoutAPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no named Holdout A gate"
+        },
+        "holdoutBPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no named Holdout B gate"
+        },
+        "stressPass": {
+          "value": false,
+          "source": "reports/v7-family-results.json",
+          "jsonPath": "[2].temporalValidation.gate.plus10BpsNetR",
+          "reason": null
+        },
+        "symbolBreadthPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 symbol validation is incomplete but has no single breadth gate"
+        },
+        "yearBreadthPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no year-breadth gate"
+        },
+        "informationGainPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no information-gain gate"
+        },
+        "concentrationPass": {
+          "value": "NOT_APPLICABLE",
+          "source": null,
+          "jsonPath": null,
+          "reason": "V7 report has no concentration gate"
+        }
+      },
+      "failedRobustnessLabels": [
+        "NEGATIVE_BOOTSTRAP_LCB",
+        "COST_STRESS_FAIL",
+        "SAMPLE_FAIL"
+      ]
+    }
+  ]
+}

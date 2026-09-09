@@ -1,0 +1,329 @@
+{
+  "schema": "r1-exhausted-alpha-families-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "source": {
+    "wp1": "reports/r1-experiment-inventory.json",
+    "wp2": "reports/r1-wp2-summary.json",
+    "wp2Commit": "4e8652153855701a5ab07c7745e562fdb559f836"
+  },
+  "inventoryExperimentIds": [
+    "LFV_001_PRODUCTION_LOSS_FACTOR_VALIDATION",
+    "V12_MARKET_NEUTRAL_ALPHA",
+    "V13_RELATIVE_VALUE_ALPHA",
+    "V14_CROSS_SECTIONAL_REVERSAL",
+    "V15_SPOT_PERP_LEAD_LAG",
+    "V16_AGGTRADE_ABSORPTION_REVERSAL",
+    "V17_CROWDING_FAILED_CONTINUATION",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+    "V19_BTC_SHOCK_ALT_CATCHUP",
+    "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "V5_1_SIGNAL_EDGE",
+    "V5_2_PROFITABILITY_VALIDATION",
+    "V5_3_STRUCTURAL_EDGE",
+    "V5_4_EVIDENCE_HARDENING",
+    "V5_5_FORWARD_SHADOW",
+    "V5_6_1_EVIDENCE_ENSEMBLE",
+    "V5_6_PROFITABLE_SIGNAL_YIELD",
+    "V5_7_SECOND_EDGE_DATA_COMPLETION",
+    "V5_8_REGIME_RECONSTRUCTION",
+    "V5_9_1_EXPECTANCY_CALIBRATION",
+    "V5_9_META_LABEL_VALIDATION",
+    "V6_STRATEGY_RESET",
+    "V7_DERIVATIVES_FLOW_ALPHA"
+  ],
+  "registryExperimentIds": [
+    "LFV_001_PRODUCTION_LOSS_FACTOR_VALIDATION",
+    "V12_MARKET_NEUTRAL_ALPHA",
+    "V13_RELATIVE_VALUE_ALPHA",
+    "V14_CROSS_SECTIONAL_REVERSAL",
+    "V15_SPOT_PERP_LEAD_LAG",
+    "V16_AGGTRADE_ABSORPTION_REVERSAL",
+    "V17_CROWDING_FAILED_CONTINUATION",
+    "V18_TAKER_FLOW_ABSORPTION_REVERSAL",
+    "V19_BTC_SHOCK_ALT_CATCHUP",
+    "V20_LAST_MARK_DISLOCATION_CONVERGENCE",
+    "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL",
+    "V5_1_SIGNAL_EDGE",
+    "V5_2_PROFITABILITY_VALIDATION",
+    "V5_3_STRUCTURAL_EDGE",
+    "V5_4_EVIDENCE_HARDENING",
+    "V5_5_FORWARD_SHADOW",
+    "V5_6_1_EVIDENCE_ENSEMBLE",
+    "V5_6_PROFITABLE_SIGNAL_YIELD",
+    "V5_7_SECOND_EDGE_DATA_COMPLETION",
+    "V5_8_REGIME_RECONSTRUCTION",
+    "V5_9_1_EXPECTANCY_CALIBRATION",
+    "V5_9_META_LABEL_VALIDATION",
+    "V6_STRATEGY_RESET",
+    "V7_DERIVATIVES_FLOW_ALPHA"
+  ],
+  "registryCompleteness": {
+    "missingIds": [],
+    "unknownIds": [],
+    "exactSetEquality": true
+  },
+  "noNewHistoricalEvidence": true,
+  "families": [
+    {
+      "family": "aggtrade absorption reversal",
+      "experimentIds": [
+        "V16_AGGTRADE_ABSORPTION_REVERSAL"
+      ],
+      "informationSourceClass": "FLOW_DERIVED",
+      "finalStatuses": [
+        "V16_AGGTRADE_ABSORPTION_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "breakdown retest",
+      "experimentIds": [
+        "V5_3_STRUCTURAL_EDGE"
+      ],
+      "informationSourceClass": "PRICE_DERIVED",
+      "finalStatuses": [
+        "RESULT_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "breakout",
+      "experimentIds": [
+        "V5_1_SIGNAL_EDGE",
+        "V5_2_PROFITABILITY_VALIDATION"
+      ],
+      "informationSourceClass": "PRICE_DERIVED",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "BTC leader / low-liquidity alt follower catch-up",
+      "experimentIds": [
+        "V19_BTC_SHOCK_ALT_CATCHUP"
+      ],
+      "informationSourceClass": "CROSS_MARKET",
+      "finalStatuses": [
+        "RESULT_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "cross-sectional",
+      "experimentIds": [
+        "V14_CROSS_SECTIONAL_REVERSAL"
+      ],
+      "informationSourceClass": "MULTI_ASSET_RELATIVE",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "cross-sectional idiosyncratic jump reversal",
+      "experimentIds": [
+        "V21_CROSS_SECTIONAL_IDIOSYNCRATIC_JUMP_REVERSAL"
+      ],
+      "informationSourceClass": "MULTI_ASSET_RELATIVE",
+      "finalStatuses": [
+        "RESULT_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "crowded positioning failed-continuation reversal",
+      "experimentIds": [
+        "V17_CROWDING_FAILED_CONTINUATION"
+      ],
+      "informationSourceClass": "DERIVATIVES_STATE",
+      "finalStatuses": [
+        "RESULT_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "derivatives flow alpha",
+      "experimentIds": [
+        "V7_DERIVATIVES_FLOW_ALPHA"
+      ],
+      "informationSourceClass": "FLOW_DERIVED",
+      "finalStatuses": [
+        "RESULT_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "ensemble",
+      "experimentIds": [
+        "V5_6_1_EVIDENCE_ENSEMBLE",
+        "V5_9_META_LABEL_VALIDATION",
+        "V5_9_1_EXPECTANCY_CALIBRATION"
+      ],
+      "informationSourceClass": "MIXED",
+      "finalStatuses": [
+        "RESULT_REJECTED",
+        "PROCESS_INCOMPLETE"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "failed breakout",
+      "experimentIds": [
+        "V5_5_FORWARD_SHADOW"
+      ],
+      "informationSourceClass": "MIXED",
+      "finalStatuses": [
+        "INCOMPLETE_FORWARD_EVIDENCE"
+      ],
+      "futureStatus": "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"
+    },
+    {
+      "family": "funding/crowding continuation/reversal",
+      "experimentIds": [
+        "V7_DERIVATIVES_FLOW_ALPHA",
+        "V17_CROWDING_FAILED_CONTINUATION"
+      ],
+      "informationSourceClass": "DERIVATIVES_STATE",
+      "finalStatuses": [
+        "RESULT_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "independent long",
+      "experimentIds": [
+        "V5_6_PROFITABLE_SIGNAL_YIELD"
+      ],
+      "informationSourceClass": "PRICE_DERIVED",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "LFV-001 loss-factor validation",
+      "experimentIds": [
+        "LFV_001_PRODUCTION_LOSS_FACTOR_VALIDATION"
+      ],
+      "informationSourceClass": "MIXED",
+      "finalStatuses": [
+        "LFV_UNIVERSE_PARITY_FAIL"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "Last Price / Mark Price dislocation convergence",
+      "experimentIds": [
+        "V20_LAST_MARK_DISLOCATION_CONVERGENCE"
+      ],
+      "informationSourceClass": "FAIR_VALUE_REFERENCE",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "market-neutral relative value",
+      "experimentIds": [
+        "V12_MARKET_NEUTRAL_ALPHA",
+        "V13_RELATIVE_VALUE_ALPHA"
+      ],
+      "informationSourceClass": "MULTI_ASSET_RELATIVE",
+      "finalStatuses": [
+        "NO_FORMAL_RESULT"
+      ],
+      "futureStatus": "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"
+    },
+    {
+      "family": "regime reconstruction",
+      "experimentIds": [
+        "V5_8_REGIME_RECONSTRUCTION"
+      ],
+      "informationSourceClass": "MIXED",
+      "finalStatuses": [
+        "INCONCLUSIVE"
+      ],
+      "futureStatus": "INCOMPLETE_NOT_ELIGIBLE_FOR_VARIANT_MINING"
+    },
+    {
+      "family": "second edge data completion",
+      "experimentIds": [
+        "V5_7_SECOND_EDGE_DATA_COMPLETION"
+      ],
+      "informationSourceClass": "PRICE_DERIVED",
+      "finalStatuses": [
+        "NO_VALID_SECOND_EDGE"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "spot-perp lead-lag",
+      "experimentIds": [
+        "V15_SPOT_PERP_LEAD_LAG"
+      ],
+      "informationSourceClass": "CROSS_MARKET",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "taker-flow absorption/reversal",
+      "experimentIds": [
+        "V18_TAKER_FLOW_ABSORPTION_REVERSAL"
+      ],
+      "informationSourceClass": "FLOW_DERIVED",
+      "finalStatuses": [
+        "RESULT_REJECTED"
+      ],
+      "futureStatus": "EXHAUSTED_DO_NOT_RETUNE"
+    },
+    {
+      "family": "trend pullback",
+      "experimentIds": [
+        "V5_4_EVIDENCE_HARDENING"
+      ],
+      "informationSourceClass": "PRICE_DERIVED",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "volatility compression breakdown",
+      "experimentIds": [
+        "V5_4_EVIDENCE_HARDENING"
+      ],
+      "informationSourceClass": "PRICE_DERIVED",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    },
+    {
+      "family": "volatility expansion",
+      "experimentIds": [
+        "V6_STRATEGY_RESET"
+      ],
+      "informationSourceClass": "PRICE_DERIVED",
+      "finalStatuses": [
+        "DATA_INSUFFICIENT"
+      ],
+      "futureStatus": "DATA_FEASIBILITY_FAILED_DO_NOT_SALVAGE"
+    }
+  ],
+  "retuningForbidden": true,
+  "forbiddenSalvageActions": [
+    "change threshold",
+    "change lookback",
+    "change universe",
+    "change horizon",
+    "remove losing symbol",
+    "remove losing year",
+    "change percentile",
+    "combine failed strategies lightly"
+  ]
+}
