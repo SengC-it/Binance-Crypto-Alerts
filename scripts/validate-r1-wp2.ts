@@ -15,6 +15,7 @@ import {
   type GateValue,
   type MetricContract,
 } from "./build-r1-edge-attribution";
+import { WP2_COMMIT } from "./build-r1-research-direction";
 import { R1_BASE_SHA, R1_BRANCH, R1_PROGRAM, SYSTEM_BOUNDARY, canonicalJson, sha256 } from "./r1-catalog";
 
 const root = process.cwd();
@@ -32,7 +33,15 @@ const allowedWp2Paths = new Set<string>([
   "scripts/build-r1-edge-attribution.ts",
   "scripts/validate-r1-wp2.ts",
   "tests/r1-wp2.test.ts",
+  "scripts/build-r1-research-direction.ts",
+  "scripts/validate-r1-wp3.ts",
+  "tests/r1-wp3.test.ts",
   ...artifactPaths,
+  "reports/r1-exhausted-alpha-families.json",
+  "reports/r1-future-research-admission.json",
+  "reports/r1-alpha-research-budget.json",
+  "reports/r1-wp3-decision.json",
+  "reports/r1-wp3-manifest.json",
 ]);
 
 function gitBytes(args: readonly string[]): Buffer {
@@ -179,10 +188,12 @@ async function main(): Promise<void> {
   const branchHead = gitText(["rev-parse", `origin/${R1_BRANCH}`]);
   const head = gitText(["rev-parse", "HEAD"]);
   if (head === branchHead) {
-    assertCondition(gitText(["rev-parse", "HEAD^"]) === WP1_COMMIT, "WP2 HEAD parent is not the exact WP1.1 commit");
+    const parent = gitText(["rev-parse", "HEAD^"]);
+    assertCondition(parent === WP1_COMMIT || gitText(["merge-base", "HEAD", WP2_COMMIT]) === WP2_COMMIT, "WP2 HEAD is not the exact WP2 commit or a validated descendant");
   } else {
     assertCondition(gitText(["rev-parse", "HEAD^2"]) === branchHead, "PR merge commit does not contain the exact R1 branch HEAD");
-    assertCondition(gitText(["rev-parse", `${branchHead}^`]) === WP1_COMMIT, "remote WP2 HEAD parent is not the exact WP1.1 commit");
+    const remoteParent = gitText(["rev-parse", `${branchHead}^`]);
+    assertCondition(remoteParent === WP1_COMMIT || gitText(["merge-base", branchHead, WP2_COMMIT]) === WP2_COMMIT, "remote R1 branch is not the exact WP2 commit or a validated descendant");
   }
   assertCondition(gitText(["merge-base", "HEAD", R1_BASE_SHA]) === R1_BASE_SHA, "WP2 is not based on exact R1 base");
   const changed = gitText(["diff", "--name-only", `${WP1_COMMIT}..HEAD`]).split(/\r?\n/).filter(Boolean);

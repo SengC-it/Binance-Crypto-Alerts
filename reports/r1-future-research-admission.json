@@ -1,0 +1,79 @@
+{
+  "schema": "r1-future-research-admission-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "objective": "MAXIMIZE_INFORMATION_DENSITY_PER_ALERT",
+  "noSignalIsAcceptable": true,
+  "alertQualityPriority": [
+    "INFORMATION_EDGE",
+    "ROBUSTNESS",
+    "HUMAN_ACTIONABILITY",
+    "SIGNAL_FREQUENCY"
+  ],
+  "structuralOrthogonalityRule": "STRUCTURALLY_ORTHOGONAL",
+  "structuralOrthogonalityDimensions": [
+    "information_source",
+    "market_mechanism",
+    "economic_mechanism",
+    "causal_timing",
+    "cross_venue_structure",
+    "derivative_state",
+    "liquidity_mechanism"
+  ],
+  "forbiddenVariantDimensions": [
+    "parameter_only",
+    "threshold_only",
+    "horizon_only",
+    "universe_only",
+    "math_transform_only",
+    "model_only"
+  ],
+  "requiredPreReturnDeclarations": [
+    "expectedSignalMechanism",
+    "whyInformationArrivesBeforePriceAdjustment",
+    "whyNotEquivalentToLegacyFamily",
+    "expectedAlertFrequencyBand",
+    "humanActionability",
+    "requiredPublicData",
+    "dataAvailabilityRisk",
+    "executionLatencySensitivity",
+    "expectedHoldingMechanism",
+    "frictionSensitivityRationale"
+  ],
+  "futureInformationSourceClasses": [
+    "LIQUIDATION_STRUCTURE",
+    "OPEN_INTEREST_STATE_CHANGE",
+    "OPTIONS_VOLATILITY_STRUCTURE",
+    "CROSS_EXCHANGE_PRICE_DISCOVERY",
+    "TERM_STRUCTURE_BASIS",
+    "LIQUIDITY_WITHDRAWAL",
+    "LARGE_TRADE_STRUCTURE",
+    "SPOT_DERIVATIVES_FLOW_DIVERGENCE",
+    "OTHER_GENUINELY_NEW_INFORMATION"
+  ],
+  "sourceClassesAreAdmissionDirectionsOnly": true,
+  "noSpecificStrategyDesign": true,
+  "noThresholdsOrParameters": true,
+  "noDataQuery": true,
+  "noBacktest": true,
+  "noPostResultRetune": true,
+  "promotionCandidateMeans": "RESEARCH_EVIDENCE_PASS_ONLY",
+  "productionActivationRequiresSeparateHumanApproval": true,
+  "lowerFrequencyIsNotFailure": true,
+  "minimumResearchQualityGates": [
+    "pre-register hypothesis",
+    "pre-register universe",
+    "pre-register data source",
+    "pre-register event definition",
+    "pre-register direction mapping",
+    "pre-register execution reference",
+    "pre-register costs",
+    "pre-register Primary",
+    "pre-register Holdout A/B",
+    "pre-register bootstrap/inference",
+    "pre-register controls",
+    "freeze before returns",
+    "exactly-one result reveal",
+    "no post-result retune",
+    "independent human acceptance"
+  ]
+}

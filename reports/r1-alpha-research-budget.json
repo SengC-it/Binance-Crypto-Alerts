@@ -1,0 +1,23 @@
+{
+  "schema": "r1-alpha-research-budget-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "unit": "STRUCTURALLY_ORTHOGONAL_ALPHA_FAMILY",
+  "totalFamilies": 3,
+  "consumedFamilies": [],
+  "remainingOrthogonalFamilyBudget": 3,
+  "sameFamilyOnlyOnce": true,
+  "versionsDoNotConsumeAdditionalBudget": true,
+  "failedFamilyIsPermanent": true,
+  "dataInsufficientMayNotLowerDataGate": true,
+  "programStopRule": {
+    "id": "ALPHA_RESEARCH_PROGRAM_STOP_RULE",
+    "condition": "If three structurally orthogonal families produce no Promotion Candidate, stop new alpha research.",
+    "alphaResearchProgramStatus": "STOP_NEW_ALPHA_RESEARCH",
+    "preservedCapabilities": [
+      "market monitoring",
+      "research archive",
+      "signal infrastructure",
+      "manual decision support"
+    ]
+  }
+}

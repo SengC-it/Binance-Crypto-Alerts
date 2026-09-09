@@ -30,3 +30,6 @@ jobs:
       - run: pnpm validate:r1:wp2
         env:
           R1_BRANCH_REF: ${{ github.head_ref || github.ref_name }}
+      - run: pnpm validate:r1:wp3
+        env:
+          R1_BRANCH_REF: ${{ github.head_ref || github.ref_name }}

@@ -17,7 +17,8 @@
     "backtest": "tsx scripts/run-backtest.ts",
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
     "validate:r1:wp1": "tsx scripts/validate-r1-wp1.ts",
-    "validate:r1:wp2": "tsx scripts/validate-r1-wp2.ts"
+    "validate:r1:wp2": "tsx scripts/validate-r1-wp2.ts",
+    "validate:r1:wp3": "tsx scripts/validate-r1-wp3.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

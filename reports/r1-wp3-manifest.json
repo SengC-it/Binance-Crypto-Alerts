@@ -1,0 +1,85 @@
+{
+  "schema": "r1-wp3-manifest-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "branch": "research/r1-edge-attribution-audit",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "directParent": "4e8652153855701a5ab07c7745e562fdb559f836",
+  "generatedFrom": "approved WP1/WP2 committed reports only",
+  "sourceArtifacts": {
+    "reports/r1-system-boundary.json": {
+      "rawSha256": "c816f148c4ba70df252bcdc8adae8d010256acfcae26586fa69a9a96562aa42c",
+      "canonicalSha256": "61e4ade97de96102aab79fcf72f4acc34c5aeacdf7da130d05b9f73915a55048"
+    },
+    "reports/r1-wp2-summary.json": {
+      "rawSha256": "aeee848ffd641f88dc441f1169ad5006c1afff48684d20ec74d366fe9f23662e",
+      "canonicalSha256": "4afa49b7a8a2346abf4cf1c7b0dd0e80b45aa6f5a416185898e6c8e9f30d4be3"
+    },
+    "reports/r1-edge-attribution.json": {
+      "rawSha256": "149312750d878321583484087135179c74de95328053d6cb47c974f5e5f69a5a",
+      "canonicalSha256": "df1449a027101da745a3b0b780eef799d6c5dcfbdeea7ff3eb7098461065f9e2"
+    },
+    "reports/r1-failure-gate-matrix.json": {
+      "rawSha256": "388e3db5f9a2f16be62d444e075127416a016005bdd0be13ba327ed67f476c1f",
+      "canonicalSha256": "15337b33ad7b78920a1cb7d25b3b03ac0078cd6781d9307a01f277662b533273"
+    },
+    "reports/r1-wp2-manifest.json": {
+      "rawSha256": "6bbcb20bd336f5b2bbbe359458825b648215753784dccb3f3e3ac60485035e5d",
+      "canonicalSha256": "8bc6f99f701c31c65b720adf2a9d9a79bcd873751722661060199f5c7030a54e"
+    }
+  },
+  "artifacts": {
+    "reports/r1-exhausted-alpha-families.json": {
+      "rawSha256": "cc03af206e1b57d4080751407067cd9fa87ccc8f63ab823ef57170f856218192",
+      "canonicalSha256": "ec2d4ac5aeaa15b9202fa659afdfe1df038acdb9016b855046adb20e03d9cf16"
+    },
+    "reports/r1-future-research-admission.json": {
+      "rawSha256": "1835f0f2356ed535a99a4e812416a2cf0672ab35048934c89696ed3200eb0995",
+      "canonicalSha256": "728819cb0e37e0f8ae237398acdc5dcdc78015bfafc4b9c4dfb6666c66ce84a4"
+    },
+    "reports/r1-alpha-research-budget.json": {
+      "rawSha256": "2518aa7e9df5b79a3414e622f8fd513543fc996654cc3df8a9926cfd1974a741",
+      "canonicalSha256": "2a2144d162608b5f632554edd69955f44089a174637027f4894ce5033f641a7f"
+    },
+    "reports/r1-wp3-decision.json": {
+      "rawSha256": "d3ee0ca9a826ec4e438131c8a0130121d2c2980768906b7e184c56bde0544677",
+      "canonicalSha256": "d10dd0fc38eb552e42d2e5f42d8cad5e1580b07259687135da48da8a98dcdc6c"
+    }
+  },
+  "systemBoundaryCanonicalSha256": "c505ea229b15cda75f03cd89b7b581879329f44f78bf4643e399da51a14218f6",
+  "diagnosis": {
+    "NO_PRE_FRICTION_EDGE": 1,
+    "EXECUTION_FRICTION_DOMINATED": 3,
+    "NET_EDGE_NOT_ROBUST": 1,
+    "ROBUST_NET_EDGE": 0,
+    "ATTRIBUTION_UNRESOLVED": 0,
+    "dominantFailureMode": "EXECUTION_FRICTION_DOMINATED",
+    "researchImplication": "HIGHER_INFORMATION_DENSITY_REQUIRED"
+  },
+  "contract": {
+    "legacyFamilyRetuningAllowed": false,
+    "structuralOrthogonalityRequired": true,
+    "researchBudgetFamilies": 3,
+    "programStopRule": "ALPHA_RESEARCH_PROGRAM_STOP_RULE",
+    "v22Designed": false,
+    "v22Authorized": false
+  },
+  "flags": {
+    "newStrategyDesigned": false,
+    "newAlphaTested": false,
+    "historicalBacktestRerun": false,
+    "historicalResultRegenerated": false,
+    "historicalOutcomePricesNewlyRead": false,
+    "newForwardReturnsRead": false,
+    "parameterSearch": false,
+    "v22Designed": false,
+    "v22Authorized": false,
+    "productionChanged": false,
+    "productionEmail": "OFF",
+    "deploy": false,
+    "merge": false,
+    "orderPlacement": false,
+    "autoTrading": false
+  },
+  "manifestBodySha256": "406f17cc52100bd2373b30e9da3ccd078cdb05492a50410dd3a02603acf125fe",
+  "manifestSha256": "98fe33a6a34cbe7678e55f31e48087ab44984320801ce5da1dcd4b10f93b1b7c"
+}
