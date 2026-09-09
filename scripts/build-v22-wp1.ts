@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { resolve } from "node:path";
-import { admitV22Family } from "@/lib/v22/admission";
+import { admitV22Family, isFamilyInAuthoritativeRegistry } from "@/lib/v22/admission";
 import { R1_FINAL_GATE_COMMIT, V22_BASE_SHA, V22_BRANCH, V22_END_MS, V22_EXPERIMENT_ID, V22_START_MS, V22_SYMBOLS } from "@/lib/v22/types";
 
 const execFileAsync = promisify(execFile);
@@ -16,6 +16,10 @@ function sha256(value: string | Uint8Array): string {
 async function gitJson<T>(commit: string, path: string): Promise<T> {
   const { stdout } = await execFileAsync("git", ["show", `${commit}:${path}`]);
   return JSON.parse(stdout) as T;
+}
+
+async function gitText(commit: string, path: string): Promise<string> {
+  return (await execFileAsync("git", ["show", `${commit}:${path}`])).stdout;
 }
 
 async function jsonFile<T>(name: string): Promise<T> {
@@ -36,17 +40,29 @@ async function main(): Promise<void> {
     legacyFamilyRetuningAllowed?: boolean;
   }>(R1_FINAL_GATE_COMMIT, "reports/r1-wp3-decision.json");
   const r1Future = await gitJson<{ objective?: string }>(R1_FINAL_GATE_COMMIT, "reports/r1-future-research-admission.json");
+  const r1RegistryText = await gitText(R1_FINAL_GATE_COMMIT, "reports/r1-exhausted-alpha-families.json");
+  const r1Registry = JSON.parse(r1RegistryText) as {
+    families?: Array<{ family?: string }>;
+    registryCompleteness?: { exactSetEquality?: boolean };
+    retuningForbidden?: boolean;
+  };
   if (
     r1Decision.dominantHistoricalFailure !== "EXECUTION_FRICTION_DOMINATED" ||
     r1Decision.requiredFutureDirection !== "MAXIMIZE_INFORMATION_DENSITY_PER_ALERT" ||
     r1Decision.remainingOrthogonalFamilyBudget !== 3 ||
     r1Decision.legacyFamilyRetuningAllowed !== false ||
-    r1Future.objective !== "MAXIMIZE_INFORMATION_DENSITY_PER_ALERT"
+    r1Future.objective !== "MAXIMIZE_INFORMATION_DENSITY_PER_ALERT" ||
+    r1Registry.registryCompleteness?.exactSetEquality !== true ||
+    r1Registry.retuningForbidden !== true
   ) throw new Error("R1 final gate evidence does not match the V22 admission anchor");
+
+  const v22Family = "cross-venue same-instrument price discovery";
+  const authoritativeFamilies = (r1Registry.families ?? []).map((family) => family.family ?? "");
+  if (isFamilyInAuthoritativeRegistry(v22Family, authoritativeFamilies)) throw new Error("V22 family is already in the authoritative R1 registry");
 
   const admissionResult = admitV22Family({
     experimentId: V22_EXPERIMENT_ID,
-    family: "cross-venue same-instrument price discovery",
+    family: v22Family,
     informationSourceClass: "CROSS_EXCHANGE_PRICE_DISCOVERY",
   });
   if (admissionResult.status !== "PASS") throw new Error(admissionResult.reason);
@@ -72,6 +88,13 @@ async function main(): Promise<void> {
       dominantHistoricalFailure: r1Decision.dominantHistoricalFailure,
       requiredFutureDirection: r1Decision.requiredFutureDirection,
       legacyFamilyRetuningAllowed: r1Decision.legacyFamilyRetuningAllowed,
+      authoritativeRegistry: {
+        sourceCommit: R1_FINAL_GATE_COMMIT,
+        sourcePath: "reports/r1-exhausted-alpha-families.json",
+        registrySha256: sha256(r1RegistryText),
+        familyPresent: false,
+        registryExactSetEquality: r1Registry.registryCompleteness?.exactSetEquality === true,
+      },
       budgetBefore: 3,
       familyBudgetConsumed: true,
       remainingBudget: 2,
@@ -113,10 +136,12 @@ async function main(): Promise<void> {
       "reports/v22-data-inventory.json": inventorySha,
       "reports/v22-data-gate.json": dataGateSha,
       "reports/v22-live-feed-feasibility.json": liveFeedSha,
+      "reports/v22-source-provenance.json": sha256(await readFile(resolve(REPORT_DIR, "v22-source-provenance.json"))),
     },
     r1AdmissionVerified: true,
     familyBudgetConsumed: true,
     remainingOrthogonalFamilyBudget: 2,
+    remainingResearchBudget: 2,
     signalDesigned: false,
     eventDefinitionDesigned: false,
     historicalStrategyOutcomeReturnsRead: false,

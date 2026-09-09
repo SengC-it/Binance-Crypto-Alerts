@@ -23,6 +23,10 @@ interface BinanceArtifact {
   sha256: string;
   officialChecksum: string;
   extractedCsv: string;
+  archiveEntryName: string;
+  extractedCsvSha256: string;
+  extractedCsvByteLength: number;
+  extractedCsvVerifiedAgainstZip: boolean;
 }
 
 interface OkxResponseArtifact {
@@ -49,8 +53,9 @@ async function fetchOkxBytes(url: string): Promise<Uint8Array> {
   let lastError: unknown;
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
-      const { stdout } = await execFileAsync("curl.exe", ["-k", "-sS", "--max-time", "60", url], { maxBuffer: 5 * 1024 * 1024, encoding: "buffer" });
-      return new Uint8Array(stdout as Buffer);
+      const response = await fetch(url, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(60_000) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
+      return new Uint8Array(await response.arrayBuffer());
     } catch (error) {
       lastError = error;
       await new Promise((resolveDelay) => setTimeout(resolveDelay, 1000 * (attempt + 1)));
@@ -81,18 +86,21 @@ function monthKeys(): string[] {
   return months;
 }
 
-async function extractZip(zipPath: string, outputDirectory: string): Promise<string> {
+async function extractZip(zipPath: string, outputDirectory: string): Promise<{ path: string; entryName: string; bytes: Buffer }> {
   await mkdir(outputDirectory, { recursive: true });
-  const expectedName = zipPath.replace(/\.zip$/, ".csv");
+  const entries = (await execFileAsync("tar", ["-tf", zipPath], { encoding: "utf8", maxBuffer: 64 * 1024 })).stdout.trim().split(/\r?\n/).filter((entry) => entry.endsWith(".csv"));
+  if (entries.length !== 1) throw new Error(`expected exactly one CSV archive entry for ${zipPath}`);
+  const entryName = entries[0]!;
+  const extracted = zipPath.replace(/\.zip$/, ".csv");
+  const bytes = (await execFileAsync("tar", ["-xOf", zipPath, entryName], { encoding: "buffer", maxBuffer: 32 * 1024 * 1024 })).stdout as Buffer;
   try {
-    await access(expectedName);
-    return expectedName;
-  } catch {
-    await execFileAsync("tar", ["-xf", zipPath, "-C", outputDirectory]);
-    const extracted = expectedName;
-    await access(extracted);
-    return extracted;
+    const existing = await readFile(extracted);
+    if (sha256(existing) !== sha256(bytes)) throw new Error(`immutable extracted CSV changed: ${extracted}`);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    await writeFile(extracted, bytes, { flag: "wx" });
   }
+  return { path: extracted, entryName, bytes };
 }
 
 async function downloadBinanceArtifact(symbol: V22Symbol, month: string): Promise<BinanceArtifact> {
@@ -109,8 +117,8 @@ async function downloadBinanceArtifact(symbol: V22Symbol, month: string): Promis
     const officialChecksum = new TextDecoder().decode(existingChecksum).trim().split(/\s+/)[0]?.toLowerCase() ?? "";
     const actualSha = sha256(existingZip);
     if (actualSha === officialChecksum && /^[a-f0-9]{64}$/.test(officialChecksum)) {
-      const extractedCsv = await extractZip(zipPath, directory);
-      return { symbol, month, url, checksumUrl, zipPath, checksumPath, byteLength: existingZip.byteLength, sha256: actualSha, officialChecksum, extractedCsv };
+      const extracted = await extractZip(zipPath, directory);
+      return { symbol, month, url, checksumUrl, zipPath, checksumPath, byteLength: existingZip.byteLength, sha256: actualSha, officialChecksum, extractedCsv: extracted.path, archiveEntryName: extracted.entryName, extractedCsvSha256: sha256(extracted.bytes), extractedCsvByteLength: extracted.bytes.byteLength, extractedCsvVerifiedAgainstZip: true };
     }
   } catch {
     // Missing or invalid local artifacts are downloaded once and then frozen.
@@ -125,7 +133,7 @@ async function downloadBinanceArtifact(symbol: V22Symbol, month: string): Promis
   if (!/^[a-f0-9]{64}$/.test(officialChecksum) || actualSha !== officialChecksum) {
     throw new Error(`Binance checksum mismatch for ${fileName}: ${actualSha} != ${officialChecksum}`);
   }
-  const extractedCsv = await extractZip(zipPath, directory);
+  const extracted = await extractZip(zipPath, directory);
   return {
     symbol,
     month,
@@ -136,7 +144,11 @@ async function downloadBinanceArtifact(symbol: V22Symbol, month: string): Promis
     byteLength: zipBytes.byteLength,
     sha256: actualSha,
     officialChecksum,
-    extractedCsv,
+    extractedCsv: extracted.path,
+    archiveEntryName: extracted.entryName,
+    extractedCsvSha256: sha256(extracted.bytes),
+    extractedCsvByteLength: extracted.bytes.byteLength,
+    extractedCsvVerifiedAgainstZip: true,
   };
 }
 

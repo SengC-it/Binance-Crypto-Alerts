@@ -1,9 +1,10 @@
 {
-  "schema": "v22-data-gate-v1",
+  "schema": "v22-data-gate-v2",
   "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
   "policy": {
     "requiredCoverage": 0.999,
     "maxContiguousMissingMinutes": 15,
+    "expectedRows": 324576,
     "fixedSymbols": [
       "BTCUSDT",
       "ETHUSDT",
@@ -13,74 +14,210 @@
     ],
     "noSymbolReplacement": true,
     "noGapRepair": true,
-    "synchronizedByExactTimestampIntersection": true
+    "exactFrozenRange": {
+      "startMs": 1688169600000,
+      "endExclusiveMs": 1785542400000
+    },
+    "synchronizedByExactTimestampIntersection": true,
+    "noInsecureTransport": true
   },
   "symbols": {
-    "BTCUSDT": {
-      "binanceRows": 324576,
-      "binanceCoverage": 1,
-      "okxRows": 324576,
-      "okxCoverage": 1,
-      "synchronizedRows": 324576,
-      "synchronizedCoverage": 1,
-      "duplicates": 0,
-      "invalidRows": 0,
-      "maxContiguousMissingMinutes": 0,
-      "pass": true
-    },
     "ETHUSDT": {
       "binanceRows": 324576,
       "binanceCoverage": 1,
+      "binanceDuplicates": 36,
+      "binanceExactIdenticalDuplicateRows": 36,
+      "binanceConflictingDuplicateRows": 0,
+      "binanceCanonicalDuplicateRows": 0,
+      "binanceNonMonotonic": 0,
+      "binanceSourceOrderNonMonotonic": 0,
+      "binanceInvalidRows": 0,
+      "binanceMaxGap": 0,
       "okxRows": 324576,
       "okxCoverage": 1,
+      "okxTransportDuplicateRows": 516,
+      "okxExactIdenticalDuplicateRows": 516,
+      "okxConflictingDuplicateRows": 0,
+      "okxCanonicalDuplicateRows": 0,
+      "okxSourceOrderNonMonotonic": 325196,
+      "okxCanonicalNonMonotonic": 0,
+      "okxInvalidRows": 0,
+      "okxMaxGap": 0,
       "synchronizedRows": 324576,
       "synchronizedCoverage": 1,
-      "duplicates": 0,
-      "invalidRows": 0,
-      "maxContiguousMissingMinutes": 0,
+      "primaryCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutACoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutBCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "provenancePass": true,
       "pass": true
     },
-    "SOLUSDT": {
+    "BTCUSDT": {
       "binanceRows": 324576,
       "binanceCoverage": 1,
+      "binanceDuplicates": 36,
+      "binanceExactIdenticalDuplicateRows": 36,
+      "binanceConflictingDuplicateRows": 0,
+      "binanceCanonicalDuplicateRows": 0,
+      "binanceNonMonotonic": 0,
+      "binanceSourceOrderNonMonotonic": 0,
+      "binanceInvalidRows": 0,
+      "binanceMaxGap": 0,
       "okxRows": 324576,
       "okxCoverage": 1,
+      "okxTransportDuplicateRows": 516,
+      "okxExactIdenticalDuplicateRows": 516,
+      "okxConflictingDuplicateRows": 0,
+      "okxCanonicalDuplicateRows": 0,
+      "okxSourceOrderNonMonotonic": 325196,
+      "okxCanonicalNonMonotonic": 0,
+      "okxInvalidRows": 0,
+      "okxMaxGap": 0,
       "synchronizedRows": 324576,
       "synchronizedCoverage": 1,
-      "duplicates": 0,
-      "invalidRows": 0,
-      "maxContiguousMissingMinutes": 0,
-      "pass": true
-    },
-    "XRPUSDT": {
-      "binanceRows": 324576,
-      "binanceCoverage": 1,
-      "okxRows": 324576,
-      "okxCoverage": 1,
-      "synchronizedRows": 324576,
-      "synchronizedCoverage": 1,
-      "duplicates": 0,
-      "invalidRows": 0,
-      "maxContiguousMissingMinutes": 0,
+      "primaryCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutACoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutBCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "provenancePass": true,
       "pass": true
     },
     "DOGEUSDT": {
       "binanceRows": 324576,
       "binanceCoverage": 1,
+      "binanceDuplicates": 36,
+      "binanceExactIdenticalDuplicateRows": 36,
+      "binanceConflictingDuplicateRows": 0,
+      "binanceCanonicalDuplicateRows": 0,
+      "binanceNonMonotonic": 0,
+      "binanceSourceOrderNonMonotonic": 0,
+      "binanceInvalidRows": 0,
+      "binanceMaxGap": 0,
       "okxRows": 324576,
       "okxCoverage": 1,
+      "okxTransportDuplicateRows": 516,
+      "okxExactIdenticalDuplicateRows": 516,
+      "okxConflictingDuplicateRows": 0,
+      "okxCanonicalDuplicateRows": 0,
+      "okxSourceOrderNonMonotonic": 325196,
+      "okxCanonicalNonMonotonic": 0,
+      "okxInvalidRows": 0,
+      "okxMaxGap": 0,
       "synchronizedRows": 324576,
       "synchronizedCoverage": 1,
-      "duplicates": 0,
-      "invalidRows": 0,
-      "maxContiguousMissingMinutes": 0,
+      "primaryCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutACoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutBCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "provenancePass": true,
+      "pass": true
+    },
+    "SOLUSDT": {
+      "binanceRows": 324576,
+      "binanceCoverage": 1,
+      "binanceDuplicates": 36,
+      "binanceExactIdenticalDuplicateRows": 36,
+      "binanceConflictingDuplicateRows": 0,
+      "binanceCanonicalDuplicateRows": 0,
+      "binanceNonMonotonic": 0,
+      "binanceSourceOrderNonMonotonic": 0,
+      "binanceInvalidRows": 0,
+      "binanceMaxGap": 0,
+      "okxRows": 324576,
+      "okxCoverage": 1,
+      "okxTransportDuplicateRows": 516,
+      "okxExactIdenticalDuplicateRows": 516,
+      "okxConflictingDuplicateRows": 0,
+      "okxCanonicalDuplicateRows": 0,
+      "okxSourceOrderNonMonotonic": 325196,
+      "okxCanonicalNonMonotonic": 0,
+      "okxInvalidRows": 0,
+      "okxMaxGap": 0,
+      "synchronizedRows": 324576,
+      "synchronizedCoverage": 1,
+      "primaryCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutACoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutBCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "provenancePass": true,
+      "pass": true
+    },
+    "XRPUSDT": {
+      "binanceRows": 324576,
+      "binanceCoverage": 1,
+      "binanceDuplicates": 36,
+      "binanceExactIdenticalDuplicateRows": 36,
+      "binanceConflictingDuplicateRows": 0,
+      "binanceCanonicalDuplicateRows": 0,
+      "binanceNonMonotonic": 0,
+      "binanceSourceOrderNonMonotonic": 0,
+      "binanceInvalidRows": 0,
+      "binanceMaxGap": 0,
+      "okxRows": 324576,
+      "okxCoverage": 1,
+      "okxTransportDuplicateRows": 516,
+      "okxExactIdenticalDuplicateRows": 516,
+      "okxConflictingDuplicateRows": 0,
+      "okxCanonicalDuplicateRows": 0,
+      "okxSourceOrderNonMonotonic": 325196,
+      "okxCanonicalNonMonotonic": 0,
+      "okxInvalidRows": 0,
+      "okxMaxGap": 0,
+      "synchronizedRows": 324576,
+      "synchronizedCoverage": 1,
+      "primaryCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutACoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "holdoutBCoverage": {
+        "binance": 1,
+        "okx": 1
+      },
+      "provenancePass": true,
       "pass": true
     }
   },
   "allSymbolsPass": true,
   "classification": "V22_CROSS_VENUE_DATA_GATE_PASS",
   "researchStop": false,
+  "budgetBefore": 3,
   "budgetConsumed": 1,
-  "remainingBudget": 2,
+  "remainingResearchBudget": 2,
   "noPerformanceAnalysis": true
 }

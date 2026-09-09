@@ -13,6 +13,20 @@ import {
 
 const FINITE_POSITIVE = (value: number): boolean => Number.isFinite(value) && value > 0;
 
+export interface CandleAudit {
+  sourceOrderNonMonotonic: number;
+  canonicalNonMonotonic: number;
+  transportDuplicateRows: number;
+  exactIdenticalDuplicateRows: number;
+  conflictingDuplicateRows: number;
+  canonicalDuplicateRows: number;
+}
+
+export interface OkxParseResult {
+  candles: V22Candle[];
+  audit: CandleAudit;
+}
+
 export function expectedRows(startMs = V22_START_MS, endMs = V22_END_MS): number {
   if (endMs <= startMs || (endMs - startMs) % V22_INTERVAL_MS !== 0) {
     throw new Error("V22 period must be an exact 5m interval");
@@ -47,12 +61,65 @@ export function parseBinanceKlineCsv(text: string, symbol: V22Symbol): V22Candle
   return candles;
 }
 
+function sameCandle(left: V22Candle, right: V22Candle): boolean {
+  return (
+    left.venue === right.venue &&
+    left.instrument === right.instrument &&
+    left.symbol === right.symbol &&
+    left.openTimeUtc === right.openTimeUtc &&
+    left.open === right.open &&
+    left.high === right.high &&
+    left.low === right.low &&
+    left.close === right.close &&
+    left.volume === right.volume &&
+    left.closeTimeUtc === right.closeTimeUtc &&
+    left.closed === right.closed
+  );
+}
+
+function countSourceOrderNonMonotonic(rows: readonly V22Candle[]): number {
+  let count = 0;
+  for (let index = 1; index < rows.length; index += 1) {
+    if (rows[index]!.openTimeUtc < rows[index - 1]!.openTimeUtc) count += 1;
+  }
+  return count;
+}
+
+export function canonicalizeCandleRows(rows: readonly V22Candle[]): { candles: V22Candle[]; audit: CandleAudit } {
+  const byTimestamp = new Map<number, V22Candle>();
+  let transportDuplicateRows = 0;
+  let exactIdenticalDuplicateRows = 0;
+  let conflictingDuplicateRows = 0;
+  for (const row of rows) {
+    const prior = byTimestamp.get(row.openTimeUtc);
+    if (!prior) {
+      byTimestamp.set(row.openTimeUtc, row);
+      continue;
+    }
+    transportDuplicateRows += 1;
+    if (sameCandle(prior, row)) exactIdenticalDuplicateRows += 1;
+    else conflictingDuplicateRows += 1;
+  }
+  const candles = [...byTimestamp.values()].sort((left, right) => left.openTimeUtc - right.openTimeUtc);
+  return {
+    candles,
+    audit: {
+      sourceOrderNonMonotonic: countSourceOrderNonMonotonic(rows),
+      canonicalNonMonotonic: countSourceOrderNonMonotonic(candles),
+      transportDuplicateRows,
+      exactIdenticalDuplicateRows,
+      conflictingDuplicateRows,
+      canonicalDuplicateRows: 0,
+    },
+  };
+}
+
 export function parseOkxResponseBodies(
   bodies: readonly string[],
   symbol: V22Symbol,
-): V22Candle[] {
+): OkxParseResult {
   const instrument = V22_OKX_INSTRUMENTS[symbol];
-  const candlesByTimestamp = new Map<number, V22Candle>();
+  const rawCandles: V22Candle[] = [];
   for (const [bodyIndex, body] of bodies.entries()) {
     let parsed: { code?: string; data?: string[][]; msg?: string };
     try {
@@ -66,7 +133,7 @@ export function parseOkxResponseBodies(
     for (const row of parsed.data) {
       if (row.length < 9) throw new Error(`OKX response ${bodyIndex + 1} has malformed row`);
       const [openTime, open, high, low, close, volume, , , confirmed] = row;
-      const candle: V22Candle = {
+      rawCandles.push({
         venue: "OKX_USDT_SWAP",
         instrument,
         symbol,
@@ -78,17 +145,10 @@ export function parseOkxResponseBodies(
         volume: Number(volume),
         closeTimeUtc: Number(openTime) + V22_INTERVAL_MS - 1,
         closed: confirmed === "1",
-      };
-      const prior = candlesByTimestamp.get(candle.openTimeUtc);
-      if (prior) {
-        const same = prior.open === candle.open && prior.high === candle.high && prior.low === candle.low && prior.close === candle.close && prior.volume === candle.volume && prior.closed === candle.closed;
-        if (!same) throw new Error(`OKX conflicting duplicate timestamp ${candle.openTimeUtc}`);
-        continue;
-      }
-      candlesByTimestamp.set(candle.openTimeUtc, candle);
+      });
     }
   }
-  return [...candlesByTimestamp.values()];
+  return canonicalizeCandleRows(rawCandles);
 }
 
 export function validateCandle(candle: V22Candle): boolean {
@@ -116,9 +176,8 @@ function countMissingSlots(timestamps: readonly number[], startMs: number, endMs
   let currentRun = 0;
   let maxRun = 0;
   for (let timestamp = startMs; timestamp < endMs; timestamp += V22_INTERVAL_MS) {
-    if (present.has(timestamp)) {
-      currentRun = 0;
-    } else {
+    if (present.has(timestamp)) currentRun = 0;
+    else {
       missing += 1;
       currentRun += 1;
       maxRun = Math.max(maxRun, currentRun);
@@ -138,37 +197,46 @@ export function analyzeQuality(
   candles: readonly V22Candle[],
   startMs = V22_START_MS,
   endMs = V22_END_MS,
+  suppliedAudit?: CandleAudit,
 ): V22Quality {
-  const ordered = [...candles].sort((left, right) => left.openTimeUtc - right.openTimeUtc);
-  const inRange = candles.filter((candle) => candle.openTimeUtc >= startMs && candle.openTimeUtc < endMs);
+  const canonicalized = suppliedAudit ? { candles: [...candles], audit: suppliedAudit } : canonicalizeCandleRows(candles);
+  const canonical = canonicalized.candles;
+  const audit = canonicalized.audit;
+  const inRange = canonical.filter((candle) => candle.openTimeUtc >= startMs && candle.openTimeUtc < endMs);
   const timestamps = inRange.map((candle) => candle.openTimeUtc);
-  const uniqueTimestamps = [...new Set(timestamps)].sort((left, right) => left - right);
-  const missingStats = countMissingSlots(uniqueTimestamps, startMs, endMs);
-  let nonMonotonic = 0;
-  for (let index = 1; index < ordered.length; index += 1) {
-    if (ordered[index].openTimeUtc <= ordered[index - 1].openTimeUtc) nonMonotonic += 1;
-  }
+  const missingStats = countMissingSlots(timestamps, startMs, endMs);
   const expected = expectedRows(startMs, endMs);
   return {
     expected5mRows: expected,
-    actualRows: uniqueTimestamps.length,
-    coverageRatio: uniqueTimestamps.length / expected,
-    duplicates: timestamps.length - uniqueTimestamps.length,
-    nonMonotonic,
+    actualRows: new Set(timestamps).size,
+    coverageRatio: new Set(timestamps).size / expected,
+    duplicates: audit.transportDuplicateRows,
+    nonMonotonic: audit.canonicalNonMonotonic,
+    sourceOrderNonMonotonic: audit.sourceOrderNonMonotonic,
+    canonicalNonMonotonic: audit.canonicalNonMonotonic,
+    transportDuplicateRows: audit.transportDuplicateRows,
+    exactIdenticalDuplicateRows: audit.exactIdenticalDuplicateRows,
+    conflictingDuplicateRows: audit.conflictingDuplicateRows,
+    canonicalDuplicateRows: audit.canonicalDuplicateRows,
     invalidRows: inRange.filter((candle) => !validateCandle(candle)).length,
     missingRows: missingStats.missing,
     maxContiguousMissingMinutes: missingStats.maxRun * 5,
-    firstTimestamp: uniqueTimestamps.length ? new Date(uniqueTimestamps[0]).toISOString() : null,
-    lastTimestamp: uniqueTimestamps.length ? new Date(uniqueTimestamps.at(-1)!).toISOString() : null,
+    firstTimestamp: timestamps.length ? new Date(timestamps[0]!).toISOString() : null,
+    lastTimestamp: timestamps.length ? new Date(timestamps[timestamps.length - 1]!).toISOString() : null,
     primaryCoverage: coverageForPeriod(timestamps, Date.parse("2023-07-01T00:00:00Z"), Date.parse("2025-01-01T00:00:00Z")),
     holdoutACoverage: coverageForPeriod(timestamps, Date.parse("2025-01-01T00:00:00Z"), Date.parse("2026-01-01T00:00:00Z")),
     holdoutBCoverage: coverageForPeriod(timestamps, Date.parse("2026-01-01T00:00:00Z"), endMs),
   };
 }
 
-export function intersectTimestampSets(left: readonly V22Candle[], right: readonly V22Candle[]): number[] {
-  const rightTimestamps = new Set(right.map((candle) => candle.openTimeUtc));
-  return [...new Set(left.map((candle) => candle.openTimeUtc).filter((timestamp) => rightTimestamps.has(timestamp)))]
+export function intersectTimestampSets(
+  left: readonly V22Candle[],
+  right: readonly V22Candle[],
+  startMs = V22_START_MS,
+  endMs = V22_END_MS,
+): number[] {
+  const rightTimestamps = new Set(right.map((candle) => candle.openTimeUtc).filter((timestamp) => timestamp >= startMs && timestamp < endMs));
+  return [...new Set(left.map((candle) => candle.openTimeUtc).filter((timestamp) => timestamp >= startMs && timestamp < endMs && rightTimestamps.has(timestamp)))]
     .sort((a, b) => a - b);
 }
 
@@ -201,11 +269,13 @@ export function isV22Symbol(value: string): value is V22Symbol {
   return (V22_SYMBOLS as readonly string[]).includes(value);
 }
 
-export function passesHardGate(quality: V22Quality): boolean {
+export function passesHardGate(quality: V22Quality, allowExactIdenticalTransportOverlap = false): boolean {
   return (
     quality.coverageRatio >= 0.999 &&
-    quality.duplicates === 0 &&
-    quality.nonMonotonic === 0 &&
+    (allowExactIdenticalTransportOverlap || quality.duplicates === 0) &&
+    quality.conflictingDuplicateRows === 0 &&
+    quality.canonicalDuplicateRows === 0 &&
+    quality.canonicalNonMonotonic === 0 &&
     quality.invalidRows === 0 &&
     quality.maxContiguousMissingMinutes <= 15 &&
     (quality.synchronizedCoverageRatio ?? 0) >= 0.999

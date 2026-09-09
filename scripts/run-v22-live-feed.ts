@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
@@ -12,16 +12,38 @@ function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+async function publicRequest(url: string): Promise<{ status: number; bytes: Uint8Array }> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      if (process.platform === "win32") {
+        const marker = "\n__V22_HTTP_STATUS__:";
+        const result = await execFileAsync("curl.exe", ["--silent", "--show-error", "--tlsv1.2", "--max-time", "30", "--write-out", `${marker}%{http_code}`, url], { encoding: "buffer", maxBuffer: 5 * 1024 * 1024 });
+        const output = result.stdout as Buffer;
+        const markerBytes = Buffer.from(marker, "utf8");
+        const markerIndex = output.lastIndexOf(markerBytes);
+        if (markerIndex < 0) throw new Error("secure public response status unavailable");
+        const status = Number(output.subarray(markerIndex + markerBytes.byteLength).toString("utf8"));
+        if (!Number.isInteger(status)) throw new Error("secure public response status invalid");
+        return { status, bytes: output.subarray(0, markerIndex) };
+      }
+      const response = await fetch(url, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(30_000) });
+      return { status: response.status, bytes: new Uint8Array(await response.arrayBuffer()) };
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) await new Promise((resolveDelay) => setTimeout(resolveDelay, 500 * (attempt + 1)));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
 async function probe(url: string, venue: "BINANCE" | "OKX", symbol: V22Symbol) {
   const requestedAt = new Date().toISOString();
   try {
-    const { stdout } = await execFileAsync("curl.exe", ["-k", "-sS", "--max-time", "30", "-w", "\n__V22_HTTP_STATUS__%{http_code}", url], { maxBuffer: 5 * 1024 * 1024, encoding: "buffer" });
-    const output = new TextDecoder().decode(stdout as Buffer);
-    const marker = "\n__V22_HTTP_STATUS__";
-    const markerIndex = output.lastIndexOf(marker);
-    const body = markerIndex >= 0 ? output.slice(0, markerIndex) : output;
-    const status = markerIndex >= 0 ? Number(output.slice(markerIndex + marker.length)) : 0;
-    const bytes = new TextEncoder().encode(body);
+    const response = await publicRequest(url);
+    const bytes = response.bytes;
+    const body = new TextDecoder().decode(bytes);
+    const status = response.status;
     let parsed: unknown = null;
     try { parsed = JSON.parse(body); } catch { /* schema result records parse failure */ }
     const rows = venue === "OKX" && parsed && typeof parsed === "object" && "data" in parsed

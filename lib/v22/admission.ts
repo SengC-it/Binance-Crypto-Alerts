@@ -26,6 +26,14 @@ export interface V22AdmissionInput {
   informationSourceClass: string;
 }
 
+export function isFamilyInAuthoritativeRegistry(
+  family: string,
+  registryFamilies: readonly string[],
+): boolean {
+  const normalized = normalizeFamilyName(family);
+  return registryFamilies.some((entry) => normalizeFamilyName(entry) === normalized);
+}
+
 export function admitV22Family(input: V22AdmissionInput): { status: "PASS" | "FAIL"; reason: string } {
   const normalized = normalizeFamilyName(input.family);
   if (LEGACY_FAMILY_NAMES.has(normalized)) {

@@ -33,14 +33,16 @@
     "noInterpolation": true
   },
   "artifactSha256": {
-    "reports/v22-admission.json": "fb5910cd2260c9cbc57ac8fe1d5d26dcd224c042aee480f6075fcaaa3aadd1b5",
-    "reports/v22-data-inventory.json": "9bcdea1d8daaa18e79544a079025d8321732312dcbc29c6482ca23b1409c7b3a",
-    "reports/v22-data-gate.json": "d0e390f5f75e86f845504d399ba0cbd15d11e18990f36f7f3814628d9a1c452d",
-    "reports/v22-live-feed-feasibility.json": "a70926768d2e32f233a3e2c959b425c69fe81423750267469edbbdd295b43f63"
+    "reports/v22-admission.json": "8cf7a79b8e7e405388794df70afafd392e76d59a9e8c4e91c37e704b67bb33b2",
+    "reports/v22-data-inventory.json": "99697c294c2607120bd1353851892a097e3de82bfe3e2f44d34856ddb855f5a7",
+    "reports/v22-data-gate.json": "dccf354a7a7f190e787a6f6e6f50934615cec3edc42fb4754397ccf123582c0a",
+    "reports/v22-live-feed-feasibility.json": "161e7a062fe697068eebdc11e7be4d8cfaad0a34983826d86c2abcbd70f9c1f8",
+    "reports/v22-source-provenance.json": "93726498e3685be52e774d61e7f1267519c0caa691417f0200705048a21337de"
   },
   "r1AdmissionVerified": true,
   "familyBudgetConsumed": true,
   "remainingOrthogonalFamilyBudget": 2,
+  "remainingResearchBudget": 2,
   "signalDesigned": false,
   "eventDefinitionDesigned": false,
   "historicalStrategyOutcomeReturnsRead": false,

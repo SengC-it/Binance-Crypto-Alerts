@@ -46,6 +46,12 @@ export interface V22Quality {
   coverageRatio: number;
   duplicates: number;
   nonMonotonic: number;
+  sourceOrderNonMonotonic: number;
+  canonicalNonMonotonic: number;
+  transportDuplicateRows: number;
+  exactIdenticalDuplicateRows: number;
+  conflictingDuplicateRows: number;
+  canonicalDuplicateRows: number;
   invalidRows: number;
   missingRows: number;
   maxContiguousMissingMinutes: number;

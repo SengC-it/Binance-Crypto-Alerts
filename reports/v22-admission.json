@@ -21,6 +21,13 @@
     "dominantHistoricalFailure": "EXECUTION_FRICTION_DOMINATED",
     "requiredFutureDirection": "MAXIMIZE_INFORMATION_DENSITY_PER_ALERT",
     "legacyFamilyRetuningAllowed": false,
+    "authoritativeRegistry": {
+      "sourceCommit": "6c5c415023683b6d8905aae2444af28d1510d9b6",
+      "sourcePath": "reports/r1-exhausted-alpha-families.json",
+      "registrySha256": "a5cfac258336089d28acb7296052c77a672bf88bdd6b37b4da6e9090034a64cc",
+      "familyPresent": false,
+      "registryExactSetEquality": true
+    },
     "budgetBefore": 3,
     "familyBudgetConsumed": true,
     "remainingBudget": 2

@@ -15,7 +15,7 @@ jobs:
       - run: git fetch origin agent/shadow-entry-deployment --depth=1
       - run: git fetch origin research/r1-edge-attribution-audit --depth=1
       - if: ${{ github.head_ref != '' }}
-        run: git fetch origin "${{ github.head_ref }}" --depth=2
+        run: git fetch origin "${{ github.head_ref }}" --depth=3
       - uses: pnpm/action-setup@v4
         with:
           version: 11.16.0
