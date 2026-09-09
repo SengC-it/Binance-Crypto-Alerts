@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "r1-system-boundary-v1",
+  "program": "R1_CROSS_EXPERIMENT_EDGE_ATTRIBUTION_AUDIT",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "boundary": {
+    "productType": "SIGNAL_ALERT_HUMAN_DECISION_SUPPORT",
+    "profitObjective": "IMPROVE_SIGNAL_INFORMATION_EDGE_FOR_HUMAN_TRADING_DECISIONS",
+    "automaticTrading": false,
+    "orderPlacement": false,
+    "automaticEntry": false,
+    "automaticPositionSizing": false,
+    "automaticLeverage": false,
+    "automaticExit": false,
+    "automaticStopLossTakeProfit": false,
+    "humanDecisionRequiredFor": [
+      "OPEN_POSITION",
+      "POSITION_SIZE",
+      "LEVERAGE",
+      "EXIT_POSITION",
+      "EXIT_TIME"
+    ],
+    "productionEmailDefault": "OFF",
+    "signalOutputsMayInclude": [
+      "DIRECTION",
+      "CONFIDENCE",
+      "REASONS",
+      "MARKET_CONTEXT",
+      "REFERENCE_PRICE",
+      "SIGNAL_VALIDITY"
+    ]
+  }
+}
