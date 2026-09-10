@@ -1,0 +1,47 @@
+{
+  "schema": "v22-control-enumeration-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "controls": {
+    "OKX_SHOCK_MOMENTUM": {
+      "count": 13286,
+      "byPeriod": {
+        "PRIMARY_OOS": 6500,
+        "HOLDOUT_A": 4189,
+        "HOLDOUT_B": 2597
+      },
+      "identitySha256": "10dd5f8aed8c55f65dcb566fa1d25ccba8cf1e97dffdf897f64ceeadefaac629"
+    },
+    "BINANCE_SHOCK_MOMENTUM": {
+      "count": 13290,
+      "byPeriod": {
+        "PRIMARY_OOS": 6504,
+        "HOLDOUT_A": 4190,
+        "HOLDOUT_B": 2596
+      },
+      "identitySha256": "f00c150061abb22ecc0d13f1b2034602a8c25bc47b09276bfe796e7aba790b58"
+    },
+    "TIME_MATCHED_RANDOM": {
+      "count": 63,
+      "byPeriod": {
+        "PRIMARY_OOS": 48,
+        "HOLDOUT_A": 14,
+        "HOLDOUT_B": 1
+      },
+      "identitySha256": "0e010346a436d8227c4d14f2b9e32096126dde2bfa8f26575f3359d4020525a2",
+      "expectedCount": 63
+    }
+  },
+  "randomPlacebo": {
+    "seedHex": "0x22C0C0DE",
+    "seedDecimal": 583057630,
+    "prng": "xorshift32",
+    "candidateOrdering": "timestamp ascending",
+    "matchOrdering": "signalOpenTimeUtc ascending then fixed symbol order",
+    "matchingFailures": [],
+    "finalState": 1036138021
+  },
+  "noFuturePricesUsed": true,
+  "strategyOutcomeMappingRun": false,
+  "historicalStrategyOutcomeReturnsRead": false,
+  "forwardReturnsRead": false
+}

@@ -15,7 +15,16 @@
     "optimizer": "tsx scripts/run-optimizer.ts",
     "validate": "tsx scripts/run-validation.ts",
     "backtest": "tsx scripts/run-backtest.ts",
-    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts"
+    "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
+    "download:v22": "tsx scripts/download-v22-cross-venue-data.ts",
+    "run:v22-data-gate": "tsx scripts/run-v22-data-gate.ts",
+    "run:v22-live-feed": "tsx scripts/run-v22-live-feed.ts",
+    "build:v22-wp1": "tsx scripts/build-v22-wp1.ts",
+    "build:v22-wp2": "tsx scripts/build-v22-wp2.ts",
+    "validate:v22:wp1": "tsx scripts/validate-v22-wp1.ts",
+    "validate:v22:wp2": "tsx scripts/validate-v22-wp2.ts",
+    "run:v22:wp3a": "tsx scripts/run-v22-wp3a.ts",
+    "validate:v22:wp3a": "tsx scripts/validate-v22-wp3a.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

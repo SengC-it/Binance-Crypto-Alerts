@@ -1,0 +1,64 @@
+{
+  "schema": "v22-wp1-freeze-manifest-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "branch": "feat/v22-cross-venue-price-discovery",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "r1FinalGateCommit": "6c5c415023683b6d8905aae2444af28d1510d9b6",
+  "period": {
+    "start": "2023-07-01T00:00:00.000Z",
+    "endExclusive": "2026-08-01T00:00:00.000Z"
+  },
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT"
+  ],
+  "fixedMappings": {
+    "BTCUSDT": "BTC-USDT-SWAP",
+    "ETHUSDT": "ETH-USDT-SWAP",
+    "SOLUSDT": "SOL-USDT-SWAP",
+    "XRPUSDT": "XRP-USDT-SWAP",
+    "DOGEUSDT": "DOGE-USDT-SWAP"
+  },
+  "sourcePolicy": {
+    "binance": "official Binance Data Vision USD-M monthly 5m klines with CHECKSUM",
+    "okx": "official OKX public history-candles 5m API responses",
+    "publicOnly": true,
+    "noSyntheticRows": true,
+    "noResample": true,
+    "noForwardFill": true,
+    "noBackfill": true,
+    "noInterpolation": true
+  },
+  "artifactSha256": {
+    "reports/v22-admission.json": "8cf7a79b8e7e405388794df70afafd392e76d59a9e8c4e91c37e704b67bb33b2",
+    "reports/v22-data-inventory.json": "99697c294c2607120bd1353851892a097e3de82bfe3e2f44d34856ddb855f5a7",
+    "reports/v22-data-gate.json": "dccf354a7a7f190e787a6f6e6f50934615cec3edc42fb4754397ccf123582c0a",
+    "reports/v22-live-feed-feasibility.json": "161e7a062fe697068eebdc11e7be4d8cfaad0a34983826d86c2abcbd70f9c1f8",
+    "reports/v22-source-provenance.json": "93726498e3685be52e774d61e7f1267519c0caa691417f0200705048a21337de"
+  },
+  "r1AdmissionVerified": true,
+  "familyBudgetConsumed": true,
+  "remainingOrthogonalFamilyBudget": 2,
+  "remainingResearchBudget": 2,
+  "signalDesigned": false,
+  "eventDefinitionDesigned": false,
+  "historicalStrategyOutcomeReturnsRead": false,
+  "forwardReturnsRead": false,
+  "futureOutcomePricesRead": false,
+  "backtestRun": false,
+  "parameterSearch": false,
+  "promotionEvaluated": false,
+  "productionChanged": false,
+  "productionEmail": "OFF",
+  "deploy": false,
+  "merge": false,
+  "orderPlacement": false,
+  "autoTrading": false,
+  "dataGateClassification": "V22_CROSS_VENUE_DATA_GATE_PASS",
+  "researchStop": false,
+  "liveFeedFeasible": true,
+  "noProductionWrites": true
+}

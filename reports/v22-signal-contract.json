@@ -1,0 +1,195 @@
+{
+  "schema": "v22-signal-contract-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "targetVenue": "BINANCE_USDM_PERPETUAL",
+  "referenceVenue": "OKX_USDT_SWAP",
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT"
+  ],
+  "fixedMappings": {
+    "BTCUSDT": "BTC-USDT-SWAP",
+    "ETHUSDT": "ETH-USDT-SWAP",
+    "SOLUSDT": "SOL-USDT-SWAP",
+    "XRPUSDT": "XRP-USDT-SWAP",
+    "DOGEUSDT": "DOGE-USDT-SWAP"
+  },
+  "source": {
+    "input": "both venues CLOSED exact synchronized 5m candles only",
+    "synchronization": "exact openTime intersection; no nearest timestamp, resampling, forward fill, interpolation, or unclosed candles",
+    "signalOpenTime": "T",
+    "decisionTime": "T+5m after the signal candle closes"
+  },
+  "formulas": {
+    "binanceReturn": "rB_t = ln(BinanceClose_t / BinanceClose_t-1)",
+    "okxReturn": "rO_t = ln(OKXClose_t / OKXClose_t-1)",
+    "gap": "g_t = rO_t - rB_t",
+    "rollingWindow": {
+      "durationCalendarDays": 30,
+      "durationMs": 2592000000,
+      "range": "[t-30d,t)",
+      "exactPriorObservations": 8640,
+      "currentExcluded": true
+    },
+    "nearestRankQ99": {
+      "quantile": 0.99,
+      "sampleSize": 8640,
+      "rank": 8554,
+      "zeroBasedIndex": 8553,
+      "value": "nearest-rank(abs(g_j))"
+    },
+    "threshold": {
+      "empirical": "Q99(abs(g_j))",
+      "floorRoundTripBps": 24,
+      "floorLog": 0.0023971245997214934,
+      "formula": "max(Q99(abs(g_j)), ln(1+0.0024))",
+      "alternatives": []
+    },
+    "firstCross": {
+      "current": "abs(g_t) >= threshold",
+      "previous": "abs(g_t-1) < threshold",
+      "previousGapSource": "last observation of exact frozen [t-30d,t) PIT window",
+      "singleSourceOfTruth": true,
+      "previousThreshold": "same current-t threshold"
+    }
+  },
+  "primaryCandidate": {
+    "conditions": [
+      "abs(g_t) >= threshold",
+      "abs(g_t-1) < threshold",
+      "rO_t * rB_t >= 0",
+      "abs(rO_t) > abs(rB_t)",
+      "sign(g_t) == sign(rO_t)",
+      "g_t != 0",
+      "all values finite"
+    ],
+    "forbiddenFilters": [
+      "volume",
+      "funding",
+      "open interest",
+      "taker flow",
+      "regime",
+      "RSI",
+      "MACD",
+      "volatility optimization",
+      "symbol-specific thresholds",
+      "time-of-day"
+    ]
+  },
+  "direction": {
+    "positiveGap": "LONG BINANCE",
+    "negativeGap": "SHORT BINANCE",
+    "reversal": false
+  },
+  "execution": {
+    "entry": {
+      "candle": "next Binance 5m candle",
+      "timestamp": "T+5m",
+      "field": "open"
+    },
+    "primary": {
+      "exitCandleOpen": "T+15m",
+      "exitField": "close",
+      "outcomeBoundary": "T+20m",
+      "horizonMinutes": 15
+    },
+    "diagnostics": {
+      "fiveMinute": {
+        "exitCandleOpen": "T+5m",
+        "exitField": "close",
+        "outcomeBoundary": "T+10m"
+      },
+      "thirtyMinute": {
+        "exitCandleOpen": "T+30m",
+        "exitField": "close",
+        "outcomeBoundary": "T+35m"
+      }
+    },
+    "sameWindowExecution": false
+  },
+  "costs": {
+    "feeBpsPerSide": 4,
+    "slippageBpsPerSide": 2,
+    "baselineRoundTripBps": 12,
+    "stressBps": [
+      17,
+      22,
+      32
+    ]
+  },
+  "overlap": {
+    "primaryHorizonMinutes": 15,
+    "sameSymbol": "later candidate while accepted position is open => OVERLAP_EXCLUDED",
+    "differentSymbolsConcurrent": true,
+    "clusterId": "signalOpenTime"
+  },
+  "periods": {
+    "primaryOos": {
+      "start": "2023-07-01T00:00:00.000Z",
+      "endExclusive": "2025-01-01T00:00:00.000Z"
+    },
+    "holdoutA": {
+      "start": "2025-01-01T00:00:00.000Z",
+      "endExclusive": "2026-01-01T00:00:00.000Z"
+    },
+    "holdoutB": {
+      "start": "2026-01-01T00:00:00.000Z",
+      "endExclusive": "2026-08-01T00:00:00.000Z"
+    }
+  },
+  "controls": {
+    "A": {
+      "name": "OKX_SHOCK_MOMENTUM",
+      "source": "OKX rO",
+      "threshold": "max(Q99(abs(rO)), ln(1+0.0024))",
+      "firstCross": true,
+      "direction": "sign(rO)",
+      "overlap": "same symbol 15m non-overlap"
+    },
+    "B": {
+      "name": "BINANCE_SHOCK_MOMENTUM",
+      "source": "Binance rB",
+      "threshold": "max(Q99(abs(rB)), ln(1+0.0024))",
+      "firstCross": true,
+      "direction": "sign(rB)",
+      "overlap": "same symbol 15m non-overlap"
+    },
+    "C": {
+      "name": "TIME_MATCHED_RANDOM",
+      "seedHex": "0x22C0C0DE",
+      "seedDecimal": 583057630,
+      "matching": [
+        "same symbol",
+        "same YYYY-MM",
+        "same UTC hour",
+        "same direction"
+      ],
+      "noDuplicateTimestampSymbol": true,
+      "excludesV22Timestamp": true,
+      "obeysOverlap": true,
+      "generatedOnce": true
+    }
+  },
+  "wp3aSampleGate": {
+    "primaryEventsMinimum": 500,
+    "distinctSignalClustersMinimum": 250,
+    "perFixedSymbolMinimum": 50,
+    "failureClassification": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT",
+    "researchStop": true
+  },
+  "flags": {
+    "historicalStrategyOutcomeReturnsRead": false,
+    "forwardReturnsRead": false,
+    "futureOutcomePricesRead": false,
+    "eventEnumerationRun": false,
+    "backtestRun": false,
+    "parameterSearch": false,
+    "promotionEvaluated": false
+  },
+  "previousGapSource": "last observation of exact frozen [t-30d,t) PIT window",
+  "singleSourceOfTruth": true,
+  "firstCrossPreviousThreshold": "same current-t threshold"
+}

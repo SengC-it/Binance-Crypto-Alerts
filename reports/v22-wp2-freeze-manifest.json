@@ -1,0 +1,102 @@
+{
+  "schema": "v22-wp2-freeze-manifest-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "branch": "feat/v22-cross-venue-price-discovery",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "directParent": "9dd7705466a49c82bcfa7e4851747d92bb46bd63",
+  "wp1_1AcceptedCommit": "1a223849bd8790521c0c139552969b6bd2cc4b93",
+  "wp1_1ManifestSha256": "a3272cd83b0ed661587ea86723aa8e04b764749e49605566cede05721b7e290a",
+  "wp2OriginalCommit": "9dd7705466a49c82bcfa7e4851747d92bb46bd63",
+  "correctiveType": "FIRST_CROSS_INTEGRITY_ONLY",
+  "researchSemanticsChanged": false,
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT"
+  ],
+  "fixedMappings": {
+    "BTCUSDT": "BTC-USDT-SWAP",
+    "ETHUSDT": "ETH-USDT-SWAP",
+    "SOLUSDT": "SOL-USDT-SWAP",
+    "XRPUSDT": "XRP-USDT-SWAP",
+    "DOGEUSDT": "DOGE-USDT-SWAP"
+  },
+  "period": {
+    "start": "2023-07-01T00:00:00.000Z",
+    "endExclusive": "2026-08-01T00:00:00.000Z",
+    "interval": "5m",
+    "closedCandlesOnly": true
+  },
+  "signalContractSha256": "8516270caa1c7d7f9c929675adbe0a7463d2d6dc4816c7cc1c9dea7e1c70ae55",
+  "sourceFileSha256": {
+    "lib/v22/signal.ts": "775d160293494fcd115d417c0bc595da83b04ad538b7e9136e0f31f3fa0e0757",
+    "lib/v22/types.ts": "aee202a7fe064ec58c56f8416b0fc408a6ce0ed1f05b93e8261ae3c8ef989481",
+    "lib/v22/data.ts": "dd68e6f113400396ce4e02ef8fbe78cd506b150b72954e72b21c90c0e7a03235",
+    "tests/v22-signal.test.ts": "398c3e9bd8f2ff234505340409319cbca261f5af9a939611990b40914dd85f84",
+    "scripts/build-v22-wp2.ts": "50bfa64aa89c46ebe5f7a65024cf8e08d2491397cad544023629a4b57b8f5280",
+    "scripts/validate-v22-wp1.ts": "2027e374aca1d4c42106c3a09a997006cabf74e827d4a69449f5e69c3b0f4397"
+  },
+  "q99": {
+    "quantile": 0.99,
+    "sampleSize": 8640,
+    "rank": 8554,
+    "zeroBasedIndex": 8553
+  },
+  "informationDensityFloor": {
+    "roundTripBps": 24,
+    "minGapLog": 0.0023971245997214934
+  },
+  "execution": {
+    "signalDecisionAfterClose": true,
+    "entry": "next Binance 5m open",
+    "primaryExit": "Binance close at T+15m",
+    "primaryOutcomeBoundary": "T+20m",
+    "diagnostics": [
+      "5m",
+      "30m"
+    ]
+  },
+  "costs": {
+    "baselineRoundTripBps": 12,
+    "stressRoundTripBps": [
+      17,
+      22,
+      32
+    ]
+  },
+  "overlap": {
+    "sameSymbolPrimaryNonOverlap": true,
+    "differentSymbolsConcurrent": true,
+    "clusterId": "signalOpenTime"
+  },
+  "controls": {
+    "names": [
+      "OKX_SHOCK_MOMENTUM",
+      "BINANCE_SHOCK_MOMENTUM",
+      "TIME_MATCHED_RANDOM"
+    ],
+    "randomSeedHex": "0x22C0C0DE",
+    "randomSeedDecimal": 583057630
+  },
+  "wp3aSampleGate": {
+    "primaryEventsMinimum": 500,
+    "distinctSignalClustersMinimum": 250,
+    "perSymbolMinimum": 50,
+    "failureClassification": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT"
+  },
+  "historicalStrategyOutcomeReturnsRead": false,
+  "forwardReturnsRead": false,
+  "futureOutcomePricesRead": false,
+  "eventEnumerationRun": false,
+  "backtestRun": false,
+  "parameterSearch": false,
+  "promotionEvaluated": false,
+  "productionChanged": false,
+  "productionEmail": "OFF",
+  "deploy": false,
+  "merge": false,
+  "orderPlacement": false,
+  "autoTrading": false
+}
