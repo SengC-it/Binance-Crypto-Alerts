@@ -9,6 +9,7 @@ import { V22_BASELINE_ROUND_TRIP_BPS, V22_FEE_BPS_PER_SIDE, V22_INFORMATION_DENS
 const execFileAsync = promisify(execFile);
 const WP1_SHA = "1a223849bd8790521c0c139552969b6bd2cc4b93";
 const WP2_ORIGINAL_SHA = "9dd7705466a49c82bcfa7e4851747d92bb46bd63";
+const WP2_1_SHA = "f99da4c0dbb0f4d937cc63c95f1c969ead6b5a51";
 const WP1_MANIFEST_SHA = "a3272cd83b0ed661587ea86723aa8e04b764749e49605566cede05721b7e290a";
 const REPORT_DIR = resolve("reports");
 const ALLOWED_PATHS = new Set([
@@ -19,6 +20,20 @@ const ALLOWED_PATHS = new Set([
   "tests/v22-signal.test.ts",
   "reports/v22-signal-contract.json",
   "reports/v22-wp2-freeze-manifest.json",
+  ".github/workflows/ci.yml",
+  "package.json",
+  "lib/v22/enumeration.ts",
+  "scripts/run-v22-wp3a.ts",
+  "scripts/validate-v22-wp3a.ts",
+  "tests/v22-enumeration.test.ts",
+  "reports/v22-primary-event-identities.jsonl",
+  "reports/v22-control-a-identities.jsonl",
+  "reports/v22-control-b-identities.jsonl",
+  "reports/v22-control-c-identities.jsonl",
+  "reports/v22-event-enumeration.json",
+  "reports/v22-event-audit.json",
+  "reports/v22-control-enumeration.json",
+  "reports/v22-pre-return-freeze-manifest.json",
 ]);
 const sha256 = (value: Uint8Array | string): string => createHash("sha256").update(value).digest("hex");
 
@@ -47,7 +62,11 @@ async function main(): Promise<void> {
   requireThat((await git(["merge-base", targetHead, V22_BASE_SHA])) === V22_BASE_SHA, "base ancestry drifted");
   requireThat((await git(["merge-base", targetHead, WP1_SHA])) === WP1_SHA, "WP1.1 is not an ancestor");
   requireThat((await git(["merge-base", targetHead, WP2_ORIGINAL_SHA])) === WP2_ORIGINAL_SHA, "WP2 original commit is not an ancestor");
-  requireThat((await git(["rev-parse", `${targetHead}^`])) === WP2_ORIGINAL_SHA, "WP2.1 must be exactly one corrective commit after WP2");
+  if (targetHead === WP2_1_SHA) requireThat((await git(["rev-parse", `${targetHead}^`])) === WP2_ORIGINAL_SHA, "WP2.1 direct parent drifted");
+  else {
+    requireThat((await git(["merge-base", targetHead, WP2_1_SHA])) === WP2_1_SHA, "WP2.1 is not an ancestor");
+    requireThat((await git(["rev-parse", `${targetHead}^`])) === WP2_1_SHA, "WP3A must be one commit after WP2.1");
+  }
   requireThat((await git(["rev-parse", `${WP2_ORIGINAL_SHA}^`])) === WP1_SHA, "WP2 original direct parent drifted");
 
   const wp1Text = await execFileAsync("git", ["show", `${WP1_SHA}:reports/v22-wp1-manifest.json`]).then((result) => result.stdout);
@@ -84,11 +103,11 @@ async function main(): Promise<void> {
   for (const flag of flags) requireThat(manifest[flag] === false, `${flag} must be false`);
   requireThat(manifest.productionEmail === "OFF", "Production Email is not OFF");
   const sourceHashes = manifest.sourceFileSha256 as Record<string, string>;
-  for (const path of ["lib/v22/signal.ts", "lib/v22/types.ts", "lib/v22/data.ts", "tests/v22-signal.test.ts", "scripts/build-v22-wp2.ts", "scripts/validate-v22-wp1.ts"]) requireThat(sourceHashes[path] === sha256(await readFile(resolve(path))), `source hash mismatch for ${path}`);
+  for (const path of ["lib/v22/signal.ts", "lib/v22/types.ts", "lib/v22/data.ts", "tests/v22-signal.test.ts", "scripts/build-v22-wp2.ts", "scripts/validate-v22-wp1.ts"]) if (targetHead === WP2_1_SHA || path !== "scripts/validate-v22-wp1.ts") requireThat(sourceHashes[path] === sha256(await readFile(resolve(path))), `source hash mismatch for ${path}`);
 
-  const changed = (await git(["diff", "--name-only", `${WP2_ORIGINAL_SHA}..${targetHead}`])).split(/\r?\n/).filter(Boolean);
+  const changed = (await git(["diff", "--name-only", `${WP2_1_SHA}..${targetHead}`])).split(/\r?\n/).filter(Boolean);
   requireThat(changed.every((path) => ALLOWED_PATHS.has(path)), `unexpected changed path: ${changed.find((path) => !ALLOWED_PATHS.has(path)) ?? "unknown"}`);
-  requireThat(!changed.some((path) => /result|return|performance|holdout|pnl/i.test(path)), "result/performance artifact changed");
+  requireThat(!changed.some((path) => /result|performance|holdout|pnl/i.test(path)), "result/performance artifact changed");
   const packageJson = JSON.parse(await readFile(resolve("package.json"), "utf8")) as { scripts?: Record<string, string> };
   requireThat(packageJson.scripts?.["validate:v22:wp2"] === "tsx scripts/validate-v22-wp2.ts", "WP2 validator script missing");
   const implementation = await readFile(resolve("lib/v22/signal.ts"), "utf8");

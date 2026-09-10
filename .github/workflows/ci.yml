@@ -31,3 +31,4 @@ jobs:
       - run: pnpm validate:v5-5
       - run: pnpm validate:v22:wp1
       - run: pnpm validate:v22:wp2
+      - run: pnpm validate:v22:wp3a

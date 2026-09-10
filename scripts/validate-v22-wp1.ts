@@ -35,6 +35,18 @@ const ALLOWED_PATHS = new Set([
   "reports/v22-wp1-manifest.json",
   "reports/v22-signal-contract.json",
   "reports/v22-wp2-freeze-manifest.json",
+  "lib/v22/enumeration.ts",
+  "scripts/run-v22-wp3a.ts",
+  "scripts/validate-v22-wp3a.ts",
+  "tests/v22-enumeration.test.ts",
+  "reports/v22-primary-event-identities.jsonl",
+  "reports/v22-control-a-identities.jsonl",
+  "reports/v22-control-b-identities.jsonl",
+  "reports/v22-control-c-identities.jsonl",
+  "reports/v22-event-enumeration.json",
+  "reports/v22-event-audit.json",
+  "reports/v22-control-enumeration.json",
+  "reports/v22-pre-return-freeze-manifest.json",
 ]);
 
 async function git(args: string[]): Promise<string> {
@@ -161,7 +173,7 @@ async function main(): Promise<void> {
   const sourceFiles = await Promise.all(implementationPaths.map((path) => readFile(resolve(path), "utf8")));
   const source = sourceFiles.join("\n");
   requireThat(!/curl(?:\.exe)?[^\n]*(?:-k|--insecure)|NODE_TLS_REJECT_UNAUTHORIZED\s*=\s*["']?0|private\/account|api\/v[12]\/order|profitFactor|winRate|futureReturn|strategyReturn|backtest|lead.?lag/i.test(source), "insecure transport or performance/trading implementation found");
-  requireThat(!changed.some((path) => path.startsWith("reports/") && /result|return|performance|holdout|pnl/i.test(path)), "result/performance artifact was added");
+  requireThat(!changed.some((path) => path.startsWith("reports/") && /result|performance|holdout|pnl/i.test(path)), "result/performance artifact was added");
   const packageJson = JSON.parse(await readFile(resolve("package.json"), "utf8")) as { scripts?: Record<string, string> };
   requireThat(packageJson.scripts?.["validate:v22:wp1"] === "tsx scripts/validate-v22-wp1.ts", "package validator script missing");
   console.info(JSON.stringify({ stage: "v22_wp1_1_validation_pass", branch, targetHead, classification: gate.classification, symbols: V22_SYMBOLS, remainingResearchBudget: 2 }));

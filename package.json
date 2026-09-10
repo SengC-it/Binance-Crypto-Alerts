@@ -22,7 +22,9 @@
     "build:v22-wp1": "tsx scripts/build-v22-wp1.ts",
     "build:v22-wp2": "tsx scripts/build-v22-wp2.ts",
     "validate:v22:wp1": "tsx scripts/validate-v22-wp1.ts",
-    "validate:v22:wp2": "tsx scripts/validate-v22-wp2.ts"
+    "validate:v22:wp2": "tsx scripts/validate-v22-wp2.ts",
+    "run:v22:wp3a": "tsx scripts/run-v22-wp3a.ts",
+    "validate:v22:wp3a": "tsx scripts/validate-v22-wp3a.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

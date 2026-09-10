@@ -1,0 +1,88 @@
+{
+  "schema": "v22-event-enumeration-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "period": {
+    "start": "2023-07-01T00:00:00.000Z",
+    "endExclusive": "2026-08-01T00:00:00.000Z",
+    "signalTimestampField": "signalOpenTimeUtc"
+  },
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT"
+  ],
+  "primary": {
+    "all": 63,
+    "byPeriod": {
+      "PRIMARY_OOS": 48,
+      "HOLDOUT_A": 14,
+      "HOLDOUT_B": 1
+    },
+    "distinctClustersAll": 44,
+    "bySymbol": {
+      "BTCUSDT": 5,
+      "ETHUSDT": 11,
+      "SOLUSDT": 13,
+      "XRPUSDT": 13,
+      "DOGEUSDT": 21
+    },
+    "byDirection": {
+      "LONG": 18,
+      "SHORT": 45
+    },
+    "byYear": {
+      "2023": 17,
+      "2024": 31,
+      "2025": 14,
+      "2026": 1
+    },
+    "rawSignalCandidates": 64
+  },
+  "sampleGate": {
+    "primaryOosAcceptedEvents": 48,
+    "primaryOosDistinctClusters": 32,
+    "primaryOosBySymbol": {
+      "BTCUSDT": 5,
+      "ETHUSDT": 6,
+      "SOLUSDT": 11,
+      "XRPUSDT": 9,
+      "DOGEUSDT": 17
+    },
+    "minimumAcceptedEvents": 500,
+    "minimumDistinctClusters": 250,
+    "minimumPerFixedSymbol": 50,
+    "pass": false,
+    "classification": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT"
+  },
+  "identityFiles": {
+    "reports/v22-primary-event-identities.jsonl": "731afd490b4afbc66144ec696cb63dea2a0ac048df85a3d2c92a91283a4f7eef",
+    "reports/v22-control-a-identities.jsonl": "10dd5f8aed8c55f65dcb566fa1d25ccba8cf1e97dffdf897f64ceeadefaac629",
+    "reports/v22-control-b-identities.jsonl": "f00c150061abb22ecc0d13f1b2034602a8c25bc47b09276bfe796e7aba790b58",
+    "reports/v22-control-c-identities.jsonl": "0e010346a436d8227c4d14f2b9e32096126dde2bfa8f26575f3359d4020525a2"
+  },
+  "periodDigests": {
+    "PRIMARY_OOS": {
+      "primary": "8c2a6554161863680e4bb981810555f700b9a571e44faff0e500186f35a6b05b",
+      "count": 48
+    },
+    "HOLDOUT_A": {
+      "primary": "d1def179c15b636c3a8015de838d2fb22f8faad484709893356f5ce9e1503f9c",
+      "count": 14
+    },
+    "HOLDOUT_B": {
+      "primary": "b18fdbe12ae6eb3b1196517ec7cbd3ef1cb93eeb168096c62b925350bb9e6c4e",
+      "count": 1
+    }
+  },
+  "historicalFeaturePricesRead": true,
+  "eventEnumerationRun": true,
+  "strategyOutcomeMappingRun": false,
+  "executionOutcomePricesRead": false,
+  "historicalStrategyOutcomeReturnsRead": false,
+  "forwardReturnsRead": false,
+  "classification": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT",
+  "researchStop": true,
+  "noOutcomePriceFields": true
+}

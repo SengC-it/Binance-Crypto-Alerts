@@ -1,0 +1,162 @@
+{
+  "schema": "v22-pre-return-freeze-manifest-v1",
+  "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
+  "branch": "feat/v22-cross-venue-price-discovery",
+  "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "directParent": "f99da4c0dbb0f4d937cc63c95f1c969ead6b5a51",
+  "wp1_1AcceptedCommit": "1a223849bd8790521c0c139552969b6bd2cc4b93",
+  "wp1_1ManifestSha256": "a3272cd83b0ed661587ea86723aa8e04b764749e49605566cede05721b7e290a",
+  "wp2OriginalCommit": "9dd7705466a49c82bcfa7e4851747d92bb46bd63",
+  "wp2_1Commit": "f99da4c0dbb0f4d937cc63c95f1c969ead6b5a51",
+  "wp2SignalContractSha256": "8516270caa1c7d7f9c929675adbe0a7463d2d6dc4816c7cc1c9dea7e1c70ae55",
+  "wp2FreezeManifestSha256": "7ad52a6abb8ac3f3d43ee6a2d08a1e7ff40ce819e77efe0385303989c7d7917e",
+  "period": {
+    "start": "2023-07-01T00:00:00.000Z",
+    "endExclusive": "2026-08-01T00:00:00.000Z",
+    "interval": "5m",
+    "signalOpenTimeUtc": true,
+    "closedCandlesOnly": true
+  },
+  "fixedSymbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT"
+  ],
+  "rawDataPolicy": {
+    "source": "WP1.1 frozen official Binance USD-M and OKX USDT-SWAP 5m artifacts",
+    "noRedownload": true,
+    "noReplacement": true,
+    "noGapRepair": true,
+    "noForwardFill": true,
+    "provenanceAssertionsReexecuted": true
+  },
+  "sourceFileSha256": {
+    "lib/v22/enumeration.ts": "c2df68258eb65b335afd937b49b88aa7fcbde9131848290aecd459011bb76782",
+    "lib/v22/signal.ts": "775d160293494fcd115d417c0bc595da83b04ad538b7e9136e0f31f3fa0e0757",
+    "lib/v22/types.ts": "aee202a7fe064ec58c56f8416b0fc408a6ce0ed1f05b93e8261ae3c8ef989481",
+    "lib/v22/data.ts": "dd68e6f113400396ce4e02ef8fbe78cd506b150b72954e72b21c90c0e7a03235",
+    "lib/v22/provenance.ts": "c9bbbcf338d746bcaf373c0baec5a3539a2ed3a71ec92f7895b38d1a21aab7b4",
+    "scripts/run-v22-wp3a.ts": "9eb019e5299bab20896fa862c535d5da4918f97726a5e3c2db5866790944a7c8",
+    "tests/v22-enumeration.test.ts": "ae07f1e627f56e1dfd05f1084ba9e4f8127648685d76931658f76b729fbf25b6",
+    "scripts/validate-v22-wp3a.ts": "a0c4aafc4f004d0427c744d2a8f9a78b6418bc5a66a1d8fa2698d0bb2a3a9d0e"
+  },
+  "signalEvaluatorSha256": "775d160293494fcd115d417c0bc595da83b04ad538b7e9136e0f31f3fa0e0757",
+  "identityFileSha256": {
+    "reports/v22-primary-event-identities.jsonl": "731afd490b4afbc66144ec696cb63dea2a0ac048df85a3d2c92a91283a4f7eef",
+    "reports/v22-control-a-identities.jsonl": "10dd5f8aed8c55f65dcb566fa1d25ccba8cf1e97dffdf897f64ceeadefaac629",
+    "reports/v22-control-b-identities.jsonl": "f00c150061abb22ecc0d13f1b2034602a8c25bc47b09276bfe796e7aba790b58",
+    "reports/v22-control-c-identities.jsonl": "0e010346a436d8227c4d14f2b9e32096126dde2bfa8f26575f3359d4020525a2"
+  },
+  "periodDigests": {
+    "PRIMARY_OOS": {
+      "primary": {
+        "sha256": "8c2a6554161863680e4bb981810555f700b9a571e44faff0e500186f35a6b05b",
+        "count": 48
+      },
+      "controlA": {
+        "sha256": "205ff021f0e1393c69d84079706f8d5f0003618cb10674e2aaa86282e4724b27",
+        "count": 6500
+      },
+      "controlB": {
+        "sha256": "07770ce7870144cad2cb475a8469a1cc8915e91df44aa90dc561b1102147301b",
+        "count": 6504
+      },
+      "controlC": {
+        "sha256": "8167fefa8faafb3859fc09fab836d54f953fd27272a37bb85f848c91c835a577",
+        "count": 48
+      }
+    },
+    "HOLDOUT_A": {
+      "primary": {
+        "sha256": "d1def179c15b636c3a8015de838d2fb22f8faad484709893356f5ce9e1503f9c",
+        "count": 14
+      },
+      "controlA": {
+        "sha256": "6d45ddbba5c51cedd45dea2aaacaa76c41ebbccd526f57035d0d299ca13a5677",
+        "count": 4189
+      },
+      "controlB": {
+        "sha256": "0d8d06136375bf20439f21ea7575cc975e3b5f63a8956923033bca61f0ce2c0a",
+        "count": 4190
+      },
+      "controlC": {
+        "sha256": "4798bcce7e0498936225c181a22f38737720ef1f6f65e237ad5b03acef7bc647",
+        "count": 14
+      }
+    },
+    "HOLDOUT_B": {
+      "primary": {
+        "sha256": "b18fdbe12ae6eb3b1196517ec7cbd3ef1cb93eeb168096c62b925350bb9e6c4e",
+        "count": 1
+      },
+      "controlA": {
+        "sha256": "aab3979e027f935f26823c2305007fd2c010cd53ef1a40fde0770eae79c4e693",
+        "count": 2597
+      },
+      "controlB": {
+        "sha256": "0a984cd15397e08bf5cc4162812142028650a810943096807803ad9e436c38ba",
+        "count": 2596
+      },
+      "controlC": {
+        "sha256": "8411d37f5772186941455d003f45172e392518a9fed39bd819fd0ccd4d68bc49",
+        "count": 1
+      }
+    }
+  },
+  "reportSha256": {
+    "reports/v22-event-enumeration.json": "28bd785c5fedc70c9aed332be7fddb13c182c870deb9cecdcdc5b033071c3ead",
+    "reports/v22-event-audit.json": "739e5e256fa1bc46124382abb71f34c2d876ef0f4f1450406d008ab7bafa10bc",
+    "reports/v22-control-enumeration.json": "570702eabd7b63cae4c5559d089cbf1ad4153bb0595dc557f6be73052981d143"
+  },
+  "primaryEnumeration": {
+    "acceptedAll": 63,
+    "acceptedPrimaryOos": 48,
+    "distinctClustersAll": 44,
+    "sampleGate": {
+      "primaryOosAcceptedEvents": 48,
+      "primaryOosDistinctClusters": 32,
+      "primaryOosBySymbol": {
+        "BTCUSDT": 5,
+        "ETHUSDT": 6,
+        "SOLUSDT": 11,
+        "XRPUSDT": 9,
+        "DOGEUSDT": 17
+      },
+      "minimumAcceptedEvents": 500,
+      "minimumDistinctClusters": 250,
+      "minimumPerFixedSymbol": 50,
+      "pass": false
+    }
+  },
+  "controlC": {
+    "seedHex": "0x22C0C0DE",
+    "seedDecimal": 583057630,
+    "prng": "xorshift32",
+    "generatedOnce": true,
+    "matchingFailures": 0
+  },
+  "classification": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT",
+  "researchStop": true,
+  "remainingResearchBudget": 2,
+  "historicalFeaturePricesRead": true,
+  "eventEnumerationRun": true,
+  "primaryIdentitiesFrozen": true,
+  "controlAIdentitiesFrozen": true,
+  "controlBIdentitiesFrozen": true,
+  "controlCIdentitiesFrozen": true,
+  "executionOutcomePricesRead": false,
+  "historicalStrategyOutcomeReturnsRead": false,
+  "forwardReturnsRead": false,
+  "strategyOutcomeMappingRun": false,
+  "backtestRun": false,
+  "parameterSearch": false,
+  "promotionEvaluated": false,
+  "productionChanged": false,
+  "productionEmail": "OFF",
+  "deploy": false,
+  "merge": false,
+  "orderPlacement": false,
+  "autoTrading": false
+}
