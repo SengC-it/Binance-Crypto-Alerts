@@ -47,6 +47,13 @@
       "floorLog": 0.0023971245997214934,
       "formula": "max(Q99(abs(g_j)), ln(1+0.0024))",
       "alternatives": []
+    },
+    "firstCross": {
+      "current": "abs(g_t) >= threshold",
+      "previous": "abs(g_t-1) < threshold",
+      "previousGapSource": "last observation of exact frozen [t-30d,t) PIT window",
+      "singleSourceOfTruth": true,
+      "previousThreshold": "same current-t threshold"
     }
   },
   "primaryCandidate": {
@@ -181,5 +188,8 @@
     "backtestRun": false,
     "parameterSearch": false,
     "promotionEvaluated": false
-  }
+  },
+  "previousGapSource": "last observation of exact frozen [t-30d,t) PIT window",
+  "singleSourceOfTruth": true,
+  "firstCrossPreviousThreshold": "same current-t threshold"
 }

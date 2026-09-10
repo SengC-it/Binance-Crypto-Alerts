@@ -41,7 +41,6 @@ function eligibleInput(overrides: Partial<Parameters<typeof evaluateV22PrimarySi
     signalCloseTimeUtc: T + V22_INTERVAL_MS,
     binanceReturn: 0.0002,
     okxReturn: 0.003,
-    previousGap: 0,
     priorObservations: priorWindow(),
     ...overrides,
   };
@@ -83,6 +82,28 @@ describe("V22 frozen cross-venue signal contract", () => {
     expect(evaluateV22PrimarySignal(eligibleInput({ okxReturn: -0.003, binanceReturn: -0.0002 })).eligible).toBe(true);
     expect(evaluateV22PrimarySignal(eligibleInput({ okxReturn: 0.0002, binanceReturn: 0.003 })).eligible).toBe(false);
     expect(evaluateV22PrimarySignal(eligibleInput({ okxReturn: 0.003, binanceReturn: -0.0002 })).eligible).toBe(false);
+  });
+
+  it("uses only the final frozen prior observation for first-cross", () => {
+    const noCross = priorWindow();
+    noCross[noCross.length - 1] = { ...noCross[noCross.length - 1]!, gap: 0.003 };
+    expect(evaluateV22PrimarySignal(eligibleInput({ priorObservations: noCross }))).toEqual({ eligible: false, reason: "NOT_FIRST_CROSS" });
+
+    const genuineCross = priorWindow();
+    expect(genuineCross[genuineCross.length - 1]!.gap).toBe(0);
+    expect(evaluateV22PrimarySignal(eligibleInput({ priorObservations: genuineCross }))).toMatchObject({ eligible: true });
+
+    const boundary = priorWindow(undefined, V22_MIN_GAP_LOG);
+    expect(evaluateV22PrimarySignal(eligibleInput({ priorObservations: boundary }))).toEqual({ eligible: false, reason: "NOT_FIRST_CROSS" });
+  });
+
+  it("keeps t-1 inside the threshold window while excluding the current bar", () => {
+    const observations = priorWindow();
+    for (let index = 0; index < observations.length - 1; index += 1) observations[index] = { ...observations[index]!, gap: 0.003 };
+    expect(observations[observations.length - 1]!.openTimeUtc).toBe(T - V22_INTERVAL_MS);
+    expect(rollingGapThreshold(observations.map((observation) => observation.gap))).toBe(0.003);
+    expect(evaluateV22PrimarySignal(eligibleInput({ priorObservations: observations, okxReturn: 0.006 }))).toMatchObject({ eligible: true });
+    expect(observations.some((observation) => observation.openTimeUtc === T)).toBe(false);
   });
 
   it("rejects missing synchronized slots and nonfinite observations", () => {

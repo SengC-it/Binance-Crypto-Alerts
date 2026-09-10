@@ -3,9 +3,12 @@
   "experimentId": "V22_CROSS_VENUE_PRICE_DISCOVERY",
   "branch": "feat/v22-cross-venue-price-discovery",
   "baseSha": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
-  "directParent": "1a223849bd8790521c0c139552969b6bd2cc4b93",
+  "directParent": "9dd7705466a49c82bcfa7e4851747d92bb46bd63",
   "wp1_1AcceptedCommit": "1a223849bd8790521c0c139552969b6bd2cc4b93",
   "wp1_1ManifestSha256": "a3272cd83b0ed661587ea86723aa8e04b764749e49605566cede05721b7e290a",
+  "wp2OriginalCommit": "9dd7705466a49c82bcfa7e4851747d92bb46bd63",
+  "correctiveType": "FIRST_CROSS_INTEGRITY_ONLY",
+  "researchSemanticsChanged": false,
   "fixedSymbols": [
     "BTCUSDT",
     "ETHUSDT",
@@ -26,13 +29,13 @@
     "interval": "5m",
     "closedCandlesOnly": true
   },
-  "signalContractSha256": "06fe928d0036897d5467e9b7688392f1acfd2a9c1f45da3634947846b11259e1",
+  "signalContractSha256": "8516270caa1c7d7f9c929675adbe0a7463d2d6dc4816c7cc1c9dea7e1c70ae55",
   "sourceFileSha256": {
-    "lib/v22/signal.ts": "e646bbb0a01f236b2d4ca481015602a40813fa95806193103e72b3032d114ee0",
+    "lib/v22/signal.ts": "775d160293494fcd115d417c0bc595da83b04ad538b7e9136e0f31f3fa0e0757",
     "lib/v22/types.ts": "aee202a7fe064ec58c56f8416b0fc408a6ce0ed1f05b93e8261ae3c8ef989481",
     "lib/v22/data.ts": "dd68e6f113400396ce4e02ef8fbe78cd506b150b72954e72b21c90c0e7a03235",
-    "tests/v22-signal.test.ts": "d67bd7aed9ea9bde12ec15ee8bef06fa1b7f636dc06cfbf732ba23bc26b68a74",
-    "scripts/build-v22-wp2.ts": "39314d4411c776c896aceaf99b65d16517c39cc02aafcd73681694238b74e4c9",
+    "tests/v22-signal.test.ts": "398c3e9bd8f2ff234505340409319cbca261f5af9a939611990b40914dd85f84",
+    "scripts/build-v22-wp2.ts": "50bfa64aa89c46ebe5f7a65024cf8e08d2491397cad544023629a4b57b8f5280",
     "scripts/validate-v22-wp1.ts": "2027e374aca1d4c42106c3a09a997006cabf74e827d4a69449f5e69c3b0f4397"
   },
   "q99": {

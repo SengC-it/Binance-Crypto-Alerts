@@ -63,7 +63,6 @@ export interface V22SignalEvaluationInput {
   signalCloseTimeUtc: number;
   binanceReturn: number;
   okxReturn: number;
-  previousGap: number;
   priorObservations: readonly V22SynchronizedObservation[];
 }
 
@@ -194,14 +193,15 @@ export function evaluateV22PrimarySignal(input: V22SignalEvaluationInput): V22Si
   if (input.signalCloseTimeUtc !== input.signalOpenTimeUtc + V22_INTERVAL_MS) return { eligible: false, reason: "INVALID_SIGNAL_TIMING" };
   const windowError = exactPriorWindow(input.signalOpenTimeUtc, input.priorObservations);
   if (windowError) return { eligible: false, reason: windowError };
-  if (![input.binanceReturn, input.okxReturn, input.previousGap].every((value) => Number.isFinite(value))) return { eligible: false, reason: "NONFINITE_SIGNAL" };
+  if (![input.binanceReturn, input.okxReturn].every((value) => Number.isFinite(value))) return { eligible: false, reason: "NONFINITE_SIGNAL" };
   const threshold = rollingGapThreshold(input.priorObservations.map((observation) => observation.gap));
   if (threshold === null) return { eligible: false, reason: "NONFINITE_OBSERVATION" };
   const gap = crossVenueGap(input.okxReturn, input.binanceReturn);
+  const previousGap = input.priorObservations[V22_ROLLING_OBSERVATIONS - 1]!.gap;
   const direction = directionFromGap(gap);
   if (!direction) return { eligible: false, reason: "ZERO_GAP" };
   if (Math.abs(gap) < threshold) return { eligible: false, reason: "BELOW_THRESHOLD" };
-  if (!firstCross(gap, input.previousGap, threshold)) return { eligible: false, reason: "NOT_FIRST_CROSS" };
+  if (!firstCross(gap, previousGap, threshold)) return { eligible: false, reason: "NOT_FIRST_CROSS" };
   if (input.okxReturn * input.binanceReturn < 0) return { eligible: false, reason: "VENUE_DIRECTION_MISMATCH" };
   if (!referenceDominance(input.okxReturn, input.binanceReturn)) return { eligible: false, reason: "OKX_NOT_DOMINANT" };
   return {

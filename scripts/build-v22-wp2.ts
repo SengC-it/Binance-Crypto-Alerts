@@ -17,6 +17,7 @@ import {
 import { V22_BASE_SHA, V22_BRANCH, V22_END_MS, V22_EXPERIMENT_ID, V22_OKX_INSTRUMENTS, V22_START_MS, V22_SYMBOLS } from "@/lib/v22/types";
 
 const WP1_SHA = "1a223849bd8790521c0c139552969b6bd2cc4b93";
+const WP2_ORIGINAL_SHA = "9dd7705466a49c82bcfa7e4851747d92bb46bd63";
 const WP1_MANIFEST_SHA = "a3272cd83b0ed661587ea86723aa8e04b764749e49605566cede05721b7e290a";
 const REPORT_DIR = resolve("reports");
 const sha256 = (value: Uint8Array | string): string => createHash("sha256").update(value).digest("hex");
@@ -47,6 +48,7 @@ async function main(): Promise<void> {
       rollingWindow: { durationCalendarDays: 30, durationMs: V22_WINDOW_MS, range: "[t-30d,t)", exactPriorObservations: V22_ROLLING_OBSERVATIONS, currentExcluded: true },
       nearestRankQ99: { quantile: V22_Q99_QUANTILE, sampleSize: V22_ROLLING_OBSERVATIONS, rank: V22_Q99_RANK, zeroBasedIndex: V22_Q99_INDEX, value: "nearest-rank(abs(g_j))" },
       threshold: { empirical: "Q99(abs(g_j))", floorRoundTripBps: V22_INFORMATION_DENSITY_FLOOR_BPS, floorLog: V22_MIN_GAP_LOG, formula: "max(Q99(abs(g_j)), ln(1+0.0024))", alternatives: [] },
+      firstCross: { current: "abs(g_t) >= threshold", previous: "abs(g_t-1) < threshold", previousGapSource: "last observation of exact frozen [t-30d,t) PIT window", singleSourceOfTruth: true, previousThreshold: "same current-t threshold" },
     },
     primaryCandidate: {
       conditions: [
@@ -81,6 +83,9 @@ async function main(): Promise<void> {
     },
     wp3aSampleGate: { primaryEventsMinimum: 500, distinctSignalClustersMinimum: 250, perFixedSymbolMinimum: 50, failureClassification: "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT", researchStop: true },
     flags: { historicalStrategyOutcomeReturnsRead: false, forwardReturnsRead: false, futureOutcomePricesRead: false, eventEnumerationRun: false, backtestRun: false, parameterSearch: false, promotionEvaluated: false },
+    previousGapSource: "last observation of exact frozen [t-30d,t) PIT window",
+    singleSourceOfTruth: true,
+    firstCrossPreviousThreshold: "same current-t threshold",
   };
   const contractBody = json(contract);
   await writeFile(resolve(REPORT_DIR, "v22-signal-contract.json"), contractBody, "utf8");
@@ -99,9 +104,12 @@ async function main(): Promise<void> {
     experimentId: V22_EXPERIMENT_ID,
     branch: V22_BRANCH,
     baseSha: V22_BASE_SHA,
-    directParent: WP1_SHA,
+    directParent: WP2_ORIGINAL_SHA,
     wp1_1AcceptedCommit: WP1_SHA,
     wp1_1ManifestSha256: WP1_MANIFEST_SHA,
+    wp2OriginalCommit: WP2_ORIGINAL_SHA,
+    correctiveType: "FIRST_CROSS_INTEGRITY_ONLY",
+    researchSemanticsChanged: false,
     fixedSymbols: [...V22_SYMBOLS],
     fixedMappings: V22_OKX_INSTRUMENTS,
     period: { start: new Date(V22_START_MS).toISOString(), endExclusive: new Date(V22_END_MS).toISOString(), interval: "5m", closedCandlesOnly: true },
