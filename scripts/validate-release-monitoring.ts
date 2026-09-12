@@ -13,6 +13,7 @@ const EXPECTED_STOP_STATUS = "STOP_NEW_ALPHA_RESEARCH";
 const repoRoot = process.cwd();
 
 const allowedReleaseFiles = new Set([
+  ".github/workflows/ci.yml",
   "app/api/health/route.ts",
   "app/api/scan/route.ts",
   "app/globals.css",
