@@ -1,0 +1,39 @@
+{
+  "schema": "v24-feature-feasibility-v1",
+  "experimentId": "V24_ORDER_BOOK_LIQUIDITY_WITHDRAWAL",
+  "contemporaneousOnly": true,
+  "noThresholds": true,
+  "noFutureData": true,
+  "fields": [
+    "bidDepth1Pct",
+    "askDepth1Pct",
+    "bidNotional1Pct",
+    "askNotional1Pct",
+    "totalDepth1Pct",
+    "depthImbalance1Pct"
+  ],
+  "bySymbol": {
+    "BTCUSDT": {
+      "bidDepth1Pct": 4402.656,
+      "askDepth1Pct": 4529.408,
+      "bidNotional1Pct": 72419745.1751,
+      "askNotional1Pct": 75234934.9279,
+      "totalDepth1Pct": 147654680.103,
+      "depthImbalance1Pct": -0.01906603807502885,
+      "finite": true,
+      "deterministic": true,
+      "pitAvailable": true
+    },
+    "ETHUSDT": {
+      "bidDepth1Pct": 51985.601,
+      "askDepth1Pct": 32118.69,
+      "bidNotional1Pct": 61863114.69317,
+      "askNotional1Pct": 38602873.66601,
+      "totalDepth1Pct": 100465988.35918,
+      "depthImbalance1Pct": 0.23152353753791163,
+      "finite": true,
+      "deterministic": true,
+      "pitAvailable": true
+    }
+  }
+}

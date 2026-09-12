@@ -17,3 +17,4 @@ reports/
 
 .vercel
 .env*
+data/raw/v24/
