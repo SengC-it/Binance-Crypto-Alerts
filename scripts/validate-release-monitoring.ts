@@ -6,6 +6,7 @@ const EXPECTED_BRANCH = "release/monitoring-only-v1";
 const RELEASE_BASE = "7b9e5d82f471ee3c9fec07e00101263c8d84e953";
 const R1_COMMIT = "6c5c415023683b6d8905aae2444af28d1510d9b6";
 const V22_COMMIT = "160cf38780dfd14ed8e6119bcb6c6841fad6fd93";
+const V22_TERMINAL_FILE = "reports/v22-pre-return-freeze-manifest.json";
 const V23_COMMIT = "c6e9f008b308317f777ff4685575b32673306f15";
 const V24_COMMIT = "44442c1b20b90536295d0b1be56d215dc4aba72d";
 const EXPECTED_STOP_STATUS = "STOP_NEW_ALPHA_RESEARCH";
@@ -74,9 +75,19 @@ function main(): void {
   const r1StopRule = r1.programStopRule as Record<string, unknown> | undefined;
   assertEqual(r1StopRule?.alphaResearchProgramStatus, EXPECTED_STOP_STATUS, "R1 stop status");
 
-  const v22 = readJsonAt(V22_COMMIT, "reports/v22-wp2-freeze-manifest.json");
-  const v22Gate = v22.wp3aSampleGate as Record<string, unknown> | undefined;
-  assertEqual(v22Gate?.failureClassification, "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT", "V22 terminal classification");
+  const v22 = readJsonAt(V22_COMMIT, V22_TERMINAL_FILE);
+  assertEqual(v22.experimentId, "V22_CROSS_VENUE_PRICE_DISCOVERY", "V22 experiment identity");
+  const v22Enumeration = v22.primaryEnumeration as Record<string, unknown> | undefined;
+  assertEqual(v22Enumeration?.acceptedPrimaryOos, 48, "V22 accepted primary OOS events");
+  const v22SampleGate = v22Enumeration?.sampleGate as Record<string, unknown> | undefined;
+  assertEqual(v22SampleGate?.primaryOosDistinctClusters, 32, "V22 primary OOS clusters");
+  assertEqual(v22SampleGate?.pass, false, "V22 sample gate");
+  assertEqual(v22.classification, "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT", "V22 terminal classification");
+  assertEqual(v22.researchStop, true, "V22 research stop");
+  assertEqual(v22.historicalStrategyOutcomeReturnsRead, false, "V22 historical outcome returns read");
+  assertEqual(v22.executionOutcomePricesRead, false, "V22 execution outcome prices read");
+  assertEqual(v22.backtestRun, false, "V22 backtest run");
+  assertEqual(v22.promotionEvaluated, false, "V22 promotion evaluated");
 
   const v23 = readJsonAt(V23_COMMIT, "reports/v23-data-gate.json");
   assertEqual(v23.classification, "V23_TERM_STRUCTURE_DATA_INSUFFICIENT", "V23 terminal classification");
@@ -87,6 +98,17 @@ function main(): void {
   assertEqual(v24.alphaResearchProgramStatus, EXPECTED_STOP_STATUS, "V24 stop status");
 
   const manifest = JSON.parse(readRepoFile("reports/monitoring-only-release.json")) as Record<string, unknown>;
+  const terminalResearchEvidence = manifest.terminalResearchEvidence as Record<string, unknown> | undefined;
+  const v22Evidence = terminalResearchEvidence?.v22 as Record<string, unknown> | undefined;
+  assertEqual(v22Evidence?.commit, V22_COMMIT, "release V22 evidence commit");
+  assertEqual(v22Evidence?.source, V22_TERMINAL_FILE, "release V22 evidence source");
+  assertEqual(v22Evidence?.status, "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT", "release V22 evidence status");
+  const v23Evidence = terminalResearchEvidence?.v23 as Record<string, unknown> | undefined;
+  assertEqual(v23Evidence?.source, "reports/v23-data-gate.json", "release V23 evidence source");
+  assertEqual(v23Evidence?.status, "V23_TERM_STRUCTURE_DATA_INSUFFICIENT", "release V23 evidence status");
+  const v24Evidence = terminalResearchEvidence?.v24 as Record<string, unknown> | undefined;
+  assertEqual(v24Evidence?.source, "reports/v24-data-gate.json", "release V24 evidence source");
+  assertEqual(v24Evidence?.status, "V24_LIQUIDITY_DATA_QUALITY_FAIL", "release V24 evidence status");
   assertEqual(manifest.releaseMode, "MONITORING_ONLY", "release mode");
   assertEqual(manifest.releaseBaseCommit, RELEASE_BASE, "manifest release base");
   assertEqual(manifest.alphaResearchProgramStatus, EXPECTED_STOP_STATUS, "manifest research status");

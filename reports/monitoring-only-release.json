@@ -10,7 +10,7 @@
     },
     "v22": {
       "commit": "160cf38780dfd14ed8e6119bcb6c6841fad6fd93",
-      "source": "reports/v22-wp2-freeze-manifest.json",
+      "source": "reports/v22-pre-return-freeze-manifest.json",
       "status": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT"
     },
     "v23": {
