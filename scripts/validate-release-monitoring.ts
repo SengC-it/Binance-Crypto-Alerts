@@ -51,9 +51,13 @@ function main(): void {
   assertEqual(git(["branch", "--show-current"]), EXPECTED_BRANCH, "release branch");
 
   const head = git(["rev-parse", "HEAD"]);
-  const parents = git(["rev-list", "--parents", "-n", "1", "HEAD"]).split(/\s+/).slice(1);
-  assertEqual(parents.length, 1, "release commit parent count");
-  assertEqual(parents[0], RELEASE_BASE, "release commit direct parent");
+  const releaseCommits = git(["rev-list", "--reverse", "--ancestry-path", `${RELEASE_BASE}..${head}`])
+    .split(/\r?\n/)
+    .filter(Boolean);
+  assertCondition(releaseCommits.length > 0, "release branch must contain a release commit");
+  const firstReleaseParents = git(["rev-list", "--parents", "-n", "1", releaseCommits[0]]).split(/\s+/).slice(1);
+  assertEqual(firstReleaseParents.length, 1, "first release commit parent count");
+  assertEqual(firstReleaseParents[0], RELEASE_BASE, "first release commit direct parent");
   assertEqual(git(["status", "--porcelain"]), "", "release worktree status");
 
   const changedFiles = git(["diff", "--name-only", `${RELEASE_BASE}..${head}`])
