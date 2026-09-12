@@ -48,7 +48,8 @@ function assertEqual(actual: unknown, expected: unknown, label: string): void {
 }
 
 function main(): void {
-  assertEqual(git(["branch", "--show-current"]), EXPECTED_BRANCH, "release branch");
+  const branch = process.env.GITHUB_HEAD_REF || git(["branch", "--show-current"]);
+  assertEqual(branch, EXPECTED_BRANCH, "release branch");
 
   const head = git(["rev-parse", "HEAD"]);
   const releaseCommits = git(["rev-list", "--reverse", "--ancestry-path", `${RELEASE_BASE}..${head}`])
