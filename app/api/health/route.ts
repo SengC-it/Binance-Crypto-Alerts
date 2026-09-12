@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 import { PRODUCTION_ENTRY_MODE, PRODUCTION_STRATEGY_VERSION } from "@/lib/core/production-policy";
+import {
+  ALPHA_RESEARCH_PROGRAM_STATUS,
+  AUTOMATIC_TRADING_ENABLED,
+  ORDER_PLACEMENT_ENABLED,
+  PRODUCTION_SIGNAL_EMAIL_ENABLED,
+  PRODUCTION_STRATEGY_PROMOTED,
+  RELEASE_MODE,
+} from "@/lib/core/release-policy";
 
 export const runtime = "nodejs";
 
@@ -8,6 +16,12 @@ export function GET() {
     ok: true,
     service: "binance-crypto-alerts",
     mode: "alert-only",
+    releaseMode: RELEASE_MODE,
+    alphaResearchProgramStatus: ALPHA_RESEARCH_PROGRAM_STATUS,
+    signalEmailEnabled: PRODUCTION_SIGNAL_EMAIL_ENABLED,
+    productionStrategyPromoted: PRODUCTION_STRATEGY_PROMOTED,
+    automaticTrading: AUTOMATIC_TRADING_ENABLED,
+    orderPlacement: ORDER_PLACEMENT_ENABLED,
     strategy: {
       version: PRODUCTION_STRATEGY_VERSION,
       entryMode: PRODUCTION_ENTRY_MODE,
