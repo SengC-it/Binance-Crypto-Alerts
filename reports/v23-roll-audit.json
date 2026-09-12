@@ -1,0 +1,35 @@
+{
+  "schema": "v23-roll-audit-v1",
+  "experimentId": "V23_TERM_STRUCTURE_BASIS_STATE",
+  "diagnosticOnly": true,
+  "byUnderlying": {
+    "BTC": {
+      "underlying": "BTC",
+      "diagnosticOnly": true,
+      "discontinuityRule": "absolute one-bar open/previous-close gap >= 5%; not a signal threshold",
+      "CURRENT_QUARTER": {
+        "transitions": [],
+        "count": 0
+      },
+      "NEXT_QUARTER": {
+        "transitions": [],
+        "count": 0
+      }
+    },
+    "ETH": {
+      "underlying": "ETH",
+      "diagnosticOnly": true,
+      "discontinuityRule": "absolute one-bar open/previous-close gap >= 5%; not a signal threshold",
+      "CURRENT_QUARTER": {
+        "transitions": [],
+        "count": 0
+      },
+      "NEXT_QUARTER": {
+        "transitions": [],
+        "count": 0
+      }
+    }
+  },
+  "noFutureReturns": true,
+  "noSignalThreshold": true
+}

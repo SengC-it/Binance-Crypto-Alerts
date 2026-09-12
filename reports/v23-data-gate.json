@@ -1,0 +1,68 @@
+{
+  "schema": "v23-data-gate-v1",
+  "experimentId": "V23_TERM_STRUCTURE_BASIS_STATE",
+  "coverageThreshold": 0.995,
+  "maximumAllowedGapHours": 24,
+  "requiredSeries": [
+    "TARGET_USDM_PERPETUAL",
+    "INDEX_PRICE",
+    "CURRENT_QUARTER",
+    "NEXT_QUARTER"
+  ],
+  "byUnderlying": {
+    "BTC": {
+      "requiredSeriesPass": false,
+      "synchronizedPass": false,
+      "synchronizedRows": 0,
+      "synchronizedCoverage": 0,
+      "maxGapHours": {
+        "TARGET_USDM_PERPETUAL": 0,
+        "INDEX_PRICE": 48,
+        "CURRENT_QUARTER": 40152,
+        "NEXT_QUARTER": 40152
+      }
+    },
+    "ETH": {
+      "requiredSeriesPass": false,
+      "synchronizedPass": false,
+      "synchronizedRows": 0,
+      "synchronizedCoverage": 0,
+      "maxGapHours": {
+        "TARGET_USDM_PERPETUAL": 0,
+        "INDEX_PRICE": 24,
+        "CURRENT_QUARTER": 40152,
+        "NEXT_QUARTER": 40152
+      }
+    }
+  },
+  "historicalBasisEndpoint": {
+    "url": "https://fapi.binance.com/futures/data/basis?pair=BTCUSDT&contractType=CURRENT_QUARTER&period=1h&startTime=1640995200000&endTime=1641002399999&limit=500",
+    "httpStatus": 0,
+    "responseByteLength": 0,
+    "responseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retrievedAt": "2026-09-12T08:51:53.359Z",
+    "error": "fetch failed",
+    "historicalBasisEndpointEligible": false,
+    "documentedHistoryWindow": "latest 30 days only",
+    "documentationUrl": "https://developers.binance.com/en/docs/catalog/core-trading-derivatives-trading-usd-s-m-futures/api/rest-api/market-data",
+    "historicalSeriesSourceUsed": false
+  },
+  "structuralAdmissionPass": true,
+  "dataGatePass": false,
+  "classification": "V23_TERM_STRUCTURE_DATA_INSUFFICIENT",
+  "researchStop": true,
+  "remainingBudget": 1,
+  "historicalFeatureDataRead": true,
+  "historicalStrategyOutcomeReturnsRead": false,
+  "forwardReturnsRead": false,
+  "futureOutcomePricesRead": false,
+  "backtestRun": false,
+  "parameterSearch": false,
+  "promotionEvaluated": false,
+  "productionChanged": false,
+  "productionEmail": "OFF",
+  "deploy": false,
+  "merge": false,
+  "orderPlacement": false,
+  "autoTrading": false
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "v23-basis-construction-feasibility-v1",
+  "experimentId": "V23_TERM_STRUCTURE_BASIS_STATE",
+  "byUnderlying": {
+    "BTC": {
+      "synchronizedRows": 0,
+      "finiteRows": 0,
+      "currentBasisFeasible": false,
+      "nextBasisFeasible": false,
+      "curveSlopeFeasible": false,
+      "PITFeasible": false,
+      "formula": {
+        "currentBasis": "ln(CURRENT_QUARTER.close / INDEX_PRICE.close)",
+        "nextBasis": "ln(NEXT_QUARTER.close / INDEX_PRICE.close)",
+        "curveSlope": "nextBasis - currentBasis",
+        "noFutureReturns": true,
+        "noPrediction": true
+      }
+    },
+    "ETH": {
+      "synchronizedRows": 0,
+      "finiteRows": 0,
+      "currentBasisFeasible": false,
+      "nextBasisFeasible": false,
+      "curveSlopeFeasible": false,
+      "PITFeasible": false,
+      "formula": {
+        "currentBasis": "ln(CURRENT_QUARTER.close / INDEX_PRICE.close)",
+        "nextBasis": "ln(NEXT_QUARTER.close / INDEX_PRICE.close)",
+        "curveSlope": "nextBasis - currentBasis",
+        "noFutureReturns": true,
+        "noPrediction": true
+      }
+    }
+  },
+  "noThreshold": true,
+  "noPrediction": true,
+  "noFutureReturns": true
+}
