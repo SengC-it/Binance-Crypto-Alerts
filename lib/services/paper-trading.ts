@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { mapWithConcurrency, BinancePublicClient } from "@/lib/binance/public-client";
 import type { Candle, FundingRatePoint, ScoredCandidate, TradePlan } from "@/lib/core/types";
+import { isTransientSupabaseError, runQuery } from "@/lib/supabase/resilience";
 
 const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
 const PRODUCTION_PAPER_TABLE = "bca_paper_trades";
@@ -56,6 +57,18 @@ export interface PaperSettlementSummary {
   errors: Array<{ symbol: string; message: string }>;
 }
 
+/**
+ * Thrown when the paper-trading ledger cannot be read at all after retries.
+ * Callers can use this to distinguish "the database is unreachable" (worth a
+ * system alert) from "one trade failed to settle" (routine, per-trade error).
+ */
+export class PaperLedgerUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PaperLedgerUnavailableError";
+  }
+}
+
 export async function createPaperTrade(
   supabase: SupabaseClient,
   input: PaperTradeCreateInput,
@@ -68,22 +81,30 @@ export async function createShadowPaperTrade(
   input: Omit<PaperTradeCreateInput, "signalId">,
   cooldownHours: number,
 ): Promise<boolean> {
-  const { count, error: countError } = await supabase
-    .from(SHADOW_PAPER_TABLE)
-    .select("id", { count: "exact", head: true })
-    .eq("status", "OPEN");
-  if (countError) throw new Error(`Shadow position lookup failed: ${countError.message}`);
-  if ((count ?? 0) >= 1) return false;
+  const openCount = await runQuery(
+    "shadow position lookup",
+    () => supabase
+      .from(SHADOW_PAPER_TABLE)
+      .select("id", { count: "exact", head: true })
+      .eq("status", "OPEN"),
+  ).catch((error) => {
+    throw new Error(`Shadow position lookup failed: ${errorMessage(error)}`);
+  });
+  if (typeof openCount === "number" ? openCount >= 1 : false) return false;
 
-  const { data: lastTrade, error: lastTradeError } = await supabase
-    .from(SHADOW_PAPER_TABLE)
-    .select("exit_time")
-    .eq("symbol", input.symbol)
-    .not("exit_time", "is", null)
-    .order("exit_time", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (lastTradeError) throw new Error(`Shadow cooldown lookup failed: ${lastTradeError.message}`);
+  const lastTrade = await runQuery(
+    "shadow cooldown lookup",
+    () => supabase
+      .from(SHADOW_PAPER_TABLE)
+      .select("exit_time")
+      .eq("symbol", input.symbol)
+      .not("exit_time", "is", null)
+      .order("exit_time", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ).catch((error) => {
+    throw new Error(`Shadow cooldown lookup failed: ${errorMessage(error)}`);
+  });
   if (lastTrade?.exit_time) {
     const cooldownUntil = Date.parse(lastTrade.exit_time as string) + cooldownHours * 60 * 60 * 1000;
     if (input.sourceTimestamp < cooldownUntil) return false;
@@ -100,39 +121,46 @@ async function insertPaperTrade(
 ): Promise<boolean> {
   const direction = input.candidate.side === "LONG" ? 1 : -1;
   const entryFillPrice = adverseFill(input.plan.entryPrice, direction, input.slippageBps / 10_000, "entry");
-  const { data, error } = await supabase
-    .from(table)
-    .insert({
-      ...extra,
-      symbol: input.symbol,
-      side: input.candidate.side,
-      strategy_family: input.candidate.strategyFamily,
-      strategy_version: input.strategyVersion,
-      entry_time: new Date(input.sourceTimestamp).toISOString(),
-      entry_price: input.plan.entryPrice,
-      entry_fill_price: entryFillPrice,
-      stop_price: input.plan.stopPrice,
-      take_profit_price: input.plan.takeProfitPrice,
-      max_hold_until: new Date(input.plan.validUntil).toISOString(),
-      quantity: input.plan.quantity,
-      assumed_margin_usdt: input.plan.assumedMarginUsdt,
-      assumed_leverage: input.plan.assumedLeverage,
-      position_notional_usdt: input.plan.positionNotionalUsdt,
-      theoretical_risk_usdt: input.plan.theoreticalRiskUsdt,
-      last_price: entryFillPrice,
-      metadata: {
-        source_data_timestamp: new Date(input.sourceTimestamp).toISOString(),
-        entry_model: "just_closed_15m_reference",
-        slippage_bps: input.slippageBps,
-      },
-    })
-    .select("id")
-    .maybeSingle();
-
-  if (error?.code === "23505") return false;
-  if (error || !data) {
-    throw new Error(`Paper trade creation failed: ${error?.message ?? "empty response"}`);
+  let data: { id: string } | null;
+  try {
+    data = await runQuery(
+      `paper trade creation (${table})`,
+      () => supabase
+        .from(table)
+        .insert({
+          ...extra,
+          symbol: input.symbol,
+          side: input.candidate.side,
+          strategy_family: input.candidate.strategyFamily,
+          strategy_version: input.strategyVersion,
+          entry_time: new Date(input.sourceTimestamp).toISOString(),
+          entry_price: input.plan.entryPrice,
+          entry_fill_price: entryFillPrice,
+          stop_price: input.plan.stopPrice,
+          take_profit_price: input.plan.takeProfitPrice,
+          max_hold_until: new Date(input.plan.validUntil).toISOString(),
+          quantity: input.plan.quantity,
+          assumed_margin_usdt: input.plan.assumedMarginUsdt,
+          assumed_leverage: input.plan.assumedLeverage,
+          position_notional_usdt: input.plan.positionNotionalUsdt,
+          theoretical_risk_usdt: input.plan.theoreticalRiskUsdt,
+          last_price: entryFillPrice,
+          metadata: {
+            source_data_timestamp: new Date(input.sourceTimestamp).toISOString(),
+            entry_model: "just_closed_15m_reference",
+            slippage_bps: input.slippageBps,
+          },
+        })
+        .select("id")
+        .maybeSingle(),
+    );
+  } catch (error) {
+    // A duplicate signal already has a paper trade; treat it as a no-op.
+    if ((error as { code?: string }).code === "23505") return false;
+    throw new Error(`Paper trade creation failed: ${errorMessage(error)}`);
   }
+
+  if (!data) throw new Error("Paper trade creation failed: empty response");
   return true;
 }
 
@@ -141,10 +169,21 @@ export async function settleOpenPaperTrades(
   client: BinancePublicClient,
   options: PaperSettlementOptions,
 ): Promise<PaperSettlementSummary> {
-  const [productionTrades, shadowTrades] = await Promise.all([
-    listOpenPaperTrades(supabase, PRODUCTION_PAPER_TABLE, options.batchSize),
-    listOpenPaperTrades(supabase, SHADOW_PAPER_TABLE, options.batchSize),
+  // Read both ledgers independently. A persistent failure in one table must not
+  // stop the other from settling, and must not be misreported as a per-trade error.
+  const [productionResult, shadowResult] = await Promise.all([
+    readOpenPaperTrades(supabase, PRODUCTION_PAPER_TABLE, options.batchSize),
+    readOpenPaperTrades(supabase, SHADOW_PAPER_TABLE, options.batchSize),
   ]);
+
+  if (productionResult.fatal && shadowResult.fatal) {
+    throw new PaperLedgerUnavailableError(
+      `Paper trade lookup failed after retries: ${productionResult.fatal}`,
+    );
+  }
+
+  const productionTrades = productionResult.trades;
+  const shadowTrades = shadowResult.trades;
   const openTrades = [...productionTrades, ...shadowTrades].slice(0, options.batchSize);
   const summary: PaperSettlementSummary = {
     openTrades: openTrades.length,
@@ -155,6 +194,9 @@ export async function settleOpenPaperTrades(
     stillOpen: 0,
     errors: [],
   };
+  for (const result of [productionResult, shadowResult]) {
+    if (result.fatal) summary.errors.push({ symbol: "-", message: result.fatal });
+  }
   if (openTrades.length === 0) return summary;
 
   const latestClosedCandleTime = Math.floor(Date.now() / FIFTEEN_MINUTES_MS) * FIFTEEN_MINUTES_MS - 1;
@@ -219,14 +261,38 @@ async function listOpenPaperTrades(
   table: PaperTable,
   batchSize: number,
 ): Promise<PaperTradeRecord[]> {
-  const { data, error } = await supabase
-    .from(table)
-    .select("*")
-    .eq("status", "OPEN")
-    .order("entry_time", { ascending: true })
-    .limit(batchSize);
-  if (error) throw new Error(`Paper trade lookup failed: ${error.message}`);
-  return (data ?? []).map((row) => parsePaperTrade(row as Record<string, unknown>, table));
+  const rows = await runQuery(
+    `paper trade lookup (${table})`,
+    () => supabase
+      .from(table)
+      .select("*")
+      .eq("status", "OPEN")
+      .order("entry_time", { ascending: true })
+      .limit(batchSize),
+  );
+  return (rows ?? []).map((row) => parsePaperTrade(row as Record<string, unknown>, table));
+}
+
+/**
+ * Reads one ledger without letting its failure abort the whole settlement pass.
+ * A transient error that survived retries is reported as `fatal` so the caller
+ * can decide whether to escalate; a malformed row is reported as a normal
+ * per-trade error.
+ */
+async function readOpenPaperTrades(
+  supabase: SupabaseClient,
+  table: PaperTable,
+  batchSize: number,
+): Promise<{ trades: PaperTradeRecord[]; fatal?: string }> {
+  try {
+    return { trades: await listOpenPaperTrades(supabase, table, batchSize) };
+  } catch (error) {
+    const message = errorMessage(error);
+    if (isTransientSupabaseError(error)) {
+      return { trades: [], fatal: message };
+    }
+    throw error;
+  }
 }
 
 function resolvePaperTrade(
@@ -340,12 +406,15 @@ async function updatePaperTrade(
   tradeId: string,
   patch: Record<string, unknown>,
 ) {
-  const { error } = await supabase
-    .from(table)
-    .update(patch)
-    .eq("id", tradeId)
-    .eq("status", "OPEN");
-  if (error) throw new Error(`Paper trade update failed: ${error.message}`);
+  await runQuery(
+    `paper trade update (${table})`,
+    () => supabase
+      .from(table)
+      .update(patch)
+      .eq("id", tradeId)
+      .eq("status", "OPEN")
+      .select("id"),
+  );
 }
 
 function parsePaperTrade(row: Record<string, unknown>, table: PaperTable): PaperTradeRecord {

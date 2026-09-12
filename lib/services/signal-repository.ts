@@ -1,5 +1,6 @@
 import type { ScoredCandidate, TradePlan } from "@/lib/core/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { runQuery } from "@/lib/supabase/resilience";
 
 export interface ScanRunInput {
   runKey: string;
@@ -39,38 +40,55 @@ export interface StagedOpportunity {
 }
 
 export async function upsertInstruments(supabase: SupabaseClient, instruments: unknown[]) {
-  const { error } = await supabase.from("bca_instruments").upsert(instruments, { onConflict: "symbol" });
-  if (error) throw new Error(`Supabase instrument upsert failed: ${error.message}`);
+  await runQuery(
+    "instrument upsert",
+    () => supabase.from("bca_instruments").upsert(instruments, { onConflict: "symbol" }).select("symbol"),
+  ).catch((error) => {
+    throw new Error(`Supabase instrument upsert failed: ${errorMessage(error)}`);
+  });
 }
 
 export async function createScanRun(supabase: SupabaseClient, input: ScanRunInput): Promise<string> {
-  const { error: groupError } = await supabase.from("bca_scan_groups").upsert({
-    scan_group_key: input.scanGroupKey,
-    batch_count: input.batchCount,
-  }, { onConflict: "scan_group_key", ignoreDuplicates: true });
-  if (groupError) throw new Error(`Supabase scan group creation failed: ${groupError.message}`);
+  await runQuery(
+    "scan group creation",
+    () => supabase.from("bca_scan_groups").upsert({
+      scan_group_key: input.scanGroupKey,
+      batch_count: input.batchCount,
+    }, { onConflict: "scan_group_key", ignoreDuplicates: true }).select("scan_group_key"),
+  ).catch((error) => {
+    throw new Error(`Supabase scan group creation failed: ${errorMessage(error)}`);
+  });
 
-  const { data: existing, error: existingError } = await supabase
-    .from("bca_scan_runs")
-    .select("id")
-    .eq("run_key", input.runKey)
-    .maybeSingle();
-  if (existingError) throw new Error(`Supabase scan lookup failed: ${existingError.message}`);
+  const existing = await runQuery(
+    "scan lookup",
+    () => supabase
+      .from("bca_scan_runs")
+      .select("id")
+      .eq("run_key", input.runKey)
+      .maybeSingle(),
+  ).catch((error) => {
+    throw new Error(`Supabase scan lookup failed: ${errorMessage(error)}`);
+  });
   if (existing?.id) return existing.id as string;
 
-  const { data, error } = await supabase
-    .from("bca_scan_runs")
-    .insert({
-      run_key: input.runKey,
-      scan_group_key: input.scanGroupKey,
-      timeframe: input.timeframe,
-      batch_number: input.batchNumber,
-      batch_count: input.batchCount,
-      universe_size: input.universeSize,
-    })
-    .select("id")
-    .single();
-  if (error || !data) throw new Error(`Supabase scan creation failed: ${error?.message ?? "empty response"}`);
+  const data = await runQuery(
+    "scan creation",
+    () => supabase
+      .from("bca_scan_runs")
+      .insert({
+        run_key: input.runKey,
+        scan_group_key: input.scanGroupKey,
+        timeframe: input.timeframe,
+        batch_number: input.batchNumber,
+        batch_count: input.batchCount,
+        universe_size: input.universeSize,
+      })
+      .select("id")
+      .single(),
+  ).catch((error) => {
+    throw new Error(`Supabase scan creation failed: ${errorMessage(error)}`);
+  });
+  if (!data) throw new Error("Supabase scan creation failed: empty response");
   return data.id as string;
 }
 
@@ -79,16 +97,20 @@ export async function stageScanCandidates(
   opportunities: StagedOpportunity[],
 ): Promise<void> {
   if (opportunities.length === 0) return;
-  const { error } = await supabase.from("bca_scan_candidates").upsert(opportunities.map((item) => ({
-    scan_group_key: item.scanGroupKey,
-    scan_run_id: item.scanRunId,
-    symbol: item.symbol,
-    source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
-    score: item.candidate.score,
-    candidate: item.candidate,
-    trade_plan: item.plan,
-  })), { onConflict: "scan_group_key,symbol" });
-  if (error) throw new Error(`Supabase candidate staging failed: ${error.message}`);
+  await runQuery(
+    "candidate staging",
+    () => supabase.from("bca_scan_candidates").upsert(opportunities.map((item) => ({
+      scan_group_key: item.scanGroupKey,
+      scan_run_id: item.scanRunId,
+      symbol: item.symbol,
+      source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
+      score: item.candidate.score,
+      candidate: item.candidate,
+      trade_plan: item.plan,
+    })), { onConflict: "scan_group_key,symbol" }).select("symbol"),
+  ).catch((error) => {
+    throw new Error(`Supabase candidate staging failed: ${errorMessage(error)}`);
+  });
 }
 
 export async function stageShadowCandidates(
@@ -96,26 +118,34 @@ export async function stageShadowCandidates(
   opportunities: StagedOpportunity[],
 ): Promise<void> {
   if (opportunities.length === 0) return;
-  const { error } = await supabase.from("bca_shadow_candidates").upsert(opportunities.map((item) => ({
-    scan_group_key: item.scanGroupKey,
-    scan_run_id: item.scanRunId,
-    symbol: item.symbol,
-    source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
-    score: item.candidate.score,
-    candidate: item.candidate,
-    trade_plan: item.plan,
-  })), { onConflict: "scan_group_key,symbol" });
-  if (error) throw new Error(`Supabase shadow candidate staging failed: ${error.message}`);
+  await runQuery(
+    "shadow candidate staging",
+    () => supabase.from("bca_shadow_candidates").upsert(opportunities.map((item) => ({
+      scan_group_key: item.scanGroupKey,
+      scan_run_id: item.scanRunId,
+      symbol: item.symbol,
+      source_data_timestamp: new Date(item.sourceTimestamp).toISOString(),
+      score: item.candidate.score,
+      candidate: item.candidate,
+      trade_plan: item.plan,
+    })), { onConflict: "scan_group_key,symbol" }).select("symbol"),
+  ).catch((error) => {
+    throw new Error(`Supabase shadow candidate staging failed: ${errorMessage(error)}`);
+  });
 }
 
 export async function tryStartScanGroupFinalization(
   supabase: SupabaseClient,
   scanGroupKey: string,
 ): Promise<boolean> {
-  const { data, error } = await supabase.rpc("bca_try_finalize_scan_group", {
-    p_scan_group_key: scanGroupKey,
+  const data = await runQuery(
+    "scan finalization claim",
+    () => supabase.rpc("bca_try_finalize_scan_group", {
+      p_scan_group_key: scanGroupKey,
+    }),
+  ).catch((error) => {
+    throw new Error(`Supabase scan finalization claim failed: ${errorMessage(error)}`);
   });
-  if (error) throw new Error(`Supabase scan finalization claim failed: ${error.message}`);
   return data === true;
 }
 
@@ -123,13 +153,17 @@ export async function listStagedCandidates(
   supabase: SupabaseClient,
   scanGroupKey: string,
 ): Promise<StagedOpportunity[]> {
-  const { data, error } = await supabase
-    .from("bca_scan_candidates")
-    .select("scan_run_id, scan_group_key, symbol, source_data_timestamp, candidate, trade_plan")
-    .eq("scan_group_key", scanGroupKey)
-    .order("score", { ascending: false })
-    .order("symbol", { ascending: true });
-  if (error) throw new Error(`Supabase staged candidate lookup failed: ${error.message}`);
+  const data = await runQuery(
+    "staged candidate lookup",
+    () => supabase
+      .from("bca_scan_candidates")
+      .select("scan_run_id, scan_group_key, symbol, source_data_timestamp, candidate, trade_plan")
+      .eq("scan_group_key", scanGroupKey)
+      .order("score", { ascending: false })
+      .order("symbol", { ascending: true }),
+  ).catch((error) => {
+    throw new Error(`Supabase staged candidate lookup failed: ${errorMessage(error)}`);
+  });
   return (data ?? []).map((row) => ({
     scanRunId: row.scan_run_id as string,
     scanGroupKey: row.scan_group_key as string,
@@ -144,13 +178,17 @@ export async function listStagedShadowCandidates(
   supabase: SupabaseClient,
   scanGroupKey: string,
 ): Promise<StagedOpportunity[]> {
-  const { data, error } = await supabase
-    .from("bca_shadow_candidates")
-    .select("scan_run_id, scan_group_key, symbol, source_data_timestamp, candidate, trade_plan")
-    .eq("scan_group_key", scanGroupKey)
-    .order("score", { ascending: false })
-    .order("symbol", { ascending: true });
-  if (error) throw new Error(`Supabase shadow candidate lookup failed: ${error.message}`);
+  const data = await runQuery(
+    "staged shadow candidate lookup",
+    () => supabase
+      .from("bca_shadow_candidates")
+      .select("scan_run_id, scan_group_key, symbol, source_data_timestamp, candidate, trade_plan")
+      .eq("scan_group_key", scanGroupKey)
+      .order("score", { ascending: false })
+      .order("symbol", { ascending: true }),
+  ).catch((error) => {
+    throw new Error(`Supabase shadow candidate lookup failed: ${errorMessage(error)}`);
+  });
   return (data ?? []).map((row) => ({
     scanRunId: row.scan_run_id as string,
     scanGroupKey: row.scan_group_key as string,
@@ -167,12 +205,16 @@ export async function finishScanGroup(
   status: "COMPLETED" | "FAILED",
   errorSummary: unknown[] = [],
 ): Promise<void> {
-  const { error } = await supabase.from("bca_scan_groups").update({
-    status,
-    error_summary: errorSummary,
-    finished_at: new Date().toISOString(),
-  }).eq("scan_group_key", scanGroupKey);
-  if (error) throw new Error(`Supabase scan group completion failed: ${error.message}`);
+  await runQuery(
+    "scan group completion",
+    () => supabase.from("bca_scan_groups").update({
+      status,
+      error_summary: errorSummary,
+      finished_at: new Date().toISOString(),
+    }).eq("scan_group_key", scanGroupKey).select("scan_group_key"),
+  ).catch((error) => {
+    throw new Error(`Supabase scan group completion failed: ${errorMessage(error)}`);
+  });
 }
 
 export async function completeScanRun(
@@ -186,18 +228,23 @@ export async function completeScanRun(
     errorSummary: unknown[];
   },
 ) {
-  const { error } = await supabase
-    .from("bca_scan_runs")
-    .update({
-      scanned_symbols: patch.scannedSymbols,
-      candidate_count: patch.candidateCount,
-      emailed_count: patch.emailedCount,
-      status: patch.status,
-      error_summary: patch.errorSummary,
-      finished_at: new Date().toISOString(),
-    })
-    .eq("id", scanRunId);
-  if (error) throw new Error(`Supabase scan completion failed: ${error.message}`);
+  await runQuery(
+    "scan completion",
+    () => supabase
+      .from("bca_scan_runs")
+      .update({
+        scanned_symbols: patch.scannedSymbols,
+        candidate_count: patch.candidateCount,
+        emailed_count: patch.emailedCount,
+        status: patch.status,
+        error_summary: patch.errorSummary,
+        finished_at: new Date().toISOString(),
+      })
+      .eq("id", scanRunId)
+      .select("id"),
+  ).catch((error) => {
+    throw new Error(`Supabase scan completion failed: ${errorMessage(error)}`);
+  });
 }
 
 export async function claimSignal(
@@ -216,7 +263,9 @@ export async function claimSignal(
     slippageBps: number;
   },
 ): Promise<ClaimResult> {
-  const { data, error } = await supabase.rpc("bca_claim_signal", {
+  const data = await runQuery(
+    "signal claim",
+    () => supabase.rpc("bca_claim_signal", {
     p_signal: {
       scan_run_id: input.scanRunId ?? null,
       signal_key: input.signalKey,
@@ -253,8 +302,11 @@ export async function claimSignal(
       p_cooldown_hours: policy.cooldownHours,
       p_taker_fee_rate: policy.takerFeeRate,
       p_slippage_bps: policy.slippageBps,
+    }),
+  ).catch((error) => {
+    throw new Error(`Supabase signal claim failed: ${errorMessage(error)}`);
   });
-  if (error || !data) throw new Error(`Supabase signal claim failed: ${error?.message ?? "empty response"}`);
+  if (!data) throw new Error("Supabase signal claim failed: empty response");
   return data as ClaimResult;
 }
 
@@ -262,21 +314,26 @@ export async function createNotification(
   supabase: SupabaseClient,
   input: { signalId: string; idempotencyKey: string; recipient: string; subject: string },
 ): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("bca_notifications")
-    .insert({
-      signal_id: input.signalId,
-      idempotency_key: input.idempotencyKey,
-      recipient: input.recipient,
-      subject: input.subject,
-      status: "PENDING",
-    })
-    .select("id")
-    .maybeSingle();
-
-  if (!error) return Boolean(data?.id);
-  if (error.code === "23505") return false;
-  throw new Error(`Supabase notification creation failed: ${error.message}`);
+  try {
+    const data = await runQuery(
+      "notification creation",
+      () => supabase
+        .from("bca_notifications")
+        .insert({
+          signal_id: input.signalId,
+          idempotency_key: input.idempotencyKey,
+          recipient: input.recipient,
+          subject: input.subject,
+          status: "PENDING",
+        })
+        .select("id")
+        .maybeSingle(),
+    );
+    return Boolean(data?.id);
+  } catch (error) {
+    if ((error as { code?: string }).code === "23505") return false;
+    throw new Error(`Supabase notification creation failed: ${errorMessage(error)}`);
+  }
 }
 
 export async function finishNotification(
@@ -284,17 +341,22 @@ export async function finishNotification(
   idempotencyKey: string,
   patch: { status: "SENT" | "FAILED" | "SKIPPED"; providerMessageId?: string; error?: string },
 ) {
-  const { error } = await supabase
-    .from("bca_notifications")
-    .update({
-      status: patch.status,
-      provider_message_id: patch.providerMessageId,
-      last_error: patch.error,
-      sent_at: patch.status === "SENT" ? new Date().toISOString() : null,
-      attempts: 1,
-    })
-    .eq("idempotency_key", idempotencyKey);
-  if (error) throw new Error(`Supabase notification update failed: ${error.message}`);
+  await runQuery(
+    "notification update",
+    () => supabase
+      .from("bca_notifications")
+      .update({
+        status: patch.status,
+        provider_message_id: patch.providerMessageId,
+        last_error: patch.error,
+        sent_at: patch.status === "SENT" ? new Date().toISOString() : null,
+        attempts: 1,
+      })
+      .eq("idempotency_key", idempotencyKey)
+      .select("id"),
+  ).catch((error) => {
+    throw new Error(`Supabase notification update failed: ${errorMessage(error)}`);
+  });
 }
 
 export async function recordSystemEvent(
@@ -307,12 +369,24 @@ export async function recordSystemEvent(
     details?: unknown;
   },
 ) {
-  const { error } = await supabase.from("bca_system_events").insert({
-    event_type: event.eventType,
-    severity: event.severity,
-    component: event.component,
-    message: event.message,
-    details: event.details ?? {},
+  await runQuery(
+    "system event insert",
+    () => supabase.from("bca_system_events").insert({
+      event_type: event.eventType,
+      severity: event.severity,
+      component: event.component,
+      message: event.message,
+      details: event.details ?? {},
+    }).select("id"),
+  ).catch((error) => {
+    throw new Error(`Supabase system event failed: ${errorMessage(error)}`);
   });
-  if (error) throw new Error(`Supabase system event failed: ${error.message}`);
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
 }

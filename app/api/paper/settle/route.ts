@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { BinancePublicClient } from "@/lib/binance/public-client";
 import { getServerConfig } from "@/lib/config";
 import { sendSystemAlertEmail } from "@/lib/notifications/email";
-import { settleOpenPaperTrades } from "@/lib/services/paper-trading";
+import { PaperLedgerUnavailableError, settleOpenPaperTrades } from "@/lib/services/paper-trading";
 import { recordSystemEvent } from "@/lib/services/signal-repository";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
@@ -55,23 +55,28 @@ async function settle(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: true, ...summary });
   } catch (error) {
     const message = errorMessage(error);
-    if (supabase) {
-      try {
-        await recordSystemEvent(supabase, {
-          eventType: "DATABASE_ERROR",
-          severity: "ERROR",
-          component: "paper_settlement",
-          message,
-        });
-      } catch {
-        // Preserve the original settlement error.
+    // The ledger itself is unreachable after retries. This is the only case
+    // that warrants a `DATABASE_ERROR` record plus an out-of-band SMTP alert;
+    // per-trade settlement problems are reported as a WARNING above instead.
+    if (error instanceof PaperLedgerUnavailableError) {
+      if (supabase) {
+        try {
+          await recordSystemEvent(supabase, {
+            eventType: "DATABASE_ERROR",
+            severity: "ERROR",
+            component: "paper_settlement",
+            message,
+          });
+        } catch {
+          // Preserve the original settlement error.
+        }
       }
-    }
-    if (config) {
-      try {
-        await sendSystemAlertEmail(config, { component: "paper_settlement", message });
-      } catch {
-        // Preserve the original settlement error.
+      if (config) {
+        try {
+          await sendSystemAlertEmail(config, { component: "paper_settlement", message });
+        } catch {
+          // Preserve the original settlement error.
+        }
       }
     }
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
