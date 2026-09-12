@@ -21,9 +21,11 @@ export interface SupabaseRetryOptions {
   maxDelayMs?: number;
 }
 
-const DEFAULT_ATTEMPTS = 3;
-const DEFAULT_BASE_DELAY_MS = 300;
-const DEFAULT_MAX_DELAY_MS = 2_000;
+const DEFAULT_ATTEMPTS = 4;
+const DEFAULT_BASE_DELAY_MS = 500;
+const DEFAULT_MAX_DELAY_MS = 4_000;
+
+export { DEFAULT_ATTEMPTS, DEFAULT_BASE_DELAY_MS, DEFAULT_MAX_DELAY_MS };
 
 /**
  * Messages that indicate a transient transport/gateway problem rather than a
@@ -35,6 +37,8 @@ const TRANSIENT_MESSAGE_PATTERNS = [
   /upstream\s+(request\s+)?timeout/i,
   /timeout/i,
   /timed\s*out/i,
+  /aborted/i,
+  /the\s+operation\s+was\s+aborted/i,
   /econnreset/i,
   /econnrefused/i,
   /epipe/i,
@@ -76,6 +80,11 @@ export function isTransientSupabaseError(error: unknown): boolean {
 
   const code = (error as { code?: unknown }).code;
   if (typeof code === "string" && TRANSIENT_PG_CODES.has(code)) return true;
+
+  // AbortController-driven request timeouts reject with `name === "AbortError"`
+  // and no matching message, so classify by name before falling back to text.
+  const name = (error as { name?: unknown }).name;
+  if (name === "AbortError" || name === "TimeoutError") return true;
 
   const message = errorMessage(error);
   return TRANSIENT_MESSAGE_PATTERNS.some((pattern) => pattern.test(message));
@@ -140,9 +149,10 @@ function delay(ms: number): Promise<void> {
 }
 
 function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "object" && error !== null && "message" in error) {
-    return String((error as { message: unknown }).message);
+  if (error instanceof Error) return error.message || error.name;
+  if (typeof error === "object" && error !== null) {
+    if ("message" in error && error.message) return String((error as { message: unknown }).message);
+    if ("name" in error && error.name) return String((error as { name: unknown }).name);
   }
   return String(error);
 }

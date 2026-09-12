@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  DEFAULT_ATTEMPTS,
   isTransientSupabaseError,
   runQuery,
   withSupabaseRetry,
@@ -11,6 +12,13 @@ describe("supabase resilience", () => {
     expect(isTransientSupabaseError({ message: "upstream request timeout" })).toBe(true);
     expect(isTransientSupabaseError({ status: 504, message: "Bad gateway" })).toBe(true);
     expect(isTransientSupabaseError({ code: "08006", message: "connection failure" })).toBe(true);
+  });
+
+  it("treats an AbortController timeout as transient even without a message", () => {
+    const abortError = new Error("");
+    abortError.name = "AbortError";
+    expect(isTransientSupabaseError(abortError)).toBe(true);
+    expect(isTransientSupabaseError({ name: "TimeoutError", message: "" })).toBe(true);
   });
 
   it("does not treat real data errors as transient", () => {
@@ -68,5 +76,17 @@ describe("supabase resilience", () => {
     await expect(
       runQuery("paper trade lookup", async () => ({ data: { id: "trade-1" }, error: null })),
     ).resolves.toEqual({ id: "trade-1" });
+  });
+
+  it("retries a transient failure across the full default attempt budget", async () => {
+    const operation = vi.fn(async () => {
+      throw new Error("Gateway Timeout");
+    });
+
+    await expect(
+      withSupabaseRetry(operation, { operation: "test lookup", baseDelayMs: 1 }),
+    ).rejects.toThrow("Gateway Timeout");
+    expect(DEFAULT_ATTEMPTS).toBeGreaterThanOrEqual(4);
+    expect(operation).toHaveBeenCalledTimes(DEFAULT_ATTEMPTS);
   });
 });

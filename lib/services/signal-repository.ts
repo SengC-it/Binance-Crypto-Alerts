@@ -383,6 +383,30 @@ export async function recordSystemEvent(
   });
 }
 
+/**
+ * Counts how many DATABASE_ERROR events the given component has recorded inside
+ * the trailing window. Used to require a sustained outage before escalating to
+ * a critical alert, so a single transient Supabase gateway timeout does not
+ * page. Returns 0 when the history is empty.
+ */
+export async function countRecentLedgerFailures(
+  supabase: SupabaseClient,
+  component: string,
+  windowMinutes: number,
+): Promise<number> {
+  const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
+  // `runQuery` unwraps `data`, but a head+count query resolves with `data: null`
+  // and the tally on `count`, so read the response directly here.
+  const { count, error } = await supabase
+    .from("bca_system_events")
+    .select("id", { count: "exact", head: true })
+    .eq("component", component)
+    .eq("event_type", "DATABASE_ERROR")
+    .gte("occurred_at", since);
+  if (error) throw new Error(`Supabase recent ledger failure lookup failed: ${errorMessage(error)}`);
+  return count ?? 0;
+}
+
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   if (typeof error === "object" && error !== null && "message" in error) {

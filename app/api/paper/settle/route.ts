@@ -3,11 +3,25 @@ import { BinancePublicClient } from "@/lib/binance/public-client";
 import { getServerConfig } from "@/lib/config";
 import { sendSystemAlertEmail } from "@/lib/notifications/email";
 import { PaperLedgerUnavailableError, settleOpenPaperTrades } from "@/lib/services/paper-trading";
-import { recordSystemEvent } from "@/lib/services/signal-repository";
+import { countRecentLedgerFailures, recordSystemEvent } from "@/lib/services/signal-repository";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/**
+ * How many consecutive settlement passes must fail against the ledger before
+ * the out-of-band critical alert fires.
+ *
+ * The settle job runs every 15 minutes. Supabase occasionally returns a single
+ * transient gateway timeout while the database is healthy; alerting on the
+ * first one produced false "严重告警" emails. Requiring two consecutive failed
+ * passes keeps the alert meaningful (a sustained outage still alerts within
+ * ~30 minutes) without paging on a one-off blip.
+ */
+const LEDGER_FAILURE_ALERT_THRESHOLD = 2;
+/** Look back far enough to span the required consecutive passes. */
+const LEDGER_FAILURE_WINDOW_MINUTES = 45;
 
 export async function GET(request: NextRequest) {
   return settle(request);
@@ -56,28 +70,47 @@ async function settle(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     const message = errorMessage(error);
     // The ledger itself is unreachable after retries. This is the only case
-    // that warrants a `DATABASE_ERROR` record plus an out-of-band SMTP alert;
-    // per-trade settlement problems are reported as a WARNING above instead.
+    // that warrants escalation; per-trade settlement problems are reported as
+    // a WARNING above instead. A persistent failure is recorded as a
+    // DATABASE_ERROR, but the out-of-band critical alert only fires once the
+    // failure has repeated across consecutive passes.
     if (error instanceof PaperLedgerUnavailableError) {
+      let consecutiveFailures = 1;
       if (supabase) {
+        try {
+          consecutiveFailures = (await countRecentLedgerFailures(
+            supabase,
+            "paper_settlement",
+            LEDGER_FAILURE_WINDOW_MINUTES,
+          )) + 1;
+        } catch {
+          // If the failure history is unreadable, assume this is persistent so
+          // a real outage is not silently swallowed.
+          consecutiveFailures = LEDGER_FAILURE_ALERT_THRESHOLD;
+        }
         try {
           await recordSystemEvent(supabase, {
             eventType: "DATABASE_ERROR",
-            severity: "ERROR",
+            severity: consecutiveFailures >= LEDGER_FAILURE_ALERT_THRESHOLD ? "ERROR" : "WARNING",
             component: "paper_settlement",
             message,
+            details: { consecutiveFailures },
           });
         } catch {
           // Preserve the original settlement error.
         }
       }
-      if (config) {
+      if (config && consecutiveFailures >= LEDGER_FAILURE_ALERT_THRESHOLD) {
         try {
           await sendSystemAlertEmail(config, { component: "paper_settlement", message });
         } catch {
           // Preserve the original settlement error.
         }
       }
+      return NextResponse.json(
+        { ok: false, error: message, consecutiveFailures, alerted: consecutiveFailures >= LEDGER_FAILURE_ALERT_THRESHOLD },
+        { status: 500 },
+      );
     }
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
