@@ -1,0 +1,47 @@
+{
+  "schema": "monitoring-only-release-v1",
+  "releaseMode": "MONITORING_ONLY",
+  "releaseBaseCommit": "7b9e5d82f471ee3c9fec07e00101263c8d84e953",
+  "terminalResearchEvidence": {
+    "r1": {
+      "commit": "6c5c415023683b6d8905aae2444af28d1510d9b6",
+      "source": "reports/r1-wp3-decision.json",
+      "status": "PROGRAM_STOP_RULE_RECORDED"
+    },
+    "v22": {
+      "commit": "160cf38780dfd14ed8e6119bcb6c6841fad6fd93",
+      "source": "reports/v22-pre-return-freeze-manifest.json",
+      "status": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT"
+    },
+    "v23": {
+      "commit": "c6e9f008b308317f777ff4685575b32673306f15",
+      "source": "reports/v23-data-gate.json",
+      "status": "V23_TERM_STRUCTURE_DATA_INSUFFICIENT"
+    },
+    "v24": {
+      "commit": "44442c1b20b90536295d0b1be56d215dc4aba72d",
+      "source": "reports/v24-data-gate.json",
+      "status": "V24_LIQUIDITY_DATA_QUALITY_FAIL"
+    }
+  },
+  "alphaResearchProgramStatus": "STOP_NEW_ALPHA_RESEARCH",
+  "remainingResearchBudget": 0,
+  "allEmailPromotionCandidatesPassed": false,
+  "productionStrategyVersion": "trend-rejection-short-v1",
+  "productionStrategyClassification": "LEGACY_UNPROMOTED_RESEARCH_STRATEGY",
+  "productionStrategyPromoted": false,
+  "signalEmailEnabled": false,
+  "systemAlertEmailAllowed": true,
+  "paperTradingAllowed": true,
+  "shadowTradingAllowed": true,
+  "automaticTrading": false,
+  "orderPlacement": false,
+  "previousLiveDeploymentSha": "937f6e6a6737530360528f94d649f56da9aa5800",
+  "previousLiveDeploymentSourceResolvable": false,
+  "historicalEvidencePreserved": true,
+  "researchImplementationIncluded": false,
+  "productionDeployAuthorized": false,
+  "productionChanged": false,
+  "migrationApplied": false,
+  "mergePerformed": false
+}

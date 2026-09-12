@@ -14,6 +14,7 @@ import { DEFAULT_STRATEGY_PARAMS, generateCandidates, type StrategyParams } from
 import { buildStrategyHealthEvent } from "@/lib/core/strategy-health";
 import { fifteenMinuteGroupKey, signalKey, zonedDateString } from "@/lib/core/time";
 import type { Instrument, MarketSnapshot, ScoredCandidate, Timeframe, TradePlan } from "@/lib/core/types";
+import { PRODUCTION_SIGNAL_EMAIL_ENABLED } from "@/lib/core/release-policy";
 import { sendSignalEmail, sendSystemAlertEmail } from "@/lib/notifications/email";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -285,7 +286,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
           singleRiskCapUsdt: runtimeConfig.CS_PER_SIGNAL_RISK_CAP_USDT,
           dailyEmailCap: runtimeConfig.CS_NEW_EMAIL_DAILY_CAP,
           scanEmailCap: runtimeConfig.CS_MAX_EMAILS_PER_SCAN,
-          shouldEmail: hasEmailConfig && productionHealth.productionAAllowed,
+          shouldEmail: PRODUCTION_SIGNAL_EMAIL_ENABLED && hasEmailConfig && productionHealth.productionAAllowed,
           maxConcurrentPositions: runtimeConfig.CS_MAX_CONCURRENT_POSITIONS,
           cooldownHours: runtimeConfig.CS_COOLDOWN_HOURS,
           takerFeeRate: runtimeConfig.CS_PAPER_TAKER_FEE_RATE,

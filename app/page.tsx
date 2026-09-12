@@ -106,13 +106,27 @@ export default async function HomePage() {
         </div>
       </header>
 
+      <section className="monitoring-banner" aria-label="Release mode">
+        <div>
+          <p className="section-kicker">RELEASE CONTROL</p>
+          <h1>运行模式：监控模式 / Monitoring Only</h1>
+          <p>当前没有通过 Promotion Gate 的 Alpha；交易信号邮件已关闭。</p>
+          <p>页面候选仅用于研究和人工观察，系统不会自动下单；Alpha Research Program 当前已停止。</p>
+        </div>
+        <div className="monitoring-badges" aria-label="运行边界">
+          <span>Signal Email: OFF</span>
+          <span>Auto Trading: OFF</span>
+          <span>Human Decision Support</span>
+        </div>
+      </section>
+
       <section className="summary-panel" aria-label="汇总数据">
         <div className="summary-heading">
           <div>
             <p className="section-kicker">PERFORMANCE SUMMARY</p>
             <h1>策略汇总</h1>
           </div>
-          <span>提醒统计全量记录 · 收益统计已结算纸上交易</span>
+          <span>提醒统计全量记录 · 历史/纸上诊断，不代表真实收益</span>
         </div>
         <div className="summary-grid">
           <div className="summary-card">
@@ -189,6 +203,7 @@ export default async function HomePage() {
               <div>
                 <p className="section-kicker">TOP OPPORTUNITIES</p>
                 <h2>最高评分机会</h2>
+                <span className="research-badge">研究候选 / 未经 Promotion 验证</span>
               </div>
               <span>当前有效 {signalSummary.activeSignals} 条 · 展示前 {signals.length} 条</span>
             </div>
@@ -223,7 +238,7 @@ export default async function HomePage() {
                 <p className="section-kicker">PAPER SETTLEMENT</p>
                 <h2>最近纸上交易结果</h2>
               </div>
-              <span>仅用于验证策略，不代表真实收益</span>
+              <span>历史/纸上诊断结果，不代表真实账户收益</span>
             </div>
             {paperTrades.length === 0 ? (
               <p className="inline-empty">暂无已结算记录。</p>

@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { getServerConfig, type ServerConfig } from "@/lib/config";
 import { sideLabel } from "@/lib/core/risk";
+import { PRODUCTION_SIGNAL_EMAIL_ENABLED } from "@/lib/core/release-policy";
 import type { ScoredCandidate, TradePlan } from "@/lib/core/types";
 
 export interface SignalEmailInput {
@@ -11,7 +12,11 @@ export interface SignalEmailInput {
   sourceTimestamp: number;
 }
 
-export async function sendSignalEmail(input: SignalEmailInput): Promise<{ messageId?: string; skipped: boolean }> {
+export async function sendSignalEmail(input: SignalEmailInput): Promise<{ messageId?: string; skipped: boolean; reason?: string }> {
+  if (!PRODUCTION_SIGNAL_EMAIL_ENABLED) {
+    return { skipped: true, reason: "RELEASE_POLICY_SIGNAL_EMAIL_DISABLED" };
+  }
+
   const config = getServerConfig();
   return sendWithConfig(config, {
     subject: `[风险警告] ${input.symbol} ${sideLabel(input.candidate.side)} · ${input.candidate.score.toFixed(1)} 分`,
