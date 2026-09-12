@@ -1,0 +1,52 @@
+{
+  "schema": "v23-admission-v1",
+  "experimentId": "V23_TERM_STRUCTURE_BASIS_STATE",
+  "family": "same-underlying futures term-structure basis state",
+  "informationSourceClass": "TERM_STRUCTURE_BASIS",
+  "r1AuthoritativeCommit": "6c5c415023683b6d8905aae2444af28d1510d9b6",
+  "r1ExhaustedRegistryContainsV23": false,
+  "structuralAdmissionPass": true,
+  "structuralDimensions": [
+    "information_source",
+    "derivative_state",
+    "economic_mechanism"
+  ],
+  "orthogonality": {
+    "V23_NOT_V15_SPOT_PERP_LEAD_LAG": "V15 compares spot and perpetual short-horizon lead-lag; V23 compares multiple dated futures maturities on one underlying against a common index.",
+    "V23_NOT_V17": "V17 is funding/crowding positioning; V23 does not use funding thresholds or crowding continuation.",
+    "V23_NOT_V20": "V20 is last/mark-price dislocation convergence; V23 is same-exchange multi-maturity curve state.",
+    "V23_NOT_V12_V13": "V12/V13 are multi-asset market-neutral relative value; V23 is same underlying across maturities.",
+    "V23_NOT_V22": "V22 is same instrument across exchanges; V23 is same exchange, same underlying, different maturities."
+  },
+  "declarations": {
+    "expectedSignalMechanism": "Changes in the relative pricing of perpetual, current-quarter and next-quarter futures may reveal changes in leverage demand, hedging pressure and risk premium before they are fully reflected in the target perpetual market.",
+    "whyInformationArrivesBeforePriceAdjustment": "Different maturity contracts are held and traded by different hedgers, arbitrageurs and leveraged participants; curve repricing can therefore contain derivative-state information distinct from single-contract price momentum.",
+    "whyNotEquivalentToLegacyFamily": "The information source is maturity-curve state rather than spot/perpetual lead-lag, crowding/funding state, fair-value mark dislocation, multi-asset relative value, or cross-exchange price discovery.",
+    "expectedAlertFrequencyBand": "NOT_EVALUATED_IN_WP1",
+    "humanActionability": "1h closed-candle state is intended for human alert review, not HFT.",
+    "requiredPublicData": [
+      "Binance USD-M target perpetual 1h regular klines",
+      "Binance USD-M index-price 1h klines",
+      "Binance USD-M CURRENT_QUARTER continuous 1h klines",
+      "Binance USD-M NEXT_QUARTER continuous 1h klines"
+    ],
+    "dataAvailabilityRisk": "Dated continuous futures history may be unavailable from the official archive and public REST may be jurisdiction-restricted; no repair or replacement is allowed.",
+    "executionLatencySensitivity": "NOT_EVALUATED_IN_WP1",
+    "expectedHoldingMechanism": "NOT_DEFINED_BEFORE_DATA_GATE",
+    "frictionSensitivityRationale": "A term-structure state is expected to persist longer than exchange micro-latency and therefore must plausibly support signals whose magnitude can exceed realistic trading friction."
+  },
+  "budget": {
+    "budgetBefore": 2,
+    "budgetConsumed": 1,
+    "remainingBudget": 1
+  },
+  "v22Terminal": {
+    "commit": "160cf38780dfd14ed8e6119bcb6c6841fad6fd93",
+    "classification": "V22_CROSS_VENUE_SIGNAL_SAMPLE_INSUFFICIENT",
+    "researchStop": true
+  },
+  "productionChanged": false,
+  "productionEmail": "OFF",
+  "deploy": false,
+  "merge": false
+}
