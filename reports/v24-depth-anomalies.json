@@ -1,0 +1,6153 @@
+{
+  "schema": "v24-depth-anomalies-v1",
+  "experimentId": "V24_ORDER_BOOK_LIQUIDITY_WITHDRAWAL",
+  "source": "Binance official Data Vision daily bookDepth",
+  "bySymbolAndDate": [
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-02-08",
+      "anomalyType": "ARCHIVE_OR_SCHEMA_UNAVAILABLE",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-02-09",
+      "anomalyType": "ARCHIVE_OR_SCHEMA_UNAVAILABLE",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-02-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-02-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 830
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-03-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-03-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 347
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-04-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-04-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-04-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-05-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 2
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-05-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 37
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-06-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 6
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-06-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-08-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-09-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 28
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-10-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 84
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-10-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-10-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-11-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 29
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2023-11-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-01-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-01-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 60
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 32
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 4
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 4
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 6
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 4
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 7
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 10
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-02-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-02",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 145
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 2
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-03",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 210
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-05",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 125
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-09",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 50
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-11",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 50
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 32
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-13",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 40
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-03-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-04-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-04-18",
+      "anomalyType": "ARCHIVE_OR_SCHEMA_UNAVAILABLE",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-04-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 25
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-04-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 7
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-05-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 24
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-05-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 24
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-05-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-05-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 25
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-07-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 26
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-07-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 26
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-07-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 10
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-08-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-08-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-09-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 57
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-09-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-10-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2024-12-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-01-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 60
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-02-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-02-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-02-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 200
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-02-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-03-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 68
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-03-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-03-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-03-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 2
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-16",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-17",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-20",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-25",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 2649
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-26",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 1917
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-27",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 390
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-28",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 2430
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-29",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 5030
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-29",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-04-30",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 2690
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-01",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 10717
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-02",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 16402
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-03",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 14165
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-04",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 9920
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-05",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 1686
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-06",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 2629
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-07",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 16070
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-08",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 27990
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-09",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28800
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-10",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28800
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 16
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-11",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28610
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-11",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-12",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28390
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-12",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 2
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-13",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28430
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-13",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-14",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28770
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-14",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-15",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28380
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-15",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 2
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-16",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28430
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-16",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 2
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-17",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28190
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-17",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-18",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28600
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-18",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 48
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-19",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13240
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-19",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 110
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 98
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 100
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 105
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 101
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 94
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 116
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-05-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 116
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 111
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 111
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 94
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 113
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 32
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 6
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 16
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 16
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-06-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 37
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 53
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 19
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 249
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-07-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 68
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 65
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 65
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 74
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 56
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 89
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 84
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 44
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-08-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 56
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 49
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 125
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 103
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 108
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 114
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 86
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 84
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 93
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 91
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 103
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 105
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 114
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-09-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 107
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 109
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-10",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 30
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 28
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 62
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 57
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 70
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 20
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 66
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 89
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-10-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 144
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 129
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 157
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 154
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 144
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 118
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 145
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 175
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 126
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 131
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 177
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 185
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 140
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 152
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 146
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 178
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 173
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 151
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 199
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 164
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 156
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-11-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 160
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 130
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-01",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 1280
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-01",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 19
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 19
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 73
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 160
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 126
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 121
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 123
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 136
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 102
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 125
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 86
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 146
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 132
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 109
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 111
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 108
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 121
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 93
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 126
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2025-12-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 137
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 138
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 128
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 156
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 157
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 155
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 124
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 42
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 89
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 130
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 134
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 125
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 114
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 141
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 149
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 136
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-01-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 131
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 44
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 40
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 77
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 62
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 22
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 99
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 150
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 116
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 65
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 68
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 62
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 86
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 138
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 64
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 99
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 100
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 82
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 79
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-02-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 113
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 80
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 82
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 57
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 194
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 216
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 229
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 188
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 191
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 248
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 232
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 217
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 215
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 200
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 235
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 244
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 204
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 245
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 242
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 240
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 240
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 243
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 265
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 245
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 234
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 255
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 258
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-03-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 231
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 205
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 131
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 206
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 223
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 242
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 225
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 230
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 251
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 268
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 264
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 212
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 210
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 246
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 213
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 219
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 273
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 231
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 251
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 258
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 261
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 182
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 219
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 183
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 191
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 202
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 172
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 204
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-04-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 220
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 190
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 177
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 217
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 193
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 181
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 191
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 176
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 134
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 103
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 78
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 113
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 133
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 193
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 230
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 195
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 149
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 201
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 205
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 209
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 176
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 184
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 185
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 223
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 174
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 199
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 185
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 207
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 210
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 172
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-05-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 265
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-06-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 224
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-06-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 230
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-06-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 31
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-06-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 11
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-06-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 12
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-07-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 12
+    },
+    {
+      "symbol": "BTCUSDT",
+      "date": "2026-07-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 14
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-02-08",
+      "anomalyType": "ARCHIVE_OR_SCHEMA_UNAVAILABLE",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-02-09",
+      "anomalyType": "ARCHIVE_OR_SCHEMA_UNAVAILABLE",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-02-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-02-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 830
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-03-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-03-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 347
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-04-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-04-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-04-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-05-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-05-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 37
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-06-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 6
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-06-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-08-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-09-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 28
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-10-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 84
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-10-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-10-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-11-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 29
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2023-11-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-01-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-01-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 60
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 32
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 4
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 5
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 4
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 6
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 4
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 5
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 7
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 10
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-02-27",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-02",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 145
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-03",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 210
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-05",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 125
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-09",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-11",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 32
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-13",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 40
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-03-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-04-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-04-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 25
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-04-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 7
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-05-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 24
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-05-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 24
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-05-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-05-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 25
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-07-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 26
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-07-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 26
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-07-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 10
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-08-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-08-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 27
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-09-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 57
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-09-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-10-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2024-12-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 30
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-01-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 60
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-02-03",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 9
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-02-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-02-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-02-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 200
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-02-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-03-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 68
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-03-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-03-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 5
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-03-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-16",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-17",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-20",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-23",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 6750
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-24",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 690
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-25",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 3739
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-26",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 10432
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-27",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 11470
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-28",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 5980
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-29",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13140
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-29",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-04-30",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 7610
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-01",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 19926
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-02",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 22006
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-03",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 18650
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-04",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 18572
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-05",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13105
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-06",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 6296
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-07",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 16420
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-08",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 27320
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-09",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28800
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-10",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28800
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 16
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-11",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28610
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-11",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-12",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28390
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-12",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-13",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28430
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-13",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-14",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28770
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-14",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-15",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28380
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-15",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-16",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28430
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-16",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-17",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28190
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-17",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-18",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 28600
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-18",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 48
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-19",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13240
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-19",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 110
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 98
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 100
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 105
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 101
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 94
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 116
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-05-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 116
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 111
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 111
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 94
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 113
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 32
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 6
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 16
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 16
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-06-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 37
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 53
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 19
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 249
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-23",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 570
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 33
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 36
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-07-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 68
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 65
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 67
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 65
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 51
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 74
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 56
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 89
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-26",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 2590
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 84
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 44
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-08-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 56
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 49
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 35
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 125
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 103
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 115
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 108
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 114
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 86
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 84
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 93
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 91
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 103
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 105
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 114
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-09-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 107
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 109
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 15
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-10",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 296
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 28
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-11",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 3685
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 62
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-12",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 2015
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 57
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 70
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 34
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 20
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 66
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 88
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 89
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 55
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 69
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-10-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 144
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 129
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 157
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 154
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-04",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 4040
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-05",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 12930
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-06",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13675
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-07",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13035
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 144
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-08",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 12780
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-09",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 7980
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 118
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-11",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 2590
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 145
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-12",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 9545
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-13",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 8005
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 175
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-14",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13375
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 126
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-15",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13675
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 131
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-16",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13625
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 177
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-17",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13385
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 185
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-18",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13340
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 140
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-19",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13560
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-20",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13500
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 152
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-21",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13590
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 146
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-22",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13605
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 178
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-23",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13395
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 173
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-24",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13475
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 151
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-25",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13575
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 199
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-26",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13285
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 164
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-27",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13500
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-28",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13595
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 156
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-29",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13490
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 160
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-11-30",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 13485
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 130
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-01",
+      "anomalyType": "PRICE_ANCHOR_INVALID",
+      "count": 8260
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-01",
+      "anomalyType": "STALE_DEPTH_INTERVAL",
+      "count": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 142
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 18
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 19
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 19
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 73
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 160
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 126
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 121
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 123
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 136
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 102
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 125
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 86
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 146
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 106
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 132
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 109
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 111
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 108
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 121
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 93
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 126
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2025-12-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 137
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 139
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 138
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 128
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 156
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 157
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 155
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 124
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 163
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 72
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 42
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 17
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 54
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 71
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 3
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 52
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 89
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 130
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 134
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 125
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 114
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 141
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 149
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 136
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-01-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 131
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 75
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 44
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 40
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 77
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 62
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 22
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 58
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 99
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 150
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 116
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 65
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 68
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 62
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 120
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 86
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 138
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 64
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 99
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 100
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 82
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 119
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 79
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-02-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 113
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 80
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 82
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 57
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 117
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 96
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 194
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 216
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 229
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 188
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 191
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 248
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 232
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 217
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 215
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 200
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 235
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 244
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 204
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 245
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 242
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 240
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 240
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 243
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 265
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 245
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 234
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 255
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 258
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-03-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 231
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 205
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 131
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 206
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 223
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 242
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 225
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 230
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 251
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 268
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 264
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 212
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 210
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 246
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 213
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 219
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 273
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 231
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 233
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 251
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 258
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 261
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 182
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 219
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 183
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 191
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 202
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 172
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 204
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-04-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 220
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 190
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 177
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 217
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-04",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 193
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-05",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 181
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-06",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 191
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-07",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 176
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 134
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-09",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 103
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-10",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 104
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-11",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 78
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 113
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-13",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 133
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-14",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 193
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-15",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 230
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-16",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 195
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-17",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 149
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-18",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 201
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-19",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 205
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-20",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 209
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 176
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-22",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 184
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-23",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 185
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-24",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 223
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-25",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 174
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-26",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 199
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-27",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 185
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-28",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 207
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-29",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 210
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-30",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 172
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-05-31",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 265
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-06-01",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 224
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-06-02",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 230
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-06-03",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 31
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-06-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 11
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-06-12",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 12
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-07-08",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 12
+    },
+    {
+      "symbol": "ETHUSDT",
+      "date": "2026-07-21",
+      "anomalyType": "LARGE_TIMESTAMP_GAP",
+      "count": 14
+    }
+  ],
+  "totals": {
+    "ARCHIVE_OR_SCHEMA_UNAVAILABLE": 5,
+    "LARGE_TIMESTAMP_GAP": 91468,
+    "PRICE_ANCHOR_INVALID": 1248109,
+    "STALE_DEPTH_INTERVAL": 38
+  },
+  "noFutureData": true,
+  "strategyOutcomesRead": false
+}

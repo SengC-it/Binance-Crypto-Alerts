@@ -1,0 +1,37 @@
+{
+  "schema": "v24-admission-v1",
+  "experimentId": "V24_ORDER_BOOK_LIQUIDITY_WITHDRAWAL",
+  "family": "near-book liquidity withdrawal / depth-state change",
+  "informationSourceClass": "LIQUIDITY_WITHDRAWAL",
+  "structuralOrthogonality": "STRUCTURALLY_ORTHOGONAL",
+  "dimensions": [
+    "information_source",
+    "liquidity_mechanism",
+    "causal_timing"
+  ],
+  "declaration": {
+    "expectedSignalMechanism": "resting near-book liquidity withdrawal may expose short-term directional fragility before price adjustment",
+    "whyInformationArrivesBeforePriceAdjustment": "asymmetric resting liquidity availability can change before the next closed decision window reprices",
+    "whyNotEquivalentToLegacyFamily": "V24 uses resting order-book liquidity state; it does not use executed taker-flow/absorption, OI/funding/crowding, cross-venue price discovery, or price-derived indicators",
+    "expectedAlertFrequencyBand": "not evaluated in WP1",
+    "humanActionability": "future signal would be an email-only decision aid; not evaluated in WP1",
+    "requiredPublicData": "Binance USD-M public daily bookDepth, official 5m klines, and public depth REST",
+    "dataAvailabilityRisk": "daily archive completeness, schema integrity, price anchoring, cadence, and PIT age",
+    "executionLatencySensitivity": "not evaluated in WP1",
+    "expectedHoldingMechanism": "not evaluated in WP1",
+    "frictionSensitivityRationale": "not evaluated in WP1"
+  },
+  "distinctFrom": {
+    "V16_V18": "executed taker-flow / absorption versus resting order-book state",
+    "V7_V17": "not OI/funding/crowding",
+    "V22": "not cross-exchange price discovery",
+    "V5_V6": "not price-derived"
+  },
+  "r1AdmissionCommit": "6c5c415023683b6d8905aae2444af28d1510d9b6",
+  "r1AdmissionVerified": true,
+  "r1ExhaustedRegistryVerified": true,
+  "budgetBefore": 1,
+  "budgetConsumed": 1,
+  "remainingOrthogonalFamilyBudget": 0,
+  "admissionPass": true
+}
