@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
 import {
   PRC1_BASELINE_STRATEGY_VERSION,
@@ -9,7 +10,20 @@ import {
   PRC1_HYPOTHESIS_FROZEN_AT_UTC,
   isPrc1ForwardEligible,
 } from "@/lib/prc1/contract";
-import { comparePrc1ForwardTrades, summarizePrc1Trades, type Prc1ForwardTradeRow } from "@/lib/prc1/metrics";
+import {
+  assertForwardWindow,
+  comparePrc1ForwardTrades,
+  loadPrc1ForwardComparison,
+  summarizePrc1Trades,
+  type Prc1ForwardTradeRow,
+} from "@/lib/prc1/metrics";
+import {
+  PRC1_DATA_INVALID,
+  PRC1_FORWARD_GATE_COLLECTING,
+  PRC1_FORWARD_GATE_FAIL,
+  PRC1_FORWARD_GATE_PASS,
+  evaluatePrc1ForwardGate,
+} from "@/lib/prc1/gate";
 import {
   buildPrc1ChallengerMetadata,
   plannedStopDistancePct,
@@ -38,22 +52,68 @@ function plan(stopPrice: number, entryPrice = 100): TradePlan {
   };
 }
 
+interface ForwardTradeOverrides {
+  id?: string | number;
+  entryTime?: string;
+  exitTime?: string | null;
+  grossPnl?: number | null;
+}
+
 function forwardTrade(
   strategyVersion: string,
   index: number,
-  pnl: number,
-  rMultiple = pnl / 50,
+  pnl: number | null,
+  rMultiple: number | null = pnl === null ? null : pnl / 50,
+  overrides: ForwardTradeOverrides = {},
 ): Prc1ForwardTradeRow {
-  const entry = `2026-09-${String(index + 1).padStart(2, "0")}T00:00:00.000Z`;
+  const entryMs = Date.parse("2026-09-13T00:00:00.000Z") + index * 3_600_000;
   return {
+    id: overrides.id ?? `${strategyVersion}-${index}`,
     strategy_version: strategyVersion,
-    entry_time: entry,
-    exit_time: `2026-09-${String(index + 1).padStart(2, "0")}T01:00:00.000Z`,
-    status: pnl > 0 ? "TAKE_PROFIT" : "STOP_LOSS",
+    entry_time: overrides.entryTime ?? new Date(entryMs).toISOString(),
+    exit_time: overrides.exitTime === undefined
+      ? new Date(entryMs + 3_600_000).toISOString()
+      : overrides.exitTime,
+    status: pnl !== null && pnl > 0 ? "TAKE_PROFIT" : "STOP_LOSS",
     net_pnl_usdt: pnl,
-    gross_pnl_usdt: pnl,
+    gross_pnl_usdt: overrides.grossPnl === undefined ? pnl : overrides.grossPnl,
     r_multiple: rMultiple,
   };
+}
+
+function rowsFor(
+  strategyVersion: string,
+  pnls: number[],
+  rMultiple = 0.1,
+  grossPnl = pnls,
+): Prc1ForwardTradeRow[] {
+  return pnls.map((pnl, index) => forwardTrade(
+    strategyVersion,
+    index,
+    pnl,
+    rMultiple,
+    { grossPnl: grossPnl[index] },
+  ));
+}
+
+function comparisonForCounts(challengerCount: number) {
+  return comparePrc1ForwardTrades(
+    rowsFor(PRC1_BASELINE_STRATEGY_VERSION, Array.from({ length: challengerCount }, () => 1)),
+    rowsFor(PRC1_CHALLENGER_STRATEGY_VERSION, Array.from({ length: challengerCount }, () => 1)),
+  );
+}
+
+function passingComparison() {
+  return comparePrc1ForwardTrades(
+    rowsFor(PRC1_BASELINE_STRATEGY_VERSION, [
+      ...Array.from({ length: 30 }, () => 2),
+      ...Array.from({ length: 20 }, () => -1),
+    ], 0.1),
+    rowsFor(PRC1_CHALLENGER_STRATEGY_VERSION, [
+      ...Array.from({ length: 35 }, () => 2),
+      ...Array.from({ length: 15 }, () => -1),
+    ], 0.2),
+  );
 }
 
 describe("PRC-1 stop-distance challenger", () => {
@@ -102,22 +162,151 @@ describe("PRC-1 stop-distance challenger", () => {
     expect(isPrc1ForwardEligible(Date.parse(PRC1_HYPOTHESIS_FROZEN_AT_UTC))).toBe(true);
   });
 
-  it("summarizes the same forward window without changing the stored rows", () => {
-    const baselineRows = [forwardTrade(PRC1_BASELINE_STRATEGY_VERSION, 0, 10), forwardTrade(PRC1_BASELINE_STRATEGY_VERSION, 1, -5)];
-    const challengerRows = [forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 0, 20), forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 1, -5)];
-    const baselineBefore = JSON.stringify(baselineRows);
-    const challengerBefore = JSON.stringify(challengerRows);
-    const summary = comparePrc1ForwardTrades(baselineRows, challengerRows);
-
-    expect(summary.baseline).toMatchObject({ closedTrades: 2, netPnlUsdt: 5, grossProfit: 10, grossLoss: 5, profitFactor: 2, maxDrawdown: 5 });
-    expect(summary.challenger).toMatchObject({ closedTrades: 2, netPnlUsdt: 15, grossProfit: 20, grossLoss: 5, profitFactor: 4, maxDrawdown: 5 });
-    expect(summary.difference.netPnlUsdt).toBe(10);
-    expect(JSON.stringify(baselineRows)).toBe(baselineBefore);
-    expect(JSON.stringify(challengerRows)).toBe(challengerBefore);
-    expect(summarizePrc1Trades([{ ...forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 0, 20), status: "OPEN", exit_time: null }]).closedTrades).toBe(0);
+  it("uses NET PnL for profit factor even when gross PnL looks profitable", () => {
+    const summary = summarizePrc1Trades([
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 0, -1, -0.1, { grossPnl: 10 }),
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 1, -5, -0.5, { grossPnl: -5 }),
+    ]);
+    expect(summary).toMatchObject({
+      netProfit: 0,
+      netLoss: 6,
+      profitFactor: 0,
+      grossProfit: 10,
+      grossLoss: 5,
+    });
+    expect(summary.grossMetrics.diagnosticOnly).toBe(true);
+    expect(summary.profitFactor).not.toBe(2);
   });
 
-  it("keeps baseline selection, independent shadow state, and all release kills", () => {
+  it("fails the gate when fees and funding turn gross profitability into net loss", () => {
+    const comparison = comparePrc1ForwardTrades(
+      rowsFor(PRC1_BASELINE_STRATEGY_VERSION, Array.from({ length: 50 }, () => -1), 0.1, Array.from({ length: 50 }, () => -0.5)),
+      rowsFor(PRC1_CHALLENGER_STRATEGY_VERSION, Array.from({ length: 50 }, () => -1), 0.1, Array.from({ length: 50 }, () => 2)),
+    );
+    expect(comparison.challenger.grossProfit).toBe(100);
+    expect(comparison.challenger.netPnlUsdt).toBe(-50);
+    expect(evaluatePrc1ForwardGate(comparison).classification).toBe(PRC1_FORWARD_GATE_FAIL);
+  });
+
+  it("computes identical max drawdown for chronological, reverse, and shuffled inputs", () => {
+    const chronological = [
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 0, 10),
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 1, -20),
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 2, 5),
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 3, -1),
+    ];
+    const expected = summarizePrc1Trades(chronological).maxDrawdown;
+    expect(expected).toBe(20);
+    expect(summarizePrc1Trades([...chronological].reverse()).maxDrawdown).toBe(expected);
+    expect(summarizePrc1Trades([chronological[2], chronological[0], chronological[3], chronological[1]]).maxDrawdown).toBe(expected);
+  });
+
+  it("orders ties by exit_time and then id", () => {
+    const entryTime = "2026-09-13T00:00:00.000Z";
+    const exitTime = "2026-09-13T01:00:00.000Z";
+    const rows = [
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 0, 5, 0.1, { id: "b", entryTime, exitTime }),
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 1, -10, -0.1, { id: "a", entryTime, exitTime }),
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 2, -1, -0.1, { id: "c", entryTime, exitTime: "2026-09-13T02:00:00.000Z" }),
+    ];
+    expect(summarizePrc1Trades(rows).maxDrawdown).toBe(10);
+  });
+
+  it("requires an explicit forward window at or after the frozen hypothesis", async () => {
+    expect(() => assertForwardWindow("2026-09-12T23:46:20.665Z", "2026-09-13T00:00:00.000Z"))
+      .toThrow("DATA_INVALID");
+    expect(() => assertForwardWindow("2026-09-13T00:00:00.000Z", "2026-09-12T23:59:00.000Z"))
+      .toThrow("DATA_INVALID");
+
+    const calls: string[] = [];
+    const query: any = {
+      from(table: string) { calls.push(`from:${table}`); return query; },
+      select(columns: string) { calls.push(`select:${columns}`); return query; },
+      in(column: string) { calls.push(`in:${column}`); return query; },
+      gte(column: string, value: string) { calls.push(`gte:${column}:${value}`); return query; },
+      lt(column: string, value: string) { calls.push(`lt:${column}:${value}`); return query; },
+      order(column: string, options: { ascending: boolean }) { calls.push(`order:${column}:${options.ascending}`); return query; },
+      then(resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) {
+        return Promise.resolve({ data: [], error: null }).then(resolve, reject);
+      },
+    };
+    await loadPrc1ForwardComparison(
+      { from: query.from } as unknown as SupabaseClient,
+      "2026-09-13T00:00:00.000Z",
+      "2026-09-14T00:00:00.000Z",
+    );
+    expect(calls).toEqual([
+      "from:bca_shadow_paper_trades",
+      "select:id,strategy_version,entry_time,exit_time,status,net_pnl_usdt,gross_pnl_usdt,r_multiple",
+      "in:strategy_version",
+      "gte:entry_time:2026-09-13T00:00:00.000Z",
+      "lt:entry_time:2026-09-14T00:00:00.000Z",
+      "order:entry_time:true",
+      "order:exit_time:true",
+      "order:id:true",
+    ]);
+  });
+
+  it("fails closed for invalid closed net PnL and R multiple", () => {
+    expect(() => summarizePrc1Trades([
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 0, null, 0.1),
+    ])).toThrow("DATA_INVALID");
+    expect(() => summarizePrc1Trades([
+      forwardTrade(PRC1_CHALLENGER_STRATEGY_VERSION, 0, 1, null),
+    ])).toThrow("DATA_INVALID");
+    const comparison = passingComparison();
+    const invalid = {
+      ...comparison,
+      challenger: { ...comparison.challenger, avgR: Number.NaN },
+    };
+    expect(evaluatePrc1ForwardGate(invalid).status).toBe(PRC1_DATA_INVALID);
+    expect(evaluatePrc1ForwardGate(invalid).eligibleForHumanPromotionReview).toBe(false);
+  });
+
+  it("keeps collecting status and interim diagnostic eligibility at the frozen counts", () => {
+    expect(evaluatePrc1ForwardGate(comparisonForCounts(19))).toMatchObject({
+      status: PRC1_FORWARD_GATE_COLLECTING,
+      classification: null,
+      interimDiagnosticEligible: false,
+    });
+    expect(evaluatePrc1ForwardGate(comparisonForCounts(20))).toMatchObject({
+      status: PRC1_FORWARD_GATE_COLLECTING,
+      classification: null,
+      interimDiagnosticEligible: true,
+    });
+    expect(evaluatePrc1ForwardGate(comparisonForCounts(49)).classification).toBeNull();
+  });
+
+  it("passes exactly at 50 only when every frozen criterion passes", () => {
+    const evaluation = evaluatePrc1ForwardGate(passingComparison());
+    expect(evaluation).toMatchObject({
+      status: PRC1_FORWARD_GATE_PASS,
+      classification: PRC1_FORWARD_GATE_PASS,
+      invalidData: false,
+      eligibleForHumanPromotionReview: true,
+      automaticPromotion: false,
+      signalEmailEnabled: false,
+    });
+    expect(Object.values(evaluation.criteria).every((criterion) => criterion.pass)).toBe(true);
+  });
+
+  it.each([
+    ["net PnL", { netPnlUsdt: -1 }],
+    ["net PF", { profitFactor: 1.19 }],
+    ["Avg R", { avgPnl: 1, avgR: -0.01 }],
+    ["drawdown comparison", { maxDrawdown: passingComparison().baseline.maxDrawdown }],
+    ["baseline PF comparison", { profitFactor: passingComparison().baseline.profitFactor }],
+    ["single-winner concentration", { grossProfitContributionLargestTradePct: 36 }],
+  ])("fails independently when the frozen %s criterion is broken", (_label, challengerPatch) => {
+    const comparison = passingComparison();
+    const broken = {
+      ...comparison,
+      challenger: { ...comparison.challenger, ...challengerPatch },
+    };
+    expect(evaluatePrc1ForwardGate(broken).classification).toBe(PRC1_FORWARD_GATE_FAIL);
+  });
+
+  it("keeps baseline behavior, strategy isolation, and release hard kills", () => {
     expect(routeSource).toContain("const shadowOpportunity = finalShadowCandidates[0];");
     expect(routeSource).toContain("const challengerOpportunity = selectChallengerOpportunity(finalShadowCandidates);");
     expect(routeSource).toContain("isPrc1ForwardEligible(challengerOpportunity.sourceTimestamp)");

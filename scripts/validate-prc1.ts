@@ -12,6 +12,12 @@ import {
   PRC1_STOP_DISTANCE_LOWER_PCT,
   PRC1_STOP_DISTANCE_UPPER_PCT,
 } from "@/lib/prc1/contract";
+import {
+  PRC1_DATA_INVALID,
+  PRC1_FORWARD_GATE_COLLECTING,
+  PRC1_FORWARD_GATE_FAIL,
+  PRC1_FORWARD_GATE_PASS,
+} from "@/lib/prc1/gate";
 
 const STARTING_RELEASE_COMMIT = "df98dc47db398c3d4ad0d4d3a853aaad281b74ab";
 const EXPECTED_BRANCH = "experiment/profit-recovery-stopband-shadow";
@@ -20,6 +26,7 @@ const allowedChangedFiles = new Set([
   ".github/workflows/ci.yml",
   "app/api/scan/route.ts",
   "lib/prc1/contract.ts",
+  "lib/prc1/gate.ts",
   "lib/prc1/metrics.ts",
   "lib/prc1/stopband.ts",
   "lib/services/paper-trading.ts",
@@ -151,21 +158,42 @@ function main(): void {
   assertEqual(forwardContract.singleVariableChange, PRC1_SINGLE_VARIABLE_CHANGE, "single variable change");
   assertEqual(forwardContract.filterRule, PRC1_FILTER_RULE, "filter rule");
   assertEqual(forwardContract.plannedStopDistanceFormula, "abs(plan.stopPrice - plan.entryPrice) / plan.entryPrice * 100", "filter formula");
+  assertEqual(forwardContract.profitFactorBasis, "NET_PNL_AFTER_SLIPPAGE_FEES_FUNDING", "profit factor basis");
+  assertEqual(forwardContract.avgRGateGreaterThan, 0, "Avg R gate");
+  assertEqual(forwardContract.grossMetricsRole, "DIAGNOSTIC_AND_CONCENTRATION_ONLY", "gross metrics role");
+  assertEqual(JSON.stringify(forwardContract.deterministicOrdering), JSON.stringify([
+    "entry_time ASC",
+    "exit_time ASC",
+    "id ASC",
+  ]), "deterministic ordering");
+  assertEqual(forwardContract.forwardRuntimeActivationAtUtc, null, "forward activation timestamp");
+  assertEqual(forwardContract.activationTimestampStatus, "PENDING_DEPLOYMENT_FREEZE", "activation timestamp status");
+  assertEqual(forwardContract.forwardComparisonWindowPolicy, "SAME_CALENDAR_WINDOW_FROM_ACTIVATION", "comparison window policy");
   const contractGate = forwardContract.promotionGate as Record<string, unknown>;
   assertEqual(contractGate.minimumChallengerClosedTrades, PRC1_MIN_FORWARD_CLOSED_TRADES, "minimum forward trades");
   assertEqual(contractGate.netPnlUsdtGreaterThan, 0, "net PnL gate");
   assertEqual(contractGate.profitFactorAtLeast, 1.2, "profit factor gate");
-  assertEqual(contractGate.avgPnlGreaterThan, 0, "average PnL gate");
+  assertEqual(contractGate.avgRGateGreaterThan, 0, "average R gate");
+  assertCondition(!Object.prototype.hasOwnProperty.call(contractGate, "avgPnlGreaterThan"), "avg PnL cannot be a promotion gate");
   assertEqual(contractGate.largestWinningTradeGrossProfitContributionAtMostPct, 35, "winner concentration gate");
 
   const manifest = readRepoJson("reports/prc1-implementation-manifest.json");
   assertEqual(manifest.experimentId, PRC1_EXPERIMENT_ID, "implementation manifest identity");
   assertEqual(manifest.purpose, "PROFIT_RECOVERY", "implementation purpose");
   assertEqual(manifest.startingReleaseCommit, STARTING_RELEASE_COMMIT, "implementation starting commit");
+  assertEqual(manifest.correctiveVersion, "PRC1.1", "corrective version");
+  assertEqual(manifest.correctiveReason, "NET_EDGE_GATE_INTEGRITY", "corrective reason");
   assertEqual(manifest.singleVariableChange, PRC1_SINGLE_VARIABLE_CHANGE, "implementation single variable");
   assertEqual(manifest.forwardOnly, true, "implementation forward-only marker");
   assertEqual(manifest.historicalAttributionUsedForHypothesis, true, "implementation attribution marker");
   assertEqual(manifest.historicalResultsUsedAsForward, false, "implementation forward-results marker");
+  assertEqual(manifest.strategySemanticsChanged, false, "strategy semantics change marker");
+  assertEqual(manifest.stopBandChanged, false, "stop band change marker");
+  assertEqual(manifest.alphaRulesChanged, false, "alpha rules change marker");
+  assertEqual(manifest.profitFactorBasis, "NET", "implementation profit factor basis");
+  assertEqual(manifest.avgRGateRestored, true, "Avg R restoration marker");
+  assertEqual(manifest.deterministicDrawdownOrdering, true, "drawdown ordering marker");
+  assertEqual(manifest.executableGateEvaluator, true, "executable gate evaluator marker");
   assertEqual(manifest.minimumForwardClosedTrades, PRC1_MIN_FORWARD_CLOSED_TRADES, "implementation minimum trades");
   assertEqual(manifest.automaticPromotion, false, "automatic promotion marker");
   assertEqual(manifest.productionStrategyVersion, "trend-rejection-short-v1", "production strategy version");
@@ -178,6 +206,7 @@ function main(): void {
   assertEqual(manifest.deploymentPerformed, false, "deployment marker");
 
   const contractSource = readRepoFile("lib/prc1/contract.ts");
+  const gateSource = readRepoFile("lib/prc1/gate.ts");
   const stopbandSource = readRepoFile("lib/prc1/stopband.ts");
   const metricsSource = readRepoFile("lib/prc1/metrics.ts");
   const paperTradingSource = readRepoFile("lib/services/paper-trading.ts");
@@ -191,8 +220,29 @@ function main(): void {
   assertIncludes(stopbandSource, "distancePct >= PRC1_STOP_DISTANCE_LOWER_PCT && distancePct < PRC1_STOP_DISTANCE_UPPER_PCT", "strict filter boundaries");
   assertIncludes(stopbandSource, "selectChallengerOpportunity", "independent challenger selection");
   assertIncludes(metricsSource, "bca_shadow_paper_trades", "read-only metrics source");
-  assertIncludes(metricsSource, ".gte(\"entry_time\", hypothesisFrozenAtUtc)", "metrics forward timestamp filter");
+  assertIncludes(metricsSource, ".select(\"id,strategy_version,entry_time,exit_time,status,net_pnl_usdt,gross_pnl_usdt,r_multiple\")", "metrics trade identity selection");
+  assertIncludes(metricsSource, ".gte(\"entry_time\", forwardStartUtc)", "metrics forward lower bound");
+  assertIncludes(metricsSource, ".lt(\"entry_time\", asOfUtc)", "metrics forward upper bound");
+  assertIncludes(metricsSource, ".order(\"entry_time\", { ascending: true })", "metrics entry ordering");
+  assertIncludes(metricsSource, ".order(\"exit_time\", { ascending: true })", "metrics exit ordering");
+  assertIncludes(metricsSource, ".order(\"id\", { ascending: true })", "metrics id ordering");
+  assertIncludes(metricsSource, "const orderedClosedRows = [...closedRows].sort(compareTradeChronology)", "defensive chronology sort");
+  assertIncludes(metricsSource, "netProfit", "net profit metric");
+  assertIncludes(metricsSource, "netLoss", "net loss metric");
+  assertIncludes(metricsSource, "grossMetrics: Prc1GrossDiagnostics = {", "gross diagnostic marker");
+  assertCondition(!/profitFactor:[^\n]*gross/i.test(metricsSource), "gross PnL cannot determine promotion profit factor");
   assertCondition(!metricsSource.includes(".insert(") && !metricsSource.includes(".update("), "PRC-1 metrics must be read-only");
+  assertIncludes(gateSource, "evaluatePrc1ForwardGate", "executable gate evaluator");
+  assertIncludes(gateSource, "challenger.profitFactor >= 1.2", "net profit factor gate");
+  assertIncludes(gateSource, "challenger.avgR > 0", "Avg R gate");
+  assertIncludes(gateSource, "challenger.maxDrawdown < baseline.maxDrawdown", "drawdown comparison gate");
+  assertIncludes(gateSource, PRC1_FORWARD_GATE_COLLECTING, "collecting classification");
+  assertIncludes(gateSource, PRC1_FORWARD_GATE_PASS, "pass classification");
+  assertIncludes(gateSource, PRC1_FORWARD_GATE_FAIL, "fail classification");
+  assertIncludes(gateSource, PRC1_DATA_INVALID, "invalid data status");
+  assertIncludes(gateSource, "automaticPromotion: false", "automatic promotion hard kill");
+  assertIncludes(gateSource, "signalEmailEnabled: false", "signal email hard kill");
+  assertCondition(!gateSource.includes("avgPnlGreaterThan") && !gateSource.includes("challenger.avgPnl > 0"), "avg PnL cannot replace Avg R gate");
   assertIncludes(paperTradingSource, ".eq(\"strategy_version\", input.strategyVersion);", "strategy-specific shadow position lookup");
   assertCondition(/\.eq\("strategy_version", input\.strategyVersion\)\s+\.not\("exit_time"/.test(paperTradingSource), "strategy-specific cooldown lookup");
   assertIncludes(paperTradingSource, "return insertPaperTrade(supabase, PRODUCTION_PAPER_TABLE, input, { signal_id: input.signalId });", "production paper trade path");

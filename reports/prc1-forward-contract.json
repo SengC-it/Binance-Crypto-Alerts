@@ -18,6 +18,17 @@
   "singleVariableChange": "STOP_DISTANCE_EXCLUSION",
   "filterRule": "REJECT_IF_2_5_LE_X_LT_3_5",
   "plannedStopDistanceFormula": "abs(plan.stopPrice - plan.entryPrice) / plan.entryPrice * 100",
+  "profitFactorBasis": "NET_PNL_AFTER_SLIPPAGE_FEES_FUNDING",
+  "avgRGateGreaterThan": 0,
+  "grossMetricsRole": "DIAGNOSTIC_AND_CONCENTRATION_ONLY",
+  "deterministicOrdering": [
+    "entry_time ASC",
+    "exit_time ASC",
+    "id ASC"
+  ],
+  "forwardRuntimeActivationAtUtc": null,
+  "activationTimestampStatus": "PENDING_DEPLOYMENT_FREEZE",
+  "forwardComparisonWindowPolicy": "SAME_CALENDAR_WINDOW_FROM_ACTIVATION",
   "exclusionBoundaries": {
     "lowerPctInclusive": 2.5,
     "upperPctExclusive": 3.5,
@@ -29,7 +40,7 @@
     "minimumChallengerClosedTrades": 50,
     "netPnlUsdtGreaterThan": 0,
     "profitFactorAtLeast": 1.2,
-    "avgPnlGreaterThan": 0,
+    "avgRGateGreaterThan": 0,
     "maxDrawdownMustBeLessThanBaseline": true,
     "profitFactorMustExceedBaseline": true,
     "largestWinningTradeGrossProfitContributionAtMostPct": 35
