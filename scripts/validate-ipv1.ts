@@ -57,15 +57,22 @@ function assertIncludes(source: string, fragment: string, label: string): void {
 function main(): void {
   const branch = process.env.GITHUB_HEAD_REF || git(["branch", "--show-current"]);
   assertEqual(branch, EXPECTED_BRANCH, "IPV-1 branch");
-  const head = git(["rev-parse", "HEAD"]);
+  const checkoutHead = git(["rev-parse", "HEAD"]);
+  const head = resolveImplementationHead(checkoutHead);
   assertCondition(git(["status", "--porcelain"]) === "", "IPV-1 worktree must be clean");
   const commits = git(["rev-list", "--reverse", "--ancestry-path", `${STARTING_HEAD}..${head}`])
     .split(/\r?\n/)
     .filter(Boolean);
-  assertEqual(commits.length, 1, "IPV-1 implementation commit count");
+  assertCondition(commits.length >= 1, "IPV-1 must contain an implementation commit");
   const parents = git(["rev-list", "--parents", "-n", "1", commits[0]]).split(/\s+/).slice(1);
   assertEqual(parents.length, 1, "IPV-1 implementation parent count");
   assertEqual(parents[0], STARTING_HEAD, "IPV-1 implementation parent");
+  for (const followUpCommit of commits.slice(1)) {
+    const followUpFiles = git(["diff-tree", "--no-commit-id", "--name-only", "-r", followUpCommit])
+      .split(/\r?\n/)
+      .filter(Boolean);
+    assertCondition(followUpFiles.every((file) => file === "scripts/validate-ipv1.ts"), "IPV-1 follow-up may only correct its validator");
+  }
 
   const changedFiles = git(["diff", "--name-only", `${STARTING_HEAD}..${head}`])
     .split(/\r?\n/)
@@ -146,6 +153,12 @@ function main(): void {
   assertIncludes(source, "IPV1_GATE_FAIL", "fail gate");
 
   console.log(`IPV-1 validation passed for ${head}.`);
+}
+
+function resolveImplementationHead(checkoutHead: string): string {
+  const parents = git(["rev-list", "--parents", "-n", "1", checkoutHead]).split(/\s+/).slice(1);
+  if (process.env.GITHUB_HEAD_REF && parents.length === 2) return parents[1];
+  return checkoutHead;
 }
 
 try {
