@@ -44,6 +44,8 @@ import {
 import { buildUniverseSnapshot } from "@/lib/v5-5/universe";
 import { getFrozenStrategy } from "@/lib/v5-5/manifest";
 import { filterForwardEligibleSnapshots } from "@/lib/v5-5/forward-start";
+import { PRC1_CHALLENGER_STRATEGY_VERSION, isPrc1ForwardEligible } from "@/lib/prc1/contract";
+import { buildPrc1ChallengerMetadata, selectChallengerOpportunity } from "@/lib/prc1/stopband";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -349,6 +351,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
     }
 
     let shadowPaperTradeCreated = false;
+    let prc1ChallengerShadowTradeCreated = false;
     const shadowOpportunity = finalShadowCandidates[0];
     if (shadowOpportunity) {
       try {
@@ -364,6 +367,33 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
         errors.push({
           symbol: shadowOpportunity.symbol,
           stage: "shadow_paper_trade",
+          message: errorMessage(error),
+        });
+      }
+    }
+
+    const challengerOpportunity = selectChallengerOpportunity(finalShadowCandidates);
+    if (challengerOpportunity && isPrc1ForwardEligible(challengerOpportunity.sourceTimestamp)) {
+      try {
+        prc1ChallengerShadowTradeCreated = await createShadowPaperTrade(supabase, {
+          symbol: challengerOpportunity.symbol,
+          candidate: challengerOpportunity.candidate,
+          plan: challengerOpportunity.plan,
+          strategyVersion: PRC1_CHALLENGER_STRATEGY_VERSION,
+          sourceTimestamp: challengerOpportunity.sourceTimestamp,
+          slippageBps: runtimeConfig.CS_PAPER_SLIPPAGE_BPS,
+          metadata: buildPrc1ChallengerMetadata({
+            plan: challengerOpportunity.plan,
+            sourceDataTimestamp: challengerOpportunity.sourceTimestamp,
+            runtimeCommitSha: runtimeConfig.BCA_V55_RUNTIME_COMMIT_SHA
+              ?? process.env.VERCEL_GIT_COMMIT_SHA
+              ?? "unknown",
+          }),
+        }, runtimeConfig.CS_COOLDOWN_HOURS);
+      } catch (error) {
+        errors.push({
+          symbol: challengerOpportunity.symbol,
+          stage: "prc1_challenger_shadow_paper_trade",
           message: errorMessage(error),
         });
       }
@@ -391,6 +421,7 @@ async function runScan(request: NextRequest): Promise<NextResponse> {
       shadowCandidateCount: shadowCandidates.length,
       finalShadowCandidateCount: finalShadowCandidates.length,
       shadowPaperTradeCreated,
+      prc1ChallengerShadowTradeCreated,
       v55Shadow: {
         enabled: runtimeConfig.BCA_V55_SHADOW_ENABLED,
         snapshotsWritten: v55SnapshotsWritten,

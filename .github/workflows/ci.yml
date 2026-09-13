@@ -25,4 +25,12 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm validate:v5-5
-      - run: pnpm validate:release:monitoring
+      - name: Prepare monitoring-only release validation
+        run: |
+          git fetch origin release/monitoring-only-v1
+          git worktree add --detach "$RUNNER_TEMP/release-monitoring-only" origin/release/monitoring-only-v1
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/release-monitoring-only/node_modules"
+      - name: Validate monitoring-only release
+        working-directory: ${{ runner.temp }}/release-monitoring-only
+        run: pnpm validate:release:monitoring
+      - run: pnpm validate:prc1
