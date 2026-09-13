@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { stopBandFilterPass } from "@/lib/prc1/stopband";
 import type { ScoredCandidate, TradePlan } from "@/lib/core/types";
 import { simulateIpv1Execution } from "./execution";
@@ -20,15 +22,98 @@ import {
 
 const HOUR_MS = 60 * 60 * 1000;
 
+export const IPV1_READ_ERROR = {
+  MISSING_SUPABASE_CONFIGURATION: "MISSING_SUPABASE_CONFIGURATION",
+  SUPABASE_GROUP_READ_FAILED: "SUPABASE_GROUP_READ_FAILED",
+  SUPABASE_CANDIDATE_READ_FAILED: "SUPABASE_CANDIDATE_READ_FAILED",
+} as const;
+
+export type Ipv1ReadError = typeof IPV1_READ_ERROR[keyof typeof IPV1_READ_ERROR];
+
+export interface Ipv1EvidenceReadResult {
+  groups: Ipv1ScanGroupRow[];
+  candidates: Ipv1CandidateRow[];
+  error: Ipv1ReadError | null;
+}
+
+type SupabaseClientFactory = () => SupabaseClient;
+
+export async function readIndependentEvidence(
+  asOfUtc: string,
+  clientFactory: SupabaseClientFactory = getSupabaseAdmin,
+): Promise<Ipv1EvidenceReadResult> {
+  if (!Number.isFinite(Date.parse(asOfUtc))) throw new Error("Invalid IPV-1 as-of timestamp");
+
+  let supabase: SupabaseClient;
+  try {
+    supabase = clientFactory();
+  } catch {
+    return emptyEvidenceResult(IPV1_READ_ERROR.MISSING_SUPABASE_CONFIGURATION);
+  }
+
+  let groupsResult: { data: unknown; error: unknown };
+  try {
+    groupsResult = await supabase
+      .from("bca_scan_groups")
+      .select("scan_group_key,status,finished_at")
+      .eq("status", "COMPLETED")
+      .not("finished_at", "is", null)
+      .gte("finished_at", IPV1_HYPOTHESIS_FROZEN_AT_UTC)
+      .lt("finished_at", asOfUtc)
+      .order("scan_group_key", { ascending: true });
+  } catch {
+    return emptyEvidenceResult(IPV1_READ_ERROR.SUPABASE_GROUP_READ_FAILED);
+  }
+  if (groupsResult.error || !Array.isArray(groupsResult.data)) {
+    return emptyEvidenceResult(IPV1_READ_ERROR.SUPABASE_GROUP_READ_FAILED, groupsResult.data);
+  }
+
+  let candidatesResult: { data: unknown; error: unknown };
+  try {
+    candidatesResult = await supabase
+      .from("bca_shadow_candidates")
+      .select("scan_group_key,symbol,source_data_timestamp,score,candidate,trade_plan")
+      .gte("source_data_timestamp", IPV1_HYPOTHESIS_FROZEN_AT_UTC)
+      .lt("source_data_timestamp", asOfUtc)
+      .order("scan_group_key", { ascending: true })
+      .order("score", { ascending: false })
+      .order("symbol", { ascending: true });
+  } catch {
+    return emptyEvidenceResult(IPV1_READ_ERROR.SUPABASE_CANDIDATE_READ_FAILED, groupsResult.data);
+  }
+  if (candidatesResult.error || !Array.isArray(candidatesResult.data)) {
+    return emptyEvidenceResult(IPV1_READ_ERROR.SUPABASE_CANDIDATE_READ_FAILED, groupsResult.data);
+  }
+
+  return {
+    groups: groupsResult.data as Ipv1ScanGroupRow[],
+    candidates: candidatesResult.data as Ipv1CandidateRow[],
+    error: null,
+  };
+}
+
+function emptyEvidenceResult(error: Ipv1ReadError, groups: unknown = []): Ipv1EvidenceReadResult {
+  return {
+    groups: Array.isArray(groups) ? groups as Ipv1ScanGroupRow[] : [],
+    candidates: [],
+    error,
+  };
+}
+
 export function prepareIpv1Evidence(
   groupRows: Ipv1ScanGroupRow[],
   candidateRows: Ipv1CandidateRow[],
   freezeUtc = IPV1_HYPOTHESIS_FROZEN_AT_UTC,
+  asOfUtc?: string,
 ): Ipv1PreparedEvidence {
   const freezeMs = Date.parse(freezeUtc);
   if (!Number.isFinite(freezeMs)) throw new Error("Invalid IPV-1 freeze timestamp");
+  const asOfMs = asOfUtc === undefined ? Number.POSITIVE_INFINITY : Date.parse(asOfUtc);
+  if (asOfUtc !== undefined && !Number.isFinite(asOfMs)) throw new Error("Invalid IPV-1 as-of timestamp");
 
   const groups: Ipv1ScanGroup[] = [];
+  let excludedBeforeFreezeGroupCount = 0;
+  let excludedAfterAsOfGroupCount = 0;
   let excludedNonCompletedGroupCount = 0;
   for (const row of groupRows) {
     const key = stringValue(row.scan_group_key);
@@ -38,17 +123,30 @@ export function prepareIpv1Evidence(
       excludedNonCompletedGroupCount += 1;
       continue;
     }
+    if (finishedAt < freezeMs) {
+      excludedBeforeFreezeGroupCount += 1;
+      continue;
+    }
+    if (finishedAt >= asOfMs) {
+      excludedAfterAsOfGroupCount += 1;
+      continue;
+    }
     groups.push({ scanGroupKey: key, status, finishedAt });
   }
 
   const groupKeys = new Set(groups.map((group) => group.scanGroupKey));
   let invalidEvidenceCount = 0;
   let excludedBeforeFreezeCount = 0;
+  let excludedAfterAsOfCount = 0;
   const candidates: Ipv1Candidate[] = [];
   for (const row of candidateRows) {
     const sourceTimestamp = timestampValue(row.source_data_timestamp);
     if (sourceTimestamp !== null && sourceTimestamp < freezeMs) {
       excludedBeforeFreezeCount += 1;
+      continue;
+    }
+    if (sourceTimestamp !== null && sourceTimestamp >= asOfMs) {
+      excludedAfterAsOfCount += 1;
       continue;
     }
     if (sourceTimestamp === null) {
@@ -70,6 +168,9 @@ export function prepareIpv1Evidence(
     candidates,
     invalidEvidenceCount,
     excludedBeforeFreezeCount,
+    excludedAfterAsOfCount,
+    excludedBeforeFreezeGroupCount,
+    excludedAfterAsOfGroupCount,
     excludedNonCompletedGroupCount,
   };
 }
@@ -141,7 +242,7 @@ export async function runIpv1Replay(
     }
 
     const cooldownUntil = cooldowns.get(selected.symbol) ?? 0;
-    if (group.finishedAt < cooldownUntil) {
+    if (selected.sourceDataTimestamp < cooldownUntil) {
       decisions.push({
         scanGroupKey: group.scanGroupKey,
         decisionTime: group.finishedAt,

@@ -145,14 +145,22 @@ export interface Ipv1GateCriterion {
 export const IPV1_GATE_COLLECTING = "COLLECTING_INDEPENDENT_EVIDENCE" as const;
 export const IPV1_GATE_PASS = "IPV1_EMAIL_PILOT_GATE_PASS" as const;
 export const IPV1_GATE_FAIL = "IPV1_EMAIL_PILOT_GATE_FAIL" as const;
+export const IPV1_DATA_INVALID = "IPV1_DATA_INVALID" as const;
 
 export type Ipv1GateClassification =
   | typeof IPV1_GATE_COLLECTING
   | typeof IPV1_GATE_PASS
-  | typeof IPV1_GATE_FAIL;
+  | typeof IPV1_GATE_FAIL
+  | null;
+
+export type Ipv1GateStatus =
+  | typeof IPV1_GATE_COLLECTING
+  | typeof IPV1_GATE_PASS
+  | typeof IPV1_GATE_FAIL
+  | typeof IPV1_DATA_INVALID;
 
 export interface Ipv1GateEvaluation {
-  status: Ipv1GateClassification;
+  status: Ipv1GateStatus;
   classification: Ipv1GateClassification;
   criteria: {
     challengerNetPnlUsdt: Ipv1GateCriterion;
@@ -167,6 +175,7 @@ export interface Ipv1GateEvaluation {
     stressProfitFactor: Ipv1GateCriterion;
   };
   invalidData: boolean;
+  strategyGateEvaluated: boolean;
   eligibleForEmailPilotReview: boolean;
   automaticPromotion: false;
   signalEmailEnabled: false;
@@ -177,5 +186,8 @@ export interface Ipv1PreparedEvidence {
   candidates: Ipv1Candidate[];
   invalidEvidenceCount: number;
   excludedBeforeFreezeCount: number;
+  excludedAfterAsOfCount: number;
+  excludedBeforeFreezeGroupCount: number;
+  excludedAfterAsOfGroupCount: number;
   excludedNonCompletedGroupCount: number;
 }

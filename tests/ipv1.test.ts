@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
 import type { Candle, FundingRatePoint, ScoredCandidate, TradePlan } from "@/lib/core/types";
 import { stopBandFilterPass } from "@/lib/prc1/stopband";
@@ -9,6 +10,7 @@ import { summarizeIpv1Replay } from "@/lib/ipv1/metrics";
 import {
   candidatesForGroup,
   prepareIpv1Evidence,
+  readIndependentEvidence,
   runIpv1Replay,
   selectBaselineCandidate,
   selectChallengerCandidate,
@@ -16,6 +18,7 @@ import {
 import {
   IPV1_BASELINE_STRATEGY_VERSION,
   IPV1_CHALLENGER_STRATEGY_VERSION,
+  IPV1_DATA_INVALID,
   IPV1_GATE_COLLECTING,
   IPV1_GATE_FAIL,
   IPV1_GATE_PASS,
@@ -105,6 +108,60 @@ function provider(candles: Candle[] | ((symbol: string) => Candle[]), fundingRat
   };
 }
 
+type MockQueryResult = { data: unknown; error: unknown };
+
+interface MockQuery {
+  select(columns: string): MockQuery;
+  eq(column: string, value: unknown): MockQuery;
+  not(column: string, operator: string, value: unknown): MockQuery;
+  gte(column: string, value: unknown): MockQuery;
+  lt(column: string, value: unknown): MockQuery;
+  order(column: string, options: { ascending: boolean }): MockQuery;
+  then(resolve: (value: MockQueryResult) => unknown): Promise<unknown>;
+}
+
+function mockSupabase(
+  groupResult: MockQueryResult,
+  candidateResult: MockQueryResult,
+  calls: string[],
+): SupabaseClient {
+  const makeQuery = (table: string, result: MockQueryResult): MockQuery => {
+    const query = {} as MockQuery;
+    query.select = (columns) => {
+      calls.push(`${table}.select:${columns}`);
+      return query;
+    };
+    query.eq = (column, value) => {
+      calls.push(`${table}.eq:${column}=${String(value)}`);
+      return query;
+    };
+    query.not = (column, operator, value) => {
+      calls.push(`${table}.not:${column} ${operator} ${String(value)}`);
+      return query;
+    };
+    query.gte = (column, value) => {
+      calls.push(`${table}.gte:${column}=${String(value)}`);
+      return query;
+    };
+    query.lt = (column, value) => {
+      calls.push(`${table}.lt:${column}=${String(value)}`);
+      return query;
+    };
+    query.order = (column, options) => {
+      calls.push(`${table}.order:${column}:${String(options.ascending)}`);
+      return query;
+    };
+    query.then = (resolve) => Promise.resolve(result).then(resolve);
+    return query;
+  };
+
+  return {
+    from(table: string) {
+      return makeQuery(table, table === "bca_scan_groups" ? groupResult : candidateResult);
+    },
+  } as unknown as SupabaseClient;
+}
+
 function row(item: Ipv1Candidate, source = new Date(FREEZE_MS + 1).toISOString()) {
   return {
     scan_group_key: item.scanGroupKey,
@@ -181,6 +238,7 @@ describe("IPV-1 independent evidence preparation", () => {
     const beforeFreeze = candidate("ETHUSDT", 100);
     const prepared = prepareIpv1Evidence(
       [
+        { scan_group_key: "g0", status: "COMPLETED", finished_at: "2026-09-12T23:46:20.665Z" },
         { scan_group_key: "g1", status: "COMPLETED", finished_at: new Date(BASE_TIME).toISOString() },
         { scan_group_key: "g2", status: "PARTIAL", finished_at: new Date(BASE_TIME + 1).toISOString() },
       ],
@@ -189,6 +247,7 @@ describe("IPV-1 independent evidence preparation", () => {
     expect(prepared.groups).toEqual([group("g1", BASE_TIME)]);
     expect(prepared.candidates.map((item) => item.symbol)).toEqual(["BTCUSDT"]);
     expect(prepared.excludedBeforeFreezeCount).toBe(1);
+    expect(prepared.excludedBeforeFreezeGroupCount).toBe(1);
     expect(prepared.excludedNonCompletedGroupCount).toBe(1);
   });
 
@@ -212,12 +271,63 @@ describe("IPV-1 independent evidence preparation", () => {
   });
 });
 
+describe("IPV-1 evidence read semantics", () => {
+  it("returns data-invalid for missing Supabase configuration", async () => {
+    const result = await readIndependentEvidence(
+      "2026-09-13T02:10:00.000Z",
+      () => {
+        throw new Error("missing configuration");
+      },
+    );
+    expect(result.error).toBe("MISSING_SUPABASE_CONFIGURATION");
+    expect(result.groups).toEqual([]);
+    expect(result.candidates).toEqual([]);
+  });
+
+  it("returns a group-read error without leaking query details", async () => {
+    const calls: string[] = [];
+    const result = await readIndependentEvidence(
+      "2026-09-13T02:10:00.000Z",
+      () => mockSupabase({ data: null, error: { message: "private query detail" } }, { data: [], error: null }, calls),
+    );
+    expect(result.error).toBe("SUPABASE_GROUP_READ_FAILED");
+    expect(result.groups).toEqual([]);
+    expect(result.candidates).toEqual([]);
+    expect(JSON.stringify(result)).not.toContain("private query detail");
+  });
+
+  it("scopes both reads to the frozen forward window", async () => {
+    const calls: string[] = [];
+    const result = await readIndependentEvidence(
+      "2026-09-13T02:10:00.000Z",
+      () => mockSupabase({ data: [], error: null }, { data: [], error: null }, calls),
+    );
+    expect(result.error).toBeNull();
+    expect(calls).toContain("bca_scan_groups.gte:finished_at=2026-09-12T23:46:20.666Z");
+    expect(calls).toContain("bca_scan_groups.lt:finished_at=2026-09-13T02:10:00.000Z");
+    expect(calls).toContain("bca_shadow_candidates.gte:source_data_timestamp=2026-09-12T23:46:20.666Z");
+    expect(calls).toContain("bca_shadow_candidates.lt:source_data_timestamp=2026-09-13T02:10:00.000Z");
+  });
+
+  it("distinguishes candidate SELECT failure", async () => {
+    const result = await readIndependentEvidence(
+      "2026-09-13T02:10:00.000Z",
+      () => mockSupabase({ data: [], error: null }, { data: null, error: { code: "PGRST000" } }, []),
+    );
+    expect(result.error).toBe("SUPABASE_CANDIDATE_READ_FAILED");
+  });
+});
+
 describe("IPV-1 virtual replay and execution", () => {
   it("starts flat, enforces one open position, cooldown, and no cooldown fallback", async () => {
     const first = { ...candidate("BTCUSDT", 100), scanGroupKey: "g1" };
     const blockedTop = { ...candidate("BTCUSDT", 100), scanGroupKey: "g2" };
     const forbiddenFallback = { ...candidate("ETHUSDT", 99), scanGroupKey: "g2" };
-    const afterCooldown = { ...candidate("BTCUSDT", 100), scanGroupKey: "g3" };
+    const afterCooldown = {
+      ...candidate("BTCUSDT", 100),
+      scanGroupKey: "g3",
+      sourceDataTimestamp: BASE_TIME + 10 * 60 * 60 * 1000,
+    };
     const groups = [group("g1", BASE_TIME), group("g2", BASE_TIME + 2 * 60 * 60 * 1000), group("g3", BASE_TIME + 10 * 60 * 60 * 1000)];
     const candles = [
       candle(BASE_TIME + 120_000, 100, 100, 94, 96),
@@ -251,6 +361,31 @@ describe("IPV-1 virtual replay and execution", () => {
       provider(candles),
     );
     expect(independent.decisions[0].outcome).toBe("CLOSED");
+  });
+
+  it("uses candidate source timestamp for cooldown while keeping finishedAt as decision time", async () => {
+    const first = { ...candidate("BTCUSDT", 100), scanGroupKey: "g1" };
+    const second = { ...candidate("BTCUSDT", 100), scanGroupKey: "g2" };
+    const secondFinishedAt = BASE_TIME + 9 * 60 * 60 * 1000;
+    const replay = await runIpv1Replay(
+      [group("g1", BASE_TIME), group("g2", secondFinishedAt)],
+      [first, second],
+      IPV1_BASELINE_STRATEGY_VERSION,
+      IPV1_PRIMARY_EXECUTION,
+      BASE_TIME + 12 * 60 * 60 * 1000,
+      {
+        async getMinuteCandles(_symbol, startTime) {
+          return [candle(startTime, 100, 100, 94, 96)];
+        },
+        async getFundingRates() {
+          return [];
+        },
+      },
+    );
+    expect(replay.decisions[0].outcome).toBe("CLOSED");
+    expect(replay.decisions[1].decisionTime).toBe(secondFinishedAt);
+    expect(replay.decisions[1].candidate?.sourceDataTimestamp).toBeLessThan(secondFinishedAt);
+    expect(replay.decisions[1].outcome).toBe("COOLDOWN_BLOCKED");
   });
 
   it("uses finished_at plus 60 seconds, ceils to one minute, and fills from market open", async () => {
@@ -364,6 +499,62 @@ describe("IPV-1 virtual replay and execution", () => {
   });
 });
 
+describe("IPV-1 execution-engine sanity fixture", () => {
+  it("replays the CYSUSDT primary and stress references without using the gate", async () => {
+    const item = candidate("CYSUSDT", 100, {
+      side: "SHORT",
+      entryPrice: 0.1378,
+      stopPrice: 0.1397,
+      takeProfitPrice: 0.1341,
+    });
+    item.plan = {
+      ...item.plan,
+      quantity: 14_513,
+      theoreticalRiskUsdt: (0.1397 - 0.1378) * 14_513,
+      positionNotionalUsdt: 0.1378 * 14_513,
+    };
+    const decisionTime = BASE_TIME + 3 * 60_000;
+    const primaryExecutionTime = BASE_TIME + 4 * 60_000;
+    const stressExecutionTime = BASE_TIME + 6 * 60_000;
+    const sanityProvider: Ipv1MarketDataProvider = {
+      async getMinuteCandles(_symbol, startTime) {
+        const entryOpen = startTime === primaryExecutionTime ? 0.1386 : 0.1372;
+        return [
+          candle(startTime, entryOpen, entryOpen + 0.0002, entryOpen - 0.0001, entryOpen),
+          candle(startTime + 60_000, entryOpen, entryOpen, 0.1341, 0.135),
+        ];
+      },
+      async getFundingRates() {
+        return [];
+      },
+    };
+    const primary = await simulateIpv1Execution({
+      candidate: item,
+      decisionTime,
+      asOfMs: BASE_TIME + 20 * 60_000,
+      executionModel: IPV1_PRIMARY_EXECUTION,
+      provider: sanityProvider,
+    });
+    const stress = await simulateIpv1Execution({
+      candidate: item,
+      decisionTime,
+      asOfMs: BASE_TIME + 20 * 60_000,
+      executionModel: IPV1_STRESS_EXECUTION,
+      provider: sanityProvider,
+    });
+
+    expect(primary.actualEntryTimestamp).toBe(primaryExecutionTime);
+    expect(primary.entryReferencePrice).toBe(0.1386);
+    expect(primary.exitReason).toBe("TAKE_PROFIT");
+    expect(primary.netPnlUsdt).toBeCloseTo(62.93, 1);
+    expect(primary.rMultiple).toBeCloseTo(2.28, 2);
+    expect(stress.actualEntryTimestamp).toBe(stressExecutionTime);
+    expect(stress.exitReason).toBe("TAKE_PROFIT");
+    expect(stress.netPnlUsdt).toBeCloseTo(41.45, 1);
+    expect(stress.rMultiple).toBeCloseTo(1.5, 2);
+  });
+});
+
 describe("IPV-1 metrics and email pilot gate", () => {
   it("uses net PnL for PF and deterministic chronological DD", () => {
     const decisions = [
@@ -378,13 +569,17 @@ describe("IPV-1 metrics and email pilot gate", () => {
   });
 
   it("collects below 20 closed trades and evaluates at exactly 20", () => {
-    expect(evaluateIpv1EmailPilotGate(metrics({ closedTrades: 19 }), metrics({ closedTrades: 19 }), metrics({ closedTrades: 19 })).status)
-      .toBe(IPV1_GATE_COLLECTING);
-    expect(evaluateIpv1EmailPilotGate(
+    const collecting = evaluateIpv1EmailPilotGate(metrics({ closedTrades: 19 }), metrics({ closedTrades: 19 }), metrics({ closedTrades: 19 }));
+    expect(collecting.status).toBe(IPV1_GATE_COLLECTING);
+    expect(collecting.classification).toBe(IPV1_GATE_COLLECTING);
+    expect(collecting.strategyGateEvaluated).toBe(false);
+    const evaluated = evaluateIpv1EmailPilotGate(
       metrics({ netPnlUsdt: 50, netProfitFactor: 1.2, maxDrawdownR: 3 }),
       metrics(),
       metrics(),
-    ).status).toBe(IPV1_GATE_PASS);
+    );
+    expect(evaluated.status).toBe(IPV1_GATE_PASS);
+    expect(evaluated.strategyGateEvaluated).toBe(true);
   });
 
   const gateFailures: Array<[string, Partial<Ipv1Metrics>, Partial<Ipv1Metrics>]> = [
@@ -401,10 +596,13 @@ describe("IPV-1 metrics and email pilot gate", () => {
     expect(result.eligibleForEmailPilotReview).toBe(false);
   });
 
-  it("fails closed on invalid data and has no automatic email or promotion", () => {
+  it("returns data-invalid on invalid data and has no automatic email or promotion", () => {
     const result = evaluateIpv1EmailPilotGate(metrics(), metrics(), metrics(), true);
-    expect(result.status).toBe(IPV1_GATE_FAIL);
+    expect(result.status).toBe(IPV1_DATA_INVALID);
+    expect(result.classification).toBeNull();
     expect(result.invalidData).toBe(true);
+    expect(result.strategyGateEvaluated).toBe(false);
+    expect(result.eligibleForEmailPilotReview).toBe(false);
     expect(result.automaticPromotion).toBe(false);
     expect(result.signalEmailEnabled).toBe(false);
   });

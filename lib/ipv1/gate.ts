@@ -1,5 +1,6 @@
 import {
   IPV1_EMAIL_GATE_MIN_CLOSED_TRADES,
+  IPV1_DATA_INVALID,
   IPV1_GATE_COLLECTING,
   IPV1_GATE_FAIL,
   IPV1_GATE_PASS,
@@ -16,12 +17,12 @@ export function evaluateIpv1EmailPilotGate(
 ): Ipv1GateEvaluation {
   const criteria = buildCriteria(baselinePrimary, challengerPrimary, challengerStress);
   const invalidData = dataInvalid || !metricsValid(baselinePrimary) || !metricsValid(challengerPrimary) || !metricsValid(challengerStress);
-  if (invalidData) return result(IPV1_GATE_FAIL, criteria, true, false);
+  if (invalidData) return result(IPV1_DATA_INVALID, criteria, true, false, false);
   if (challengerPrimary.closedTrades < IPV1_EMAIL_GATE_MIN_CLOSED_TRADES) {
-    return result(IPV1_GATE_COLLECTING, criteria, false, false);
+    return result(IPV1_GATE_COLLECTING, criteria, false, false, false);
   }
   const passes = Object.values(criteria).every((criterion) => criterion.pass);
-  return result(passes ? IPV1_GATE_PASS : IPV1_GATE_FAIL, criteria, false, passes);
+  return result(passes ? IPV1_GATE_PASS : IPV1_GATE_FAIL, criteria, false, passes, true);
 }
 
 function buildCriteria(
@@ -54,16 +55,18 @@ function criterion(
 }
 
 function result(
-  status: typeof IPV1_GATE_COLLECTING | typeof IPV1_GATE_PASS | typeof IPV1_GATE_FAIL,
+  status: typeof IPV1_DATA_INVALID | typeof IPV1_GATE_COLLECTING | typeof IPV1_GATE_PASS | typeof IPV1_GATE_FAIL,
   criteria: Ipv1GateEvaluation["criteria"],
   invalidData: boolean,
   eligibleForEmailPilotReview: boolean,
+  strategyGateEvaluated: boolean,
 ): Ipv1GateEvaluation {
   return {
     status,
-    classification: status,
+    classification: status === IPV1_DATA_INVALID ? null : status,
     criteria,
     invalidData,
+    strategyGateEvaluated,
     eligibleForEmailPilotReview,
     automaticPromotion: false,
     signalEmailEnabled: false,

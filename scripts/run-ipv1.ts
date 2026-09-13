@@ -1,9 +1,8 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { evaluateIpv1EmailPilotGate } from "@/lib/ipv1/gate";
-import { prepareIpv1Evidence, runIpv1Replay } from "@/lib/ipv1/replay";
+import { prepareIpv1Evidence, readIndependentEvidence, runIpv1Replay } from "@/lib/ipv1/replay";
 import { summarizeIpv1Replay } from "@/lib/ipv1/metrics";
 import {
   IPV1_BASELINE_STRATEGY_VERSION,
@@ -12,21 +11,13 @@ import {
   IPV1_HYPOTHESIS_FROZEN_AT_UTC,
   IPV1_PRIMARY_EXECUTION,
   IPV1_STRESS_EXECUTION,
-  type Ipv1CandidateRow,
   type Ipv1MarketDataProvider,
-  type Ipv1ScanGroupRow,
 } from "@/lib/ipv1/types";
 import type { Candle, FundingRatePoint } from "@/lib/core/types";
 
 const FAPI_DEFAULT = "https://fapi.binance.com";
 const MINUTE_MS = 60 * 1000;
 const KLINE_LIMIT = 1_500;
-
-interface ReadResult {
-  groups: Ipv1ScanGroupRow[];
-  candidates: Ipv1CandidateRow[];
-  error?: string;
-}
 
 class Ipv1BinanceProvider implements Ipv1MarketDataProvider {
   constructor(private readonly baseUrl: string, private readonly asOfMs: number) {}
@@ -86,7 +77,7 @@ async function main(): Promise<void> {
   const asOfMs = parseUtc(asOfInput);
   const asOfUtc = new Date(asOfMs).toISOString();
   const read = await readIndependentEvidence(asOfUtc);
-  const evidence = prepareIpv1Evidence(read.groups, read.candidates);
+  const evidence = prepareIpv1Evidence(read.groups, read.candidates, IPV1_HYPOTHESIS_FROZEN_AT_UTC, asOfUtc);
   const provider = new Ipv1BinanceProvider(process.env.BINANCE_API_BASE_URL ?? FAPI_DEFAULT, asOfMs);
 
   const primaryBaselineReplay = await runIpv1Replay(
@@ -147,8 +138,12 @@ async function main(): Promise<void> {
     completedScanGroupsRead: evidence.groups.length,
     candidateGroups: new Set(evidence.candidates.map((candidate) => candidate.scanGroupKey)).size,
     excludedBeforeFreezeCount: evidence.excludedBeforeFreezeCount,
+    excludedAfterAsOfCount: evidence.excludedAfterAsOfCount,
+    excludedBeforeFreezeGroupCount: evidence.excludedBeforeFreezeGroupCount,
+    excludedAfterAsOfGroupCount: evidence.excludedAfterAsOfGroupCount,
+    excludedNonCompletedGroupCount: evidence.excludedNonCompletedGroupCount,
     invalidEvidenceCount: evidence.invalidEvidenceCount,
-    readError: read.error ?? null,
+    readError: read.error,
     baselineDecisionCount: primaryBaseline.candidateDecisionGroups,
     challengerDecisionCount: primaryChallenger.candidateDecisionGroups,
     primary: { baseline: primaryBaseline, challenger: primaryChallenger },
@@ -185,36 +180,6 @@ async function main(): Promise<void> {
   const artifactPath = resolve(artifactDirectory, `ipv1-${asOfUtc.replace(/[:.]/g, "-")}.json`);
   await writeFile(artifactPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(JSON.stringify({ artifactPath, ...report }, null, 2));
-}
-
-async function readIndependentEvidence(asOfUtc: string): Promise<ReadResult> {
-  try {
-    const supabase = getSupabaseAdmin();
-    const [groupsResult, candidatesResult] = await Promise.all([
-      supabase
-        .from("bca_scan_groups")
-        .select("scan_group_key,status,finished_at")
-        .eq("status", "COMPLETED")
-        .not("finished_at", "is", null)
-        .lt("finished_at", asOfUtc)
-        .order("scan_group_key", { ascending: true }),
-      supabase
-        .from("bca_shadow_candidates")
-        .select("scan_group_key,symbol,source_data_timestamp,score,candidate,trade_plan")
-        .gte("source_data_timestamp", IPV1_HYPOTHESIS_FROZEN_AT_UTC)
-        .lt("source_data_timestamp", asOfUtc)
-        .order("scan_group_key", { ascending: true })
-        .order("score", { ascending: false })
-        .order("symbol", { ascending: true }),
-    ]);
-    if (groupsResult.error || candidatesResult.error) throw new Error("SUPABASE_READ_FAILED");
-    return {
-      groups: (groupsResult.data ?? []) as Ipv1ScanGroupRow[],
-      candidates: (candidatesResult.data ?? []) as Ipv1CandidateRow[],
-    };
-  } catch {
-    return { groups: [], candidates: [], error: "SUPABASE_READ_FAILED" };
-  }
 }
 
 function parseUtc(value: string): number {

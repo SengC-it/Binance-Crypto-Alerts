@@ -15,7 +15,11 @@
   ],
   "candidateEligibility": [
     "scan_group.status = COMPLETED",
+    "scan_group.finished_at IS NOT NULL",
+    "scan_group.finished_at >= hypothesisFrozenAtUtc",
+    "scan_group.finished_at < asOfUtc",
     "candidate.source_data_timestamp >= hypothesisFrozenAtUtc",
+    "candidate.source_data_timestamp < asOfUtc",
     "scan_group_key ASC",
     "score DESC",
     "symbol ASC"
@@ -32,6 +36,8 @@
     "stressTakerFeeRate": 0.0004,
     "entrySource": "first Binance USD-M 1m candle openTime >= ceil((finished_at + delay) / 60s) * 60s",
     "planEntryPriceUsedAsFill": false,
+    "cooldownEligibilityReference": "candidate.source_data_timestamp",
+    "decisionReference": "scan_group.finished_at",
     "exitRule": "chronological 1m candles, STOP_FIRST, first closeTime >= validUntil for TIME_LIMIT",
     "fundingWindow": "entryTime < fundingTime <= exitTime"
   },
@@ -59,6 +65,32 @@
     ],
     "automaticPromotion": false,
     "signalEmailEnabled": false
+  },
+  "dataInvalidSemantics": {
+    "status": "IPV1_DATA_INVALID",
+    "classification": null,
+    "eligibleForEmailPilotReview": false,
+    "strategyGateEvaluated": false
+  },
+  "executionSanityFixture": {
+    "symbol": "CYSUSDT",
+    "purpose": "execution-engine sanity only; not a strategy gate sample",
+    "primary": {
+      "decisionReference": "scan_group.finished_at",
+      "delaySeconds": 60,
+      "executionMinuteUtc": "00:04",
+      "entryReferencePrice": 0.1386,
+      "exitReason": "TAKE_PROFIT",
+      "netPnlUsdtApprox": 62.93,
+      "rMultipleApprox": 2.28
+    },
+    "stress": {
+      "delaySeconds": 180,
+      "slippageBps": 5,
+      "exitReason": "TAKE_PROFIT",
+      "netPnlUsdtApprox": 41.45,
+      "rMultipleApprox": 1.5
+    }
   },
   "historicalBenchmarksContextOnly": {
     "oldEmailStrategy": {
