@@ -24,7 +24,13 @@ const EXPECTED_BRANCH = "experiment/profit-recovery-stopband-shadow";
 
 const allowedChangedFiles = new Set([
   ".github/workflows/ci.yml",
+  ".gitignore",
   "app/api/scan/route.ts",
+  "lib/ipv1/execution.ts",
+  "lib/ipv1/gate.ts",
+  "lib/ipv1/metrics.ts",
+  "lib/ipv1/replay.ts",
+  "lib/ipv1/types.ts",
   "lib/prc1/contract.ts",
   "lib/prc1/gate.ts",
   "lib/prc1/metrics.ts",
@@ -34,7 +40,11 @@ const allowedChangedFiles = new Set([
   "reports/prc1-forward-contract.json",
   "reports/prc1-hypothesis-freeze.json",
   "reports/prc1-implementation-manifest.json",
+  "reports/ipv1-contract.json",
+  "scripts/run-ipv1.ts",
+  "scripts/validate-ipv1.ts",
   "scripts/validate-prc1.ts",
+  "tests/ipv1.test.ts",
   "tests/prc1.test.ts",
 ]);
 

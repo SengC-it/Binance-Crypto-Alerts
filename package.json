@@ -17,7 +17,9 @@
     "backtest": "tsx scripts/run-backtest.ts",
     "validate:v5-5": "tsx scripts/run-v5-5-validation.ts",
     "validate:release:monitoring": "tsx scripts/validate-release-monitoring.ts",
-    "validate:prc1": "tsx scripts/validate-prc1.ts"
+    "validate:prc1": "tsx scripts/validate-prc1.ts",
+    "ipv1:run": "tsx scripts/run-ipv1.ts",
+    "validate:ipv1": "tsx scripts/validate-ipv1.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

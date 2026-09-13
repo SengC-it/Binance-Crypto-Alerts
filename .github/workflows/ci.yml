@@ -37,3 +37,4 @@ jobs:
           export GITHUB_HEAD_REF=release/monitoring-only-v1
           pnpm validate:release:monitoring
       - run: pnpm validate:prc1
+      - run: pnpm validate:ipv1

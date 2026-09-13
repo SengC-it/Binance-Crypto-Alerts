@@ -1,0 +1,85 @@
+{
+  "experimentId": "IPV1_INDEPENDENT_EMAIL_PROFIT_VALIDATION",
+  "hypothesisFrozenAtUtc": "2026-09-12T23:46:20.666Z",
+  "baselineStrategyVersion": "default-trend-shadow-v1",
+  "challengerStrategyVersion": "default-trend-shadow-v2-stopband-filter",
+  "stopDistanceFormula": "abs(plan.stopPrice - plan.entryPrice) / plan.entryPrice * 100",
+  "stopBandRule": "REJECT_IF_2_5_LE_X_LT_3_5",
+  "stopDistanceLowerPct": 2.5,
+  "stopDistanceUpperPct": 3.5,
+  "independentSources": [
+    "public.bca_scan_groups",
+    "public.bca_shadow_candidates",
+    "Binance official public USD-M klines",
+    "Binance official public USD-M fundingRate"
+  ],
+  "candidateEligibility": [
+    "scan_group.status = COMPLETED",
+    "candidate.source_data_timestamp >= hypothesisFrozenAtUtc",
+    "scan_group_key ASC",
+    "score DESC",
+    "symbol ASC"
+  ],
+  "execution": {
+    "primaryId": "EMAIL_REALISTIC_60S",
+    "primaryDecisionTimestamp": "scan_group.finished_at",
+    "primaryHumanDelaySeconds": 60,
+    "primarySlippageBps": 2,
+    "primaryTakerFeeRate": 0.0004,
+    "stressId": "EMAIL_STRESS_180S_5BPS",
+    "stressHumanDelaySeconds": 180,
+    "stressSlippageBps": 5,
+    "stressTakerFeeRate": 0.0004,
+    "entrySource": "first Binance USD-M 1m candle openTime >= ceil((finished_at + delay) / 60s) * 60s",
+    "planEntryPriceUsedAsFill": false,
+    "exitRule": "chronological 1m candles, STOP_FIRST, first closeTime >= validUntil for TIME_LIMIT",
+    "fundingWindow": "entryTime < fundingTime <= exitTime"
+  },
+  "virtualLedger": {
+    "initialPosition": "FLAT",
+    "initialCooldowns": "EMPTY",
+    "maxOpenPositions": 1,
+    "symbolCooldownHours": 8,
+    "baselineAndChallengerIndependent": true,
+    "cooldownBlockedDoesNotFallback": true
+  },
+  "emailPilotGate": {
+    "minimumChallengerClosedTrades": 20,
+    "criteria": [
+      "challenger primary netPnlUsdt > 0",
+      "challenger primary netProfitFactor >= 1.10",
+      "challenger primary avgR > 0",
+      "challenger primary netPnlUsdt > baseline primary netPnlUsdt",
+      "challenger primary netProfitFactor > baseline primary netProfitFactor",
+      "challenger primary maxDrawdownR < baseline primary maxDrawdownR",
+      "challenger primary largest winner gross contribution <= 35%",
+      "challenger primary distinct UTC entry days >= 3",
+      "challenger stress netPnlUsdt >= 0",
+      "challenger stress netProfitFactor >= 1.00"
+    ],
+    "automaticPromotion": false,
+    "signalEmailEnabled": false
+  },
+  "historicalBenchmarksContextOnly": {
+    "oldEmailStrategy": {
+      "strategyVersion": "trend-rejection-short-v1",
+      "closedTrades": 37,
+      "netPnlUsdt": -608.54,
+      "netProfitFactor": 0.511,
+      "avgR": -0.358,
+      "maxDrawdownUsdt": 703.67
+    },
+    "rulesProfitOrientedV4": {
+      "closedTrades": 26,
+      "netPnlUsdt": -64.96,
+      "netProfitFactor": 0.899,
+      "maxDrawdownUsdt": 322.89
+    },
+    "usedAsIndependentSample": false
+  },
+  "productionChanged": false,
+  "migrationApplied": false,
+  "deploymentPerformed": false,
+  "autoTrading": false,
+  "orderPlacement": false
+}
