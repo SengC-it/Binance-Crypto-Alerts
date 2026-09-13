@@ -29,6 +29,7 @@ jobs:
         run: |
           git fetch origin release/monitoring-only-v1
           git worktree add --detach "$RUNNER_TEMP/release-monitoring-only" origin/release/monitoring-only-v1
+          git -C "$RUNNER_TEMP/release-monitoring-only" config status.showUntrackedFiles no
           ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/release-monitoring-only/node_modules"
       - name: Validate monitoring-only release
         working-directory: ${{ runner.temp }}/release-monitoring-only
