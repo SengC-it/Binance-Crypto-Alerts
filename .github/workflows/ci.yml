@@ -32,7 +32,7 @@ jobs:
           ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/release-monitoring-only/node_modules"
       - name: Validate monitoring-only release
         working-directory: ${{ runner.temp }}/release-monitoring-only
-        env:
-          GITHUB_HEAD_REF: release/monitoring-only-v1
-        run: pnpm validate:release:monitoring
+        run: |
+          export GITHUB_HEAD_REF=release/monitoring-only-v1
+          pnpm validate:release:monitoring
       - run: pnpm validate:prc1
