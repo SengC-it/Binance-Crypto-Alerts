@@ -1,0 +1,52 @@
+{
+  "experimentId": "PRC1_STOP_DISTANCE_FORWARD",
+  "purpose": "PROFIT_RECOVERY",
+  "hypothesisFrozenAtUtc": "2026-09-12T23:46:20.666Z",
+  "forwardOnly": true,
+  "sourceTimestampRule": "sourceTimestamp >= hypothesisFrozenAtUtc",
+  "backfill": false,
+  "historicalAttributionUsedForHypothesis": true,
+  "historicalResultsUsedAsForward": false,
+  "baseline": {
+    "strategyVersion": "default-trend-shadow-v1",
+    "entryMode": "DEFAULT"
+  },
+  "challenger": {
+    "strategyVersion": "default-trend-shadow-v2-stopband-filter",
+    "entryMode": "DEFAULT"
+  },
+  "singleVariableChange": "STOP_DISTANCE_EXCLUSION",
+  "filterRule": "REJECT_IF_2_5_LE_X_LT_3_5",
+  "plannedStopDistanceFormula": "abs(plan.stopPrice - plan.entryPrice) / plan.entryPrice * 100",
+  "profitFactorBasis": "NET_PNL_AFTER_SLIPPAGE_FEES_FUNDING",
+  "avgRGateGreaterThan": 0,
+  "grossMetricsRole": "DIAGNOSTIC_AND_CONCENTRATION_ONLY",
+  "deterministicOrdering": [
+    "entry_time ASC",
+    "exit_time ASC",
+    "id ASC"
+  ],
+  "forwardRuntimeActivationAtUtc": null,
+  "activationTimestampStatus": "PENDING_DEPLOYMENT_FREEZE",
+  "forwardComparisonWindowPolicy": "SAME_CALENDAR_WINDOW_FROM_ACTIVATION",
+  "exclusionBoundaries": {
+    "lowerPctInclusive": 2.5,
+    "upperPctExclusive": 3.5,
+    "lowerBoundary": "2.500000% = REJECT",
+    "insideUpperBoundary": "3.499999% = REJECT",
+    "upperBoundary": "3.500000% = ACCEPT"
+  },
+  "promotionGate": {
+    "minimumChallengerClosedTrades": 50,
+    "netPnlUsdtGreaterThan": 0,
+    "profitFactorAtLeast": 1.2,
+    "avgRGateGreaterThan": 0,
+    "maxDrawdownMustBeLessThanBaseline": true,
+    "profitFactorMustExceedBaseline": true,
+    "largestWinningTradeGrossProfitContributionAtMostPct": 35
+  },
+  "signalEmailEnabled": false,
+  "automaticPromotion": false,
+  "automaticTrading": false,
+  "orderPlacement": false
+}

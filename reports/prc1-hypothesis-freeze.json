@@ -1,0 +1,64 @@
+{
+  "experimentId": "PRC1_STOP_DISTANCE_FORWARD",
+  "evidenceType": "HYPOTHESIS_FORMATION_DATA",
+  "forwardValidation": false,
+  "historicalAttributionUsedForHypothesis": true,
+  "historicalResultsUsedAsForward": false,
+  "source": "Existing loss-attribution evidence supplied for PRC-1; no new return calculation was performed.",
+  "rulesProfitOrientedV4": {
+    "all": {
+      "trades": 26,
+      "netPnl": -64.96,
+      "profitFactor": 0.899,
+      "maxDrawdown": 322.89
+    },
+    "preEntryPlannedStopDistanceFiltered": {
+      "trades": 15,
+      "netPnl": 86.14,
+      "profitFactor": 1.28,
+      "maxDrawdown": 109.62
+    }
+  },
+  "trendRejectionShortV1": {
+    "all": {
+      "trades": 37,
+      "netPnl": -608.54,
+      "profitFactor": 0.511,
+      "maxDrawdown": 703.67
+    },
+    "filtered": {
+      "trades": 28,
+      "netPnl": -182.82,
+      "profitFactor": 0.776,
+      "maxDrawdown": 282.13
+    },
+    "badBand": {
+      "trades": 9,
+      "netPnl": -425.72,
+      "wins": 0
+    }
+  },
+  "defaultTrendShadowV1": {
+    "all": {
+      "closedTrades": 76,
+      "netPnl": -4.33,
+      "profitFactor": 0.998,
+      "maxDrawdown": 426.74
+    },
+    "filtered": {
+      "closedTrades": 66,
+      "netPnl": 213.46,
+      "profitFactor": 1.128,
+      "maxDrawdown": 420.77,
+      "avgR": 0.073
+    },
+    "filteredChronologicalHalves": {
+      "first33NetPnl": 169.15,
+      "second33NetPnl": 44.3
+    },
+    "badBand": {
+      "trades": 10,
+      "netPnl": -217.79
+    }
+  }
+}

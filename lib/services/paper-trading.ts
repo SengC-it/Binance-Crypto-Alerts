@@ -15,6 +15,7 @@ export interface PaperTradeCreateInput {
   strategyVersion: string;
   sourceTimestamp: number;
   slippageBps: number;
+  metadata?: Record<string, unknown>;
 }
 
 interface PaperTradeRecord {
@@ -71,7 +72,8 @@ export async function createShadowPaperTrade(
   const { count, error: countError } = await supabase
     .from(SHADOW_PAPER_TABLE)
     .select("id", { count: "exact", head: true })
-    .eq("status", "OPEN");
+    .eq("status", "OPEN")
+    .eq("strategy_version", input.strategyVersion);
   if (countError) throw new Error(`Shadow position lookup failed: ${countError.message}`);
   if ((count ?? 0) >= 1) return false;
 
@@ -79,6 +81,7 @@ export async function createShadowPaperTrade(
     .from(SHADOW_PAPER_TABLE)
     .select("exit_time")
     .eq("symbol", input.symbol)
+    .eq("strategy_version", input.strategyVersion)
     .not("exit_time", "is", null)
     .order("exit_time", { ascending: false })
     .limit(1)
@@ -121,6 +124,7 @@ async function insertPaperTrade(
       theoretical_risk_usdt: input.plan.theoreticalRiskUsdt,
       last_price: entryFillPrice,
       metadata: {
+        ...(input.metadata ?? {}),
         source_data_timestamp: new Date(input.sourceTimestamp).toISOString(),
         entry_model: "just_closed_15m_reference",
         slippage_bps: input.slippageBps,

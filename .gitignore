@@ -14,6 +14,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/validation-cache/
 reports/
+artifacts/
 
 .vercel
 .env*

@@ -1,0 +1,47 @@
+{
+  "experimentId": "PRC1_STOP_DISTANCE_FORWARD",
+  "purpose": "PROFIT_RECOVERY",
+  "startingReleaseCommit": "df98dc47db398c3d4ad0d4d3a853aaad281b74ab",
+  "correctiveVersion": "PRC1.1",
+  "correctiveReason": "NET_EDGE_GATE_INTEGRITY",
+  "singleVariableChange": "STOP_DISTANCE_EXCLUSION",
+  "baseline": {
+    "strategyVersion": "default-trend-shadow-v1",
+    "entryMode": "DEFAULT",
+    "candidateSelection": "finalShadowCandidates[0]"
+  },
+  "challenger": {
+    "strategyVersion": "default-trend-shadow-v2-stopband-filter",
+    "entryMode": "DEFAULT",
+    "candidateSelection": "first finalShadowCandidates opportunity passing stopBandFilterPass"
+  },
+  "plannedStopDistanceFormula": "abs(plan.stopPrice - plan.entryPrice) / plan.entryPrice * 100",
+  "filterRule": "REJECT_IF_2_5_LE_X_LT_3_5",
+  "filterUsesOnly": ["plan.entryPrice", "plan.stopPrice"],
+  "filterDoesNotUse": ["entryFillPrice", "exitPrice", "future candle", "trade result", "PnL"],
+  "parallelShadowIsolation": {
+    "openPositionScope": "strategy_version",
+    "cooldownScope": "strategy_version",
+    "maxOpenTradesPerStrategyVersion": 1
+  },
+  "forwardOnly": true,
+  "historicalAttributionUsedForHypothesis": true,
+  "historicalResultsUsedAsForward": false,
+  "strategySemanticsChanged": false,
+  "stopBandChanged": false,
+  "alphaRulesChanged": false,
+  "profitFactorBasis": "NET",
+  "avgRGateRestored": true,
+  "deterministicDrawdownOrdering": true,
+  "executableGateEvaluator": true,
+  "minimumForwardClosedTrades": 50,
+  "automaticPromotion": false,
+  "productionStrategyVersion": "trend-rejection-short-v1",
+  "productionEntryMode": "TREND_REJECTION",
+  "productionChanged": false,
+  "signalEmailEnabled": false,
+  "autoTrading": false,
+  "orderPlacement": false,
+  "migrationApplied": false,
+  "deploymentPerformed": false
+}
